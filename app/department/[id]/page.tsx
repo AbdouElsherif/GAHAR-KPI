@@ -144,11 +144,15 @@ export default function DepartmentPage() {
                 return dateB.getTime() - dateA.getTime();
             });
 
-            const formattedData = kpiData.map(item => ({
-                ...item.data,
-                submittedAt: item.createdAt.toLocaleString('ar-EG'),
-                id: item.id
-            }));
+            const formattedData = kpiData.map(item => {
+                const date = item.createdAt instanceof Date ? item.createdAt : item.createdAt.toDate();
+                const monthYear = date.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                return {
+                    ...item.data,
+                    submittedAt: monthYear,
+                    id: item.id
+                };
+            });
             setSubmissions(formattedData);
         });
 
@@ -197,9 +201,11 @@ export default function DepartmentPage() {
             setFormData({});
         } else {
             // Create new
+            const currentDate = new Date();
+            const monthYear = currentDate.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
             const dataWithTimestamp = {
                 ...formData,
-                submittedAt: new Date().toLocaleString('ar-EG')
+                submittedAt: monthYear
             };
 
             // Save to Firestore
@@ -236,7 +242,7 @@ export default function DepartmentPage() {
 
         doc.text(`تقرير ${departmentName}`, 100, 10, { align: 'center' });
 
-        const tableColumn = ["التاريخ والوقت", ...fields.map(f => f.label)];
+        const tableColumn = ["الشهر والسنة", ...fields.map(f => f.label)];
         const tableRows = submissions.map(sub => [
             sub.submittedAt,
             ...fields.map(f => sub[f.name] || '-')
@@ -257,7 +263,7 @@ export default function DepartmentPage() {
         const wb = XLSX.utils.book_new();
 
         const dataForExcel = submissions.map(sub => {
-            const row: Record<string, any> = { "التاريخ والوقت": sub.submittedAt };
+            const row: Record<string, any> = { "الشهر والسنة": sub.submittedAt };
             fields.forEach(f => {
                 row[f.label] = sub[f.name] || '-';
             });
@@ -379,7 +385,7 @@ export default function DepartmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                    <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>التاريخ والوقت</th>
+                                    <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الشهر والسنة</th>
                                     {fields.filter(f => f.name !== 'notes').map(field => (
                                         <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{field.label}</th>
                                     ))}

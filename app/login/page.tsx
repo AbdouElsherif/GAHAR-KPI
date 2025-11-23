@@ -126,7 +126,7 @@ export default function LoginPage() {
                     <p style={{ fontWeight: 'bold', marginBottom: '8px', color: 'var(--secondary-color)' }}>
                         حسابات تجريبية:
                     </p>
-                    <p style={{ margin: '4px 0' }}>• المدير العام: admin@gahar.gov.sa / admin123</p>
+                    <p style={{ margin: '4px 0' }}>• المدير العام: admin@gahar.gov.eg / admin123</p>
                     <p style={{ margin: '4px 0', fontSize: '0.75rem', color: '#888' }}>
                         (سيتم إنشاء هذا الحساب تلقائياً عند أول تشغيل)
                     </p>
