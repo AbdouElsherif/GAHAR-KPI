@@ -190,12 +190,21 @@ export default function DepartmentPage() {
 
         // التحقق من التاريخ - منع التواريخ المستقبلية
         if (formData.date) {
-            const selectedDate = new Date(formData.date);
+            // التاريخ بصيغة YYYY-MM (للشهر والسنة)
+            const [selectedYear, selectedMonth] = formData.date.split('-').map(Number);
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // إعادة تعيين الوقت إلى منتصف الليل
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth() + 1; // getMonth() يبدأ من 0
 
-            if (selectedDate > today) {
-                alert('⚠️ لا يمكن تسجيل بيانات بتاريخ مستقبلي. الرجاء اختيار تاريخ اليوم أو تاريخ سابق.');
+            // التحقق: هل السنة المختارة أكبر من السنة الحالية؟
+            if (selectedYear > currentYear) {
+                alert('⚠️ لا يمكن تسجيل بيانات لشهر مستقبلي. الرجاء اختيار الشهر الحالي أو شهر سابق.');
+                return;
+            }
+
+            // التحقق: إذا كانت نفس السنة، هل الشهر أكبر من الشهر الحالي؟
+            if (selectedYear === currentYear && selectedMonth > currentMonth) {
+                alert('⚠️ لا يمكن تسجيل بيانات لشهر مستقبلي. الرجاء اختيار الشهر الحالي أو شهر سابق.');
                 return;
             }
         }
