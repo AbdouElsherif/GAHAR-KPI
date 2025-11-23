@@ -174,6 +174,13 @@ export default function DepartmentPage() {
         setEditingId(submission.id);
         // Filter out non-form fields
         const { submittedAt, id, ...data } = submission;
+
+        // Fix for date field if it contains full date (YYYY-MM-DD) but field type is month
+        const dateField = fields.find(f => f.name === 'date');
+        if (dateField && dateField.type === 'month' && data.date && data.date.length > 7) {
+            data.date = data.date.substring(0, 7);
+        }
+
         setFormData(data);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -270,11 +277,17 @@ export default function DepartmentPage() {
 
         doc.text(`تقرير ${departmentName}`, 100, 10, { align: 'center' });
 
-        const tableColumn = ["الشهر والسنة", ...fields.map(f => f.label)];
-        const tableRows = submissions.map(sub => [
-            sub.submittedAt,
-            ...fields.map(f => sub[f.name] || '-')
-        ]);
+        const tableColumn = fields.map(f => f.label);
+        const tableRows = submissions.map(sub =>
+            fields.map(f => {
+                if (f.name === 'date' && sub[f.name]) {
+                    // Handle both YYYY-MM and YYYY-MM-DD
+                    const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
+                    return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                }
+                return sub[f.name] || '-';
+            })
+        );
 
         autoTable(doc, {
             head: [tableColumn],
@@ -291,9 +304,15 @@ export default function DepartmentPage() {
         const wb = XLSX.utils.book_new();
 
         const dataForExcel = submissions.map(sub => {
-            const row: Record<string, any> = { "الشهر والسنة": sub.submittedAt };
+            const row: Record<string, any> = {};
             fields.forEach(f => {
-                row[f.label] = sub[f.name] || '-';
+                if (f.name === 'date' && sub[f.name]) {
+                    // Handle both YYYY-MM and YYYY-MM-DD
+                    const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
+                    row[f.label] = new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                } else {
+                    row[f.label] = sub[f.name] || '-';
+                }
             });
             return row;
         });
@@ -421,7 +440,6 @@ export default function DepartmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                    <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الشهر والسنة</th>
                                     {fields.filter(f => f.name !== 'notes').map(field => (
                                         <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{field.label}</th>
                                     ))}
@@ -431,9 +449,18 @@ export default function DepartmentPage() {
                             <tbody>
                                 {submissions.map((sub, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                        <td style={{ padding: '12px', fontSize: '0.9rem' }}>{sub.submittedAt}</td>
                                         {fields.filter(f => f.name !== 'notes').map(field => (
-                                            <td key={field.name} style={{ padding: '12px' }}>{sub[field.name] || '-'}</td>
+                                            <td key={field.name} style={{ padding: '12px' }}>
+                                                {field.name === 'date' && sub[field.name] ? (
+                                                    (() => {
+                                                        // Handle both YYYY-MM and YYYY-MM-DD
+                                                        const dateVal = sub[field.name].length === 7 ? sub[field.name] + '-01' : sub[field.name];
+                                                        return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                                                    })()
+                                                ) : (
+                                                    sub[field.name] || '-'
+                                                )}
+                                            </td>
                                         ))}
                                         {userCanEdit && (
                                             <td style={{ padding: '12px', textAlign: 'center' }}>
