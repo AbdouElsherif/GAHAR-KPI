@@ -395,7 +395,14 @@ export default function DepartmentPage() {
                                                 value={formData[field.name] || ''}
                                                 onChange={(e) => handleChange(field.name, e.target.value)}
                                                 max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : undefined}
-                                                title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : undefined}
+                                                min={field.type === 'number' ? '0' : undefined}
+                                                step={field.type === 'number' ? '1' : undefined}
+                                                onKeyDown={(e) => {
+                                                    if (field.type === 'number' && (e.key === '.' || e.key === ',' || e.key === '-' || e.key === 'e' || e.key === 'E')) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                                title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
                                             />
                                         )}
                                     </div>
