@@ -122,7 +122,7 @@ export default function DepartmentPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthChange(async (user) => {
+        const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
                 router.push('/login');
                 return;
@@ -144,7 +144,7 @@ export default function DepartmentPage() {
                 return dateB.getTime() - dateA.getTime();
             });
 
-            const formattedData = kpiData.map(item => {
+            const formattedData = kpiData.map((item: any) => {
                 if (!item.createdAt) {
                     return {
                         ...item.data,
