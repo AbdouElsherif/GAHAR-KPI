@@ -181,6 +181,18 @@ export default function DepartmentPage() {
 
         if (!currentUser) return;
 
+        // التحقق من التاريخ - منع التواريخ المستقبلية
+        if (formData.date) {
+            const selectedDate = new Date(formData.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // إعادة تعيين الوقت إلى منتصف الليل
+
+            if (selectedDate > today) {
+                alert('⚠️ لا يمكن تسجيل بيانات بتاريخ مستقبلي. الرجاء اختيار تاريخ اليوم أو تاريخ سابق.');
+                return;
+            }
+        }
+
         if (editingId) {
             // Update existing
             await updateKPIData(editingId, {
@@ -341,7 +353,15 @@ export default function DepartmentPage() {
                                         {field.name === 'notes' ? (
                                             <textarea className="form-input" rows={4} placeholder="ملاحظات إضافية..." value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)}></textarea>
                                         ) : (
-                                            <input type={field.type} className="form-input" required={field.name !== 'notes'} value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)} />
+                                            <input
+                                                type={field.type}
+                                                className="form-input"
+                                                required={field.name !== 'notes'}
+                                                value={formData[field.name] || ''}
+                                                onChange={(e) => handleChange(field.name, e.target.value)}
+                                                max={field.type === 'date' ? new Date().toISOString().split('T')[0] : undefined}
+                                                title={field.type === 'date' ? 'لا يمكن اختيار تاريخ مستقبلي' : undefined}
+                                            />
                                         )}
                                     </div>
                                 ))}
