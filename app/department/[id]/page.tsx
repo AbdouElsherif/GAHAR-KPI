@@ -23,18 +23,18 @@ const departments: Record<string, string> = {
 interface Field {
     name: string;
     label: string;
-    type: 'number' | 'text' | 'date';
+    type: 'number' | 'text' | 'date' | 'month';
 }
 
 const departmentFields: Record<string, Field[]> = {
     'dept1': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'trainingPrograms', label: 'عدد البرامج التدريبية', type: 'number' },
         { name: 'trainees', label: 'عدد المتدربين', type: 'number' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept2': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'supportPrograms', label: 'عدد برامج الدعم الفني المقدمة', type: 'number' },
         { name: 'introVisits', label: 'زيارات تمهيدية', type: 'number' },
         { name: 'fieldSupportVisits', label: 'زيارات دعم فني ميداني', type: 'number' },
@@ -43,7 +43,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept3': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'patientExperienceSample', label: 'حجم عينة قياس تجربة مريض', type: 'number' },
         { name: 'staffSatisfactionSample', label: 'حجم عينة قياس رضاء العاملين', type: 'number' },
         { name: 'fieldVisits', label: 'عدد الزيارات الميدانية لاستبيان رضاء المتعاملين', type: 'number' },
@@ -51,7 +51,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept4': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'totalFieldVisits', label: 'إجمالي الزيارات الميدانية للرقابة الفنية والإكلينيكية', type: 'number' },
         { name: 'auditVisits', label: 'زيارات التدقيق الفني والإكلينيكي', type: 'number' },
         { name: 'assessmentVisits', label: 'زيارات التقييم الفني والإكلينيكي', type: 'number' },
@@ -59,7 +59,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept5': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'totalFieldVisits', label: 'إجمالي الزيارات الميدانية', type: 'number' },
         { name: 'adminAuditVisits', label: 'زيارات الرقابة الإدارية (تدقيق إداري وسلامة بيئية)', type: 'number' },
         { name: 'adminInspectionVisits', label: 'زيارات الرقابة الإدارية (تفتيش إداري)', type: 'number' },
@@ -69,7 +69,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept6': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'newFacilities', label: 'عدد المنشآت الجديدة المتقدمة للتسجيل', type: 'number' },
         { name: 'reviewedAppeals', label: 'عدد الالتماسات التي تمت مراجعتها', type: 'number' },
         { name: 'reviewedPlans', label: 'عدد الخطط التصحيحية التي تمت مراجعتها', type: 'number' },
@@ -79,13 +79,13 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept7': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'registeredMembers', label: 'عدد أعضاء المهن المسجلين', type: 'number' },
         { name: 'facilitiesUpdated', label: 'عدد المنشآت التي تم تسجيل وتحديث أعضاء المهن الطبية بها', type: 'number' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept8': [
-        { name: 'date', label: 'التاريخ', type: 'date' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'standard1', label: 'معايير دور النقاهة والرعاية الممتدة', type: 'number' },
         { name: 'standard2', label: 'معايير السياحة الاستشفائية', type: 'number' },
         { name: 'standard3', label: 'معايير الرعاية الأولية (إصدار 2025)', type: 'number' },
@@ -363,11 +363,11 @@ export default function DepartmentPage() {
                                             <input
                                                 type={field.type}
                                                 className="form-input"
-                                                required={field.type === 'date' || field.name !== 'notes'}
+                                                required={field.type === 'month' || field.type === 'date' || field.name !== 'notes'}
                                                 value={formData[field.name] || ''}
                                                 onChange={(e) => handleChange(field.name, e.target.value)}
-                                                max={field.type === 'date' ? new Date().toISOString().split('T')[0] : undefined}
-                                                title={field.type === 'date' ? 'التاريخ إجباري - لا يمكن اختيار تاريخ مستقبلي' : undefined}
+                                                max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : undefined}
+                                                title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : undefined}
                                             />
                                         )}
                                     </div>
