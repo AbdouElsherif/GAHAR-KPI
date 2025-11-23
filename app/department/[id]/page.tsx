@@ -363,11 +363,11 @@ export default function DepartmentPage() {
                                             <input
                                                 type={field.type}
                                                 className="form-input"
-                                                required={field.name !== 'notes'}
+                                                required={field.type === 'date' || field.name !== 'notes'}
                                                 value={formData[field.name] || ''}
                                                 onChange={(e) => handleChange(field.name, e.target.value)}
                                                 max={field.type === 'date' ? new Date().toISOString().split('T')[0] : undefined}
-                                                title={field.type === 'date' ? 'لا يمكن اختيار تاريخ مستقبلي' : undefined}
+                                                title={field.type === 'date' ? 'التاريخ إجباري - لا يمكن اختيار تاريخ مستقبلي' : undefined}
                                             />
                                         )}
                                     </div>
