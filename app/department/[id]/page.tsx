@@ -121,6 +121,13 @@ export default function DepartmentPage() {
     const [submissions, setSubmissions] = useState<Array<Record<string, any>>>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
 
+    // Filter and sort states
+    const [searchText, setSearchText] = useState('');
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+    const [sortColumn, setSortColumn] = useState<string>('date');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -331,6 +338,72 @@ export default function DepartmentPage() {
 
     const userCanEdit = canEdit(currentUser);
 
+    // Filter and sort functions
+    const getFilteredAndSortedSubmissions = () => {
+        let filtered = [...submissions];
+
+        // Apply search filter
+        if (searchText.trim()) {
+            const search = searchText.toLowerCase();
+            filtered = filtered.filter(sub => {
+                // Search in all fields except notes
+                return fields.some(field => {
+                    const value = String(sub[field.name] || '').toLowerCase();
+                    return value.includes(search);
+                });
+            });
+        }
+
+        // Apply date range filter
+        if (dateFrom || dateTo) {
+            filtered = filtered.filter(sub => {
+                if (!sub.date) return false;
+                const subDate = sub.date; // Format: YYYY-MM
+
+                if (dateFrom && subDate < dateFrom) return false;
+                if (dateTo && subDate > dateTo) return false;
+                return true;
+            });
+        }
+
+        // Apply sorting
+        if (sortColumn) {
+            filtered.sort((a, b) => {
+                let aVal = a[sortColumn];
+                let bVal = b[sortColumn];
+
+                // Handle numeric values
+                if (sortColumn !== 'date' && sortColumn !== 'notes') {
+                    aVal = parseFloat(aVal) || 0;
+                    bVal = parseFloat(bVal) || 0;
+                }
+
+                // Handle dates
+                if (sortColumn === 'date') {
+                    aVal = aVal || '';
+                    bVal = bVal || '';
+                }
+
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        return filtered;
+    };
+
+    const handleSort = (fieldName: string) => {
+        if (sortColumn === fieldName) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortColumn(fieldName);
+            setSortDirection('asc');
+        }
+    };
+
+    const filteredSubmissions = getFilteredAndSortedSubmissions();
+
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
@@ -424,6 +497,66 @@ export default function DepartmentPage() {
 
             {submissions.length > 0 && (
                 <div className="card" style={{ marginTop: '30px' }}>
+                    {/* Filter and Search UI */}
+                    <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: 'var(--background-color)', borderRadius: '8px' }}>
+                        <h3 style={{ marginBottom: '15px', color: 'var(--primary-color)', fontSize: '1.1rem' }}>🔍 فلترة وبحث</h3>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                            {/* Search */}
+                            <div className="form-group">
+                                <label className="form-label">بحث في جميع الحقول</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="ابحث..."
+                                    value={searchText}
+                                    onChange={(e) => setSearchText(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Date From */}
+                            <div className="form-group">
+                                <label className="form-label">من تاريخ</label>
+                                <input
+                                    type="month"
+                                    className="form-input"
+                                    value={dateFrom}
+                                    onChange={(e) => setDateFrom(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Date To */}
+                            <div className="form-group">
+                                <label className="form-label">إلى تاريخ</label>
+                                <input
+                                    type="month"
+                                    className="form-input"
+                                    value={dateTo}
+                                    onChange={(e) => setDateTo(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Clear Filters + Results Count */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+                            <button
+                                onClick={() => {
+                                    setSearchText('');
+                                    setDateFrom('');
+                                    setDateTo('');
+                                }}
+                                className="btn"
+                                style={{ backgroundColor: '#6c757d', color: 'white', padding: '8px 16px', fontSize: '0.9rem' }}
+                            >
+                                مسح الفلاتر
+                            </button>
+                            <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                                عرض <strong>{filteredSubmissions.length}</strong> من أصل <strong>{submissions.length}</strong> سجل
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Export Buttons */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
                         <button
                             onClick={handleExportPDF}
@@ -448,13 +581,35 @@ export default function DepartmentPage() {
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
                                     {fields.filter(f => f.name !== 'notes').map(field => (
-                                        <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{field.label}</th>
+                                        <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
+                                            <button
+                                                onClick={() => handleSort(field.name)}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    color: 'inherit',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                {field.label}
+                                                {sortColumn === field.name && (
+                                                    <span style={{ fontSize: '0.8rem' }}>
+                                                        {sortDirection === 'asc' ? '↑' : '↓'}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        </th>
                                     ))}
                                     {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>إجراءات</th>}
                                 </tr>
                             </thead>
                             <tbody>
-                                {submissions.map((sub, index) => (
+                                {filteredSubmissions.map((sub, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
                                         {fields.filter(f => f.name !== 'notes').map(field => (
                                             <td key={field.name} style={{ padding: '12px' }}>
