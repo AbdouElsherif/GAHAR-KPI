@@ -422,6 +422,24 @@ export default function DepartmentPage() {
         return recordYear === currentYear;
     };
 
+    // Calculate totals for numeric fields from filtered data
+    const calculateTotals = () => {
+        const totals: Record<string, number> = {};
+
+        fields.forEach(field => {
+            if (field.type === 'number') {
+                totals[field.name] = filteredSubmissions.reduce((sum, record) => {
+                    const value = parseFloat(record[field.name]) || 0;
+                    return sum + value;
+                }, 0);
+            }
+        });
+
+        return totals;
+    };
+
+    const totals = calculateTotals();
+
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
@@ -674,8 +692,25 @@ export default function DepartmentPage() {
                                             </td>
                                         )}
                                     </tr>
-                                ))}
+                                ))
+                                }
                             </tbody>
+                            <tfoot>
+                                <tr style={{ backgroundColor: '#f8f9fa', borderTop: '3px solid var(--primary-color)', fontWeight: 'bold' }}>
+                                    {fields.filter(f => f.name !== 'notes').map(field => (
+                                        <td key={field.name} style={{ padding: '12px', color: 'var(--primary-color)' }}>
+                                            {field.name === 'date' ? (
+                                                'الإجمالي'
+                                            ) : field.type === 'number' ? (
+                                                totals[field.name]?.toLocaleString('ar-EG') || '0'
+                                            ) : (
+                                                '-'
+                                            )}
+                                        </td>
+                                    ))}
+                                    {userCanEdit && <td style={{ padding: '12px' }}></td>}
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
