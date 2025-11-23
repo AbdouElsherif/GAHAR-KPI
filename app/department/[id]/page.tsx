@@ -145,6 +145,13 @@ export default function DepartmentPage() {
             });
 
             const formattedData = kpiData.map(item => {
+                if (!item.createdAt) {
+                    return {
+                        ...item.data,
+                        submittedAt: 'غير محدد',
+                        id: item.id
+                    };
+                }
                 const date = item.createdAt instanceof Date ? item.createdAt : item.createdAt.toDate();
                 const monthYear = date.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
                 return {
