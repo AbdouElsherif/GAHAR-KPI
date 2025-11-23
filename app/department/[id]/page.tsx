@@ -404,6 +404,24 @@ export default function DepartmentPage() {
 
     const filteredSubmissions = getFilteredAndSortedSubmissions();
 
+    // Check if user can edit a specific record based on year
+    const canEditRecord = (record: Record<string, any>) => {
+        if (!userCanEdit) return false;
+
+        // Super admin can edit any record
+        if (currentUser?.role === 'super_admin') return true;
+
+        // Extract year from record date (format: YYYY-MM or YYYY-MM-DD)
+        const recordDate = record.date;
+        if (!recordDate) return true; // If no date, allow edit
+
+        const recordYear = parseInt(recordDate.substring(0, 4));
+        const currentYear = new Date().getFullYear();
+
+        // Department admins can only edit current year data
+        return recordYear === currentYear;
+    };
+
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
@@ -626,14 +644,33 @@ export default function DepartmentPage() {
                                         ))}
                                         {userCanEdit && (
                                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                <button
-                                                    onClick={() => handleEdit(sub)}
-                                                    style={{ padding: '8px 20px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '500', transition: 'all 0.2s' }}
-                                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0c98a3'}
-                                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0eacb8'}
-                                                >
-                                                    تعديل
-                                                </button>
+                                                {canEditRecord(sub) ? (
+                                                    <button
+                                                        onClick={() => handleEdit(sub)}
+                                                        style={{ padding: '8px 20px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '500', transition: 'all 0.2s' }}
+                                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0c98a3'}
+                                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0eacb8'}
+                                                    >
+                                                        تعديل
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        disabled
+                                                        title="لا يمكن تعديل بيانات السنوات السابقة (للمدير العام فقط)"
+                                                        style={{
+                                                            padding: '8px 20px',
+                                                            backgroundColor: '#ccc',
+                                                            color: '#666',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            cursor: 'not-allowed',
+                                                            fontSize: '0.9rem',
+                                                            fontWeight: '500'
+                                                        }}
+                                                    >
+                                                        🔒 مقفل
+                                                    </button>
+                                                )}
                                             </td>
                                         )}
                                     </tr>
