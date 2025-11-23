@@ -23,7 +23,7 @@ export default function Home() {
 
     useEffect(() => {
         // Listen to auth state changes
-        const unsubscribe = onAuthChange((user) => {
+        const unsubscribe = onAuthChange((user: User | null) => {
             if (!user) {
                 router.push('/login');
             } else {
@@ -71,9 +71,25 @@ export default function Home() {
                     </div>
                 </div>
 
-                <p style={{ marginBottom: '40px', fontSize: '1.2rem', color: '#555' }}>
+                <p style={{ marginBottom: '30px', fontSize: '1.2rem', color: '#555' }}>
                     يرجى اختيار الإدارة الخاصة بك للدخول إلى لوحة المؤشرات.
                 </p>
+
+                {/* Dashboard Button */}
+                <Link
+                    href="/dashboard"
+                    className="btn btn-primary"
+                    style={{
+                        marginBottom: '30px',
+                        padding: '15px 40px',
+                        fontSize: '1.1rem',
+                        display: 'inline-block',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        border: 'none'
+                    }}
+                >
+                    📊 لوحة التحكم العامة
+                </Link>
 
                 <div className="department-grid">
                     {availableDepartments.map((dept) => (
