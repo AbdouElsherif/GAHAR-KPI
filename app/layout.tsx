@@ -6,6 +6,11 @@ import Link from 'next/link';
 export const metadata: Metadata = {
     title: 'GAHAR KPI Dashboard',
     description: 'General Authority for Healthcare Accreditation and Regulation KPI System',
+    icons: {
+        icon: '/logo.png',
+        shortcut: '/logo.png',
+        apple: '/logo.png',
+    },
 };
 
 export default function RootLayout({
