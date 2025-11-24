@@ -16,6 +16,15 @@ const departments = [
     { id: 'dept8', name: 'الإدارة العامة لأبحاث وتطوير المعايير' },
 ];
 
+interface FormData {
+    username: string;
+    email: string;
+    password: string;
+    role: 'super_admin' | 'dept_admin' | 'dept_viewer' | 'general_viewer';
+    departmentId: string;
+    departmentName: string;
+}
+
 export default function AdminPage() {
     const router = useRouter();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -23,11 +32,11 @@ export default function AdminPage() {
     const [showForm, setShowForm] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         username: '',
         email: '',
         password: '',
-        role: 'dept_viewer' as 'super_admin' | 'dept_admin' | 'dept_viewer',
+        role: 'dept_viewer',
         departmentId: '',
         departmentName: ''
     });
@@ -186,10 +195,11 @@ export default function AdminPage() {
                                     <option value="super_admin">مدير عام</option>
                                     <option value="dept_admin">مدير إدارة</option>
                                     <option value="dept_viewer">مستخدم عرض</option>
+                                    <option value="general_viewer">مراقب عام</option>
                                 </select>
                             </div>
 
-                            {formData.role !== 'super_admin' && (
+                            {formData.role !== 'super_admin' && formData.role !== 'general_viewer' && (
                                 <div className="form-group">
                                     <label className="form-label">الإدارة</label>
                                     <select
@@ -234,7 +244,8 @@ export default function AdminPage() {
                                     <td style={{ padding: '12px' }}>{user.username}</td>
                                     <td style={{ padding: '12px' }}>
                                         {user.role === 'super_admin' ? 'مدير عام' :
-                                            user.role === 'dept_admin' ? 'مدير إدارة' : 'مستخدم عرض'}
+                                            user.role === 'dept_admin' ? 'مدير إدارة' :
+                                                user.role === 'general_viewer' ? 'مراقب عام' : 'مستخدم عرض'}
                                     </td>
                                     <td style={{ padding: '12px' }}>{user.departmentName || '-'}</td>
                                     <td style={{ padding: '12px', textAlign: 'center' }}>
