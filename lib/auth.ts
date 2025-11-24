@@ -1,4 +1,4 @@
-﻿import { 
+import { 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
@@ -37,13 +37,13 @@ export async function initializeUsers() {
             // Create default admin user
             const adminAuth = await createUserWithEmailAndPassword(
                 auth,
-                'admin@gahar.gov.sa',
+                'admin@gahar.gov.eg',
                 'admin123'
             );
             
             await setDoc(doc(db, 'users', adminAuth.user.uid), {
                 username: 'admin',
-                email: 'admin@gahar.gov.sa',
+                email: 'admin@gahar.gov.eg',
                 role: 'super_admin'
             });
             

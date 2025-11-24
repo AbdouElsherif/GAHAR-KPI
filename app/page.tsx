@@ -75,22 +75,6 @@ export default function Home() {
                     يرجى اختيار الإدارة الخاصة بك للدخول إلى لوحة المؤشرات.
                 </p>
 
-                {/* Dashboard Button */}
-                <Link
-                    href="/dashboard"
-                    className="btn btn-primary"
-                    style={{
-                        marginBottom: '30px',
-                        padding: '15px 40px',
-                        fontSize: '1.1rem',
-                        display: 'inline-block',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        border: 'none'
-                    }}
-                >
-                    📊 لوحة التحكم العامة
-                </Link>
-
                 <div className="department-grid">
                     {availableDepartments.map((dept) => (
                         <Link
