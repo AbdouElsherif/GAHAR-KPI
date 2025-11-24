@@ -43,7 +43,7 @@ export default function Home() {
     if (loading || !currentUser) return null;
 
     // Filter departments based on user role
-    const availableDepartments = currentUser.role === 'super_admin'
+    const availableDepartments = currentUser.role === 'super_admin' || currentUser.role === 'general_viewer'
         ? departments
         : departments.filter(d => d.id === currentUser.departmentId);
 
@@ -56,7 +56,7 @@ export default function Home() {
                             مرحباً بكم في بوابة مؤشرات الأداء - GAHAR
                         </h1>
                         <p style={{ fontSize: '1rem', color: '#666' }}>
-                            مرحباً، {currentUser.username} ({currentUser.role === 'super_admin' ? 'مدير عام' : currentUser.role === 'dept_admin' ? 'مدير إدارة' : 'مستخدم عرض'})
+                            مرحباً، {currentUser.username} ({currentUser.role === 'super_admin' ? 'مدير عام' : currentUser.role === 'dept_admin' ? 'مدير إدارة' : currentUser.role === 'general_viewer' ? 'مراقب عام' : 'مستخدم عرض'})
                         </p>
                     </div>
                     <div style={{ display: 'flex', gap: '10px' }}>

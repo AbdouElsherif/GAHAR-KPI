@@ -22,7 +22,7 @@ export interface User {
     id: string;
     username: string;
     email: string;
-    role: 'super_admin' | 'dept_admin' | 'dept_viewer';
+    role: 'super_admin' | 'dept_admin' | 'dept_viewer' | 'general_viewer';
     departmentId?: string;
     departmentName?: string;
 }
@@ -48,6 +48,31 @@ export async function initializeUsers() {
             });
             
             console.log('Default admin user created');
+        }
+
+        // Check/Create default viewer user
+        const viewerQuery = query(usersRef, where('email', '==', 'viewer@gahar.gov.eg'));
+        const viewerSnapshot = await getDocs(viewerQuery);
+
+        if (viewerSnapshot.empty) {
+            try {
+                const viewerAuth = await createUserWithEmailAndPassword(
+                    auth,
+                    'viewer@gahar.gov.eg',
+                    'viewer123'
+                );
+
+                await setDoc(doc(db, 'users', viewerAuth.user.uid), {
+                    username: 'مراقب عام',
+                    email: 'viewer@gahar.gov.eg',
+                    role: 'general_viewer'
+                });
+                console.log('Default viewer user created');
+            } catch (error: any) {
+                if (error.code !== 'auth/email-already-in-use') {
+                    console.error('Error creating viewer user:', error);
+                }
+            }
         }
     } catch (error: any) {
         if (error.code !== 'auth/email-already-in-use') {
@@ -92,7 +117,7 @@ export async function addUser(userData: {
     username: string;
     email: string;
     password: string;
-    role: 'super_admin' | 'dept_admin' | 'dept_viewer';
+    role: 'super_admin' | 'dept_admin' | 'dept_viewer' | 'general_viewer';
     departmentId?: string;
     departmentName?: string;
 }): Promise<User | null> {
@@ -200,6 +225,6 @@ export function canEdit(user: User | null): boolean {
 
 export function canAccessDepartment(user: User | null, deptId: string): boolean {
     if (!user) return false;
-    if (user.role === 'super_admin') return true;
+    if (user.role === 'super_admin' || user.role === 'general_viewer') return true;
     return user.departmentId === deptId;
 }
