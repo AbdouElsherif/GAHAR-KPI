@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export const metadata: Metadata = {
     title: 'GAHAR KPI Dashboard',
@@ -34,12 +35,13 @@ export default function RootLayout({
                             />
                             <div className="brand-name">بوابة مؤشرات الأداء - الهيئة العامة للاعتماد والرقابة الصحية</div>
                         </Link>
+                        <ThemeToggle />
                     </div>
                 </header>
                 <main className="container">
                     {children}
                 </main>
-                <footer style={{ textAlign: 'center', padding: '20px', color: '#666', fontSize: '0.9rem' }}>
+                <footer style={{ textAlign: 'center', padding: '20px', color: 'var(--footer-text)', fontSize: '0.9rem' }}>
                     &copy; {new Date().getFullYear()} الهيئة العامة للاعتماد والرقابة الصحية
                 </footer>
             </body>

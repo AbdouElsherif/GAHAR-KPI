@@ -1,16 +1,32 @@
 :root {
   --primary-color: #0d6a79;
-  /* Base Teal */
   --secondary-color: #0f3f68;
-  /* Deep Blue */
   --accent-color: #0eacb8;
-  /* Bright Cyan */
   --hover-color: #137f91;
-  /* Lighter Teal */
   --background-color: #F5F7F9;
   --text-color: #333333;
   --white: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #e1e4e8;
+  --input-bg: #fcfcfc;
+  --header-bg: #ffffff;
+  --footer-text: #666;
   --font-family: 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', sans-serif;
+}
+
+[data-theme="dark"] {
+  --primary-color: #0eacb8;
+  --secondary-color: #4db8e8;
+  --accent-color: #1dd1e0;
+  --hover-color: #26c9d6;
+  --background-color: #0f1419;
+  --text-color: #e4e6eb;
+  --white: #1a1f26;
+  --card-bg: #1a1f26;
+  --border-color: #2d3748;
+  --input-bg: #242b35;
+  --header-bg: #1a1f26;
+  --footer-text: #9ca3af;
 }
 
 * {
@@ -24,6 +40,7 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -50,7 +67,7 @@ a {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-color), var(--hover-color));
-  color: var(--white);
+  color: #ffffff;
   box-shadow: 0 4px 6px rgba(13, 106, 121, 0.2);
 }
 
@@ -70,13 +87,13 @@ a {
 }
 
 .card {
-  background-color: var(--white);
+  background-color: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   padding: 30px;
   margin-bottom: 20px;
   border-top: 4px solid var(--primary-color);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 .card-hover:hover {
@@ -86,11 +103,12 @@ a {
 }
 
 .header {
-  background-color: var(--white);
+  background-color: var(--header-bg);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 15px 0;
   margin-bottom: 40px;
   border-bottom: 3px solid var(--accent-color);
+  transition: background-color 0.3s ease;
 }
 
 .header-content {
@@ -149,16 +167,17 @@ a {
 .form-input {
   width: 100%;
   padding: 12px 15px;
-  border: 2px solid #e1e4e8;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  background-color: var(--input-bg);
+  color: var(--text-color);
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  background-color: #fcfcfc;
 }
 
 .department-grid {
@@ -172,9 +191,9 @@ a {
   align-items: center;
   justify-content: center;
   min-height: 120px;
-  background-color: var(--white);
+  background-color: var(--card-bg);
   border-radius: 10px;
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
   color: var(--secondary-color);
   font-weight: 700;
   font-size: 1.1rem;
@@ -206,4 +225,28 @@ a {
 .dept-card:hover::before {
   width: 100%;
   opacity: 0.05;
+}
+
+.theme-toggle {
+  background: none;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+}
+
+.theme-toggle:hover {
+  background-color: var(--card-bg);
+  border-color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+.theme-toggle svg {
+  width: 24px;
+  height: 24px;
 }
