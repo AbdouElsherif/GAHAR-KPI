@@ -8,6 +8,7 @@ import { saveKPIData, getKPIData, updateKPIData } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Pagination from '@/components/Pagination';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -127,6 +128,10 @@ export default function DepartmentPage() {
     const [dateTo, setDateTo] = useState('');
     const [sortColumn, setSortColumn] = useState<string>('date');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(25);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -413,7 +418,17 @@ export default function DepartmentPage() {
         }
     };
 
+    // Pagination: Calculate items for current page  
     const filteredSubmissions = getFilteredAndSortedSubmissions();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedSubmissions = filteredSubmissions.slice(startIndex, endIndex);
+
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchText, dateFrom, dateTo]);
+
 
     // Check if user can edit a specific record based on year
     const canEditRecord = (record: Record<string, any>) => {
@@ -656,7 +671,7 @@ export default function DepartmentPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredSubmissions.map((sub, index) => (
+                                {paginatedSubmissions.map((sub, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
                                         {fields.filter(f => f.name !== 'notes').map(field => (
                                             <td key={field.name} style={{ padding: '12px' }}>
@@ -724,6 +739,15 @@ export default function DepartmentPage() {
                             </tfoot>
                         </table>
                     </div>
+
+                    {/* Pagination Component */}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalItems={filteredSubmissions.length}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={setCurrentPage}
+                        onItemsPerPageChange={setItemsPerPage}
+                    />
                 </div>
             )}
         </div>
