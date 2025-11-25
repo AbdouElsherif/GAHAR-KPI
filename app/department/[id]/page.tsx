@@ -178,6 +178,11 @@ export default function DepartmentPage() {
         return () => unsubscribe();
     }, [id, router]);
 
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchText, dateFrom, dateTo]);
+
     const handleChange = (name: string, value: string) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -424,10 +429,7 @@ export default function DepartmentPage() {
     const endIndex = startIndex + itemsPerPage;
     const paginatedSubmissions = filteredSubmissions.slice(startIndex, endIndex);
 
-    // Reset to first page when filters change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchText, dateFrom, dateTo]);
+
 
 
     // Check if user can edit a specific record based on year
