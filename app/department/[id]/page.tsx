@@ -223,6 +223,17 @@ export default function DepartmentPage() {
             }
         }
 
+        // التحقق من التكرار (للإدخال الجديد أو التعديل)
+        if (formData.date) {
+            const isDuplicate = submissions.some(sub =>
+                sub.date === formData.date && sub.id !== editingId
+            );
+            if (isDuplicate) {
+                alert('⚠️ تم إدخال بيانات هذا الشهر مسبقاً. لا يمكن تكرار نفس الشهر والسنة في نفس الإدارة.');
+                return;
+            }
+        }
+
         if (editingId) {
             // Update existing
             await updateKPIData(editingId, {
