@@ -9,6 +9,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Pagination from '@/components/Pagination';
+import DashboardModal from '@/components/DashboardModal';
+import TrainingDashboard from '@/components/TrainingDashboard';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -132,6 +134,9 @@ export default function DepartmentPage() {
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(25);
+
+    // Dashboard modal state
+    const [isDashboardOpen, setIsDashboardOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -691,6 +696,15 @@ export default function DepartmentPage() {
 
                     {/* Export Buttons */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
+                        {id === 'dept1' && (
+                            <button
+                                onClick={() => setIsDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                        )}
                         <button
                             onClick={handleExportPDF}
                             className="btn"
@@ -890,6 +904,15 @@ export default function DepartmentPage() {
                         onItemsPerPageChange={setItemsPerPage}
                     />
                 </div>
+            )}
+            {/* Dashboard Modal */}
+            {id === 'dept1' && (
+                <DashboardModal
+                    isOpen={isDashboardOpen}
+                    onClose={() => setIsDashboardOpen(false)}
+                >
+                    <TrainingDashboard submissions={submissions} />
+                </DashboardModal>
             )}
         </div>
     );
