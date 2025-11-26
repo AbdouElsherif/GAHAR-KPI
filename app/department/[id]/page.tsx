@@ -295,102 +295,6 @@ export default function DepartmentPage() {
 
 
 
-    const handleExportPDF = () => {
-        const doc = new jsPDF();
-
-        // Add font support for Arabic (using a standard font that supports Arabic would be ideal, 
-        // but for now we'll use default and hope for the best or use a workaround if needed.
-        // Note: jsPDF default fonts don't support Arabic well. We might need a custom font.
-        // For this iteration, we will try basic export. If Arabic fails, we'll need to add a font.)
-
-        doc.text(`تقرير ${departmentName}`, 100, 10, { align: 'center' });
-
-        const tableColumn = fields.map(f => f.label);
-        const tableRows = filteredSubmissions.map(sub =>
-            fields.map(f => {
-                if (f.name === 'date' && sub[f.name]) {
-                    // Handle both YYYY-MM and YYYY-MM-DD
-                    const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
-                    return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
-                }
-                if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
-                    return `${sub[f.name]}%`;
-                }
-                return sub[f.name] || '-';
-            })
-        );
-
-        // Add totals row if not dept8
-        if (id !== 'dept8') {
-            const totalsRow = fields.map((f, index) => {
-                if (index === 0) return 'المجموع';
-                if (f.type === 'number') {
-                    return totals[f.name]?.toString() || '0';
-                }
-                return '-';
-            });
-            tableRows.push(totalsRow);
-        }
-
-        autoTable(doc, {
-            head: [tableColumn],
-            body: tableRows,
-            startY: 20,
-            styles: { font: 'helvetica', halign: 'right' },
-            headStyles: { fillColor: [14, 172, 184] },
-            footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-        });
-
-        doc.save(`${departmentName}_report.pdf`);
-    };
-
-    const handleExportExcel = () => {
-        const wb = XLSX.utils.book_new();
-
-        const dataForExcel = filteredSubmissions.map(sub => {
-            const row: Record<string, any> = {};
-            fields.forEach(f => {
-                if (f.name === 'date' && sub[f.name]) {
-                    // Handle both YYYY-MM and YYYY-MM-DD
-                    const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
-                    row[f.label] = new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
-                } else if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
-                    row[f.label] = `${sub[f.name]}%`;
-                } else {
-                    row[f.label] = sub[f.name] || '-';
-                }
-            });
-            return row;
-        });
-
-        // Add totals row if not dept8
-        if (id !== 'dept8') {
-            const totalsRow: Record<string, any> = {};
-            fields.forEach((f, index) => {
-                if (index === 0) {
-                    totalsRow[f.label] = 'المجموع';
-                } else if (f.type === 'number') {
-                    totalsRow[f.label] = totals[f.name] || 0;
-                } else {
-                    totalsRow[f.label] = '-';
-                }
-            });
-            dataForExcel.push(totalsRow);
-        }
-
-        const ws = XLSX.utils.json_to_sheet(dataForExcel);
-
-        // Adjust column widths
-        const wscols = [{ wch: 20 }, ...fields.map(() => ({ wch: 20 }))];
-        ws['!cols'] = wscols;
-
-        XLSX.utils.book_append_sheet(wb, ws, "Report");
-        XLSX.writeFile(wb, `${departmentName}_report.xlsx`);
-    };
-
-    if (!currentUser) return null;
-
-    const userCanEdit = canEdit(currentUser);
 
     // Filter and sort functions
     const getFilteredAndSortedSubmissions = () => {
@@ -456,8 +360,137 @@ export default function DepartmentPage() {
         }
     };
 
-    // Pagination: Calculate items for current page  
     const filteredSubmissions = getFilteredAndSortedSubmissions();
+
+    // Determine active and completed fields for dept8
+    let activeFields = fields;
+    let completedStandards: Field[] = [];
+
+    if (id === 'dept8' && filteredSubmissions.length > 0) {
+        // Use the latest record (first in filtered list) to determine completion
+        const latestRecord = filteredSubmissions[0];
+        const completed: Field[] = [];
+        const active: Field[] = [];
+
+        fields.forEach(field => {
+            // Check if it's a standard field (numeric) and has reached 100%
+            const val = latestRecord[field.name];
+            const numVal = parseFloat(val);
+
+            if (field.type === 'number' && numVal === 100) {
+                completed.push(field);
+            } else {
+                active.push(field);
+            }
+        });
+
+        if (completed.length > 0) {
+            completedStandards = completed;
+            activeFields = active;
+        }
+    }
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Add font support for Arabic (using a standard font that supports Arabic would be ideal, 
+        // but for now we'll use default and hope for the best or use a workaround if needed.
+        // Note: jsPDF default fonts don't support Arabic well. We might need a custom font.
+        // For this iteration, we will try basic export. If Arabic fails, we'll need to add a font.)
+
+        doc.text(`تقرير ${departmentName}`, 100, 10, { align: 'center' });
+
+        const tableColumn = activeFields.map(f => f.label);
+        const tableRows = filteredSubmissions.map(sub =>
+            activeFields.map(f => {
+                if (f.name === 'date' && sub[f.name]) {
+                    // Handle both YYYY-MM and YYYY-MM-DD
+                    const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
+                    return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                }
+                if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
+                    return `${sub[f.name]}%`;
+                }
+                return sub[f.name] || '-';
+            })
+        );
+
+        // Add totals row if not dept8
+        if (id !== 'dept8') {
+            const totalsRow = activeFields.map((f, index) => {
+                if (index === 0) return 'المجموع';
+                if (f.type === 'number') {
+                    return totals[f.name]?.toString() || '0';
+                }
+                return '-';
+            });
+            tableRows.push(totalsRow);
+        }
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 20,
+            styles: { font: 'helvetica', halign: 'right' },
+            headStyles: { fillColor: [14, 172, 184] },
+            footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+        });
+
+        doc.save(`${departmentName}_report.pdf`);
+    };
+
+    const handleExportExcel = () => {
+        const wb = XLSX.utils.book_new();
+
+        const dataForExcel = filteredSubmissions.map(sub => {
+            const row: Record<string, any> = {};
+            activeFields.forEach(f => {
+                if (f.name === 'date' && sub[f.name]) {
+                    // Handle both YYYY-MM and YYYY-MM-DD
+                    const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
+                    row[f.label] = new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                } else if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
+                    row[f.label] = `${sub[f.name]}%`;
+                } else {
+                    row[f.label] = sub[f.name] || '-';
+                }
+            });
+            return row;
+        });
+
+        // Add totals row if not dept8
+        if (id !== 'dept8') {
+            const totalsRow: Record<string, any> = {};
+            activeFields.forEach((f, index) => {
+                if (index === 0) {
+                    totalsRow[f.label] = 'المجموع';
+                } else if (f.type === 'number') {
+                    totalsRow[f.label] = totals[f.name] || 0;
+                } else {
+                    totalsRow[f.label] = '-';
+                }
+            });
+            dataForExcel.push(totalsRow);
+        }
+
+        const ws = XLSX.utils.json_to_sheet(dataForExcel);
+
+        // Adjust column widths
+        const wscols = [{ wch: 20 }, ...activeFields.map(() => ({ wch: 20 }))];
+        ws['!cols'] = wscols;
+
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `${departmentName}_report.xlsx`);
+    };
+
+    if (!currentUser) return null;
+
+    const userCanEdit = canEdit(currentUser);
+
+    // Filter and sort functions moved to top
+
+    // Pagination: Calculate items for current page  
+    // filteredSubmissions is now calculated at the top
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const paginatedSubmissions = filteredSubmissions.slice(startIndex, endIndex);
@@ -676,11 +709,70 @@ export default function DepartmentPage() {
                         )}
                     </div>
 
+
+                    {/* Achievements Card for dept8 */}
+                    {id === 'dept8' && completedStandards.length > 0 && (
+                        <div style={{
+                            marginBottom: '25px',
+                            padding: '20px',
+                            backgroundColor: '#e8f5e9',
+                            borderRadius: '12px',
+                            border: '1px solid #c8e6c9',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+                                <div style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    backgroundColor: '#28a745',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'white'
+                                }}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, color: '#155724', fontSize: '1.2rem' }}>إنجازات مكتملة</h3>
+                                    <p style={{ margin: '5px 0 0 0', color: '#155724', fontSize: '0.95rem' }}>
+                                        تم الانتهاء من <strong>{completedStandards.length}</strong> معايير بنسبة 100%
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                                gap: '10px'
+                            }}>
+                                {completedStandards.map(std => (
+                                    <div key={std.name} style={{
+                                        backgroundColor: 'white',
+                                        padding: '10px 15px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #c8e6c9',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        fontSize: '0.9rem',
+                                        color: '#155724'
+                                    }}>
+                                        <span style={{ color: '#28a745', fontWeight: 'bold' }}>✓</span>
+                                        {std.label}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                    {fields.filter(f => f.name !== 'notes').map(field => (
+                                    {activeFields.filter(f => f.name !== 'notes').map(field => (
                                         <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                             <button
                                                 onClick={() => handleSort(field.name)}
@@ -711,7 +803,7 @@ export default function DepartmentPage() {
                             <tbody>
                                 {paginatedSubmissions.map((sub, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                        {fields.filter(f => f.name !== 'notes').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes').map(field => (
                                             <td key={field.name} style={{ padding: '12px' }}>
                                                 {field.name === 'date' && sub[field.name] ? (
                                                     (() => {
@@ -767,7 +859,7 @@ export default function DepartmentPage() {
                                         borderTop: '2px solid var(--primary-color)',
                                         fontWeight: 'bold'
                                     }}>
-                                        {fields.filter(f => f.name !== 'notes').map((field, index) => (
+                                        {activeFields.filter(f => f.name !== 'notes').map((field, index) => (
                                             <td key={field.name} style={{
                                                 padding: '14px 12px',
                                                 color: 'var(--primary-color)',
