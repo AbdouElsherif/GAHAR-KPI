@@ -306,7 +306,7 @@ export default function DepartmentPage() {
         doc.text(`تقرير ${departmentName}`, 100, 10, { align: 'center' });
 
         const tableColumn = fields.map(f => f.label);
-        const tableRows = submissions.map(sub =>
+        const tableRows = filteredSubmissions.map(sub =>
             fields.map(f => {
                 if (f.name === 'date' && sub[f.name]) {
                     // Handle both YYYY-MM and YYYY-MM-DD
@@ -320,12 +320,25 @@ export default function DepartmentPage() {
             })
         );
 
+        // Add totals row if not dept8
+        if (id !== 'dept8') {
+            const totalsRow = fields.map((f, index) => {
+                if (index === 0) return 'المجموع';
+                if (f.type === 'number') {
+                    return totals[f.name]?.toString() || '0';
+                }
+                return '-';
+            });
+            tableRows.push(totalsRow);
+        }
+
         autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
             startY: 20,
             styles: { font: 'helvetica', halign: 'right' },
             headStyles: { fillColor: [14, 172, 184] },
+            footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
         });
 
         doc.save(`${departmentName}_report.pdf`);
@@ -334,7 +347,7 @@ export default function DepartmentPage() {
     const handleExportExcel = () => {
         const wb = XLSX.utils.book_new();
 
-        const dataForExcel = submissions.map(sub => {
+        const dataForExcel = filteredSubmissions.map(sub => {
             const row: Record<string, any> = {};
             fields.forEach(f => {
                 if (f.name === 'date' && sub[f.name]) {
@@ -349,6 +362,21 @@ export default function DepartmentPage() {
             });
             return row;
         });
+
+        // Add totals row if not dept8
+        if (id !== 'dept8') {
+            const totalsRow: Record<string, any> = {};
+            fields.forEach((f, index) => {
+                if (index === 0) {
+                    totalsRow[f.label] = 'المجموع';
+                } else if (f.type === 'number') {
+                    totalsRow[f.label] = totals[f.name] || 0;
+                } else {
+                    totalsRow[f.label] = '-';
+                }
+            });
+            dataForExcel.push(totalsRow);
+        }
 
         const ws = XLSX.utils.json_to_sheet(dataForExcel);
 
@@ -433,6 +461,27 @@ export default function DepartmentPage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const paginatedSubmissions = filteredSubmissions.slice(startIndex, endIndex);
+
+    // Calculate totals from filtered data
+    const calculateTotals = () => {
+        const totals: Record<string, number> = {};
+
+        // Only calculate if not dept8
+        if (id === 'dept8') return totals;
+
+        fields.forEach(field => {
+            if (field.type === 'number') {
+                totals[field.name] = filteredSubmissions.reduce((sum, sub) => {
+                    const value = parseFloat(sub[field.name]) || 0;
+                    return sum + value;
+                }, 0);
+            }
+        });
+
+        return totals;
+    };
+
+    const totals = calculateTotals();
 
 
 
@@ -711,6 +760,31 @@ export default function DepartmentPage() {
                                     </tr>
                                 ))
                                 }
+                                {/* Totals Row - Only for departments other than dept8 */}
+                                {id !== 'dept8' && filteredSubmissions.length > 0 && (
+                                    <tr style={{
+                                        backgroundColor: '#f0f9fa',
+                                        borderTop: '2px solid var(--primary-color)',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        {fields.filter(f => f.name !== 'notes').map((field, index) => (
+                                            <td key={field.name} style={{
+                                                padding: '14px 12px',
+                                                color: 'var(--primary-color)',
+                                                fontSize: '1.05rem'
+                                            }}>
+                                                {index === 0 ? (
+                                                    'المجموع'
+                                                ) : field.type === 'number' ? (
+                                                    totals[field.name] || 0
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
+                                        ))}
+                                        {userCanEdit && <td style={{ padding: '14px 12px' }}></td>}
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
