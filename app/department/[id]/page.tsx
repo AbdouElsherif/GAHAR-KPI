@@ -313,6 +313,9 @@ export default function DepartmentPage() {
                     const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
                     return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
                 }
+                if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
+                    return `${sub[f.name]}%`;
+                }
                 return sub[f.name] || '-';
             })
         );
@@ -338,6 +341,8 @@ export default function DepartmentPage() {
                     // Handle both YYYY-MM and YYYY-MM-DD
                     const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
                     row[f.label] = new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                } else if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
+                    row[f.label] = `${sub[f.name]}%`;
                 } else {
                     row[f.label] = sub[f.name] || '-';
                 }
@@ -513,7 +518,7 @@ export default function DepartmentPage() {
                                                 required={field.type === 'month' || field.type === 'date' || field.name !== 'notes'}
                                                 value={formData[field.name] || ''}
                                                 onChange={(e) => handleChange(field.name, e.target.value)}
-                                                max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : undefined}
+                                                max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : (field.type === 'number' && id === 'dept8') ? '100' : undefined}
                                                 min={field.type === 'number' ? '0' : undefined}
                                                 step={field.type === 'number' ? '1' : undefined}
                                                 onKeyDown={(e) => {
@@ -521,7 +526,7 @@ export default function DepartmentPage() {
                                                         e.preventDefault();
                                                     }
                                                 }}
-                                                title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
+                                                title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' && id === 'dept8' ? 'أدخل نسبة مئوية من 0 إلى 100' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
                                             />
                                         )}
                                     </div>
@@ -665,6 +670,8 @@ export default function DepartmentPage() {
                                                         const dateVal = sub[field.name].length === 7 ? sub[field.name] + '-01' : sub[field.name];
                                                         return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
                                                     })()
+                                                ) : field.type === 'number' && id === 'dept8' && sub[field.name] ? (
+                                                    `${sub[field.name]}%`
                                                 ) : (
                                                     sub[field.name] || '-'
                                                 )}
