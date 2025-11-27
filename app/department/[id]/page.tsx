@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
 import TrainingDashboard from '@/components/TrainingDashboard';
+import TechnicalSupportDashboard from '@/components/TechnicalSupportDashboard';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -109,6 +110,17 @@ const departmentFields: Record<string, Field[]> = {
     ],
 };
 
+// Helper function to format date consistently on server and client
+const formatMonthYear = (date: Date): string => {
+    const arabicMonths = [
+        'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+        'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    const month = arabicMonths[date.getMonth()];
+    const year = date.getFullYear();
+    return `${month} ${year}`;
+};
+
 export const dynamicParams = true;
 
 export default function DepartmentPage() {
@@ -135,8 +147,9 @@ export default function DepartmentPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(25);
 
-    // Dashboard modal state
+    // Dashboard modal states
     const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+    const [isTechSupportDashboardOpen, setIsTechSupportDashboardOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -170,7 +183,7 @@ export default function DepartmentPage() {
                     };
                 }
                 const date = item.createdAt instanceof Date ? item.createdAt : item.createdAt.toDate();
-                const monthYear = date.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                const monthYear = formatMonthYear(date);
                 return {
                     ...item.data,
                     submittedAt: monthYear,
@@ -270,7 +283,7 @@ export default function DepartmentPage() {
         } else {
             // Create new
             const currentDate = new Date();
-            const monthYear = currentDate.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+            const monthYear = formatMonthYear(currentDate);
             const dataWithTimestamp = {
                 ...formData,
                 submittedAt: monthYear
@@ -411,7 +424,7 @@ export default function DepartmentPage() {
                 if (f.name === 'date' && sub[f.name]) {
                     // Handle both YYYY-MM and YYYY-MM-DD
                     const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
-                    return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                    return formatMonthYear(new Date(dateVal));
                 }
                 if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
                     return `${sub[f.name]}%`;
@@ -453,7 +466,7 @@ export default function DepartmentPage() {
                 if (f.name === 'date' && sub[f.name]) {
                     // Handle both YYYY-MM and YYYY-MM-DD
                     const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
-                    row[f.label] = new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                    row[f.label] = formatMonthYear(new Date(dateVal));
                 } else if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
                     row[f.label] = `${sub[f.name]}%`;
                 } else {
@@ -705,6 +718,15 @@ export default function DepartmentPage() {
                                 📊 لوحة البيانات
                             </button>
                         )}
+                        {id === 'dept2' && (
+                            <button
+                                onClick={() => setIsTechSupportDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                        )}
                         <button
                             onClick={handleExportPDF}
                             className="btn"
@@ -823,7 +845,7 @@ export default function DepartmentPage() {
                                                     (() => {
                                                         // Handle both YYYY-MM and YYYY-MM-DD
                                                         const dateVal = sub[field.name].length === 7 ? sub[field.name] + '-01' : sub[field.name];
-                                                        return new Date(dateVal).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+                                                        return formatMonthYear(new Date(dateVal));
                                                     })()
                                                 ) : field.type === 'number' && id === 'dept8' && sub[field.name] ? (
                                                     `${sub[field.name]}%`
@@ -905,13 +927,21 @@ export default function DepartmentPage() {
                     />
                 </div>
             )}
-            {/* Dashboard Modal */}
+            {/* Dashboard Modals */}
             {id === 'dept1' && (
                 <DashboardModal
                     isOpen={isDashboardOpen}
                     onClose={() => setIsDashboardOpen(false)}
                 >
                     <TrainingDashboard submissions={submissions} />
+                </DashboardModal>
+            )}
+            {id === 'dept2' && (
+                <DashboardModal
+                    isOpen={isTechSupportDashboardOpen}
+                    onClose={() => setIsTechSupportDashboardOpen(false)}
+                >
+                    <TechnicalSupportDashboard submissions={submissions} />
                 </DashboardModal>
             )}
         </div>
