@@ -263,7 +263,7 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                         className="form-input"
                         style={{ width: '100%' }}
                     >
-                        {[2026, 2025, 2024, 2023, 2022, 2021].map(year => (
+                        {[2026, 2025, 2024].map(year => (
                             <option key={year} value={year}>{year}</option>
                         ))}
                     </select>

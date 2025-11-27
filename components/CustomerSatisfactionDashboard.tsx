@@ -313,7 +313,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                         className="form-input"
                         style={{ width: '100%' }}
                     >
-                        {[2026, 2025, 2024, 2023, 2022, 2021].map(year => (
+                        {[2026, 2025, 2024].map(year => (
                             <option key={year} value={year}>{year}</option>
                         ))}
                     </select>
@@ -435,8 +435,8 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                     padding: '20px',
                     border: '1px solid var(--border-color)'
                 }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة المؤشرات الأخرى - رسم بياني عمودي</h4>
-                    <ResponsiveContainer width="100%" height={350}>
+                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة عينة رضاء العاملين - رسم بياني عمودي</h4>
+                    <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={prepareChartData()}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                             <XAxis dataKey="period" stroke="var(--text-color)" />
@@ -459,34 +459,6 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                             <Bar dataKey={`عينة عاملين ${targetYear - 1}`} fill="#c5c5e8">
                                 <LabelList
                                     dataKey={`عينة عاملين ${targetYear - 1}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`زيارات ${targetYear}`} fill="#82ca9d">
-                                <LabelList
-                                    dataKey={`زيارات ${targetYear}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`زيارات ${targetYear - 1}`} fill="#c5e8d5">
-                                <LabelList
-                                    dataKey={`زيارات ${targetYear - 1}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`منشآت ${targetYear}`} fill="#ffc658">
-                                <LabelList
-                                    dataKey={`منشآت ${targetYear}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`منشآت ${targetYear - 1}`} fill="#ffe5b4">
-                                <LabelList
-                                    dataKey={`منشآت ${targetYear - 1}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
                                 />

@@ -4,11 +4,11 @@ import { useState } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
-interface TechnicalSupportDashboardProps {
+interface TechnicalClinicalDashboardProps {
     submissions: Array<Record<string, any>>;
 }
 
-export default function TechnicalSupportDashboard({ submissions }: TechnicalSupportDashboardProps) {
+export default function TechnicalClinicalDashboard({ submissions }: TechnicalClinicalDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
 
@@ -43,11 +43,10 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
 
     const aggregateData = (data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
         const aggregated: Record<string, {
-            supportPrograms: number;
-            introVisits: number;
-            fieldSupportVisits: number;
-            remoteSupportVisits: number;
-            supportedFacilities: number;
+            totalFieldVisits: number;
+            auditVisits: number;
+            assessmentVisits: number;
+            visitedFacilities: number;
             count: number;
         }> = {};
 
@@ -74,20 +73,18 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
 
             if (!aggregated[periodKey]) {
                 aggregated[periodKey] = {
-                    supportPrograms: 0,
-                    introVisits: 0,
-                    fieldSupportVisits: 0,
-                    remoteSupportVisits: 0,
-                    supportedFacilities: 0,
+                    totalFieldVisits: 0,
+                    auditVisits: 0,
+                    assessmentVisits: 0,
+                    visitedFacilities: 0,
                     count: 0
                 };
             }
 
-            aggregated[periodKey].supportPrograms += parseFloat(sub.supportPrograms) || 0;
-            aggregated[periodKey].introVisits += parseFloat(sub.introVisits) || 0;
-            aggregated[periodKey].fieldSupportVisits += parseFloat(sub.fieldSupportVisits) || 0;
-            aggregated[periodKey].remoteSupportVisits += parseFloat(sub.remoteSupportVisits) || 0;
-            aggregated[periodKey].supportedFacilities += parseFloat(sub.supportedFacilities) || 0;
+            aggregated[periodKey].totalFieldVisits += parseFloat(sub.totalFieldVisits) || 0;
+            aggregated[periodKey].auditVisits += parseFloat(sub.auditVisits) || 0;
+            aggregated[periodKey].assessmentVisits += parseFloat(sub.assessmentVisits) || 0;
+            aggregated[periodKey].visitedFacilities += parseFloat(sub.visitedFacilities) || 0;
             aggregated[periodKey].count += 1;
         });
 
@@ -106,25 +103,21 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
     // Calculate totals for each metric
-    const currentTotalPrograms = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportPrograms) || 0), 0);
-    const previousTotalPrograms = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportPrograms) || 0), 0);
-    const programsChange = calculateChange(currentTotalPrograms, previousTotalPrograms);
-
-    const currentTotalIntroVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.introVisits) || 0), 0);
-    const previousTotalIntroVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.introVisits) || 0), 0);
-    const introVisitsChange = calculateChange(currentTotalIntroVisits, previousTotalIntroVisits);
-
-    const currentTotalFieldVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.fieldSupportVisits) || 0), 0);
-    const previousTotalFieldVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.fieldSupportVisits) || 0), 0);
+    const currentTotalFieldVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.totalFieldVisits) || 0), 0);
+    const previousTotalFieldVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.totalFieldVisits) || 0), 0);
     const fieldVisitsChange = calculateChange(currentTotalFieldVisits, previousTotalFieldVisits);
 
-    const currentTotalRemoteVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.remoteSupportVisits) || 0), 0);
-    const previousTotalRemoteVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.remoteSupportVisits) || 0), 0);
-    const remoteVisitsChange = calculateChange(currentTotalRemoteVisits, previousTotalRemoteVisits);
+    const currentTotalAuditVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.auditVisits) || 0), 0);
+    const previousTotalAuditVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.auditVisits) || 0), 0);
+    const auditVisitsChange = calculateChange(currentTotalAuditVisits, previousTotalAuditVisits);
 
-    const currentTotalFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportedFacilities) || 0), 0);
-    const previousTotalFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportedFacilities) || 0), 0);
-    const facilitiesChange = calculateChange(currentTotalFacilities, previousTotalFacilities);
+    const currentTotalAssessmentVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.assessmentVisits) || 0), 0);
+    const previousTotalAssessmentVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.assessmentVisits) || 0), 0);
+    const assessmentVisitsChange = calculateChange(currentTotalAssessmentVisits, previousTotalAssessmentVisits);
+
+    const currentTotalVisitedFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.visitedFacilities) || 0), 0);
+    const previousTotalVisitedFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.visitedFacilities) || 0), 0);
+    const visitedFacilitiesChange = calculateChange(currentTotalVisitedFacilities, previousTotalVisitedFacilities);
 
     const formatPeriodLabel = (period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
@@ -138,31 +131,27 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
         return period;
     };
 
-    const preparePieData = (metric: 'supportPrograms' | 'introVisits' | 'fieldSupportVisits' | 'remoteSupportVisits' | 'supportedFacilities') => {
+    const preparePieData = (metric: 'totalFieldVisits' | 'auditVisits' | 'assessmentVisits' | 'visitedFacilities') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
 
             switch (metric) {
-                case 'supportPrograms':
-                    currentVal = currentTotalPrograms;
-                    previousVal = previousTotalPrograms;
-                    break;
-                case 'introVisits':
-                    currentVal = currentTotalIntroVisits;
-                    previousVal = previousTotalIntroVisits;
-                    break;
-                case 'fieldSupportVisits':
+                case 'totalFieldVisits':
                     currentVal = currentTotalFieldVisits;
                     previousVal = previousTotalFieldVisits;
                     break;
-                case 'remoteSupportVisits':
-                    currentVal = currentTotalRemoteVisits;
-                    previousVal = previousTotalRemoteVisits;
+                case 'auditVisits':
+                    currentVal = currentTotalAuditVisits;
+                    previousVal = previousTotalAuditVisits;
                     break;
-                case 'supportedFacilities':
-                    currentVal = currentTotalFacilities;
-                    previousVal = previousTotalFacilities;
+                case 'assessmentVisits':
+                    currentVal = currentTotalAssessmentVisits;
+                    previousVal = previousTotalAssessmentVisits;
+                    break;
+                case 'visitedFacilities':
+                    currentVal = currentTotalVisitedFacilities;
+                    previousVal = previousTotalVisitedFacilities;
                     break;
             }
 
@@ -180,11 +169,10 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
         }
     };
 
-    const programsPieData = preparePieData('supportPrograms');
-    const introVisitsPieData = preparePieData('introVisits');
-    const fieldVisitsPieData = preparePieData('fieldSupportVisits');
-    const remoteVisitsPieData = preparePieData('remoteSupportVisits');
-    const facilitiesPieData = preparePieData('supportedFacilities');
+    const fieldVisitsPieData = preparePieData('totalFieldVisits');
+    const auditVisitsPieData = preparePieData('auditVisits');
+    const assessmentVisitsPieData = preparePieData('assessmentVisits');
+    const visitedFacilitiesPieData = preparePieData('visitedFacilities');
 
     function prepareChartData() {
         const currentPeriods = Object.keys(currentAggregated);
@@ -219,16 +207,14 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
 
             return {
                 period: formatPeriodLabel(period),
-                [`برامج ${targetYear}`]: currentAggregated[period]?.supportPrograms || 0,
-                [`برامج ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.supportPrograms || 0,
-                [`زيارات تمهيدية ${targetYear}`]: currentAggregated[period]?.introVisits || 0,
-                [`زيارات تمهيدية ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.introVisits || 0,
-                [`دعم ميداني ${targetYear}`]: currentAggregated[period]?.fieldSupportVisits || 0,
-                [`دعم ميداني ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.fieldSupportVisits || 0,
-                [`دعم عن بعد ${targetYear}`]: currentAggregated[period]?.remoteSupportVisits || 0,
-                [`دعم عن بعد ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.remoteSupportVisits || 0,
-                [`منشآت ${targetYear}`]: currentAggregated[period]?.supportedFacilities || 0,
-                [`منشآت ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.supportedFacilities || 0,
+                [`إجمالي زيارات ${targetYear}`]: currentAggregated[period]?.totalFieldVisits || 0,
+                [`إجمالي زيارات ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.totalFieldVisits || 0,
+                [`تدقيق ${targetYear}`]: currentAggregated[period]?.auditVisits || 0,
+                [`تدقيق ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.auditVisits || 0,
+                [`تقييم ${targetYear}`]: currentAggregated[period]?.assessmentVisits || 0,
+                [`تقييم ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.assessmentVisits || 0,
+                [`منشآت ${targetYear}`]: currentAggregated[period]?.visitedFacilities || 0,
+                [`منشآت ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.visitedFacilities || 0,
             };
         });
     }
@@ -239,7 +225,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
         if (periods.length === 0) {
             return (
                 <tr>
-                    <td colSpan={11} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
+                    <td colSpan={9} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
                         لا توجد بيانات متاحة للسنة المحددة
                     </td>
                 </tr>
@@ -265,16 +251,14 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
                 }}>
                     <td style={{ padding: '12px', fontWeight: '500' }}>{formatPeriodLabel(period)}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.supportPrograms || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.supportPrograms || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.introVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.introVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.fieldSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.fieldSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.remoteSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.remoteSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.supportedFacilities || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.supportedFacilities || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.totalFieldVisits || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.totalFieldVisits || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.auditVisits || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.auditVisits || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.assessmentVisits || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.assessmentVisits || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.visitedFacilities || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.visitedFacilities || 0}</td>
                 </tr>
             );
         });
@@ -287,7 +271,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     📊 لوحة البيانات القياسية
                 </h2>
                 <p style={{ margin: 0, color: '#666', fontSize: '1rem' }}>
-                    الإدارة العامة للدعم الفني - تحليلات ومقارنات
+                    الإدارة العامة للرقابة الفنية والإكلينيكية - تحليلات ومقارنات
                 </p>
             </div>
 
@@ -343,29 +327,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                 marginBottom: '35px'
             }}>
                 <KPICard
-                    title="إجمالي برامج الدعم الفني"
-                    icon="🛠️"
-                    currentValue={currentTotalPrograms}
-                    previousValue={previousTotalPrograms}
-                    changePercentage={programsChange}
-                    currentYear={targetYear}
-                    previousYear={targetYear - 1}
-                    pieData={programsPieData}
-                    color="#0eacb8"
-                />
-                <KPICard
-                    title="الزيارات التمهيدية"
-                    icon="👁️"
-                    currentValue={currentTotalIntroVisits}
-                    previousValue={previousTotalIntroVisits}
-                    changePercentage={introVisitsChange}
-                    currentYear={targetYear}
-                    previousYear={targetYear - 1}
-                    pieData={introVisitsPieData}
-                    color="#8884d8"
-                />
-                <KPICard
-                    title="زيارات الدعم الميداني"
+                    title="إجمالي الزيارات الميدانية"
                     icon="🏥"
                     currentValue={currentTotalFieldVisits}
                     previousValue={previousTotalFieldVisits}
@@ -373,29 +335,40 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     currentYear={targetYear}
                     previousYear={targetYear - 1}
                     pieData={fieldVisitsPieData}
+                    color="#0eacb8"
+                />
+                <KPICard
+                    title="زيارات التدقيق"
+                    icon="🔍"
+                    currentValue={currentTotalAuditVisits}
+                    previousValue={previousTotalAuditVisits}
+                    changePercentage={auditVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={auditVisitsPieData}
+                    color="#8884d8"
+                />
+                <KPICard
+                    title="زيارات التقييم"
+                    icon="📋"
+                    currentValue={currentTotalAssessmentVisits}
+                    previousValue={previousTotalAssessmentVisits}
+                    changePercentage={assessmentVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={assessmentVisitsPieData}
                     color="#82ca9d"
                 />
                 <KPICard
-                    title="زيارات الدعم عن بعد"
-                    icon="💻"
-                    currentValue={currentTotalRemoteVisits}
-                    previousValue={previousTotalRemoteVisits}
-                    changePercentage={remoteVisitsChange}
-                    currentYear={targetYear}
-                    previousYear={targetYear - 1}
-                    pieData={remoteVisitsPieData}
-                    color="#ffc658"
-                />
-                <KPICard
-                    title="المنشآت المدعومة"
+                    title="المنشآت المزارة"
                     icon="🏢"
-                    currentValue={currentTotalFacilities}
-                    previousValue={previousTotalFacilities}
-                    changePercentage={facilitiesChange}
+                    currentValue={currentTotalVisitedFacilities}
+                    previousValue={previousTotalVisitedFacilities}
+                    changePercentage={visitedFacilitiesChange}
                     currentYear={targetYear}
                     previousYear={targetYear - 1}
-                    pieData={facilitiesPieData}
-                    color="#ff7c7c"
+                    pieData={visitedFacilitiesPieData}
+                    color="#ffc658"
                 />
             </div>
 
@@ -409,7 +382,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     marginBottom: '20px',
                     border: '1px solid var(--border-color)'
                 }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة برامج الدعم الفني - رسم بياني خطي</h4>
+                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة إجمالي الزيارات الميدانية - رسم بياني خطي</h4>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={prepareChartData()}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
@@ -425,13 +398,13 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                             <Legend />
                             <Line
                                 type="monotone"
-                                dataKey={`برامج ${targetYear}`}
+                                dataKey={`إجمالي زيارات ${targetYear}`}
                                 stroke="#0eacb8"
                                 strokeWidth={2}
                                 dot={{ fill: '#0eacb8', r: 4 }}
                             >
                                 <LabelList
-                                    dataKey={`برامج ${targetYear}`}
+                                    dataKey={`إجمالي زيارات ${targetYear}`}
                                     position="top"
                                     offset={10}
                                     style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
@@ -439,14 +412,14 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                             </Line>
                             <Line
                                 type="monotone"
-                                dataKey={`برامج ${targetYear - 1}`}
+                                dataKey={`إجمالي زيارات ${targetYear - 1}`}
                                 stroke="#999"
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
                                 dot={{ fill: '#999', r: 3 }}
                             >
                                 <LabelList
-                                    dataKey={`برامج ${targetYear - 1}`}
+                                    dataKey={`إجمالي زيارات ${targetYear - 1}`}
                                     position="top"
                                     offset={10}
                                     style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
@@ -476,44 +449,44 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                                 }}
                             />
                             <Legend />
-                            <Bar dataKey={`زيارات تمهيدية ${targetYear}`} fill="#8884d8">
+                            <Bar dataKey={`تدقيق ${targetYear}`} fill="#8884d8">
                                 <LabelList
-                                    dataKey={`زيارات تمهيدية ${targetYear}`}
+                                    dataKey={`تدقيق ${targetYear}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
                                 />
                             </Bar>
-                            <Bar dataKey={`زيارات تمهيدية ${targetYear - 1}`} fill="#c5c5e8">
+                            <Bar dataKey={`تدقيق ${targetYear - 1}`} fill="#c5c5e8">
                                 <LabelList
-                                    dataKey={`زيارات تمهيدية ${targetYear - 1}`}
+                                    dataKey={`تدقيق ${targetYear - 1}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
                                 />
                             </Bar>
-                            <Bar dataKey={`دعم ميداني ${targetYear}`} fill="#82ca9d">
+                            <Bar dataKey={`تقييم ${targetYear}`} fill="#82ca9d">
                                 <LabelList
-                                    dataKey={`دعم ميداني ${targetYear}`}
+                                    dataKey={`تقييم ${targetYear}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
                                 />
                             </Bar>
-                            <Bar dataKey={`دعم ميداني ${targetYear - 1}`} fill="#c5e8d5">
+                            <Bar dataKey={`تقييم ${targetYear - 1}`} fill="#c5e8d5">
                                 <LabelList
-                                    dataKey={`دعم ميداني ${targetYear - 1}`}
+                                    dataKey={`تقييم ${targetYear - 1}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
                                 />
                             </Bar>
-                            <Bar dataKey={`دعم عن بعد ${targetYear}`} fill="#ffc658">
+                            <Bar dataKey={`منشآت ${targetYear}`} fill="#ffc658">
                                 <LabelList
-                                    dataKey={`دعم عن بعد ${targetYear}`}
+                                    dataKey={`منشآت ${targetYear}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
                                 />
                             </Bar>
-                            <Bar dataKey={`دعم عن بعد ${targetYear - 1}`} fill="#ffe5b4">
+                            <Bar dataKey={`منشآت ${targetYear - 1}`} fill="#ffe5b4">
                                 <LabelList
-                                    dataKey={`دعم عن بعد ${targetYear - 1}`}
+                                    dataKey={`منشآت ${targetYear - 1}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
                                 />
@@ -536,14 +509,12 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>برامج {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>برامج {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تمهيدية {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تمهيدية {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>ميداني {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>ميداني {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عن بعد {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عن بعد {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>إجمالي {targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>إجمالي {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تدقيق {targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تدقيق {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تقييم {targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تقييم {targetYear - 1}</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear}</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear - 1}</th>
                             </tr>
