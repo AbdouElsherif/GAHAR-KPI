@@ -12,6 +12,7 @@ import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
 import TrainingDashboard from '@/components/TrainingDashboard';
 import TechnicalSupportDashboard from '@/components/TechnicalSupportDashboard';
+import CustomerSatisfactionDashboard from '@/components/CustomerSatisfactionDashboard';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -150,6 +151,7 @@ export default function DepartmentPage() {
     // Dashboard modal states
     const [isDashboardOpen, setIsDashboardOpen] = useState(false);
     const [isTechSupportDashboardOpen, setIsTechSupportDashboardOpen] = useState(false);
+    const [isCustomerSatisfactionDashboardOpen, setIsCustomerSatisfactionDashboardOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -727,6 +729,15 @@ export default function DepartmentPage() {
                                 📊 لوحة البيانات
                             </button>
                         )}
+                        {id === 'dept3' && (
+                            <button
+                                onClick={() => setIsCustomerSatisfactionDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                        )}
                         <button
                             onClick={handleExportPDF}
                             className="btn"
@@ -942,6 +953,14 @@ export default function DepartmentPage() {
                     onClose={() => setIsTechSupportDashboardOpen(false)}
                 >
                     <TechnicalSupportDashboard submissions={submissions} />
+                </DashboardModal>
+            )}
+            {id === 'dept3' && (
+                <DashboardModal
+                    isOpen={isCustomerSatisfactionDashboardOpen}
+                    onClose={() => setIsCustomerSatisfactionDashboardOpen(false)}
+                >
+                    <CustomerSatisfactionDashboard submissions={submissions} />
                 </DashboardModal>
             )}
         </div>
