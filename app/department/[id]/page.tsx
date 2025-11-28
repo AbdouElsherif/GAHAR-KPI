@@ -14,6 +14,7 @@ import TrainingDashboard from '@/components/TrainingDashboard';
 import TechnicalSupportDashboard from '@/components/TechnicalSupportDashboard';
 import CustomerSatisfactionDashboard from '@/components/CustomerSatisfactionDashboard';
 import TechnicalClinicalDashboard from '@/components/TechnicalClinicalDashboard';
+import AdminAuditDashboard from '@/components/AdminAuditDashboard';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -154,6 +155,7 @@ export default function DepartmentPage() {
     const [isTechSupportDashboardOpen, setIsTechSupportDashboardOpen] = useState(false);
     const [isCustomerSatisfactionDashboardOpen, setIsCustomerSatisfactionDashboardOpen] = useState(false);
     const [isTechnicalClinicalDashboardOpen, setIsTechnicalClinicalDashboardOpen] = useState(false);
+    const [isAdminAuditDashboardOpen, setIsAdminAuditDashboardOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -749,6 +751,15 @@ export default function DepartmentPage() {
                                 📊 لوحة البيانات
                             </button>
                         )}
+                        {id === 'dept5' && (
+                            <button
+                                onClick={() => setIsAdminAuditDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                        )}
                         <button
                             onClick={handleExportPDF}
                             className="btn"
@@ -980,6 +991,14 @@ export default function DepartmentPage() {
                     onClose={() => setIsTechnicalClinicalDashboardOpen(false)}
                 >
                     <TechnicalClinicalDashboard submissions={submissions} />
+                </DashboardModal>
+            )}
+            {id === 'dept5' && (
+                <DashboardModal
+                    isOpen={isAdminAuditDashboardOpen}
+                    onClose={() => setIsAdminAuditDashboardOpen(false)}
+                >
+                    <AdminAuditDashboard submissions={submissions} />
                 </DashboardModal>
             )}
         </div>
