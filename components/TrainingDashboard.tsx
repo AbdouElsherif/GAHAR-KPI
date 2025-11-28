@@ -11,6 +11,13 @@ interface TrainingDashboardProps {
 export default function TrainingDashboard({ submissions }: TrainingDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
+    const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
+    const [selectedHalf, setSelectedHalf] = useState<number>(1);
+    const [visibleMetrics, setVisibleMetrics] = useState<{
+        trainees: boolean;
+    }>({
+        trainees: true
+    });
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
@@ -116,6 +123,17 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                 { name: `${targetYear}`, value: currentVal },
                 { name: `${targetYear - 1}`, value: previousVal }
             ];
+        } else if (comparisonType === 'quarterly' || comparisonType === 'halfYearly') {
+            const currentAgg = aggregateData(currentYearData, comparisonType);
+            const previousAgg = aggregateData(previousYearData, comparisonType);
+
+            const periodKey = comparisonType === 'quarterly' ? `Q${selectedQuarter}` : `H${selectedHalf}`;
+            const periodLabel = comparisonType === 'quarterly' ? `الربع ${selectedQuarter}` : `النصف ${selectedHalf}`;
+
+            return [
+                { name: `${periodLabel} ${targetYear}`, value: currentAgg[periodKey]?.[metric] || 0 },
+                { name: `${periodLabel} ${targetYear - 1}`, value: previousAgg[periodKey]?.[metric] || 0 }
+            ];
         } else {
             const aggregated = aggregateData(currentYearData, comparisonType);
             const periods = Object.keys(aggregated).sort();
@@ -148,7 +166,15 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
             }
         });
 
-        const sortedPeriods = Array.from(allPeriods).sort();
+        let sortedPeriods = Array.from(allPeriods).sort();
+
+        if (comparisonType === 'quarterly') {
+            const targetPeriod = `Q${selectedQuarter}`;
+            sortedPeriods = sortedPeriods.filter(p => p === targetPeriod);
+        } else if (comparisonType === 'halfYearly') {
+            const targetPeriod = `H${selectedHalf}`;
+            sortedPeriods = sortedPeriods.filter(p => p === targetPeriod);
+        }
 
         return sortedPeriods.map(period => {
             let previousPeriodKey = period;
@@ -171,7 +197,15 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
     }
 
     function renderTableRows() {
-        const periods = Object.keys(currentAggregated).sort();
+        let periods = Object.keys(currentAggregated).sort();
+
+        if (comparisonType === 'quarterly') {
+            const targetPeriod = `Q${selectedQuarter}`;
+            periods = periods.filter(p => p === targetPeriod);
+        } else if (comparisonType === 'halfYearly') {
+            const targetPeriod = `H${selectedHalf}`;
+            periods = periods.filter(p => p === targetPeriod);
+        }
 
         if (periods.length === 0) {
             return (
@@ -268,6 +302,42 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                         ))}
                     </select>
                 </div>
+
+                {comparisonType === 'quarterly' && (
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-color)' }}>
+                            الربع المحدد
+                        </label>
+                        <select
+                            value={selectedQuarter}
+                            onChange={(e) => setSelectedQuarter(parseInt(e.target.value))}
+                            className="form-input"
+                            style={{ width: '100%' }}
+                        >
+                            <option value={1}>الربع الأول (يوليو - سبتمبر)</option>
+                            <option value={2}>الربع الثاني (أكتوبر - ديسمبر)</option>
+                            <option value={3}>الربع الثالث (يناير - مارس)</option>
+                            <option value={4}>الربع الرابع (أبريل - يونيو)</option>
+                        </select>
+                    </div>
+                )}
+
+                {comparisonType === 'halfYearly' && (
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-color)' }}>
+                            النصف المحدد
+                        </label>
+                        <select
+                            value={selectedHalf}
+                            onChange={(e) => setSelectedHalf(parseInt(e.target.value))}
+                            className="form-input"
+                            style={{ width: '100%' }}
+                        >
+                            <option value={1}>النصف الأول (يوليو - ديسمبر)</option>
+                            <option value={2}>النصف الثاني (يناير - يونيو)</option>
+                        </select>
+                    </div>
+                )}
             </div>
 
             <div style={{
@@ -363,7 +433,20 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                     padding: '20px',
                     border: '1px solid var(--border-color)'
                 }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة المتدربين - رسم بياني عمودي</h4>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة المتدربين - رسم بياني عمودي</h4>
+                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={visibleMetrics.trainees}
+                                    onChange={(e) => setVisibleMetrics({ ...visibleMetrics, trainees: e.target.checked })}
+                                />
+                                <span>متدربين</span>
+                            </label>
+                        </div>
+                    </div>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={prepareChartData()}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
@@ -377,20 +460,25 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                                 }}
                             />
                             <Legend />
-                            <Bar dataKey={`متدربين ${targetYear}`} fill="#0eacb8">
-                                <LabelList
-                                    dataKey={`متدربين ${targetYear}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`متدربين ${targetYear - 1}`} fill="#ff9800">
-                                <LabelList
-                                    dataKey={`متدربين ${targetYear - 1}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Bar>
+
+                            {visibleMetrics.trainees && (
+                                <>
+                                    <Bar dataKey={`متدربين ${targetYear}`} fill="#0eacb8">
+                                        <LabelList
+                                            dataKey={`متدربين ${targetYear}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                    <Bar dataKey={`متدربين ${targetYear - 1}`} fill="#ff9800">
+                                        <LabelList
+                                            dataKey={`متدربين ${targetYear - 1}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                </>
+                            )}
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
