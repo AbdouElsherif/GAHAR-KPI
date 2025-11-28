@@ -11,6 +11,17 @@ interface TechnicalClinicalDashboardProps {
 export default function TechnicalClinicalDashboard({ submissions }: TechnicalClinicalDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
+    const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
+    const [selectedHalf, setSelectedHalf] = useState<number>(1);
+    const [visibleMetrics, setVisibleMetrics] = useState<{
+        audit: boolean;
+        assessment: boolean;
+        facilities: boolean;
+    }>({
+        audit: true,
+        assessment: true,
+        facilities: true
+    });
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
@@ -159,6 +170,18 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                 { name: `${targetYear}`, value: currentVal },
                 { name: `${targetYear - 1}`, value: previousVal }
             ];
+        } else if (comparisonType === 'quarterly' || comparisonType === 'halfYearly') {
+            // للمقارنة الربع سنوية أو النصف سنوية - عرض الفترة المختارة فقط
+            const currentAgg = aggregateData(currentYearData, comparisonType);
+            const previousAgg = aggregateData(previousYearData, comparisonType);
+
+            const periodKey = comparisonType === 'quarterly' ? `Q${selectedQuarter}` : `H${selectedHalf}`;
+            const periodLabel = comparisonType === 'quarterly' ? `الربع ${selectedQuarter}` : `النصف ${selectedHalf}`;
+
+            return [
+                { name: `${periodLabel} ${targetYear}`, value: currentAgg[periodKey]?.[metric] || 0 },
+                { name: `${periodLabel} ${targetYear - 1}`, value: previousAgg[periodKey]?.[metric] || 0 }
+            ];
         } else {
             const aggregated = aggregateData(currentYearData, comparisonType);
             const periods = Object.keys(aggregated).sort();
@@ -193,7 +216,16 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
             }
         });
 
-        const sortedPeriods = Array.from(allPeriods).sort();
+        let sortedPeriods = Array.from(allPeriods).sort();
+
+        // تصفية حسب الفترة المختارة للمقارنة الربع سنوية أو النصف سنوية
+        if (comparisonType === 'quarterly') {
+            const targetPeriod = `Q${selectedQuarter}`;
+            sortedPeriods = sortedPeriods.filter(p => p === targetPeriod);
+        } else if (comparisonType === 'halfYearly') {
+            const targetPeriod = `H${selectedHalf}`;
+            sortedPeriods = sortedPeriods.filter(p => p === targetPeriod);
+        }
 
         return sortedPeriods.map(period => {
             let previousPeriodKey = period;
@@ -220,7 +252,16 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
     }
 
     function renderTableRows() {
-        const periods = Object.keys(currentAggregated).sort();
+        let periods = Object.keys(currentAggregated).sort();
+
+        // تصفية حسب الفترة المختارة للمقارنة الربع سنوية أو النصف سنوية
+        if (comparisonType === 'quarterly') {
+            const targetPeriod = `Q${selectedQuarter}`;
+            periods = periods.filter(p => p === targetPeriod);
+        } else if (comparisonType === 'halfYearly') {
+            const targetPeriod = `H${selectedHalf}`;
+            periods = periods.filter(p => p === targetPeriod);
+        }
 
         if (periods.length === 0) {
             return (
@@ -318,6 +359,42 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                         ))}
                     </select>
                 </div>
+
+                {comparisonType === 'quarterly' && (
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-color)' }}>
+                            الربع المحدد
+                        </label>
+                        <select
+                            value={selectedQuarter}
+                            onChange={(e) => setSelectedQuarter(parseInt(e.target.value))}
+                            className="form-input"
+                            style={{ width: '100%' }}
+                        >
+                            <option value={1}>الربع الأول (يوليو - سبتمبر)</option>
+                            <option value={2}>الربع الثاني (أكتوبر - ديسمبر)</option>
+                            <option value={3}>الربع الثالث (يناير - مارس)</option>
+                            <option value={4}>الربع الرابع (أبريل - يونيو)</option>
+                        </select>
+                    </div>
+                )}
+
+                {comparisonType === 'halfYearly' && (
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-color)' }}>
+                            النصف المحدد
+                        </label>
+                        <select
+                            value={selectedHalf}
+                            onChange={(e) => setSelectedHalf(parseInt(e.target.value))}
+                            className="form-input"
+                            style={{ width: '100%' }}
+                        >
+                            <option value={1}>النصف الأول (يوليو - ديسمبر)</option>
+                            <option value={2}>النصف الثاني (يناير - يونيو)</option>
+                        </select>
+                    </div>
+                )}
             </div>
 
             <div style={{
@@ -435,7 +512,35 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                     padding: '20px',
                     border: '1px solid var(--border-color)'
                 }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة أنواع الزيارات - رسم بياني عمودي</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة أنواع الزيارات - رسم بياني عمودي</h4>
+                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={visibleMetrics.audit}
+                                    onChange={(e) => setVisibleMetrics({ ...visibleMetrics, audit: e.target.checked })}
+                                />
+                                <span>تدقيق</span>
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={visibleMetrics.assessment}
+                                    onChange={(e) => setVisibleMetrics({ ...visibleMetrics, assessment: e.target.checked })}
+                                />
+                                <span>تقييم</span>
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={visibleMetrics.facilities}
+                                    onChange={(e) => setVisibleMetrics({ ...visibleMetrics, facilities: e.target.checked })}
+                                />
+                                <span>منشآت</span>
+                            </label>
+                        </div>
+                    </div>
                     <ResponsiveContainer width="100%" height={350}>
                         <BarChart data={prepareChartData()}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
@@ -449,48 +554,60 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                                 }}
                             />
                             <Legend />
-                            <Bar dataKey={`تدقيق ${targetYear}`} fill="#8884d8">
-                                <LabelList
-                                    dataKey={`تدقيق ${targetYear}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`تدقيق ${targetYear - 1}`} fill="#c5c5e8">
-                                <LabelList
-                                    dataKey={`تدقيق ${targetYear - 1}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`تقييم ${targetYear}`} fill="#82ca9d">
-                                <LabelList
-                                    dataKey={`تقييم ${targetYear}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`تقييم ${targetYear - 1}`} fill="#c5e8d5">
-                                <LabelList
-                                    dataKey={`تقييم ${targetYear - 1}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`منشآت ${targetYear}`} fill="#ffc658">
-                                <LabelList
-                                    dataKey={`منشآت ${targetYear}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Bar>
-                            <Bar dataKey={`منشآت ${targetYear - 1}`} fill="#ffe5b4">
-                                <LabelList
-                                    dataKey={`منشآت ${targetYear - 1}`}
-                                    position="top"
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Bar>
+                            {visibleMetrics.audit && (
+                                <>
+                                    <Bar dataKey={`تدقيق ${targetYear}`} fill="#8884d8">
+                                        <LabelList
+                                            dataKey={`تدقيق ${targetYear}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                    <Bar dataKey={`تدقيق ${targetYear - 1}`} fill="#c5c5e8">
+                                        <LabelList
+                                            dataKey={`تدقيق ${targetYear - 1}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                </>
+                            )}
+                            {visibleMetrics.assessment && (
+                                <>
+                                    <Bar dataKey={`تقييم ${targetYear}`} fill="#82ca9d">
+                                        <LabelList
+                                            dataKey={`تقييم ${targetYear}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                    <Bar dataKey={`تقييم ${targetYear - 1}`} fill="#c5e8d5">
+                                        <LabelList
+                                            dataKey={`تقييم ${targetYear - 1}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                </>
+                            )}
+                            {visibleMetrics.facilities && (
+                                <>
+                                    <Bar dataKey={`منشآت ${targetYear}`} fill="#ffc658">
+                                        <LabelList
+                                            dataKey={`منشآت ${targetYear}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                    <Bar dataKey={`منشآت ${targetYear - 1}`} fill="#ffe5b4">
+                                        <LabelList
+                                            dataKey={`منشآت ${targetYear - 1}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                </>
+                            )}
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
