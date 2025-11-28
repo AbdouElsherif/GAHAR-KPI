@@ -15,6 +15,8 @@ import TechnicalSupportDashboard from '@/components/TechnicalSupportDashboard';
 import CustomerSatisfactionDashboard from '@/components/CustomerSatisfactionDashboard';
 import TechnicalClinicalDashboard from '@/components/TechnicalClinicalDashboard';
 import AdminAuditDashboard from '@/components/AdminAuditDashboard';
+import AccreditationDashboard from '@/components/AccreditationDashboard';
+import MedicalProfessionalsDashboard from '@/components/MedicalProfessionalsDashboard';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -156,6 +158,8 @@ export default function DepartmentPage() {
     const [isCustomerSatisfactionDashboardOpen, setIsCustomerSatisfactionDashboardOpen] = useState(false);
     const [isTechnicalClinicalDashboardOpen, setIsTechnicalClinicalDashboardOpen] = useState(false);
     const [isAdminAuditDashboardOpen, setIsAdminAuditDashboardOpen] = useState(false);
+    const [isAccreditationDashboardOpen, setIsAccreditationDashboardOpen] = useState(false);
+    const [isMedicalProfessionalsDashboardOpen, setIsMedicalProfessionalsDashboardOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -760,6 +764,24 @@ export default function DepartmentPage() {
                                 📊 لوحة البيانات
                             </button>
                         )}
+                        {id === 'dept6' && (
+                            <button
+                                onClick={() => setIsAccreditationDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                        )}
+                        {id === 'dept7' && (
+                            <button
+                                onClick={() => setIsMedicalProfessionalsDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                        )}
                         <button
                             onClick={handleExportPDF}
                             className="btn"
@@ -960,47 +982,82 @@ export default function DepartmentPage() {
                     />
                 </div>
             )}
-            {/* Dashboard Modals */}
-            {id === 'dept1' && (
-                <DashboardModal
-                    isOpen={isDashboardOpen}
-                    onClose={() => setIsDashboardOpen(false)}
-                >
-                    <TrainingDashboard submissions={submissions} />
-                </DashboardModal>
-            )}
-            {id === 'dept2' && (
-                <DashboardModal
-                    isOpen={isTechSupportDashboardOpen}
-                    onClose={() => setIsTechSupportDashboardOpen(false)}
-                >
-                    <TechnicalSupportDashboard submissions={submissions} />
-                </DashboardModal>
-            )}
-            {id === 'dept3' && (
-                <DashboardModal
-                    isOpen={isCustomerSatisfactionDashboardOpen}
-                    onClose={() => setIsCustomerSatisfactionDashboardOpen(false)}
-                >
-                    <CustomerSatisfactionDashboard submissions={submissions} />
-                </DashboardModal>
-            )}
-            {id === 'dept4' && (
-                <DashboardModal
-                    isOpen={isTechnicalClinicalDashboardOpen}
-                    onClose={() => setIsTechnicalClinicalDashboardOpen(false)}
-                >
-                    <TechnicalClinicalDashboard submissions={submissions} />
-                </DashboardModal>
-            )}
-            {id === 'dept5' && (
-                <DashboardModal
-                    isOpen={isAdminAuditDashboardOpen}
-                    onClose={() => setIsAdminAuditDashboardOpen(false)}
-                >
-                    <AdminAuditDashboard submissions={submissions} />
-                </DashboardModal>
-            )}
-        </div>
+
+            {
+                id === 'dept1' && (
+                    <DashboardModal
+                        isOpen={isDashboardOpen}
+                        onClose={() => setIsDashboardOpen(false)}
+                    >
+                        <TrainingDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+            {
+                id === 'dept2' && (
+                    <DashboardModal
+                        isOpen={isTechSupportDashboardOpen}
+                        onClose={() => setIsTechSupportDashboardOpen(false)}
+                    >
+                        <TechnicalSupportDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+            {
+                id === 'dept3' && (
+                    <DashboardModal
+                        isOpen={isCustomerSatisfactionDashboardOpen}
+                        onClose={() => setIsCustomerSatisfactionDashboardOpen(false)}
+                    >
+                        <CustomerSatisfactionDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+            {
+                id === 'dept4' && (
+                    <DashboardModal
+                        isOpen={isTechnicalClinicalDashboardOpen}
+                        onClose={() => setIsTechnicalClinicalDashboardOpen(false)}
+                    >
+                        <TechnicalClinicalDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+            {
+                id === 'dept5' && (
+                    <DashboardModal
+                        isOpen={isAdminAuditDashboardOpen}
+                        onClose={() => setIsAdminAuditDashboardOpen(false)}
+                        title="لوحة بيانات الرقابة الإدارية على المنشآت الصحية"
+                    >
+                        <AdminAuditDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+
+            {
+                id === 'dept6' && (
+                    <DashboardModal
+                        isOpen={isAccreditationDashboardOpen}
+                        onClose={() => setIsAccreditationDashboardOpen(false)}
+                        title="لوحة بيانات الإدارة العامة للاعتماد والتسجيل"
+                    >
+                        <AccreditationDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+
+            {
+                id === 'dept7' && (
+                    <DashboardModal
+                        isOpen={isMedicalProfessionalsDashboardOpen}
+                        onClose={() => setIsMedicalProfessionalsDashboardOpen(false)}
+                        title="لوحة بيانات الإدارة العامة لتسجيل أعضاء المهن الطبية"
+                    >
+                        <MedicalProfessionalsDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+        </div >
     );
 }
