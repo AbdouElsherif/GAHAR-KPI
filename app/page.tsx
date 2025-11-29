@@ -65,6 +65,9 @@ export default function Home() {
                                 إدارة المستخدمين
                             </Link>
                         )}
+                        <Link href="/change-password" className="btn btn-primary" style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }}>
+                            تغيير كلمة المرور
+                        </Link>
                         <button onClick={handleLogout} className="btn" style={{ backgroundColor: '#dc3545', color: 'white' }}>
                             تسجيل الخروج
                         </button>

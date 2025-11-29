@@ -1,20 +1,23 @@
-import { 
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User as FirebaseUser
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    updatePassword,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
+    User as FirebaseUser
 } from 'firebase/auth';
 import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  where
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
@@ -32,7 +35,7 @@ export async function initializeUsers() {
     try {
         const usersRef = collection(db, 'users');
         const snapshot = await getDocs(usersRef);
-        
+
         if (snapshot.empty) {
             // Create default admin user
             const adminAuth = await createUserWithEmailAndPassword(
@@ -40,13 +43,13 @@ export async function initializeUsers() {
                 'admin@gahar.gov.eg',
                 'admin123'
             );
-            
+
             await setDoc(doc(db, 'users', adminAuth.user.uid), {
                 username: 'admin',
                 email: 'admin@gahar.gov.eg',
                 role: 'super_admin'
             });
-            
+
             console.log('Default admin user created');
         }
 
@@ -86,7 +89,7 @@ export async function getUsers(): Promise<User[]> {
     try {
         const usersRef = collection(db, 'users');
         const snapshot = await getDocs(usersRef);
-        
+
         return snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -128,7 +131,7 @@ export async function addUser(userData: {
             userData.email,
             userData.password
         );
-        
+
         // Create user profile in Firestore
         const userProfile = {
             username: userData.username,
@@ -137,9 +140,9 @@ export async function addUser(userData: {
             departmentId: userData.departmentId,
             departmentName: userData.departmentName
         };
-        
+
         await setDoc(doc(db, 'users', userCredential.user.uid), userProfile);
-        
+
         return {
             id: userCredential.user.uid,
             ...userProfile
@@ -178,6 +181,27 @@ export async function login(email: string, password: string): Promise<User | nul
     } catch (error) {
         console.error('Login error:', error);
         return null;
+    }
+}
+
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
+    const user = auth.currentUser;
+    if (!user || !user.email) throw new Error('No user logged in');
+
+    const credential = EmailAuthProvider.credential(user.email, oldPassword);
+
+    try {
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPassword);
+    } catch (error: any) {
+        console.error('Change password error:', error);
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            throw new Error('كلمة المرور القديمة غير صحيحة');
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error('كلمة المرور الجديدة ضعيفة جداً');
+        } else {
+            throw new Error('حدث خطأ أثناء تغيير كلمة المرور');
+        }
     }
 }
 
