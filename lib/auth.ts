@@ -252,3 +252,19 @@ export function canAccessDepartment(user: User | null, deptId: string): boolean 
     if (user.role === 'super_admin' || user.role === 'general_viewer') return true;
     return user.departmentId === deptId;
 }
+
+export function validatePassword(password: string): { isValid: boolean; error?: string } {
+    if (password.length < 6) {
+        return { isValid: false, error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' };
+    }
+    if (!/\d/.test(password)) {
+        return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل' };
+    }
+    if (!/[a-z]/.test(password)) {
+        return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل' };
+    }
+    if (!/[A-Z]/.test(password)) {
+        return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل' };
+    }
+    return { isValid: true };
+}

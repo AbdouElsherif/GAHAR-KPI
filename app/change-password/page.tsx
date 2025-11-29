@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { changePassword } from '@/lib/auth';
+import { changePassword, validatePassword } from '@/lib/auth';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -27,8 +27,9 @@ export default function ChangePasswordPage() {
             return;
         }
 
-        if (newPassword.length < 6) {
-            setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+        const validation = validatePassword(newPassword);
+        if (!validation.isValid) {
+            setError(validation.error || 'كلمة المرور غير صالحة');
             setLoading(false);
             return;
         }

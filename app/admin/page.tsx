@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, logout, getUsers, addUser, updateUser, deleteUser, User, onAuthChange } from '@/lib/auth';
+import { getCurrentUser, logout, getUsers, addUser, updateUser, deleteUser, User, onAuthChange, validatePassword } from '@/lib/auth';
 import Link from 'next/link';
 
 const departments = [
@@ -66,6 +66,14 @@ export default function AdminPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (formData.password) {
+            const validation = validatePassword(formData.password);
+            if (!validation.isValid) {
+                alert(validation.error);
+                return;
+            }
+        }
 
         if (editingUser) {
             await updateUser(editingUser.id, formData);
