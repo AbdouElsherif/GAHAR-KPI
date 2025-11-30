@@ -121,19 +121,24 @@ export async function saveMOHKPI(kpiData: Omit<MOHKPI, 'id' | 'createdAt' | 'upd
 export async function getMOHKPIs(fiscalYear?: string): Promise<MOHKPI[]> {
     try {
         const mohKPIRef = collection(db, 'moh_kpis');
-        let q = query(mohKPIRef, orderBy('name', 'asc'));
+        const snapshot = await getDocs(mohKPIRef);
 
-        if (fiscalYear) {
-            q = query(mohKPIRef, where('fiscalYear', '==', fiscalYear), orderBy('name', 'asc'));
-        }
-
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
+        let kpis = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
             createdAt: doc.data().createdAt?.toDate(),
             updatedAt: doc.data().updatedAt?.toDate()
         } as MOHKPI));
+
+        // Filter by fiscal year if provided
+        if (fiscalYear) {
+            kpis = kpis.filter(kpi => kpi.fiscalYear === fiscalYear);
+        }
+
+        // Sort by name
+        kpis.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+        return kpis;
     } catch (error) {
         console.error('Error getting MOH KPIs:', error);
         return [];

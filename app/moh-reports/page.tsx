@@ -72,35 +72,52 @@ export default function MOHReportsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('handleSubmit called!', { formData, currentUser });
         if (!currentUser) return;
 
-        if (editingId) {
-            // Update existing KPI
-            const success = await updateMOHKPI(editingId, {
-                ...formData,
-                updatedBy: currentUser.id
-            });
+        try {
+            if (editingId) {
+                // Update existing KPI
+                console.log('Updating KPI:', editingId, formData);
+                const success = await updateMOHKPI(editingId, {
+                    ...formData,
+                    updatedBy: currentUser.id
+                });
 
-            if (success) {
-                setSubmitted(true);
-                setTimeout(() => setSubmitted(false), 3000);
-                resetForm();
-                await loadKPIs(selectedYear);
-            }
-        } else {
-            // Create new KPI
-            const docId = await saveMOHKPI({
-                ...formData,
-                createdBy: currentUser.id,
-                updatedBy: currentUser.id
-            });
+                if (success) {
+                    console.log('KPI updated successfully');
+                    setSubmitted(true);
+                    setTimeout(() => setSubmitted(false), 3000);
+                    resetForm();
+                    await loadKPIs(selectedYear);
+                } else {
+                    console.error('Failed to update KPI');
+                    alert('فشل في تحديث المؤشر. يرجى المحاولة مرة أخرى.');
+                }
+            } else {
+                // Create new KPI
+                console.log('Creating new KPI:', formData);
+                const docId = await saveMOHKPI({
+                    ...formData,
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
 
-            if (docId) {
-                setSubmitted(true);
-                setTimeout(() => setSubmitted(false), 3000);
-                resetForm();
-                await loadKPIs(selectedYear);
+                if (docId) {
+                    console.log('KPI created successfully with ID:', docId);
+                    setSubmitted(true);
+                    setTimeout(() => setSubmitted(false), 3000);
+                    resetForm();
+                    // إعادة تحميل البيانات
+                    await loadKPIs(selectedYear);
+                } else {
+                    console.error('Failed to create KPI');
+                    alert('فشل في حفظ المؤشر. يرجى المحاولة مرة أخرى.');
+                }
             }
+        } catch (error) {
+            console.error('Error in handleSubmit:', error);
+            alert('حدث خطأ. يرجى التحقق من Console للمزيد من التفاصيل.');
         }
     };
 
