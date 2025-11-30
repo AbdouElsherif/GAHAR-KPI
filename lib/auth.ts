@@ -1,23 +1,22 @@
 import {
-    signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
     updatePassword,
     reauthenticateWithCredential,
-    EmailAuthProvider,
-    User as FirebaseUser
+    EmailAuthProvider
 } from 'firebase/auth';
 import {
-    collection,
     doc,
-    getDoc,
-    getDocs,
     setDoc,
+    getDoc,
     updateDoc,
     deleteDoc,
+    collection,
     query,
-    where
+    where,
+    getDocs
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
@@ -28,76 +27,6 @@ export interface User {
     role: 'super_admin' | 'dept_admin' | 'dept_viewer' | 'general_viewer';
     departmentId?: string;
     departmentName?: string;
-}
-
-// Initialize default admin user in Firestore
-export async function initializeUsers() {
-    try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
-
-        if (snapshot.empty) {
-            // Create default admin user
-            const adminAuth = await createUserWithEmailAndPassword(
-                auth,
-                'admin@gahar.gov.eg',
-                'admin123'
-            );
-
-            await setDoc(doc(db, 'users', adminAuth.user.uid), {
-                username: 'admin',
-                email: 'admin@gahar.gov.eg',
-                role: 'super_admin'
-            });
-
-            console.log('Default admin user created');
-        }
-
-        // Check/Create default viewer user
-        const viewerQuery = query(usersRef, where('email', '==', 'viewer@gahar.gov.eg'));
-        const viewerSnapshot = await getDocs(viewerQuery);
-
-        if (viewerSnapshot.empty) {
-            try {
-                const viewerAuth = await createUserWithEmailAndPassword(
-                    auth,
-                    'viewer@gahar.gov.eg',
-                    'viewer123'
-                );
-
-                await setDoc(doc(db, 'users', viewerAuth.user.uid), {
-                    username: 'مراقب عام',
-                    email: 'viewer@gahar.gov.eg',
-                    role: 'general_viewer'
-                });
-                console.log('Default viewer user created');
-            } catch (error: any) {
-                if (error.code !== 'auth/email-already-in-use') {
-                    console.error('Error creating viewer user:', error);
-                }
-            }
-        }
-    } catch (error: any) {
-        if (error.code !== 'auth/email-already-in-use') {
-            console.error('Error initializing users:', error);
-        }
-    }
-}
-
-// User CRUD operations
-export async function getUsers(): Promise<User[]> {
-    try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
-
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        } as User));
-    } catch (error) {
-        console.error('Error getting users:', error);
-        return [];
-    }
 }
 
 export async function getUserProfile(uid: string): Promise<User | null> {
@@ -113,6 +42,19 @@ export async function getUserProfile(uid: string): Promise<User | null> {
     } catch (error) {
         console.error('Error getting user profile:', error);
         return null;
+    }
+}
+
+export async function getUsers(): Promise<User[]> {
+    try {
+        const querySnapshot = await getDocs(collection(db, 'users'));
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as User));
+    } catch (error) {
+        console.error('Error getting users:', error);
+        return [];
     }
 }
 
@@ -175,8 +117,17 @@ export async function deleteUser(id: string) {
 // Authentication
 export async function login(email: string, password: string): Promise<User | null> {
     try {
+        console.log('Attempting login for:', email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log('Auth successful. UID:', userCredential.user.uid);
+
         const userProfile = await getUserProfile(userCredential.user.uid);
+        console.log('User profile result:', userProfile);
+
+        if (!userProfile) {
+            console.error('User profile not found for UID:', userCredential.user.uid);
+        }
+
         return userProfile;
     } catch (error) {
         console.error('Login error:', error);
@@ -267,4 +218,26 @@ export function validatePassword(password: string): { isValid: boolean; error?: 
         return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل' };
     }
     return { isValid: true };
+}
+
+export async function initializeUsers() {
+    try {
+        // Check if super admin exists
+        const adminEmail = 'admin@gahar.gov.eg';
+        const q = query(collection(db, 'users'), where('email', '==', adminEmail));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log('Creating default super admin...');
+            await addUser({
+                username: 'Admin',
+                email: adminEmail,
+                password: 'admin123',
+                role: 'super_admin'
+            });
+            console.log('Default super admin created.');
+        }
+    } catch (error) {
+        console.error('Error initializing users:', error);
+    }
 }

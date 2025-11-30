@@ -89,6 +89,23 @@ export default function Home() {
                         </Link>
                     ))}
                 </div>
+
+                <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '30px' }}>
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#0d6a79' }}>تقارير إضافية</h2>
+                    <div className="department-grid">
+                        <Link
+                            href="/moh-reports"
+                            className="dept-card"
+                            style={{
+                                backgroundColor: '#f8f9fa',
+                                border: '2px dashed #0d6a79',
+                                color: '#0d6a79'
+                            }}
+                        >
+                            تقارير وزارة الصحة
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );
