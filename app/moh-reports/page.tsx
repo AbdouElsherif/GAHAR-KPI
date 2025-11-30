@@ -162,7 +162,7 @@ export default function MOHReportsPage() {
     };
 
     const getStatusColor = (percentage: number): string => {
-        if (percentage >= 100) return '#22c55e';
+        if (percentage >= 90) return '#22c55e';
         if (percentage >= 75) return '#eab308';
         return '#ef4444';
     };
@@ -542,11 +542,11 @@ export default function MOHReportsPage() {
                         <div style={{ display: 'flex', gap: '15px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '3px' }}></div>
-                                <span>≥ 100% (ممتاز)</span>
+                                <span>90-100% (ممتاز)</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '3px' }}></div>
-                                <span>75-99% (جيد)</span>
+                                <span>75-89% (جيد)</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '3px' }}></div>
