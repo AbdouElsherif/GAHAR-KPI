@@ -9,6 +9,7 @@ import { getMOHKPIs, saveMOHKPI, updateMOHKPI, deleteMOHKPI, MOHKPI } from '@/li
 const emptyKPI: Omit<MOHKPI, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'> = {
     name: '',
     unit: '',
+    annualTarget: '',
     fiscalYear: '2024-2025',
     q1: { target: '', achieved: '' },
     q2: { target: '', achieved: '' },
@@ -126,6 +127,7 @@ export default function MOHReportsPage() {
         setFormData({
             name: kpi.name,
             unit: kpi.unit,
+            annualTarget: kpi.annualTarget,
             fiscalYear: kpi.fiscalYear,
             q1: kpi.q1,
             q2: kpi.q2,
@@ -269,6 +271,16 @@ export default function MOHReportsPage() {
                                             />
                                         </div>
                                         <div className="form-group">
+                                            <label className="form-label">المستهدف السنوي</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={formData.annualTarget || ''}
+                                                onChange={(e) => handleInputChange('annualTarget', e.target.value)}
+                                                placeholder="اختياري"
+                                            />
+                                        </div>
+                                        <div className="form-group">
                                             <label className="form-label">السنة المالية *</label>
                                             <select
                                                 className="form-input"
@@ -358,6 +370,9 @@ export default function MOHReportsPage() {
                                 <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '100px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
                                     الوحدة
                                 </th>
+                                <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '120px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+                                    المستهدف السنوي
+                                </th>
                                 <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
                                     الربع الأول (Q1)
                                 </th>
@@ -417,6 +432,9 @@ export default function MOHReportsPage() {
                                         }}>
                                             <td style={{ padding: '12px', fontWeight: '500' }}>{kpi.name}</td>
                                             <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{kpi.unit}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontWeight: '500' }}>
+                                                {kpi.annualTarget || '-'}
+                                            </td>
 
                                             {/* Q1 */}
                                             <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q1.target}</td>

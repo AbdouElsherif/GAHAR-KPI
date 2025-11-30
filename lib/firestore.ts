@@ -23,6 +23,7 @@ export interface MOHKPI {
     id?: string;
     name: string;
     unit: string;
+    annualTarget?: string;
     fiscalYear: string;
     q1: MOHQuarterData;
     q2: MOHQuarterData;
