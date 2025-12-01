@@ -167,22 +167,9 @@ export default function MOHReportsPage() {
         return '#ef4444';
     };
 
-    // تحديد نوع المؤشر بناءً على اسمه
-    const getKPIType = (): 'number' | 'percentage' | 'other' => {
-        const name = formData.name.trim();
-        if (name.startsWith('عدد')) return 'number';
-        if (name.startsWith('نسبة')) return 'percentage';
-        return 'other';
-    };
-
     // تحديد ما إذا كان المنجز قد وصل إلى 100%
-    // التعطيل يحدث فقط للمؤشرات التي تبدأ بـ "نسبة" وقيمة المنجز >= 100
+    // الأرباع التالية تصبح اختيارية عندما يصل المنجز لـ 100% (لجميع أنواع المؤشرات)
     const isQuarterComplete = (target: string | number, achieved: string | number): boolean => {
-        const kpiType = getKPIType();
-
-        // التعطيل فقط للمؤشرات التي تبدأ بـ "نسبة"
-        if (kpiType !== 'percentage') return false;
-
         if (!achieved) return false;
         const achievedNum = typeof achieved === 'string' ? parseFloat(achieved.replace(/[^\d.]/g, '')) : achieved;
         // تحقق إذا كانت قيمة المنجز >= 100
@@ -346,65 +333,39 @@ export default function MOHReportsPage() {
 
                                     {(['q1', 'q2', 'q3', 'q4'] as const).map((quarter, idx) => {
                                         const quarterNames = ['الربع الأول', 'الربع الثاني', 'الربع الثالث', 'الربع الرابع'];
-                                        const disabledQuarters = getDisabledQuarters();
-                                        const isDisabled = disabledQuarters.has(quarter);
+                                        const optionalQuarters = getDisabledQuarters();
+                                        const isOptional = optionalQuarters.has(quarter);
 
                                         return (
                                             <div key={quarter} style={{
                                                 marginBottom: '15px',
                                                 padding: '15px',
-                                                backgroundColor: isDisabled ? '#f5f5f5' : 'white',
+                                                backgroundColor: 'white',
                                                 borderRadius: '8px',
-                                                border: '1px solid #e0e0e0',
-                                                opacity: isDisabled ? 0.7 : 1,
-                                                position: 'relative'
+                                                border: '1px solid #e0e0e0'
                                             }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                    <h5 style={{ margin: 0, color: 'var(--primary-color)' }}>
-                                                        {quarterNames[idx]} ({quarter.toUpperCase()})
-                                                    </h5>
-                                                    {isDisabled && (
-                                                        <span style={{
-                                                            fontSize: '0.8rem',
-                                                            color: '#666',
-                                                            backgroundColor: '#fff3cd',
-                                                            padding: '4px 8px',
-                                                            borderRadius: '4px',
-                                                            border: '1px solid #ffc107'
-                                                        }}>
-                                                            معطل - تم إنجاز 100% في ربع سابق
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                <h5 style={{ marginBottom: '10px', color: 'var(--primary-color)' }}>
+                                                    {quarterNames[idx]} ({quarter.toUpperCase()})
+                                                </h5>
                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                                     <div className="form-group">
-                                                        <label className="form-label">المستهدف {!isDisabled && '*'}</label>
+                                                        <label className="form-label">المستهدف {!isOptional && '*'}</label>
                                                         <input
                                                             type="text"
                                                             className="form-input"
                                                             value={formData[quarter].target}
                                                             onChange={(e) => handleQuarterChange(quarter, 'target', e.target.value)}
-                                                            required={!isDisabled}
-                                                            disabled={isDisabled}
-                                                            style={{
-                                                                cursor: isDisabled ? 'not-allowed' : 'text',
-                                                                backgroundColor: isDisabled ? '#e9ecef' : 'white'
-                                                            }}
+                                                            required={!isOptional}
                                                         />
                                                     </div>
                                                     <div className="form-group">
-                                                        <label className="form-label">المنجز {!isDisabled && '*'}</label>
+                                                        <label className="form-label">المنجز {!isOptional && '*'}</label>
                                                         <input
                                                             type="text"
                                                             className="form-input"
                                                             value={formData[quarter].achieved}
                                                             onChange={(e) => handleQuarterChange(quarter, 'achieved', e.target.value)}
-                                                            required={!isDisabled}
-                                                            disabled={isDisabled}
-                                                            style={{
-                                                                cursor: isDisabled ? 'not-allowed' : 'text',
-                                                                backgroundColor: isDisabled ? '#e9ecef' : 'white'
-                                                            }}
+                                                            required={!isOptional}
                                                         />
                                                     </div>
                                                 </div>
