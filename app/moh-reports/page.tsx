@@ -167,9 +167,22 @@ export default function MOHReportsPage() {
         return '#ef4444';
     };
 
+    // تحديد نوع المؤشر بناءً على اسمه
+    const getKPIType = (): 'number' | 'percentage' | 'other' => {
+        const name = formData.name.trim();
+        if (name.startsWith('عدد')) return 'number';
+        if (name.startsWith('نسبة')) return 'percentage';
+        return 'other';
+    };
+
     // تحديد ما إذا كان المنجز قد وصل إلى 100%
-    // التعطيل يحدث فقط إذا كانت قيمة المنجز نفسها = 100% أو أكثر
+    // التعطيل يحدث فقط للمؤشرات التي تبدأ بـ "نسبة" وقيمة المنجز >= 100
     const isQuarterComplete = (target: string | number, achieved: string | number): boolean => {
+        const kpiType = getKPIType();
+
+        // التعطيل فقط للمؤشرات التي تبدأ بـ "نسبة"
+        if (kpiType !== 'percentage') return false;
+
         if (!achieved) return false;
         const achievedNum = typeof achieved === 'string' ? parseFloat(achieved.replace(/[^\d.]/g, '')) : achieved;
         // تحقق إذا كانت قيمة المنجز >= 100
