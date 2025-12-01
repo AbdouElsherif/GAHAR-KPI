@@ -167,14 +167,13 @@ export default function MOHReportsPage() {
         return '#ef4444';
     };
 
-    // تحديد ما إذا كان الربع قد وصل إلى 100% إنجاز
+    // تحديد ما إذا كان المنجز قد وصل إلى 100%
+    // التعطيل يحدث فقط إذا كانت قيمة المنجز نفسها = 100% أو أكثر
     const isQuarterComplete = (target: string | number, achieved: string | number): boolean => {
-        if (!target || !achieved) return false;
-        const targetNum = typeof target === 'string' ? parseFloat(target.replace(/[^\d.]/g, '')) : target;
+        if (!achieved) return false;
         const achievedNum = typeof achieved === 'string' ? parseFloat(achieved.replace(/[^\d.]/g, '')) : achieved;
-        if (!targetNum || targetNum === 0) return false;
-        const percentage = (achievedNum / targetNum) * 100;
-        return percentage >= 100;
+        // تحقق إذا كانت قيمة المنجز >= 100
+        return achievedNum >= 100;
     };
 
     // تحديد الأرباع التي يجب تعطيلها بناءً على إنجاز الأرباع السابقة
