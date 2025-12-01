@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="ar" dir="rtl">
-            <body>
+            <body suppressHydrationWarning={true}>
                 <header className="header">
                     <div className="container header-content">
                         <Link href="/" className="logo-container">

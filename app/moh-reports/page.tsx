@@ -9,6 +9,7 @@ import { getMOHKPIs, saveMOHKPI, updateMOHKPI, deleteMOHKPI, MOHKPI } from '@/li
 const emptyKPI: Omit<MOHKPI, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'> = {
     name: '',
     unit: '',
+    department: '',
     annualTarget: '',
     fiscalYear: '2024-2025',
     q1: { target: '', achieved: '' },
@@ -27,6 +28,8 @@ export default function MOHReportsPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState(emptyKPI);
     const [submitted, setSubmitted] = useState(false);
+    const [sortBy, setSortBy] = useState<'name' | 'department'>('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -127,6 +130,7 @@ export default function MOHReportsPage() {
         setFormData({
             name: kpi.name,
             unit: kpi.unit,
+            department: kpi.department || '',
             annualTarget: kpi.annualTarget,
             fiscalYear: kpi.fiscalYear,
             q1: kpi.q1,
@@ -198,6 +202,23 @@ export default function MOHReportsPage() {
 
         return disabled;
     };
+
+    const handleSort = (field: 'name' | 'department') => {
+        if (sortBy === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(field);
+            setSortOrder('asc');
+        }
+    };
+
+    const sortedKPIs = [...kpis].sort((a, b) => {
+        const aValue = (a[sortBy] || '').toString();
+        const bValue = (b[sortBy] || '').toString();
+        return sortOrder === 'asc'
+            ? aValue.localeCompare(bValue, 'ar')
+            : bValue.localeCompare(aValue, 'ar');
+    });
 
     if (loading || !currentUser) return null;
 
@@ -303,6 +324,16 @@ export default function MOHReportsPage() {
                                             />
                                         </div>
                                         <div className="form-group">
+                                            <label className="form-label">الإدارة المسؤولة</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={formData.department || ''}
+                                                onChange={(e) => handleInputChange('department', e.target.value)}
+                                                placeholder="اختياري"
+                                            />
+                                        </div>
+                                        <div className="form-group">
                                             <label className="form-label">المستهدف السنوي</label>
                                             <input
                                                 type="text"
@@ -399,8 +430,19 @@ export default function MOHReportsPage() {
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th rowSpan={2} style={{ padding: '12px', textAlign: 'right', minWidth: '250px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    مؤشر الأداء
+                                <th
+                                    rowSpan={2}
+                                    style={{ padding: '12px', textAlign: 'right', minWidth: '250px', borderLeft: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
+                                    onClick={() => handleSort('name')}
+                                >
+                                    مؤشر الأداء {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                </th>
+                                <th
+                                    rowSpan={2}
+                                    style={{ padding: '12px', textAlign: 'center', minWidth: '150px', borderLeft: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
+                                    onClick={() => handleSort('department')}
+                                >
+                                    الإدارة المسؤولة {sortBy === 'department' && (sortOrder === 'asc' ? '↑' : '↓')}
                                 </th>
                                 <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '100px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
                                     الوحدة
@@ -438,9 +480,9 @@ export default function MOHReportsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {kpis.length === 0 ? (
+                            {sortedKPIs.length === 0 ? (
                                 <tr>
-                                    <td colSpan={userCanEdit ? 11 : 10} style={{
+                                    <td colSpan={userCanEdit ? 12 : 11} style={{
                                         padding: '60px 20px',
                                         textAlign: 'center',
                                         color: '#666',
@@ -454,7 +496,7 @@ export default function MOHReportsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                kpis.map((kpi, index) => {
+                                sortedKPIs.map((kpi, index) => {
                                     const q1Percentage = getAchievementPercentage(kpi.q1.target, kpi.q1.achieved);
                                     const q2Percentage = getAchievementPercentage(kpi.q2.target, kpi.q2.achieved);
                                     const q3Percentage = getAchievementPercentage(kpi.q3.target, kpi.q3.achieved);
@@ -466,6 +508,7 @@ export default function MOHReportsPage() {
                                             backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
                                         }}>
                                             <td style={{ padding: '12px', fontWeight: '500' }}>{kpi.name}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#555' }}>{kpi.department || '-'}</td>
                                             <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{kpi.unit}</td>
                                             <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontWeight: '500' }}>
                                                 {kpi.annualTarget || '-'}
