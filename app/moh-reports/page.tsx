@@ -167,6 +167,39 @@ export default function MOHReportsPage() {
         return '#ef4444';
     };
 
+    // تحديد ما إذا كان الربع قد وصل إلى 100% إنجاز
+    const isQuarterComplete = (target: string | number, achieved: string | number): boolean => {
+        if (!target || !achieved) return false;
+        const targetNum = typeof target === 'string' ? parseFloat(target.replace(/[^\d.]/g, '')) : target;
+        const achievedNum = typeof achieved === 'string' ? parseFloat(achieved.replace(/[^\d.]/g, '')) : achieved;
+        if (!targetNum || targetNum === 0) return false;
+        const percentage = (achievedNum / targetNum) * 100;
+        return percentage >= 100;
+    };
+
+    // تحديد الأرباع التي يجب تعطيلها بناءً على إنجاز الأرباع السابقة
+    const getDisabledQuarters = (): Set<string> => {
+        const disabled = new Set<string>();
+
+        // إذا وصل Q1 إلى 100%، تعطيل Q2, Q3, Q4
+        if (isQuarterComplete(formData.q1.target, formData.q1.achieved)) {
+            disabled.add('q2');
+            disabled.add('q3');
+            disabled.add('q4');
+        }
+        // إذا وصل Q2 إلى 100%، تعطيل Q3, Q4
+        else if (isQuarterComplete(formData.q2.target, formData.q2.achieved)) {
+            disabled.add('q3');
+            disabled.add('q4');
+        }
+        // إذا وصل Q3 إلى 100%، تعطيل Q4
+        else if (isQuarterComplete(formData.q3.target, formData.q3.achieved)) {
+            disabled.add('q4');
+        }
+
+        return disabled;
+    };
+
     if (loading || !currentUser) return null;
 
     const userCanEdit = currentUser.role === 'super_admin';
@@ -301,36 +334,65 @@ export default function MOHReportsPage() {
 
                                     {(['q1', 'q2', 'q3', 'q4'] as const).map((quarter, idx) => {
                                         const quarterNames = ['الربع الأول', 'الربع الثاني', 'الربع الثالث', 'الربع الرابع'];
+                                        const disabledQuarters = getDisabledQuarters();
+                                        const isDisabled = disabledQuarters.has(quarter);
+
                                         return (
                                             <div key={quarter} style={{
                                                 marginBottom: '15px',
                                                 padding: '15px',
-                                                backgroundColor: 'white',
+                                                backgroundColor: isDisabled ? '#f5f5f5' : 'white',
                                                 borderRadius: '8px',
-                                                border: '1px solid #e0e0e0'
+                                                border: '1px solid #e0e0e0',
+                                                opacity: isDisabled ? 0.7 : 1,
+                                                position: 'relative'
                                             }}>
-                                                <h5 style={{ marginBottom: '10px', color: 'var(--primary-color)' }}>
-                                                    {quarterNames[idx]} ({quarter.toUpperCase()})
-                                                </h5>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                    <h5 style={{ margin: 0, color: 'var(--primary-color)' }}>
+                                                        {quarterNames[idx]} ({quarter.toUpperCase()})
+                                                    </h5>
+                                                    {isDisabled && (
+                                                        <span style={{
+                                                            fontSize: '0.8rem',
+                                                            color: '#666',
+                                                            backgroundColor: '#fff3cd',
+                                                            padding: '4px 8px',
+                                                            borderRadius: '4px',
+                                                            border: '1px solid #ffc107'
+                                                        }}>
+                                                            معطل - تم إنجاز 100% في ربع سابق
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                                     <div className="form-group">
-                                                        <label className="form-label">المستهدف *</label>
+                                                        <label className="form-label">المستهدف {!isDisabled && '*'}</label>
                                                         <input
                                                             type="text"
                                                             className="form-input"
                                                             value={formData[quarter].target}
                                                             onChange={(e) => handleQuarterChange(quarter, 'target', e.target.value)}
-                                                            required
+                                                            required={!isDisabled}
+                                                            disabled={isDisabled}
+                                                            style={{
+                                                                cursor: isDisabled ? 'not-allowed' : 'text',
+                                                                backgroundColor: isDisabled ? '#e9ecef' : 'white'
+                                                            }}
                                                         />
                                                     </div>
                                                     <div className="form-group">
-                                                        <label className="form-label">المنجز *</label>
+                                                        <label className="form-label">المنجز {!isDisabled && '*'}</label>
                                                         <input
                                                             type="text"
                                                             className="form-input"
                                                             value={formData[quarter].achieved}
                                                             onChange={(e) => handleQuarterChange(quarter, 'achieved', e.target.value)}
-                                                            required
+                                                            required={!isDisabled}
+                                                            disabled={isDisabled}
+                                                            style={{
+                                                                cursor: isDisabled ? 'not-allowed' : 'text',
+                                                                backgroundColor: isDisabled ? '#e9ecef' : 'white'
+                                                            }}
                                                         />
                                                     </div>
                                                 </div>
