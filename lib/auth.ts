@@ -150,6 +150,39 @@ export async function deleteUser(id: string) {
     }
 }
 
+export async function resetUserPassword(userId: string, newPassword: string = 'Gahar@123'): Promise<{ success: boolean; error?: string; newPassword?: string }> {
+    try {
+        // Call the API route to reset password using Firebase Admin SDK
+        const response = await fetch('/api/reset-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, newPassword }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return {
+                success: false,
+                error: data.error || 'فشل في إعادة تعيين كلمة المرور'
+            };
+        }
+
+        return {
+            success: true,
+            newPassword: data.newPassword,
+        };
+    } catch (error: any) {
+        console.error('Error resetting user password:', error);
+        return {
+            success: false,
+            error: error.message || 'حدث خطأ أثناء الاتصال بالخادم'
+        };
+    }
+}
+
 // Authentication
 export async function login(email: string, password: string): Promise<User | null> {
     try {
