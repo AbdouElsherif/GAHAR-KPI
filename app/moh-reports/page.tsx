@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getCurrentUser, User, onAuthChange, canEdit } from '@/lib/auth';
+import { getCurrentUser, User, onAuthChange } from '@/lib/auth';
 import { getMOHKPIs, saveMOHKPI, updateMOHKPI, deleteMOHKPI, MOHKPI } from '@/lib/firestore';
 
 const emptyKPI: Omit<MOHKPI, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'> = {
@@ -18,6 +18,208 @@ const emptyKPI: Omit<MOHKPI, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'u
     q4: { target: '', achieved: '' }
 };
 
+// Helper functions for table
+const getAchievementPercentage = (target: number | string, achieved: number | string): number => {
+    const targetNum = typeof target === 'string' ? parseFloat(target.replace(/[^\d.]/g, '')) : target;
+    const achievedNum = typeof achieved === 'string' ? parseFloat(achieved.replace(/[^\d.]/g, '')) : achieved;
+
+    if (!targetNum || targetNum === 0) return 100;
+    return Math.round((achievedNum / targetNum) * 100);
+};
+
+const getStatusColor = (percentage: number): string => {
+    if (percentage >= 90) return '#22c55e';
+    if (percentage >= 75) return '#eab308';
+    return '#ef4444';
+};
+
+interface KPITableProps {
+    kpis: MOHKPI[];
+    userCanEdit: boolean;
+    onEdit: (kpi: MOHKPI) => void;
+    onDelete: (id: string) => void;
+}
+
+// Memoized Table Component
+const KPITable = memo(({ kpis, userCanEdit, onEdit, onDelete }: KPITableProps) => {
+    console.log('KPITable rendering with', kpis.length, 'KPIs');
+    return (
+        <div style={{ overflowX: 'auto' }}>
+            <table style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                marginTop: '20px',
+                fontSize: '0.9rem',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            }}>
+                <thead>
+                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                        <th rowSpan={2} style={{ padding: '12px', textAlign: 'right', borderRadius: '0 8px 0 0', minWidth: '400px' }}>المؤشر</th>
+                        <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.2)' }}>الإدارة</th>
+                        <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.2)' }}>الوحدة</th>
+                        <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.2)' }}>المستهدف السنوي</th>
+                        <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+                            الربع الأول (Q1)
+                        </th>
+                        <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+                            الربع الثاني (Q2)
+                        </th>
+                        <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+                            الربع الثالث (Q3)
+                        </th>
+                        <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+                            الربع الرابع (Q4)
+                        </th>
+                        {userCanEdit && (
+                            <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '120px' }}>
+                                إجراءات
+                            </th>
+                        )}
+                    </tr>
+                    <tr style={{ backgroundColor: 'var(--secondary-color)', color: 'white' }}>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
+                        <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {kpis.length === 0 ? (
+                        <tr>
+                            <td colSpan={userCanEdit ? 12 : 11} style={{
+                                padding: '60px 20px',
+                                textAlign: 'center',
+                                color: '#666',
+                                fontSize: '1.1rem'
+                            }}>
+                                <div style={{ marginBottom: '10px', fontSize: '3rem' }}>📊</div>
+                                <div style={{ fontWeight: '600', marginBottom: '8px' }}>لا توجد مؤشرات حالياً</div>
+                                <div style={{ fontSize: '0.9rem' }}>
+                                    {userCanEdit ? 'اضغط "إضافة مؤشر جديد" لإضافة مؤشرات' : 'سيتم إضافة المؤشرات قريباً'}
+                                </div>
+                            </td>
+                        </tr>
+                    ) : (
+                        kpis.map((kpi, index) => {
+                            const q1Percentage = getAchievementPercentage(kpi.q1.target, kpi.q1.achieved);
+                            const q2Percentage = getAchievementPercentage(kpi.q2.target, kpi.q2.achieved);
+                            const q3Percentage = getAchievementPercentage(kpi.q3.target, kpi.q3.achieved);
+                            const q4Percentage = getAchievementPercentage(kpi.q4.target, kpi.q4.achieved);
+
+                            return (
+                                <tr key={kpi.id} style={{
+                                    borderBottom: '1px solid #eee',
+                                    backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                }}>
+                                    <td style={{ padding: '12px', fontWeight: '500' }}>{kpi.name}</td>
+                                    <td style={{ padding: '12px', textAlign: 'center', color: '#555' }}>{kpi.department || '-'}</td>
+                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{kpi.unit}</td>
+                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontWeight: '500' }}>
+                                        {kpi.annualTarget || '-'}
+                                    </td>
+
+                                    {/* Q1 */}
+                                    <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q1.target}</td>
+                                    <td style={{
+                                        padding: '12px',
+                                        textAlign: 'center',
+                                        borderLeft: '1px solid #ddd',
+                                        backgroundColor: `${getStatusColor(q1Percentage)}15`,
+                                        color: getStatusColor(q1Percentage),
+                                        fontWeight: '600'
+                                    }}>
+                                        {kpi.q1.achieved}
+                                    </td>
+
+                                    {/* Q2 */}
+                                    <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q2.target}</td>
+                                    <td style={{
+                                        padding: '12px',
+                                        textAlign: 'center',
+                                        borderLeft: '1px solid #ddd',
+                                        backgroundColor: `${getStatusColor(q2Percentage)}15`,
+                                        color: getStatusColor(q2Percentage),
+                                        fontWeight: '600'
+                                    }}>
+                                        {kpi.q2.achieved}
+                                    </td>
+
+                                    {/* Q3 */}
+                                    <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q3.target}</td>
+                                    <td style={{
+                                        padding: '12px',
+                                        textAlign: 'center',
+                                        borderLeft: '1px solid #ddd',
+                                        backgroundColor: `${getStatusColor(q3Percentage)}15`,
+                                        color: getStatusColor(q3Percentage),
+                                        fontWeight: '600'
+                                    }}>
+                                        {kpi.q3.achieved}
+                                    </td>
+
+                                    {/* Q4 */}
+                                    <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q4.target}</td>
+                                    <td style={{
+                                        padding: '12px',
+                                        textAlign: 'center',
+                                        borderLeft: '1px solid #ddd',
+                                        backgroundColor: `${getStatusColor(q4Percentage)}15`,
+                                        color: getStatusColor(q4Percentage),
+                                        fontWeight: '600'
+                                    }}>
+                                        {kpi.q4.achieved}
+                                    </td>
+
+                                    {userCanEdit && (
+                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                <button
+                                                    onClick={() => onEdit(kpi)}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        backgroundColor: 'var(--primary-color)',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    تعديل
+                                                </button>
+                                                <button
+                                                    onClick={() => onDelete(kpi.id!)}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        backgroundColor: '#dc3545',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    حذف
+                                                </button>
+                                            </div>
+                                        </td>
+                                    )}
+                                </tr>
+                            );
+                        })
+                    )}
+                </tbody>
+            </table >
+        </div >
+    );
+});
+
+KPITable.displayName = 'KPITable';
+
 export default function MOHReportsPage() {
     const router = useRouter();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -28,8 +230,11 @@ export default function MOHReportsPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState(emptyKPI);
     const [submitted, setSubmitted] = useState(false);
-    const [sortBy, setSortBy] = useState<'name' | 'department'>('name');
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+    const loadKPIs = useCallback(async (fiscalYear: string) => {
+        const data = await getMOHKPIs(fiscalYear);
+        setKPIs(data);
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -43,18 +248,13 @@ export default function MOHReportsPage() {
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, loadKPIs, selectedYear]);
 
     useEffect(() => {
         if (currentUser) {
             loadKPIs(selectedYear);
         }
-    }, [selectedYear, currentUser]);
-
-    const loadKPIs = async (fiscalYear: string) => {
-        const data = await getMOHKPIs(fiscalYear);
-        setKPIs(data);
-    };
+    }, [selectedYear, currentUser, loadKPIs]);
 
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
@@ -74,6 +274,12 @@ export default function MOHReportsPage() {
         }));
     };
 
+    const resetForm = () => {
+        setFormData(emptyKPI);
+        setEditingId(null);
+        setShowForm(false);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log('handleSubmit called!', { formData, currentUser });
@@ -83,20 +289,20 @@ export default function MOHReportsPage() {
             if (editingId) {
                 // Update existing KPI
                 console.log('Updating KPI:', editingId, formData);
-                const success = await updateMOHKPI(editingId, {
+                const result = await updateMOHKPI(editingId, {
                     ...formData,
                     updatedBy: currentUser.id
                 });
 
-                if (success) {
+                if (result.success) {
                     console.log('KPI updated successfully');
                     setSubmitted(true);
                     setTimeout(() => setSubmitted(false), 3000);
                     resetForm();
                     await loadKPIs(selectedYear);
                 } else {
-                    console.error('Failed to update KPI');
-                    alert('فشل في تحديث المؤشر. يرجى المحاولة مرة أخرى.');
+                    console.error('Failed to update KPI:', result.error);
+                    alert(`فشل في تحديث المؤشر: ${result.error}`);
                 }
             } else {
                 // Create new KPI
@@ -125,13 +331,13 @@ export default function MOHReportsPage() {
         }
     };
 
-    const handleEdit = (kpi: MOHKPI) => {
+    const handleEdit = useCallback((kpi: MOHKPI) => {
         setEditingId(kpi.id || null);
         setFormData({
             name: kpi.name,
             unit: kpi.unit,
             department: kpi.department || '',
-            annualTarget: kpi.annualTarget,
+            annualTarget: kpi.annualTarget || '',
             fiscalYear: kpi.fiscalYear,
             q1: kpi.q1,
             q2: kpi.q2,
@@ -140,36 +346,16 @@ export default function MOHReportsPage() {
         });
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    }, []);
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = useCallback(async (id: string) => {
         if (!confirm('هل أنت متأكد من حذف هذا المؤشر؟')) return;
 
         const success = await deleteMOHKPI(id);
         if (success) {
             await loadKPIs(selectedYear);
         }
-    };
-
-    const resetForm = () => {
-        setFormData(emptyKPI);
-        setEditingId(null);
-        setShowForm(false);
-    };
-
-    const getAchievementPercentage = (target: number | string, achieved: number | string): number => {
-        const targetNum = typeof target === 'string' ? parseFloat(target.replace(/[^\d.]/g, '')) : target;
-        const achievedNum = typeof achieved === 'string' ? parseFloat(achieved.replace(/[^\d.]/g, '')) : achieved;
-
-        if (!targetNum || targetNum === 0) return 100;
-        return Math.round((achievedNum / targetNum) * 100);
-    };
-
-    const getStatusColor = (percentage: number): string => {
-        if (percentage >= 90) return '#22c55e';
-        if (percentage >= 75) return '#eab308';
-        return '#ef4444';
-    };
+    }, [loadKPIs, selectedYear]);
 
     // تحديد ما إذا كان المنجز قد وصل إلى 100%
     // الأرباع التالية تصبح اختيارية عندما يصل المنجز لـ 100% (لجميع أنواع المؤشرات)
@@ -202,23 +388,6 @@ export default function MOHReportsPage() {
 
         return disabled;
     };
-
-    const handleSort = (field: 'name' | 'department') => {
-        if (sortBy === field) {
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortBy(field);
-            setSortOrder('asc');
-        }
-    };
-
-    const sortedKPIs = [...kpis].sort((a, b) => {
-        const aValue = (a[sortBy] || '').toString();
-        const bValue = (b[sortBy] || '').toString();
-        return sortOrder === 'asc'
-            ? aValue.localeCompare(bValue, 'ar')
-            : bValue.localeCompare(aValue, 'ar');
-    });
 
     if (loading || !currentUser) return null;
 
@@ -422,191 +591,12 @@ export default function MOHReportsPage() {
                     </>
                 )}
 
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{
-                        width: '100%',
-                        borderCollapse: 'collapse',
-                        fontSize: '0.9rem'
-                    }}>
-                        <thead>
-                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th
-                                    rowSpan={2}
-                                    style={{ padding: '12px', textAlign: 'right', minWidth: '250px', borderLeft: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
-                                    onClick={() => handleSort('name')}
-                                >
-                                    مؤشر الأداء {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
-                                </th>
-                                <th
-                                    rowSpan={2}
-                                    style={{ padding: '12px', textAlign: 'center', minWidth: '150px', borderLeft: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
-                                    onClick={() => handleSort('department')}
-                                >
-                                    الإدارة المسؤولة {sortBy === 'department' && (sortOrder === 'asc' ? '↑' : '↓')}
-                                </th>
-                                <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '100px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    الوحدة
-                                </th>
-                                <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '120px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    المستهدف السنوي
-                                </th>
-                                <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    الربع الأول (Q1)
-                                </th>
-                                <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    الربع الثاني (Q2)
-                                </th>
-                                <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    الربع الثالث (Q3)
-                                </th>
-                                <th colSpan={2} style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                                    الربع الرابع (Q4)
-                                </th>
-                                {userCanEdit && (
-                                    <th rowSpan={2} style={{ padding: '12px', textAlign: 'center', width: '120px' }}>
-                                        إجراءات
-                                    </th>
-                                )}
-                            </tr>
-                            <tr style={{ backgroundColor: 'var(--secondary-color)', color: 'white' }}>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>مستهدف</th>
-                                <th style={{ padding: '8px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>منجز</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sortedKPIs.length === 0 ? (
-                                <tr>
-                                    <td colSpan={userCanEdit ? 12 : 11} style={{
-                                        padding: '60px 20px',
-                                        textAlign: 'center',
-                                        color: '#666',
-                                        fontSize: '1.1rem'
-                                    }}>
-                                        <div style={{ marginBottom: '10px', fontSize: '3rem' }}>📊</div>
-                                        <div style={{ fontWeight: '600', marginBottom: '8px' }}>لا توجد مؤشرات حالياً</div>
-                                        <div style={{ fontSize: '0.9rem' }}>
-                                            {userCanEdit ? 'اضغط "إضافة مؤشر جديد" لإضافة مؤشرات' : 'سيتم إضافة المؤشرات قريباً'}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : (
-                                sortedKPIs.map((kpi, index) => {
-                                    const q1Percentage = getAchievementPercentage(kpi.q1.target, kpi.q1.achieved);
-                                    const q2Percentage = getAchievementPercentage(kpi.q2.target, kpi.q2.achieved);
-                                    const q3Percentage = getAchievementPercentage(kpi.q3.target, kpi.q3.achieved);
-                                    const q4Percentage = getAchievementPercentage(kpi.q4.target, kpi.q4.achieved);
-
-                                    return (
-                                        <tr key={kpi.id} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{kpi.name}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: '#555' }}>{kpi.department || '-'}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{kpi.unit}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontWeight: '500' }}>
-                                                {kpi.annualTarget || '-'}
-                                            </td>
-
-                                            {/* Q1 */}
-                                            <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q1.target}</td>
-                                            <td style={{
-                                                padding: '12px',
-                                                textAlign: 'center',
-                                                borderLeft: '1px solid #ddd',
-                                                backgroundColor: `${getStatusColor(q1Percentage)}15`,
-                                                color: getStatusColor(q1Percentage),
-                                                fontWeight: '600'
-                                            }}>
-                                                {kpi.q1.achieved}
-                                            </td>
-
-                                            {/* Q2 */}
-                                            <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q2.target}</td>
-                                            <td style={{
-                                                padding: '12px',
-                                                textAlign: 'center',
-                                                borderLeft: '1px solid #ddd',
-                                                backgroundColor: `${getStatusColor(q2Percentage)}15`,
-                                                color: getStatusColor(q2Percentage),
-                                                fontWeight: '600'
-                                            }}>
-                                                {kpi.q2.achieved}
-                                            </td>
-
-                                            {/* Q3 */}
-                                            <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q3.target}</td>
-                                            <td style={{
-                                                padding: '12px',
-                                                textAlign: 'center',
-                                                borderLeft: '1px solid #ddd',
-                                                backgroundColor: `${getStatusColor(q3Percentage)}15`,
-                                                color: getStatusColor(q3Percentage),
-                                                fontWeight: '600'
-                                            }}>
-                                                {kpi.q3.achieved}
-                                            </td>
-
-                                            {/* Q4 */}
-                                            <td style={{ padding: '12px', textAlign: 'center', borderLeft: '1px solid #eee' }}>{kpi.q4.target}</td>
-                                            <td style={{
-                                                padding: '12px',
-                                                textAlign: 'center',
-                                                borderLeft: '1px solid #ddd',
-                                                backgroundColor: `${getStatusColor(q4Percentage)}15`,
-                                                color: getStatusColor(q4Percentage),
-                                                fontWeight: '600'
-                                            }}>
-                                                {kpi.q4.achieved}
-                                            </td>
-
-                                            {userCanEdit && (
-                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                        <button
-                                                            onClick={() => handleEdit(kpi)}
-                                                            style={{
-                                                                padding: '6px 12px',
-                                                                backgroundColor: 'var(--primary-color)',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '4px',
-                                                                cursor: 'pointer',
-                                                                fontSize: '0.85rem'
-                                                            }}
-                                                        >
-                                                            تعديل
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(kpi.id!)}
-                                                            style={{
-                                                                padding: '6px 12px',
-                                                                backgroundColor: '#dc3545',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '4px',
-                                                                cursor: 'pointer',
-                                                                fontSize: '0.85rem'
-                                                            }}
-                                                        >
-                                                            حذف
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            )}
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <KPITable
+                    kpis={kpis}
+                    userCanEdit={userCanEdit}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
 
                 <div style={{
                     marginTop: '20px',
@@ -633,7 +623,7 @@ export default function MOHReportsPage() {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

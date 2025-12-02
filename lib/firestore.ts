@@ -123,7 +123,15 @@ export async function saveMOHKPI(kpiData: Omit<MOHKPI, 'id' | 'createdAt' | 'upd
 export async function getMOHKPIs(fiscalYear?: string): Promise<MOHKPI[]> {
     try {
         const mohKPIRef = collection(db, 'moh_kpis');
-        const snapshot = await getDocs(mohKPIRef);
+        let q;
+
+        if (fiscalYear) {
+            q = query(mohKPIRef, where('fiscalYear', '==', fiscalYear));
+        } else {
+            q = query(mohKPIRef);
+        }
+
+        const snapshot = await getDocs(q);
 
         let kpis = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -132,12 +140,7 @@ export async function getMOHKPIs(fiscalYear?: string): Promise<MOHKPI[]> {
             updatedAt: doc.data().updatedAt?.toDate()
         } as MOHKPI));
 
-        // Filter by fiscal year if provided
-        if (fiscalYear) {
-            kpis = kpis.filter(kpi => kpi.fiscalYear === fiscalYear);
-        }
-
-        // Sort by name
+        // Sort by name (client-side to avoid index issues for now)
         kpis.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
         return kpis;
@@ -147,17 +150,23 @@ export async function getMOHKPIs(fiscalYear?: string): Promise<MOHKPI[]> {
     }
 }
 
-export async function updateMOHKPI(id: string, updates: Partial<MOHKPI> & { updatedBy: string }): Promise<boolean> {
+export async function updateMOHKPI(id: string, updates: Partial<MOHKPI> & { updatedBy: string }): Promise<{ success: boolean; error?: string }> {
     try {
+        // Ensure no undefined values are passed to Firestore
+        const safeUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
+            acc[key] = value === undefined ? null : value;
+            return acc;
+        }, {} as any);
+
         const mohKPIRef = doc(db, 'moh_kpis', id);
         await setDoc(mohKPIRef, {
-            ...updates,
+            ...safeUpdates,
             updatedAt: Timestamp.now()
         }, { merge: true });
-        return true;
-    } catch (error) {
+        return { success: true };
+    } catch (error: any) {
         console.error('Error updating MOH KPI:', error);
-        return false;
+        return { success: false, error: error.message };
     }
 }
 
