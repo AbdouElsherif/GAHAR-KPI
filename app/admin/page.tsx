@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, logout, getUsers, addUser, updateUser, deleteUser, User, onAuthChange, validatePassword } from '@/lib/auth';
+import { getCurrentUser, logout, getUsers, addUser, updateUser, deleteUser, User, onAuthChange, validatePassword, resetUserPassword } from '@/lib/auth';
 import Link from 'next/link';
 
 const departments = [
@@ -31,6 +31,10 @@ export default function AdminPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+
+    // Modal state
+    const [resetConfirmation, setResetConfirmation] = useState<{ show: boolean, user: User | null }>({ show: false, user: null });
 
     const [formData, setFormData] = useState<FormData>({
         username: '',
@@ -67,22 +71,31 @@ export default function AdminPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (formData.password) {
-            const validation = validatePassword(formData.password);
-            if (!validation.isValid) {
-                alert(validation.error);
-                return;
+        try {
+            if (editingUser) {
+                // When editing, we don't change the password
+                const { password, ...updateData } = formData;
+                await updateUser(editingUser.id, updateData);
+                setMessage({ type: 'success', text: 'تم تحديث بيانات المستخدم بنجاح' });
+            } else {
+                // When adding new user, validate password
+                if (formData.password) {
+                    const validation = validatePassword(formData.password);
+                    if (!validation.isValid) {
+                        setMessage({ type: 'error', text: validation.error || 'كلمة المرور غير صالحة' });
+                        return;
+                    }
+                }
+                await addUser(formData);
+                setMessage({ type: 'success', text: 'تم إضافة المستخدم بنجاح' });
             }
-        }
 
-        if (editingUser) {
-            await updateUser(editingUser.id, formData);
-        } else {
-            await addUser(formData);
+            await loadUsers();
+            resetForm();
+            setTimeout(() => setMessage(null), 3000);
+        } catch (error) {
+            setMessage({ type: 'error', text: 'حدث خطأ أثناء حفظ البيانات' });
         }
-
-        await loadUsers();
-        resetForm();
     };
 
     const handleEdit = (user: User) => {
@@ -102,6 +115,35 @@ export default function AdminPage() {
         if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
             await deleteUser(id);
             await loadUsers();
+        }
+    };
+
+    // Trigger the modal instead of window.confirm
+    const handleResetPassword = (user: User) => {
+        setResetConfirmation({ show: true, user });
+    };
+
+    // Execute the actual reset when confirmed in modal
+    const executeResetPassword = async () => {
+        if (!resetConfirmation.user) return;
+
+        const user = resetConfirmation.user;
+        setResetConfirmation({ show: false, user: null }); // Close modal
+
+        setMessage({ type: 'info', text: 'جاري إعادة تعيين كلمة المرور...' });
+
+        const result = await resetUserPassword(user.id);
+
+        if (result.success) {
+            setMessage({
+                type: 'success',
+                text: `تم إعادة تعيين كلمة المرور بنجاح\nكلمة المرور الجديدة: ${result.newPassword}`
+            });
+            await loadUsers();
+            setTimeout(() => setMessage(null), 10000); // Increased time to read password
+        } else {
+            setMessage({ type: 'error', text: result.error || 'فشل في إعادة تعيين كلمة المرور' });
+            setTimeout(() => setMessage(null), 5000);
         }
     };
 
@@ -142,6 +184,20 @@ export default function AdminPage() {
             </div>
 
             <div className="card" style={{ marginBottom: '20px' }}>
+                {message && (
+                    <div style={{
+                        padding: '15px',
+                        marginBottom: '20px',
+                        borderRadius: '8px',
+                        backgroundColor: message.type === 'success' ? '#d4edda' : message.type === 'info' ? '#cce5ff' : '#f8d7da',
+                        color: message.type === 'success' ? '#155724' : message.type === 'info' ? '#004085' : '#721c24',
+                        border: `1px solid ${message.type === 'success' ? '#c3e6cb' : message.type === 'info' ? '#b8daff' : '#f5c6cb'}`,
+                        whiteSpace: 'pre-line'
+                    }}>
+                        <strong>{message.type === 'success' ? '✓ نجح!' : message.type === 'info' ? 'ℹ️ تنبيه:' : '✗ خطأ!'}</strong> {message.text}
+                    </div>
+                )}
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <h2 style={{ margin: 0, color: 'var(--primary-color)' }}>المستخدمون ({users.length})</h2>
                     <button
@@ -181,16 +237,18 @@ export default function AdminPage() {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label className="form-label">كلمة المرور {editingUser && '(اتركها فارغة إذا لم ترد التغيير)'}</label>
-                                <input
-                                    type="password"
-                                    className="form-input"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    required={!editingUser}
-                                />
-                            </div>
+                            {!editingUser && (
+                                <div className="form-group">
+                                    <label className="form-label">كلمة المرور</label>
+                                    <input
+                                        type="password"
+                                        className="form-input"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                            )}
 
                             <div className="form-group">
                                 <label className="form-label">الصلاحية</label>
@@ -257,27 +315,12 @@ export default function AdminPage() {
                                     </td>
                                     <td style={{ padding: '12px' }}>{user.departmentName || '-'}</td>
                                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                                        <button
-                                            onClick={() => handleEdit(user)}
-                                            style={{
-                                                padding: '6px 12px',
-                                                backgroundColor: 'var(--primary-color)',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                marginLeft: '5px',
-                                                fontSize: '0.85rem'
-                                            }}
-                                        >
-                                            تعديل
-                                        </button>
-                                        {user.role !== 'super_admin' && (
+                                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', flexWrap: 'wrap' }}>
                                             <button
-                                                onClick={() => handleDelete(user.id)}
+                                                onClick={() => handleEdit(user)}
                                                 style={{
                                                     padding: '6px 12px',
-                                                    backgroundColor: '#dc3545',
+                                                    backgroundColor: 'var(--primary-color)',
                                                     color: 'white',
                                                     border: 'none',
                                                     borderRadius: '4px',
@@ -285,9 +328,39 @@ export default function AdminPage() {
                                                     fontSize: '0.85rem'
                                                 }}
                                             >
-                                                حذف
+                                                تعديل
                                             </button>
-                                        )}
+                                            <button
+                                                onClick={() => handleResetPassword(user)}
+                                                style={{
+                                                    padding: '6px 12px',
+                                                    backgroundColor: '#ff9800',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.85rem'
+                                                }}
+                                            >
+                                                إعادة تعيين كلمة المرور
+                                            </button>
+                                            {user.role !== 'super_admin' && (
+                                                <button
+                                                    onClick={() => handleDelete(user.id)}
+                                                    style={{
+                                                        padding: '6px 12px',
+                                                        backgroundColor: '#dc3545',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.85rem'
+                                                    }}
+                                                >
+                                                    حذف
+                                                </button>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -295,6 +368,71 @@ export default function AdminPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Custom Confirmation Modal */}
+            {resetConfirmation.show && resetConfirmation.user && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '25px',
+                        borderRadius: '8px',
+                        maxWidth: '400px',
+                        width: '90%',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                        textAlign: 'center'
+                    }}>
+                        <h3 style={{ marginTop: 0, color: '#d9534f' }}>تأكيد إعادة تعيين كلمة المرور</h3>
+                        <p style={{ fontSize: '1.1rem', margin: '20px 0' }}>
+                            هل أنت متأكد من إعادة تعيين كلمة المرور للمستخدم <strong>{resetConfirmation.user.username}</strong>؟
+                        </p>
+                        <div style={{ backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '4px', marginBottom: '20px' }}>
+                            سيتم تعيين كلمة المرور إلى:<br />
+                            <strong style={{ fontSize: '1.2rem', color: '#0056b3' }}>Gahar@123</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+                            <button
+                                onClick={executeResetPassword}
+                                style={{
+                                    padding: '8px 20px',
+                                    backgroundColor: '#d9534f',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem'
+                                }}
+                            >
+                                نعم، قم بالتغيير
+                            </button>
+                            <button
+                                onClick={() => setResetConfirmation({ show: false, user: null })}
+                                style={{
+                                    padding: '8px 20px',
+                                    backgroundColor: '#6c757d',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem'
+                                }}
+                            >
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
