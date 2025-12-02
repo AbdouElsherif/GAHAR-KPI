@@ -5,7 +5,8 @@ import {
     onAuthStateChanged,
     updatePassword,
     reauthenticateWithCredential,
-    EmailAuthProvider
+    EmailAuthProvider,
+    getAuth
 } from 'firebase/auth';
 import {
     doc,
@@ -18,7 +19,8 @@ import {
     where,
     getDocs
 } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { auth, db, firebaseConfig } from './firebase'; // Import firebaseConfig
+import { initializeApp, getApp, getApps, deleteApp } from 'firebase/app';
 
 export interface User {
     id: string;
@@ -66,15 +68,30 @@ export async function addUser(userData: {
     departmentId?: string;
     departmentName?: string;
 }): Promise<User | null> {
+    let secondaryApp = null;
     try {
-        // Create Firebase Auth user
+        // Use a secondary app to create the user to avoid logging out the current user
+        const secondaryAppName = 'secondaryApp';
+
+        // Check if app already exists (cleanup might have failed)
+        const existingApps = getApps();
+        const foundApp = existingApps.find(app => app.name === secondaryAppName);
+        if (foundApp) {
+            secondaryApp = foundApp;
+        } else {
+            secondaryApp = initializeApp(firebaseConfig, secondaryAppName);
+        }
+
+        const secondaryAuth = getAuth(secondaryApp);
+
+        // Create Firebase Auth user using secondary auth
         const userCredential = await createUserWithEmailAndPassword(
-            auth,
+            secondaryAuth,
             userData.email,
             userData.password
         );
 
-        // Create user profile in Firestore
+        // Create user profile in Firestore (using main db instance which has admin permissions)
         const userProfile = {
             username: userData.username,
             email: userData.email,
@@ -85,12 +102,31 @@ export async function addUser(userData: {
 
         await setDoc(doc(db, 'users', userCredential.user.uid), userProfile);
 
+        // Cleanup secondary app
+        await signOut(secondaryAuth);
+        await deleteApp(secondaryApp);
+
         return {
             id: userCredential.user.uid,
             ...userProfile
         };
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error adding user:', error);
+
+        // Clean up if error occurred
+        if (secondaryApp) {
+            try {
+                await deleteApp(secondaryApp);
+            } catch (e) {
+                console.error('Error deleting secondary app:', e);
+            }
+        }
+
+        // Handle "email already in use" specifically for recovery scenarios
+        if (error.code === 'auth/email-already-in-use') {
+            throw new Error('البريد الإلكتروني مستخدم بالفعل');
+        }
+
         return null;
     }
 }
@@ -108,7 +144,7 @@ export async function deleteUser(id: string) {
     try {
         await deleteDoc(doc(db, 'users', id));
         // Note: This doesn't delete the Firebase Auth user
-        // You may need Firebase Admin SDK for that
+        // You may need Firebase Admin SDK for that or a cloud function
     } catch (error) {
         console.error('Error deleting user:', error);
     }
@@ -126,6 +162,17 @@ export async function login(email: string, password: string): Promise<User | nul
 
         if (!userProfile) {
             console.error('User profile not found for UID:', userCredential.user.uid);
+            // Emergency recovery: if it's the admin, try to recreate the profile
+            if (email === 'admin@gahar.gov.eg') {
+                console.log('Attempting emergency profile recovery for admin...');
+                const adminProfile = {
+                    username: 'Admin',
+                    email: email,
+                    role: 'super_admin' as const
+                };
+                await setDoc(doc(db, 'users', userCredential.user.uid), adminProfile);
+                return { id: userCredential.user.uid, ...adminProfile };
+            }
         }
 
         return userProfile;
@@ -222,20 +269,35 @@ export function validatePassword(password: string): { isValid: boolean; error?: 
 
 export async function initializeUsers() {
     try {
-        // Check if super admin exists
+        // Check if super admin exists in Firestore
         const adminEmail = 'admin@gahar.gov.eg';
         const q = query(collection(db, 'users'), where('email', '==', adminEmail));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            console.log('Creating default super admin...');
-            await addUser({
-                username: 'Admin',
-                email: adminEmail,
-                password: 'admin123',
-                role: 'super_admin'
-            });
-            console.log('Default super admin created.');
+            console.log('Admin profile missing in Firestore. Attempting to create/restore...');
+
+            try {
+                // Try to create the user (Auth + Firestore)
+                await addUser({
+                    username: 'Admin',
+                    email: adminEmail,
+                    password: 'admin123',
+                    role: 'super_admin'
+                });
+                console.log('Default super admin created successfully.');
+            } catch (error: any) {
+                // If Auth user already exists but Firestore profile is missing
+                if (error.message === 'البريد الإلكتروني مستخدم بالفعل') {
+                    console.log('Admin Auth exists but Firestore profile missing. Restoring profile...');
+                    // We need the UID. Since we can't get it easily without logging in, 
+                    // we'll rely on the login function's emergency recovery or try to sign in here temporarily.
+                    // However, login() now has recovery logic, so we can just let the user try to login.
+                    console.log('Please try logging in as admin to complete recovery.');
+                } else {
+                    console.error('Error creating admin:', error);
+                }
+            }
         }
     } catch (error) {
         console.error('Error initializing users:', error);

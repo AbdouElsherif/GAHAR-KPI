@@ -240,6 +240,10 @@ export default function MOHReportsPage() {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
                 router.push('/login');
+            } else if (user.role !== 'super_admin') {
+                // Only super_admin can access MOH reports
+                alert('الصفحة متاحة فقط للمدير العام');
+                router.push('/');
             } else {
                 setCurrentUser(user);
                 setLoading(false);
