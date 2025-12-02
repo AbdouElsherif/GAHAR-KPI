@@ -274,8 +274,20 @@ export default function MOHReportsPage() {
         }));
     };
 
+    const handleAddNew = () => {
+        setFormData({
+            ...emptyKPI,
+            fiscalYear: selectedYear
+        });
+        setEditingId(null);
+        setShowForm(!showForm);
+    };
+
     const resetForm = () => {
-        setFormData(emptyKPI);
+        setFormData({
+            ...emptyKPI,
+            fiscalYear: selectedYear
+        });
         setEditingId(null);
         setShowForm(false);
     };
@@ -438,7 +450,7 @@ export default function MOHReportsPage() {
                     <>
                         <div style={{ marginBottom: '20px' }}>
                             <button
-                                onClick={() => setShowForm(!showForm)}
+                                onClick={handleAddNew}
                                 className="btn btn-primary"
                             >
                                 {showForm ? 'إلغاء' : '+ إضافة مؤشر جديد'}

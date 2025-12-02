@@ -146,7 +146,7 @@ export default function DepartmentPage() {
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
     const [sortColumn, setSortColumn] = useState<string>('date');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -176,12 +176,12 @@ export default function DepartmentPage() {
             // Load KPI data from Firestore
             const kpiData = await getKPIData(id);
 
-            // Sort by date (newest first)
+            // Sort by date (oldest first)
             kpiData.sort((a: any, b: any) => {
                 // Assuming createdAt is a Firestore Timestamp or Date object
                 const dateA = a.createdAt instanceof Date ? a.createdAt : a.createdAt.toDate();
                 const dateB = b.createdAt instanceof Date ? b.createdAt : b.createdAt.toDate();
-                return dateB.getTime() - dateA.getTime();
+                return dateA.getTime() - dateB.getTime();
             });
 
             const formattedData = kpiData.map((item: any) => {
