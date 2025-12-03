@@ -125,29 +125,49 @@ export default function AccreditationDashboard({ submissions }: AccreditationDas
     const currentAggregated = aggregateData(currentYearData, comparisonType);
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
+    // Calculate totals based on the selected comparison type
+    const calculateFilteredTotal = (
+        aggregated: Record<string, any>,
+        metric: string,
+        compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
+    ): number => {
+        if (compType === 'yearly' || compType === 'monthly') {
+            return Object.values(aggregated).reduce((sum: number, period: any) =>
+                sum + (period[metric] || 0), 0
+            );
+        } else if (compType === 'quarterly') {
+            const periodKey = `Q${selectedQuarter}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        } else if (compType === 'halfYearly') {
+            const periodKey = `H${selectedHalf}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        }
+        return 0;
+    };
+
     // Calculate totals
-    const currentTotalNewFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.newFacilities) || 0), 0);
-    const previousTotalNewFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.newFacilities) || 0), 0);
+    const currentTotalNewFacilities = calculateFilteredTotal(currentAggregated, 'newFacilities', comparisonType);
+    const previousTotalNewFacilities = calculateFilteredTotal(previousAggregated, 'newFacilities', comparisonType);
     const newFacilitiesChange = calculateChange(currentTotalNewFacilities, previousTotalNewFacilities);
 
-    const currentTotalAppeals = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.reviewedAppeals) || 0), 0);
-    const previousTotalAppeals = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.reviewedAppeals) || 0), 0);
+    const currentTotalAppeals = calculateFilteredTotal(currentAggregated, 'reviewedAppeals', comparisonType);
+    const previousTotalAppeals = calculateFilteredTotal(previousAggregated, 'reviewedAppeals', comparisonType);
     const appealsChange = calculateChange(currentTotalAppeals, previousTotalAppeals);
 
-    const currentTotalPlans = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.reviewedPlans) || 0), 0);
-    const previousTotalPlans = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.reviewedPlans) || 0), 0);
+    const currentTotalPlans = calculateFilteredTotal(currentAggregated, 'reviewedPlans', comparisonType);
+    const previousTotalPlans = calculateFilteredTotal(previousAggregated, 'reviewedPlans', comparisonType);
     const plansChange = calculateChange(currentTotalPlans, previousTotalPlans);
 
-    const currentTotalAccreditation = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.accreditation) || 0), 0);
-    const previousTotalAccreditation = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.accreditation) || 0), 0);
+    const currentTotalAccreditation = calculateFilteredTotal(currentAggregated, 'accreditation', comparisonType);
+    const previousTotalAccreditation = calculateFilteredTotal(previousAggregated, 'accreditation', comparisonType);
     const accreditationChange = calculateChange(currentTotalAccreditation, previousTotalAccreditation);
 
-    const currentTotalRenewal = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.renewal) || 0), 0);
-    const previousTotalRenewal = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.renewal) || 0), 0);
+    const currentTotalRenewal = calculateFilteredTotal(currentAggregated, 'renewal', comparisonType);
+    const previousTotalRenewal = calculateFilteredTotal(previousAggregated, 'renewal', comparisonType);
     const renewalChange = calculateChange(currentTotalRenewal, previousTotalRenewal);
 
-    const currentTotalCompletion = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.completion) || 0), 0);
-    const previousTotalCompletion = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.completion) || 0), 0);
+    const currentTotalCompletion = calculateFilteredTotal(currentAggregated, 'completion', comparisonType);
+    const previousTotalCompletion = calculateFilteredTotal(previousAggregated, 'completion', comparisonType);
     const completionChange = calculateChange(currentTotalCompletion, previousTotalCompletion);
 
 
