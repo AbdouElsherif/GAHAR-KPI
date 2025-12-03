@@ -123,29 +123,49 @@ export default function AdminAuditDashboard({ submissions }: AdminAuditDashboard
     const currentAggregated = aggregateData(currentYearData, comparisonType);
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
+    // Calculate totals based on the selected comparison type
+    const calculateFilteredTotal = (
+        aggregated: Record<string, any>,
+        metric: string,
+        compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
+    ): number => {
+        if (compType === 'yearly' || compType === 'monthly') {
+            return Object.values(aggregated).reduce((sum: number, period: any) =>
+                sum + (period[metric] || 0), 0
+            );
+        } else if (compType === 'quarterly') {
+            const periodKey = `Q${selectedQuarter}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        } else if (compType === 'halfYearly') {
+            const periodKey = `H${selectedHalf}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        }
+        return 0;
+    };
+
     // Calculate totals for each metric
-    const currentTotalFieldVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.totalFieldVisits) || 0), 0);
-    const previousTotalFieldVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.totalFieldVisits) || 0), 0);
+    const currentTotalFieldVisits = calculateFilteredTotal(currentAggregated, 'totalFieldVisits', comparisonType);
+    const previousTotalFieldVisits = calculateFilteredTotal(previousAggregated, 'totalFieldVisits', comparisonType);
     const fieldVisitsChange = calculateChange(currentTotalFieldVisits, previousTotalFieldVisits);
 
-    const currentTotalAdminAuditVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.adminAuditVisits) || 0), 0);
-    const previousTotalAdminAuditVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.adminAuditVisits) || 0), 0);
+    const currentTotalAdminAuditVisits = calculateFilteredTotal(currentAggregated, 'adminAuditVisits', comparisonType);
+    const previousTotalAdminAuditVisits = calculateFilteredTotal(previousAggregated, 'adminAuditVisits', comparisonType);
     const adminAuditVisitsChange = calculateChange(currentTotalAdminAuditVisits, previousTotalAdminAuditVisits);
 
-    const currentTotalAdminInspectionVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.adminInspectionVisits) || 0), 0);
-    const previousTotalAdminInspectionVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.adminInspectionVisits) || 0), 0);
+    const currentTotalAdminInspectionVisits = calculateFilteredTotal(currentAggregated, 'adminInspectionVisits', comparisonType);
+    const previousTotalAdminInspectionVisits = calculateFilteredTotal(previousAggregated, 'adminInspectionVisits', comparisonType);
     const adminInspectionVisitsChange = calculateChange(currentTotalAdminInspectionVisits, previousTotalAdminInspectionVisits);
 
-    const currentTotalFollowUpVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.followUpVisits) || 0), 0);
-    const previousTotalFollowUpVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.followUpVisits) || 0), 0);
+    const currentTotalFollowUpVisits = calculateFilteredTotal(currentAggregated, 'followUpVisits', comparisonType);
+    const previousTotalFollowUpVisits = calculateFilteredTotal(previousAggregated, 'followUpVisits', comparisonType);
     const followUpVisitsChange = calculateChange(currentTotalFollowUpVisits, previousTotalFollowUpVisits);
 
-    const currentTotalExamReferralVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.examReferralVisits) || 0), 0);
-    const previousTotalExamReferralVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.examReferralVisits) || 0), 0);
+    const currentTotalExamReferralVisits = calculateFilteredTotal(currentAggregated, 'examReferralVisits', comparisonType);
+    const previousTotalExamReferralVisits = calculateFilteredTotal(previousAggregated, 'examReferralVisits', comparisonType);
     const examReferralVisitsChange = calculateChange(currentTotalExamReferralVisits, previousTotalExamReferralVisits);
 
-    const currentTotalVisitedFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.visitedFacilities) || 0), 0);
-    const previousTotalVisitedFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.visitedFacilities) || 0), 0);
+    const currentTotalVisitedFacilities = calculateFilteredTotal(currentAggregated, 'visitedFacilities', comparisonType);
+    const previousTotalVisitedFacilities = calculateFilteredTotal(previousAggregated, 'visitedFacilities', comparisonType);
     const visitedFacilitiesChange = calculateChange(currentTotalVisitedFacilities, previousTotalVisitedFacilities);
 
     const formatPeriodLabel = (period: string): string => {

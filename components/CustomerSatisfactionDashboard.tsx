@@ -113,21 +113,44 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
     const currentAggregated = aggregateData(currentYearData, comparisonType);
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
+    // Calculate totals based on the selected comparison type
+    const calculateFilteredTotal = (
+        aggregated: Record<string, any>,
+        metric: string,
+        compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
+    ): number => {
+        if (compType === 'yearly' || compType === 'monthly') {
+            // For yearly and monthly, sum all periods
+            return Object.values(aggregated).reduce((sum: number, period: any) =>
+                sum + (period[metric] || 0), 0
+            );
+        } else if (compType === 'quarterly') {
+            // For quarterly, only sum the selected quarter
+            const periodKey = `Q${selectedQuarter}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        } else if (compType === 'halfYearly') {
+            // For half-yearly, only sum the selected half
+            const periodKey = `H${selectedHalf}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        }
+        return 0;
+    };
+
     // Calculate totals for each metric
-    const currentTotalPatientSample = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.patientExperienceSample) || 0), 0);
-    const previousTotalPatientSample = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.patientExperienceSample) || 0), 0);
+    const currentTotalPatientSample = calculateFilteredTotal(currentAggregated, 'patientExperienceSample', comparisonType);
+    const previousTotalPatientSample = calculateFilteredTotal(previousAggregated, 'patientExperienceSample', comparisonType);
     const patientSampleChange = calculateChange(currentTotalPatientSample, previousTotalPatientSample);
 
-    const currentTotalStaffSample = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.staffSatisfactionSample) || 0), 0);
-    const previousTotalStaffSample = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.staffSatisfactionSample) || 0), 0);
+    const currentTotalStaffSample = calculateFilteredTotal(currentAggregated, 'staffSatisfactionSample', comparisonType);
+    const previousTotalStaffSample = calculateFilteredTotal(previousAggregated, 'staffSatisfactionSample', comparisonType);
     const staffSampleChange = calculateChange(currentTotalStaffSample, previousTotalStaffSample);
 
-    const currentTotalFieldVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.fieldVisits) || 0), 0);
-    const previousTotalFieldVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.fieldVisits) || 0), 0);
+    const currentTotalFieldVisits = calculateFilteredTotal(currentAggregated, 'fieldVisits', comparisonType);
+    const previousTotalFieldVisits = calculateFilteredTotal(previousAggregated, 'fieldVisits', comparisonType);
     const fieldVisitsChange = calculateChange(currentTotalFieldVisits, previousTotalFieldVisits);
 
-    const currentTotalSurveyedFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.surveyedFacilities) || 0), 0);
-    const previousTotalSurveyedFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.surveyedFacilities) || 0), 0);
+    const currentTotalSurveyedFacilities = calculateFilteredTotal(currentAggregated, 'surveyedFacilities', comparisonType);
+    const previousTotalSurveyedFacilities = calculateFilteredTotal(previousAggregated, 'surveyedFacilities', comparisonType);
     const surveyedFacilitiesChange = calculateChange(currentTotalSurveyedFacilities, previousTotalSurveyedFacilities);
 
     const formatPeriodLabel = (period: string): string => {

@@ -118,25 +118,47 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
     const currentAggregated = aggregateData(currentYearData, comparisonType);
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
-    // Calculate totals for each metric
-    const currentTotalPrograms = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportPrograms) || 0), 0);
-    const previousTotalPrograms = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportPrograms) || 0), 0);
+    // Calculate totals based on the selected comparison type
+    const calculateFilteredTotal = (
+        aggregated: Record<string, any>,
+        metric: string,
+        compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
+    ): number => {
+        if (compType === 'yearly' || compType === 'monthly') {
+            // For yearly and monthly, sum all periods
+            return Object.values(aggregated).reduce((sum: number, period: any) =>
+                sum + (period[metric] || 0), 0
+            );
+        } else if (compType === 'quarterly') {
+            // For quarterly, only sum the selected quarter
+            const periodKey = `Q${selectedQuarter}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        } else if (compType === 'halfYearly') {
+            // For half-yearly, only sum the selected half
+            const periodKey = `H${selectedHalf}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        }
+        return 0;
+    };
+
+    const currentTotalPrograms = calculateFilteredTotal(currentAggregated, 'supportPrograms', comparisonType);
+    const previousTotalPrograms = calculateFilteredTotal(previousAggregated, 'supportPrograms', comparisonType);
     const programsChange = calculateChange(currentTotalPrograms, previousTotalPrograms);
 
-    const currentTotalIntroVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.introVisits) || 0), 0);
-    const previousTotalIntroVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.introVisits) || 0), 0);
+    const currentTotalIntroVisits = calculateFilteredTotal(currentAggregated, 'introVisits', comparisonType);
+    const previousTotalIntroVisits = calculateFilteredTotal(previousAggregated, 'introVisits', comparisonType);
     const introVisitsChange = calculateChange(currentTotalIntroVisits, previousTotalIntroVisits);
 
-    const currentTotalFieldVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.fieldSupportVisits) || 0), 0);
-    const previousTotalFieldVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.fieldSupportVisits) || 0), 0);
+    const currentTotalFieldVisits = calculateFilteredTotal(currentAggregated, 'fieldSupportVisits', comparisonType);
+    const previousTotalFieldVisits = calculateFilteredTotal(previousAggregated, 'fieldSupportVisits', comparisonType);
     const fieldVisitsChange = calculateChange(currentTotalFieldVisits, previousTotalFieldVisits);
 
-    const currentTotalRemoteVisits = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.remoteSupportVisits) || 0), 0);
-    const previousTotalRemoteVisits = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.remoteSupportVisits) || 0), 0);
+    const currentTotalRemoteVisits = calculateFilteredTotal(currentAggregated, 'remoteSupportVisits', comparisonType);
+    const previousTotalRemoteVisits = calculateFilteredTotal(previousAggregated, 'remoteSupportVisits', comparisonType);
     const remoteVisitsChange = calculateChange(currentTotalRemoteVisits, previousTotalRemoteVisits);
 
-    const currentTotalFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportedFacilities) || 0), 0);
-    const previousTotalFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.supportedFacilities) || 0), 0);
+    const currentTotalFacilities = calculateFilteredTotal(currentAggregated, 'supportedFacilities', comparisonType);
+    const previousTotalFacilities = calculateFilteredTotal(previousAggregated, 'supportedFacilities', comparisonType);
     const facilitiesChange = calculateChange(currentTotalFacilities, previousTotalFacilities);
 
     const formatPeriodLabel = (period: string): string => {

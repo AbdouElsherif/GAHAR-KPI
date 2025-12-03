@@ -105,13 +105,33 @@ export default function MedicalProfessionalsDashboard({ submissions }: MedicalPr
     const currentAggregated = aggregateData(currentYearData, comparisonType);
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
+    // Calculate totals based on the selected comparison type
+    const calculateFilteredTotal = (
+        aggregated: Record<string, any>,
+        metric: string,
+        compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
+    ): number => {
+        if (compType === 'yearly' || compType === 'monthly') {
+            return Object.values(aggregated).reduce((sum: number, period: any) =>
+                sum + (period[metric] || 0), 0
+            );
+        } else if (compType === 'quarterly') {
+            const periodKey = `Q${selectedQuarter}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        } else if (compType === 'halfYearly') {
+            const periodKey = `H${selectedHalf}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        }
+        return 0;
+    };
+
     // Calculate totals
-    const currentTotalMembers = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.registeredMembers) || 0), 0);
-    const previousTotalMembers = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.registeredMembers) || 0), 0);
+    const currentTotalMembers = calculateFilteredTotal(currentAggregated, 'registeredMembers', comparisonType);
+    const previousTotalMembers = calculateFilteredTotal(previousAggregated, 'registeredMembers', comparisonType);
     const membersChange = calculateChange(currentTotalMembers, previousTotalMembers);
 
-    const currentTotalFacilities = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.facilitiesUpdated) || 0), 0);
-    const previousTotalFacilities = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.facilitiesUpdated) || 0), 0);
+    const currentTotalFacilities = calculateFilteredTotal(currentAggregated, 'facilitiesUpdated', comparisonType);
+    const previousTotalFacilities = calculateFilteredTotal(previousAggregated, 'facilitiesUpdated', comparisonType);
     const facilitiesChange = calculateChange(currentTotalFacilities, previousTotalFacilities);
 
 

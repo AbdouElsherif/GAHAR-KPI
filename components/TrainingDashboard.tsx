@@ -95,12 +95,35 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
     const currentAggregated = aggregateData(currentYearData, comparisonType);
     const previousAggregated = aggregateData(previousYearData, comparisonType);
 
-    const currentTotalPrograms = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.trainingPrograms) || 0), 0);
-    const previousTotalPrograms = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.trainingPrograms) || 0), 0);
+    // Calculate totals based on the selected comparison type
+    const calculateFilteredTotal = (
+        aggregated: Record<string, any>,
+        metric: string,
+        compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
+    ): number => {
+        if (compType === 'yearly' || compType === 'monthly') {
+            // For yearly and monthly, sum all periods
+            return Object.values(aggregated).reduce((sum: number, period: any) =>
+                sum + (period[metric] || 0), 0
+            );
+        } else if (compType === 'quarterly') {
+            // For quarterly, only sum the selected quarter
+            const periodKey = `Q${selectedQuarter}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        } else if (compType === 'halfYearly') {
+            // For half-yearly, only sum the selected half
+            const periodKey = `H${selectedHalf}`;
+            return aggregated[periodKey]?.[metric] || 0;
+        }
+        return 0;
+    };
+
+    const currentTotalPrograms = calculateFilteredTotal(currentAggregated, 'trainingPrograms', comparisonType);
+    const previousTotalPrograms = calculateFilteredTotal(previousAggregated, 'trainingPrograms', comparisonType);
     const programsChange = calculateChange(currentTotalPrograms, previousTotalPrograms);
 
-    const currentTotalTrainees = currentYearData.reduce((sum, sub) => sum + (parseFloat(sub.trainees) || 0), 0);
-    const previousTotalTrainees = previousYearData.reduce((sum, sub) => sum + (parseFloat(sub.trainees) || 0), 0);
+    const currentTotalTrainees = calculateFilteredTotal(currentAggregated, 'trainees', comparisonType);
+    const previousTotalTrainees = calculateFilteredTotal(previousAggregated, 'trainees', comparisonType);
     const traineesChange = calculateChange(currentTotalTrainees, previousTotalTrainees);
 
     const formatPeriodLabel = (period: string): string => {
