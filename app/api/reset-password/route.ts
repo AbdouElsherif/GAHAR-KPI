@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/firebase-admin';
-import { getDoc, doc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,21 +13,22 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get Admin Auth instance safely
-        let adminAuth;
+        // Get Admin Auth and Firestore instances safely
+        let adminAuth, adminDb;
         try {
             adminAuth = getAdminAuth();
+            adminDb = getAdminDb();
         } catch (error: any) {
-            console.error('Failed to get Admin Auth:', error);
+            console.error('Failed to get Admin instances:', error);
             return NextResponse.json(
                 { success: false, error: 'خطأ في إعدادات السيرفر: ' + error.message },
                 { status: 500 }
             );
         }
 
-        // Get user data from Firestore
-        const userDoc = await getDoc(doc(db, 'users', userId));
-        if (!userDoc.exists()) {
+        // Get user data from Firestore using Admin SDK
+        const userDoc = await adminDb.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
             return NextResponse.json(
                 { success: false, error: 'المستخدم غير موجود' },
                 { status: 404 }
@@ -37,7 +36,14 @@ export async function POST(request: NextRequest) {
         }
 
         const userData = userDoc.data();
-        const userEmail = userData.email;
+        const userEmail = userData?.email;
+
+        if (!userEmail) {
+            return NextResponse.json(
+                { success: false, error: 'بريد المستخدم غير موجود' },
+                { status: 400 }
+            );
+        }
 
         // Step 1: Try to get the user from Firebase Auth by email
         let firebaseAuthUser;
@@ -79,21 +85,20 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Step 4: Update Firestore with new UID (since it might have changed)
+        // Step 4: Update Firestore with new UID (since it might have changed) using Admin SDK
         try {
             // Delete old Firestore document if UID changed
             if (userId !== newUser.uid) {
-                const { deleteDoc } = await import('firebase/firestore');
-                await deleteDoc(doc(db, 'users', userId));
+                await adminDb.collection('users').doc(userId).delete();
             }
 
-            // Create/update Firestore document with new UID
-            await setDoc(doc(db, 'users', newUser.uid), {
-                username: userData.username,
-                email: userData.email,
-                role: userData.role,
-                departmentId: userData.departmentId || null,
-                departmentName: userData.departmentName || null,
+            // Create/update Firestore document with new UID using Admin SDK
+            await adminDb.collection('users').doc(newUser.uid).set({
+                username: userData?.username || '',
+                email: userData?.email || '',
+                role: userData?.role || 'dept_viewer',
+                departmentId: userData?.departmentId || null,
+                departmentName: userData?.departmentName || null,
             });
 
             console.log(`Updated Firestore document: ${newUser.uid}`);
