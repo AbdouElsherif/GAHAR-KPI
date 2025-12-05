@@ -1,8 +1,7 @@
-﻿rules_version = '2';
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // ===== Helper Functions =====
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -27,60 +26,22 @@ service cloud.firestore {
       return getUserData().departmentId;
     }
     
-    // ===== Users Collection =====
     match /users/{userId} {
-      // Users can read their own profile
       allow read: if isAuthenticated() && request.auth.uid == userId;
-      
-      // Super admins can read all users
       allow read: if isSuperAdmin();
-      
-      // Users can update their own profile (except role, email)
-      allow update: if isAuthenticated() 
-                    && request.auth.uid == userId 
-                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email']);
-      
-      // Only super admins can create, update (all fields), and delete users
+      allow update: if isAuthenticated() && request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email']);
       allow create, update, delete: if isSuperAdmin();
     }
     
-    // ===== KPIs Collection =====
     match /kpis/{kpiId} {
-      // All authenticated users can read KPIs
-      // General viewers can read all, others can read their department's
-      allow read: if isAuthenticated() && 
-                     (isSuperAdmin() || 
-                      isGeneralViewer() ||
-                      (isDeptAdmin() && userDepartmentId() == resource.data.departmentId) ||
-                      (getUserData().role == 'dept_viewer' && userDepartmentId() == resource.data.departmentId));
-      
-      // Super admins and dept admins can create KPIs
-      // Dept admins can only create for their own department
-      allow create: if isAuthenticated() && 
-                       (isSuperAdmin() || 
-                        (isDeptAdmin() && request.resource.data.departmentId == userDepartmentId())) &&
-                       request.resource.data.keys().hasAll(['departmentId', 'month', 'year']) &&
-                       request.resource.data.keys().size() < 50; // حد أقصى للحقول
-      
-      // Super admins and dept admins can update their own department's KPIs
-      // Prevent changing departmentId
-      allow update: if isAuthenticated() && 
-                       (isSuperAdmin() || 
-                        (isDeptAdmin() && 
-                         userDepartmentId() == resource.data.departmentId &&
-                         userDepartmentId() == request.resource.data.departmentId)) &&
-                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['departmentId']);
-      
-      // Only super admins can delete KPIs
+      allow read: if isAuthenticated() && (isSuperAdmin() || isGeneralViewer() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId) || (getUserData().role == 'dept_viewer' && userDepartmentId() == resource.data.departmentId));
+      allow create: if isAuthenticated() && (isSuperAdmin() || (isDeptAdmin() && request.resource.data.departmentId == userDepartmentId())) && request.resource.data.keys().hasAll(['departmentId', 'month', 'year']) && request.resource.data.keys().size() < 50;
+      allow update: if isAuthenticated() && (isSuperAdmin() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId && userDepartmentId() == request.resource.data.departmentId)) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['departmentId']);
       allow delete: if isSuperAdmin();
     }
     
-    // ===== Audit Logs Collection (للمستقبل) =====
     match /auditLogs/{logId} {
-      // Only super admins can read audit logs
       allow read: if isSuperAdmin();
-      
-      // No one can write directly (only through backend/cloud functions)
       allow write: if false;
     }
   }

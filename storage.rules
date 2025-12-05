@@ -1,35 +1,18 @@
-﻿rules_version = '2';
+rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // منع الوصول بشكل افتراضي
     match /{allPaths=**} {
       allow read, write: if false;
     }
     
-    // السماح فقط بالتقارير المُصدَّرة من المستخدم نفسه
     match /exports/{userId}/{fileName} {
-      // القراءة: فقط المستخدم صاحب الملف
       allow read: if request.auth != null && request.auth.uid == userId;
-      
-      // الكتابة: فقط المستخدم نفسه + شروط إضافية
-      allow write: if request.auth != null 
-                   && request.auth.uid == userId
-                   && request.resource.size < 10 * 1024 * 1024  // حد أقصى 10MB
-                   && request.resource.contentType in [
-                        'application/pdf',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'application/vnd.ms-excel'
-                      ];
-      
-      // الحذف: فقط المستخدم نفسه
+      allow write: if request.auth != null && request.auth.uid == userId && request.resource.size < 10 * 1024 * 1024 && request.resource.contentType in ['application/pdf', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
     
-    // الملفات المؤقتة (اختياري - للمستقبل)
     match /temp/{userId}/{fileName} {
-      allow read, write, delete: if request.auth != null 
-                                  && request.auth.uid == userId
-                                  && request.resource.size < 50 * 1024 * 1024; // حد أقصى 50MB
+      allow read, write, delete: if request.auth != null && request.auth.uid == userId && request.resource.size < 50 * 1024 * 1024;
     }
   }
 }
