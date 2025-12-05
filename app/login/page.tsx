@@ -120,22 +120,6 @@ export default function LoginPage() {
                         {loading ? 'جاري تسجيل الدخول...' : 'دخول'}
                     </button>
                 </form>
-
-                <div style={{
-                    marginTop: '30px',
-                    padding: '15px',
-                    backgroundColor: 'var(--background-color)',
-                    borderRadius: '6px',
-                    fontSize: '0.85rem'
-                }}>
-                    <p style={{ fontWeight: 'bold', marginBottom: '8px', color: 'var(--secondary-color)' }}>
-                        حسابات تجريبية:
-                    </p>
-                    <p style={{ margin: '4px 0' }}>• المدير العام: admin@gahar.gov.eg / admin123</p>
-                    <p style={{ margin: '4px 0', fontSize: '0.75rem', color: '#888' }}>
-                        (سيتم إنشاء هذا الحساب تلقائياً عند أول تشغيل)
-                    </p>
-                </div>
             </div>
         </div>
     );
