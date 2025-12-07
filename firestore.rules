@@ -44,5 +44,15 @@ service cloud.firestore {
       allow read: if isSuperAdmin();
       allow write: if false;
     }
+    
+    match /moh_kpis/{kpiId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin();
+    }
+    
+    match /accreditation_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
   }
 }

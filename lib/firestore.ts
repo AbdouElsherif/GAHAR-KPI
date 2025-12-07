@@ -36,6 +36,20 @@ export interface MOHKPI {
     updatedBy?: string;
 }
 
+export interface AccreditationFacility {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    accreditationStatus: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
         const kpiRef = collection(db, 'kpis');
@@ -177,6 +191,89 @@ export async function deleteMOHKPI(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting MOH KPI:', error);
+        return false;
+    }
+}
+
+// Accreditation Facilities Functions
+export async function saveAccreditationFacility(
+    facilityData: Omit<AccreditationFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'accreditation_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...facilityData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving accreditation facility:', error);
+        return null;
+    }
+}
+
+export async function getAccreditationFacilities(month?: string): Promise<AccreditationFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'accreditation_facilities');
+        let q;
+
+        if (month) {
+            // Just filter by month, sort client-side to avoid composite index
+            q = query(facilitiesRef, where('month', '==', month));
+        } else {
+            // No filter, just order by creation date
+            q = query(facilitiesRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as AccreditationFacility));
+
+        // Sort client-side if filtered
+        if (month) {
+            facilities.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting accreditation facilities:', error);
+        return [];
+    }
+}
+
+export async function updateAccreditationFacility(
+    id: string,
+    updates: Partial<AccreditationFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'accreditation_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating accreditation facility:', error);
+        return false;
+    }
+}
+
+export async function deleteAccreditationFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'accreditation_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting accreditation facility:', error);
         return false;
     }
 }

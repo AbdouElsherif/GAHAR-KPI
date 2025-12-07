@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -161,6 +161,18 @@ export default function DepartmentPage() {
     const [isAccreditationDashboardOpen, setIsAccreditationDashboardOpen] = useState(false);
     const [isMedicalProfessionalsDashboardOpen, setIsMedicalProfessionalsDashboardOpen] = useState(false);
 
+    // Facilities tracking states (for dept6 only)
+    const [facilities, setFacilities] = useState<AccreditationFacility[]>([]);
+    const [facilityFormData, setFacilityFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        accreditationStatus: '',
+        month: ''
+    });
+    const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
+    const [facilityFilterMonth, setFacilityFilterMonth] = useState('');
+    const [facilitySubmitted, setFacilitySubmitted] = useState(false);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -210,6 +222,18 @@ export default function DepartmentPage() {
     useEffect(() => {
         setCurrentPage(1);
     }, [searchText, dateFrom, dateTo]);
+
+    // Load facilities for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadFacilities();
+        }
+    }, [id, currentUser, facilityFilterMonth]);
+
+    const loadFacilities = async () => {
+        const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
+        setFacilities(data);
+    };
 
     const handleChange = (name: string, value: string) => {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -386,6 +410,82 @@ export default function DepartmentPage() {
             setSortColumn(fieldName);
             setSortDirection('asc');
         }
+    };
+
+    // Facility handlers (for dept6)
+    const handleFacilityInputChange = (field: string, value: string) => {
+        setFacilityFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleFacilitySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingFacilityId) {
+                // Update
+                const success = await updateAccreditationFacility(editingFacilityId, {
+                    ...facilityFormData,
+                    year: parseInt(facilityFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setFacilitySubmitted(true);
+                    setTimeout(() => setFacilitySubmitted(false), 3000);
+                    resetFacilityForm();
+                    await loadFacilities();
+                }
+            } else {
+                // Create
+                const docId = await saveAccreditationFacility({
+                    ...facilityFormData,
+                    year: parseInt(facilityFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setFacilitySubmitted(true);
+                    setTimeout(() => setFacilitySubmitted(false), 3000);
+                    resetFacilityForm();
+                    await loadFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving facility:', error);
+            alert('حدث خطأ أثناء الحفظ');
+        }
+    };
+
+    const handleEditFacility = (facility: AccreditationFacility) => {
+        setEditingFacilityId(facility.id || null);
+        setFacilityFormData({
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            accreditationStatus: facility.accreditationStatus,
+            month: facility.month
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteFacility = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذه المنشأة؟')) return;
+
+        const success = await deleteAccreditationFacility(id);
+        if (success) {
+            await loadFacilities();
+        }
+    };
+
+    const resetFacilityForm = () => {
+        setFacilityFormData({
+            facilityName: '',
+            governorate: '',
+            accreditationStatus: '',
+            month: ''
+        });
+        setEditingFacilityId(null);
     };
 
     const filteredSubmissions = getFilteredAndSortedSubmissions();
@@ -655,6 +755,217 @@ export default function DepartmentPage() {
                     </div>
                 )}
             </div>
+
+            {/* Facilities Tracking Section - Only for dept6 */}
+            {id === 'dept6' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <h2 style={{ margin: '0 0 20px 0', fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                        📋 تسجيل المنشآت المتقدمة
+                    </h2>
+
+                    {userCanEdit ? (
+                        <>
+                            {facilitySubmitted && (
+                                <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                    <strong>تم بنجاح!</strong> تم {editingFacilityId ? 'تحديث' : 'إضافة'} المنشأة بنجاح.
+                                </div>
+                            )}
+
+                            <form onSubmit={handleFacilitySubmit} style={{ marginBottom: '30px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                    <div className="form-group">
+                                        <label className="form-label">اسم المنشأة *</label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            required
+                                            value={facilityFormData.facilityName}
+                                            onChange={(e) => handleFacilityInputChange('facilityName', e.target.value)}
+                                            placeholder="أدخل اسم المنشأة"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">المحافظة *</label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            required
+                                            value={facilityFormData.governorate}
+                                            onChange={(e) => handleFacilityInputChange('governorate', e.target.value)}
+                                            placeholder="أدخل المحافظة"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">حالة الاعتماد *</label>
+                                        <select
+                                            className="form-input"
+                                            required
+                                            value={facilityFormData.accreditationStatus}
+                                            onChange={(e) => handleFacilityInputChange('accreditationStatus', e.target.value)}
+                                        >
+                                            <option value="">اختر حالة الاعتماد</option>
+                                            <option value="منشأة جديدة">منشأة جديدة</option>
+                                            <option value="تجديد اعتماد">تجديد اعتماد</option>
+                                            <option value="استكمال اعتماد">استكمال اعتماد</option>
+                                            <option value="اعتماد مبدئي">اعتماد مبدئي</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">الشهر *</label>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            required
+                                            value={facilityFormData.month}
+                                            onChange={(e) => handleFacilityInputChange('month', e.target.value)}
+                                            max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                    <button type="submit" className="btn btn-primary">
+                                        {editingFacilityId ? 'تحديث المنشأة' : 'إضافة المنشأة'}
+                                    </button>
+                                    {editingFacilityId && (
+                                        <button
+                                            type="button"
+                                            onClick={resetFacilityForm}
+                                            className="btn"
+                                            style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                        >
+                                            إلغاء
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
+                        </>
+                    ) : null}
+
+                    {/* Facilities Table */}
+                    <div style={{ marginTop: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                المنشآت المسجلة
+                            </h3>
+                            <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                <input
+                                    type="month"
+                                    className="form-input"
+                                    value={facilityFilterMonth}
+                                    onChange={(e) => setFacilityFilterMonth(e.target.value)}
+                                    placeholder="فلترة حسب الشهر"
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '0.9rem',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                            }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
+                                        <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                        {userCanEdit && (
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
+                                        )}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {facilities.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                padding: '40px',
+                                                textAlign: 'center',
+                                                color: '#999'
+                                            }}>
+                                                <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                لا توجد منشآت مسجلة
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        facilities.map((facility, index) => (
+                                            <tr key={facility.id} style={{
+                                                borderBottom: '1px solid #eee',
+                                                backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                            }}>
+                                                <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                    {facility.facilityName}
+                                                </td>
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                    {facility.governorate}
+                                                </td>
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                    <span style={{
+                                                        padding: '4px 12px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.85rem',
+                                                        backgroundColor: 'var(--background-color)',
+                                                        color: 'var(--primary-color)',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {facility.accreditationStatus}
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                    {(() => {
+                                                        const [year, month] = facility.month.split('-');
+                                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                    })()}
+                                                </td>
+                                                {userCanEdit && (
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                            <button
+                                                                onClick={() => handleEditFacility(facility)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: 'var(--primary-color)',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    fontSize: '0.85rem'
+                                                                }}
+                                                            >
+                                                                تعديل
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteFacility(facility.id!)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#dc3545',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    fontSize: '0.85rem'
+                                                                }}
+                                                            >
+                                                                حذف
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                )}
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {submissions.length > 0 && (
                 <div className="card" style={{ marginTop: '30px' }}>
