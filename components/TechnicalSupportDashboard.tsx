@@ -13,6 +13,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
+    const [selectedMonth, setSelectedMonth] = useState<number>(10); // أكتوبر كقيمة افتراضية
     const [visibleMetrics, setVisibleMetrics] = useState<{
         intro: boolean;
         field: boolean;
@@ -124,11 +125,21 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
         metric: string,
         compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
     ): number => {
-        if (compType === 'yearly' || compType === 'monthly') {
-            // For yearly and monthly, sum all periods
+        if (compType === 'yearly') {
+            // For yearly, sum all periods
             return Object.values(aggregated).reduce((sum: number, period: any) =>
                 sum + (period[metric] || 0), 0
             );
+        } else if (compType === 'monthly') {
+            // فلترة حسب الشهر المحدد
+            const monthKey = Object.keys(aggregated).find(key => {
+                if (key.includes('-')) {
+                    const month = parseInt(key.split('-')[1]);
+                    return month === selectedMonth;
+                }
+                return false;
+            });
+            return aggregated[monthKey || '']?.[metric] || 0;
         } else if (compType === 'quarterly') {
             // For quarterly, only sum the selected quarter
             const periodKey = `Q${selectedQuarter}`;
@@ -253,7 +264,16 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
 
         let sortedPeriods = Array.from(allPeriods).sort();
 
-        if (comparisonType === 'quarterly') {
+        if (comparisonType === 'monthly') {
+            // فلترة حسب الشهر المحدد فقط
+            sortedPeriods = sortedPeriods.filter(p => {
+                if (p.includes('-')) {
+                    const month = parseInt(p.split('-')[1]);
+                    return month === selectedMonth;
+                }
+                return false;
+            });
+        } else if (comparisonType === 'quarterly') {
             const targetPeriod = `Q${selectedQuarter}`;
             sortedPeriods = sortedPeriods.filter(p => p === targetPeriod);
         } else if (comparisonType === 'halfYearly') {
@@ -290,7 +310,16 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
     function renderTableRows() {
         let periods = Object.keys(currentAggregated).sort();
 
-        if (comparisonType === 'quarterly') {
+        if (comparisonType === 'monthly') {
+            // فلترة حسب الشهر المحدد فقط
+            periods = periods.filter(p => {
+                if (p.includes('-')) {
+                    const month = parseInt(p.split('-')[1]);
+                    return month === selectedMonth;
+                }
+                return false;
+            });
+        } else if (comparisonType === 'quarterly') {
             const targetPeriod = `Q${selectedQuarter}`;
             periods = periods.filter(p => p === targetPeriod);
         } else if (comparisonType === 'halfYearly') {
@@ -396,6 +425,35 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                         ))}
                     </select>
                 </div>
+
+
+
+                {comparisonType === 'monthly' && (
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-color)' }}>
+                            الشهر المحدد
+                        </label>
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                            className="form-input"
+                            style={{ width: '100%' }}
+                        >
+                            <option value={7}>يوليو</option>
+                            <option value={8}>أغسطس</option>
+                            <option value={9}>سبتمبر</option>
+                            <option value={10}>أكتوبر</option>
+                            <option value={11}>نوفمبر</option>
+                            <option value={12}>ديسمبر</option>
+                            <option value={1}>يناير</option>
+                            <option value={2}>فبراير</option>
+                            <option value={3}>مارس</option>
+                            <option value={4}>أبريل</option>
+                            <option value={5}>مايو</option>
+                            <option value={6}>يونيو</option>
+                        </select>
+                    </div>
+                )}
 
                 {comparisonType === 'quarterly' && (
                     <div style={{ flex: '1', minWidth: '200px' }}>
@@ -718,6 +776,6 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
