@@ -11,6 +11,7 @@ interface TechnicalClinicalDashboardProps {
 export default function TechnicalClinicalDashboard({ submissions }: TechnicalClinicalDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
+    const [selectedMonth, setSelectedMonth] = useState<number>(10); // Default to October
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
     const [visibleMetrics, setVisibleMetrics] = useState<{
@@ -119,10 +120,20 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
         metric: string,
         compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
     ): number => {
-        if (compType === 'yearly' || compType === 'monthly') {
+        if (compType === 'yearly') {
             return Object.values(aggregated).reduce((sum: number, period: any) =>
                 sum + (period[metric] || 0), 0
             );
+        } else if (compType === 'monthly') {
+            // فلترة حسب الشهر المحدد
+            const monthKey = Object.keys(aggregated).find(key => {
+                if (key.includes('-')) {
+                    const month = parseInt(key.split('-')[1]);
+                    return month === selectedMonth;
+                }
+                return false;
+            });
+            return aggregated[monthKey || '']?.[metric] || 0;
         } else if (compType === 'quarterly') {
             const periodKey = `Q${selectedQuarter}`;
             return aggregated[periodKey]?.[metric] || 0;
@@ -239,7 +250,16 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
         let sortedPeriods = Array.from(allPeriods).sort();
 
         // تصفية حسب الفترة المختارة للمقارنة الربع سنوية أو النصف سنوية
-        if (comparisonType === 'quarterly') {
+        if (comparisonType === 'monthly') {
+            // فلترة حسب الشهر المحدد فقط
+            sortedPeriods = sortedPeriods.filter(p => {
+                if (p.includes('-')) {
+                    const month = parseInt(p.split('-')[1]);
+                    return month === selectedMonth;
+                }
+                return false;
+            });
+        } else if (comparisonType === 'quarterly') {
             const targetPeriod = `Q${selectedQuarter}`;
             sortedPeriods = sortedPeriods.filter(p => p === targetPeriod);
         } else if (comparisonType === 'halfYearly') {
@@ -275,7 +295,16 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
         let periods = Object.keys(currentAggregated).sort();
 
         // تصفية حسب الفترة المختارة للمقارنة الربع سنوية أو النصف سنوية
-        if (comparisonType === 'quarterly') {
+        if (comparisonType === 'monthly') {
+            // فلترة حسب الشهر المحدد فقط
+            periods = periods.filter(p => {
+                if (p.includes('-')) {
+                    const month = parseInt(p.split('-')[1]);
+                    return month === selectedMonth;
+                }
+                return false;
+            });
+        } else if (comparisonType === 'quarterly') {
             const targetPeriod = `Q${selectedQuarter}`;
             periods = periods.filter(p => p === targetPeriod);
         } else if (comparisonType === 'halfYearly') {
@@ -379,6 +408,37 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                         ))}
                     </select>
                 </div>
+
+                {comparisonType === 'monthly' && (
+                    <div style={{ flex: '1', minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: 'var(--text-color)' }}>
+                            الشهر المحدد
+                        </label>
+                        <select
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                            className="form-input"
+                            style={{ width: '100%' }}
+                        >
+                            {[
+                                { value: 7, label: 'يوليو' },
+                                { value: 8, label: 'أغسطس' },
+                                { value: 9, label: 'سبتمبر' },
+                                { value: 10, label: 'أكتوبر' },
+                                { value: 11, label: 'نوفمبر' },
+                                { value: 12, label: 'ديسمبر' },
+                                { value: 1, label: 'يناير' },
+                                { value: 2, label: 'فبراير' },
+                                { value: 3, label: 'مارس' },
+                                { value: 4, label: 'أبريل' },
+                                { value: 5, label: 'مايو' },
+                                { value: 6, label: 'يونيو' },
+                            ].map(month => (
+                                <option key={month.value} value={month.value}>{month.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 {comparisonType === 'quarterly' && (
                     <div style={{ flex: '1', minWidth: '200px' }}>
