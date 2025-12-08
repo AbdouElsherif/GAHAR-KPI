@@ -41,6 +41,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'trainingPrograms', label: 'عدد البرامج التدريبية', type: 'number' },
         { name: 'trainees', label: 'عدد المتدربين', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept2': [
@@ -51,6 +52,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'remoteSupportVisits', label: 'زيارات دعم فني عن بعد', type: 'number' },
         { name: 'supportedFacilities', label: 'منشآت حصلت على الدعم الفني', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept3': [
@@ -60,6 +62,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'fieldVisits', label: 'عدد الزيارات الميدانية لاستبيان رضاء المتعاملين', type: 'number' },
         { name: 'surveyedFacilities', label: 'عدد المنشآت التي تم إجراء استبيانات بها', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept4': [
@@ -69,6 +72,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'assessmentVisits', label: 'زيارات التقييم الفني والإكلينيكي', type: 'number' },
         { name: 'visitedFacilities', label: 'عدد المنشآت الصحية التي تم إجراء زيارات رقابة فنية وإكلينيكية لها', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept5': [
@@ -80,6 +84,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'examReferralVisits', label: 'زيارات الرقابة الإدارية (فحص/ إحالة/ تكليف)', type: 'number' },
         { name: 'visitedFacilities', label: 'عدد المنشآت التي تم إجراء زيارات رقابة إدارية لها', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept6': [
@@ -91,6 +96,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'renewal', label: 'تجديد الاعتماد', type: 'number' },
         { name: 'completion', label: 'استكمال الاعتماد', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept7': [
@@ -98,6 +104,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'registeredMembers', label: 'عدد أعضاء المهن المسجلين', type: 'number' },
         { name: 'facilitiesUpdated', label: 'عدد المنشآت التي تم تسجيل وتحديث أعضاء المهن الطبية بها', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept8': [
@@ -725,9 +732,9 @@ export default function DepartmentPage() {
                         <form onSubmit={handleSubmit}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 {fields.map((field) => (
-                                    <div key={field.name} className="form-group" style={field.name === 'notes' || field.name === 'obstacles' ? { gridColumn: '1 / -1' } : {}}>
+                                    <div key={field.name} className="form-group" style={field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' ? { gridColumn: '1 / -1' } : {}}>
                                         <label className="form-label">{field.label}</label>
-                                        {field.name === 'notes' || field.name === 'obstacles' ? (
+                                        {field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' ? (
                                             <textarea className="form-input" rows={4} placeholder="ملاحظات إضافية..." value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)}></textarea>
                                         ) : (
                                             <input
@@ -1182,7 +1189,7 @@ export default function DepartmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                    {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map(field => (
+                                    {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals').map(field => (
                                         <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                             <button
                                                 onClick={() => handleSort(field.name)}
@@ -1213,7 +1220,7 @@ export default function DepartmentPage() {
                             <tbody>
                                 {paginatedSubmissions.map((sub, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals').map(field => (
                                             <td key={field.name} style={{ padding: '12px' }}>
                                                 {field.name === 'date' && sub[field.name] ? (
                                                     (() => {
