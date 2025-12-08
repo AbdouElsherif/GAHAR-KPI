@@ -85,6 +85,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'accreditation', label: 'الاعتماد/ الاعتماد المبدئي', type: 'number' },
         { name: 'renewal', label: 'تجديد الاعتماد', type: 'number' },
         { name: 'completion', label: 'استكمال الاعتماد', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept7': [
@@ -717,9 +718,9 @@ export default function DepartmentPage() {
                         <form onSubmit={handleSubmit}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 {fields.map((field) => (
-                                    <div key={field.name} className="form-group" style={field.name === 'notes' ? { gridColumn: '1 / -1' } : {}}>
+                                    <div key={field.name} className="form-group" style={field.name === 'notes' || field.name === 'obstacles' ? { gridColumn: '1 / -1' } : {}}>
                                         <label className="form-label">{field.label}</label>
-                                        {field.name === 'notes' ? (
+                                        {field.name === 'notes' || field.name === 'obstacles' ? (
                                             <textarea className="form-input" rows={4} placeholder="ملاحظات إضافية..." value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)}></textarea>
                                         ) : (
                                             <input
@@ -1174,7 +1175,7 @@ export default function DepartmentPage() {
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                    {activeFields.filter(f => f.name !== 'notes').map(field => (
+                                    {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map(field => (
                                         <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                             <button
                                                 onClick={() => handleSort(field.name)}
@@ -1205,7 +1206,7 @@ export default function DepartmentPage() {
                             <tbody>
                                 {paginatedSubmissions.map((sub, index) => (
                                     <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                        {activeFields.filter(f => f.name !== 'notes').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map(field => (
                                             <td key={field.name} style={{ padding: '12px' }}>
                                                 {field.name === 'date' && sub[field.name] ? (
                                                     (() => {
@@ -1261,7 +1262,7 @@ export default function DepartmentPage() {
                                         borderTop: '2px solid var(--primary-color)',
                                         fontWeight: 'bold'
                                     }}>
-                                        {activeFields.filter(f => f.name !== 'notes').map((field, index) => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map((field, index) => (
                                             <td key={field.name} style={{
                                                 padding: '14px 12px',
                                                 color: 'var(--primary-color)',
