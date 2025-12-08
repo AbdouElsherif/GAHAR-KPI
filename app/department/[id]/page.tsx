@@ -40,6 +40,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'trainingPrograms', label: 'عدد البرامج التدريبية', type: 'number' },
         { name: 'trainees', label: 'عدد المتدربين', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept2': [
@@ -49,6 +50,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'fieldSupportVisits', label: 'زيارات دعم فني ميداني', type: 'number' },
         { name: 'remoteSupportVisits', label: 'زيارات دعم فني عن بعد', type: 'number' },
         { name: 'supportedFacilities', label: 'منشآت حصلت على الدعم الفني', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept3': [
@@ -57,6 +59,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'staffSatisfactionSample', label: 'حجم عينة قياس رضاء العاملين', type: 'number' },
         { name: 'fieldVisits', label: 'عدد الزيارات الميدانية لاستبيان رضاء المتعاملين', type: 'number' },
         { name: 'surveyedFacilities', label: 'عدد المنشآت التي تم إجراء استبيانات بها', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept4': [
@@ -65,6 +68,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'auditVisits', label: 'زيارات التدقيق الفني والإكلينيكي', type: 'number' },
         { name: 'assessmentVisits', label: 'زيارات التقييم الفني والإكلينيكي', type: 'number' },
         { name: 'visitedFacilities', label: 'عدد المنشآت الصحية التي تم إجراء زيارات رقابة فنية وإكلينيكية لها', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept5': [
@@ -75,6 +79,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'followUpVisits', label: 'زيارات الرقابة الإدارية (متابعة)', type: 'number' },
         { name: 'examReferralVisits', label: 'زيارات الرقابة الإدارية (فحص/ إحالة/ تكليف)', type: 'number' },
         { name: 'visitedFacilities', label: 'عدد المنشآت التي تم إجراء زيارات رقابة إدارية لها', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept6': [
@@ -92,6 +97,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'registeredMembers', label: 'عدد أعضاء المهن المسجلين', type: 'number' },
         { name: 'facilitiesUpdated', label: 'عدد المنشآت التي تم تسجيل وتحديث أعضاء المهن الطبية بها', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept8': [
@@ -112,6 +118,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'standard14', label: 'معايير التطبيب عن بعد', type: 'number' },
         { name: 'standard15', label: 'دليل المراجعين', type: 'number' },
         { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
 };
