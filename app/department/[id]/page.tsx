@@ -194,6 +194,7 @@ export default function DepartmentPage() {
     const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
     const [facilityFilterMonth, setFacilityFilterMonth] = useState('');
     const [facilitySubmitted, setFacilitySubmitted] = useState(false);
+    const [isFacilitiesSectionExpanded, setIsFacilitiesSectionExpanded] = useState(true);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -781,211 +782,252 @@ export default function DepartmentPage() {
             {/* Facilities Tracking Section - Only for dept6 */}
             {id === 'dept6' && (
                 <div className="card" style={{ marginTop: '30px' }}>
-                    <h2 style={{ margin: '0 0 20px 0', fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                        📋 تسجيل المنشآت المتقدمة
-                    </h2>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isFacilitiesSectionExpanded ? '20px' : '0',
+                            paddingBottom: isFacilitiesSectionExpanded ? '15px' : '0',
+                            borderBottom: isFacilitiesSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsFacilitiesSectionExpanded(!isFacilitiesSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📋 المنشآت المتقدمة خلال الشهر
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isFacilitiesSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
 
-                    {userCanEdit ? (
+                    {isFacilitiesSectionExpanded && (
                         <>
-                            {facilitySubmitted && (
-                                <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
-                                    <strong>تم بنجاح!</strong> تم {editingFacilityId ? 'تحديث' : 'إضافة'} المنشأة بنجاح.
-                                </div>
-                            )}
+                            {userCanEdit ? (
+                                <>
+                                    {facilitySubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingFacilityId ? 'تحديث' : 'إضافة'} المنشأة بنجاح.
+                                        </div>
+                                    )}
 
-                            <form onSubmit={handleFacilitySubmit} style={{ marginBottom: '30px' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                    <div className="form-group">
-                                        <label className="form-label">اسم المنشأة *</label>
-                                        <input
-                                            type="text"
-                                            className="form-input"
-                                            required
-                                            value={facilityFormData.facilityName}
-                                            onChange={(e) => handleFacilityInputChange('facilityName', e.target.value)}
-                                            placeholder="أدخل اسم المنشأة"
-                                        />
-                                    </div>
+                                    <form onSubmit={handleFacilitySubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={facilityFormData.facilityName}
+                                                    onChange={(e) => handleFacilityInputChange('facilityName', e.target.value)}
+                                                    placeholder="أدخل اسم المنشأة"
+                                                />
+                                            </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">المحافظة *</label>
-                                        <input
-                                            type="text"
-                                            className="form-input"
-                                            required
-                                            value={facilityFormData.governorate}
-                                            onChange={(e) => handleFacilityInputChange('governorate', e.target.value)}
-                                            placeholder="أدخل المحافظة"
-                                        />
-                                    </div>
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={facilityFormData.governorate}
+                                                    onChange={(e) => handleFacilityInputChange('governorate', e.target.value)}
+                                                    placeholder="أدخل المحافظة"
+                                                />
+                                            </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">حالة الاعتماد *</label>
-                                        <select
-                                            className="form-input"
-                                            required
-                                            value={facilityFormData.accreditationStatus}
-                                            onChange={(e) => handleFacilityInputChange('accreditationStatus', e.target.value)}
-                                        >
-                                            <option value="">اختر حالة الاعتماد</option>
-                                            <option value="منشأة جديدة">منشأة جديدة</option>
-                                            <option value="تجديد اعتماد">تجديد اعتماد</option>
-                                            <option value="استكمال اعتماد">استكمال اعتماد</option>
-                                            <option value="اعتماد مبدئي">اعتماد مبدئي</option>
-                                        </select>
-                                    </div>
+                                            <div className="form-group">
+                                                <label className="form-label">حالة الاعتماد *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={facilityFormData.accreditationStatus}
+                                                    onChange={(e) => handleFacilityInputChange('accreditationStatus', e.target.value)}
+                                                >
+                                                    <option value="">اختر حالة الاعتماد</option>
+                                                    <option value="منشأة جديدة">منشأة جديدة</option>
+                                                    <option value="تجديد / استكمال اعتماد">تجديد / استكمال اعتماد</option>
+                                                </select>
+                                            </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">الشهر *</label>
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={facilityFormData.month}
+                                                    onChange={(e) => handleFacilityInputChange('month', e.target.value)}
+                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn btn-primary">
+                                                {editingFacilityId ? 'تحديث المنشأة' : 'إضافة المنشأة'}
+                                            </button>
+                                            {editingFacilityId && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetFacilityForm}
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Facilities Table */}
+                            <div style={{ marginTop: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                        المنشآت المسجلة
+                                    </h3>
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                         <input
                                             type="month"
                                             className="form-input"
-                                            required
-                                            value={facilityFormData.month}
-                                            onChange={(e) => handleFacilityInputChange('month', e.target.value)}
-                                            max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                            value={facilityFilterMonth}
+                                            onChange={(e) => setFacilityFilterMonth(e.target.value)}
+                                            placeholder="فلترة حسب الشهر"
                                         />
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                                    <button type="submit" className="btn btn-primary">
-                                        {editingFacilityId ? 'تحديث المنشأة' : 'إضافة المنشأة'}
-                                    </button>
-                                    {editingFacilityId && (
-                                        <button
-                                            type="button"
-                                            onClick={resetFacilityForm}
-                                            className="btn"
-                                            style={{ backgroundColor: '#6c757d', color: 'white' }}
-                                        >
-                                            إلغاء
-                                        </button>
-                                    )}
-                                </div>
-                            </form>
-                        </>
-                    ) : null}
-
-                    {/* Facilities Table */}
-                    <div style={{ marginTop: '20px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
-                                المنشآت المسجلة
-                            </h3>
-                            <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                <input
-                                    type="month"
-                                    className="form-input"
-                                    value={facilityFilterMonth}
-                                    onChange={(e) => setFacilityFilterMonth(e.target.value)}
-                                    placeholder="فلترة حسب الشهر"
-                                />
-                            </div>
-                        </div>
-
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
-                                        <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
-                                        {userCanEdit && (
-                                            <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
-                                        )}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {facilities.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={userCanEdit ? 5 : 4} style={{
-                                                padding: '40px',
-                                                textAlign: 'center',
-                                                color: '#999'
-                                            }}>
-                                                <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
-                                                لا توجد منشآت مسجلة
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        facilities.map((facility, index) => (
-                                            <tr key={facility.id} style={{
-                                                borderBottom: '1px solid #eee',
-                                                backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                            }}>
-                                                <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                    {facility.facilityName}
-                                                </td>
-                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                    {facility.governorate}
-                                                </td>
-                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                    <span style={{
-                                                        padding: '4px 12px',
-                                                        borderRadius: '12px',
-                                                        fontSize: '0.85rem',
-                                                        backgroundColor: 'var(--background-color)',
-                                                        color: 'var(--primary-color)',
-                                                        fontWeight: '500'
-                                                    }}>
-                                                        {facility.accreditationStatus}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
-                                                    {(() => {
-                                                        const [year, month] = facility.month.split('-');
-                                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                                    })()}
-                                                </td>
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.9rem',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                 {userCanEdit && (
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                            <button
-                                                                onClick={() => handleEditFacility(facility)}
-                                                                style={{
-                                                                    padding: '6px 12px',
-                                                                    backgroundColor: 'var(--primary-color)',
-                                                                    color: 'white',
-                                                                    border: 'none',
-                                                                    borderRadius: '4px',
-                                                                    cursor: 'pointer',
-                                                                    fontSize: '0.85rem'
-                                                                }}
-                                                            >
-                                                                تعديل
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeleteFacility(facility.id!)}
-                                                                style={{
-                                                                    padding: '6px 12px',
-                                                                    backgroundColor: '#dc3545',
-                                                                    color: 'white',
-                                                                    border: 'none',
-                                                                    borderRadius: '4px',
-                                                                    cursor: 'pointer',
-                                                                    fontSize: '0.85rem'
-                                                                }}
-                                                            >
-                                                                حذف
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                    <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
                                                 )}
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                        </thead>
+                                        <tbody>
+                                            {facilities.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                        padding: '40px',
+                                                        textAlign: 'center',
+                                                        color: '#999'
+                                                    }}>
+                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                        لا توجد منشآت مسجلة
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                facilities.map((facility, index) => (
+                                                    <tr key={facility.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityName}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {facility.governorate}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '4px 12px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '0.85rem',
+                                                                backgroundColor: 'var(--background-color)',
+                                                                color: 'var(--primary-color)',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                {facility.accreditationStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                            {(() => {
+                                                                const [year, month] = facility.month.split('-');
+                                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                            })()}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditFacility(facility)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteFacility(facility.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
