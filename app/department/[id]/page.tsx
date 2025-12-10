@@ -1417,7 +1417,7 @@ export default function DepartmentPage() {
                         onClose={() => setIsAccreditationDashboardOpen(false)}
                         title="لوحة بيانات الإدارة العامة للاعتماد والتسجيل"
                     >
-                        <AccreditationDashboard submissions={submissions} />
+                        <AccreditationDashboard submissions={submissions} facilities={facilities} />
                     </DashboardModal>
                 )
             }
