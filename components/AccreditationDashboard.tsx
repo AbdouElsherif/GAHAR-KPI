@@ -30,9 +30,18 @@ interface AccreditationDashboardProps {
         month: string;
         year: number;
     }>;
+    paidFacilities?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        accreditationStatus: string;
+        amount: number;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [] }: AccreditationDashboardProps) {
+export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [] }: AccreditationDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -328,6 +337,26 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     };
 
     const filteredPaymentFacilities = getPaymentFacilitiesForSelectedMonth();
+
+    // دالة لفلترة وترتيب المنشآت المدفوعة حسب الشهر المحدد وحالة الاعتماد
+    const getPaidFacilitiesForSelectedMonth = () => {
+        if (comparisonType !== 'monthly' || !paidFacilities || paidFacilities.length === 0) return [];
+
+        const filtered = paidFacilities.filter(facility => {
+            if (!facility.month) return false;
+            const [year, month] = facility.month.split('-');
+            const facilityMonth = parseInt(month);
+            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
+
+            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+        });
+
+        return filtered.sort((a, b) => {
+            return a.accreditationStatus.localeCompare(b.accreditationStatus, 'ar');
+        });
+    };
+
+    const filteredPaidFacilities = getPaidFacilitiesForSelectedMonth();
 
     const preparePieData = (metric: 'newFacilities' | 'reviewedAppeals' | 'reviewedPlans' | 'accreditation' | 'renewal' | 'completion') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
@@ -1291,6 +1320,146 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                             </td>
                                         </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم المنشآت المدفوعة - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && filteredPaidFacilities.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #6f42c1',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #6f42c1'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>✅</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#6f42c1',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                المنشآت التي قامت بسداد رسوم الزيارة التقييمية خلال {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                            <span style={{ marginLeft: 'auto', fontSize: '1rem', color: '#666', fontWeight: '500' }}>
+                                ({filteredPaidFacilities.length} منشأة)
+                            </span>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '0.95rem'
+                            }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#6f42c1', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>حالة الاعتماد</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>القيمة المالية</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(() => {
+                                        // تجميع المنشآت حسب حالة الاعتماد
+                                        const groupedFacilities = filteredPaidFacilities.reduce((groups, facility) => {
+                                            const status = facility.accreditationStatus;
+                                            if (!groups[status]) {
+                                                groups[status] = [];
+                                            }
+                                            groups[status].push(facility);
+                                            return groups;
+                                        }, {} as Record<string, typeof filteredPaidFacilities>);
+
+                                        if (Object.keys(groupedFacilities).length === 0) {
+                                            return (
+                                                <tr>
+                                                    <td colSpan={5} style={{
+                                                        padding: '40px',
+                                                        textAlign: 'center',
+                                                        color: '#999'
+                                                    }}>
+                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                        لا توجد منشآت مسجلة
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
+
+                                        let globalIndex = 0;
+                                        const rows: any[] = [];
+
+                                        Object.entries(groupedFacilities).forEach(([status, facilities]) => {
+                                            const groupTotal = facilities.reduce((sum, f) => sum + f.amount, 0);
+
+                                            // رأس المجموعة
+                                            rows.push(
+                                                <tr key={`header-${status}`} style={{ backgroundColor: '#f8f9fa' }}>
+                                                    <td colSpan={5} style={{
+                                                        padding: '12px',
+                                                        fontWeight: 'bold',
+                                                        color: '#6f42c1',
+                                                        fontSize: '1rem',
+                                                        borderTop: '2px solid #6f42c1',
+                                                        borderBottom: '1px solid #dee2e6'
+                                                    }}>
+                                                        {status} ({facilities.length} منشأة - الإجمالي: {groupTotal.toLocaleString('ar-EG')} ج.م)
+                                                    </td>
+                                                </tr>
+                                            );
+
+                                            // منشآت المجموعة
+                                            facilities.forEach((facility) => {
+                                                globalIndex++;
+                                                rows.push(
+                                                    <tr key={facility.id || `facility-${globalIndex}`} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: globalIndex % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{globalIndex}</td>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '6px 14px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '0.85rem',
+                                                                backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                                                                color: '#6f42c1',
+                                                                fontWeight: '500',
+                                                                display: 'inline-block'
+                                                            }}>
+                                                                {facility.accreditationStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#6f42c1', fontSize: '1rem' }}>
+                                                            {facility.amount.toLocaleString('ar-EG')} ج.م
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            });
+                                        });
+
+                                        return rows;
+                                    })()}
                                 </tbody>
                             </table>
                         </div>
