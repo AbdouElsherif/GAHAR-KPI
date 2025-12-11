@@ -8,6 +8,7 @@ import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getA
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType, BorderStyle } from 'docx';
 import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
 import TrainingDashboard from '@/components/TrainingDashboard';
@@ -613,6 +614,87 @@ export default function DepartmentPage() {
         setEditingFacilityId(null);
     };
 
+    // Export functions for Accreditation Facilities
+    const exportFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = facilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'حالة الاعتماد': facility.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'المنشآت المتقدمة');
+
+        const fileName = facilityFilterMonth
+            ? `المنشآت_المتقدمة_${facilityFilterMonth}.xlsx`
+            : `المنشآت_المتقدمة_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...facilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'المنشآت المتقدمة خلال الشهر',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = facilityFilterMonth
+            ? `المنشآت_المتقدمة_${facilityFilterMonth}.docx`
+            : `المنشآت_المتقدمة_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     // Completion Facility handlers (for dept6)
     const handleCompletionFacilityInputChange = (field: string, value: string) => {
         setCompletionFacilityFormData(prev => ({ ...prev, [field]: value }));
@@ -689,6 +771,87 @@ export default function DepartmentPage() {
         setEditingCompletionFacilityId(null);
     };
 
+    // Export functions for Completion Facilities
+    const exportCompletionFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = completionFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'حالة الاعتماد': facility.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'مرحلة الاستكمال');
+
+        const fileName = completionFacilityFilterMonth
+            ? `مرحلة_الاستكمال_${completionFacilityFilterMonth}.xlsx`
+            : `مرحلة_الاستكمال_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportCompletionFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...completionFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'مرحلة الاستكمال',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = completionFacilityFilterMonth
+            ? `مرحلة_الاستكمال_${completionFacilityFilterMonth}.docx`
+            : `مرحلة_الاستكمال_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     // Payment Facility handlers (for dept6)
     const handlePaymentFacilityInputChange = (field: string, value: string) => {
         setPaymentFacilityFormData(prev => ({ ...prev, [field]: value }));
@@ -761,6 +924,87 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingPaymentFacilityId(null);
+    };
+
+    // Export functions for Payment Facilities
+    const exportPaymentFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = paymentFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'حالة الاعتماد': facility.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'مرحلة السداد');
+
+        const fileName = paymentFacilityFilterMonth
+            ? `مرحلة_السداد_${paymentFacilityFilterMonth}.xlsx`
+            : `مرحلة_السداد_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportPaymentFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...paymentFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'مرحلة السداد',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = paymentFacilityFilterMonth
+            ? `مرحلة_السداد_${paymentFacilityFilterMonth}.docx`
+            : `مرحلة_السداد_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
     };
 
     // Paid Facility handlers (for dept6)
@@ -841,6 +1085,90 @@ export default function DepartmentPage() {
         setEditingPaidFacilityId(null);
     };
 
+    // Export functions for Paid Facilities
+    const exportPaidFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = paidFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'حالة الاعتماد': facility.accreditationStatus,
+                'القيمة المالية (ج.م)': facility.amount.toLocaleString(),
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'المنشآت المدفوعة');
+
+        const fileName = paidFacilityFilterMonth
+            ? `المنشآت_المدفوعة_${paidFacilityFilterMonth}.xlsx`
+            : `المنشآت_المدفوعة_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportPaidFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'القيمة المالية (ج.م)', alignment: AlignmentType.CENTER })], width: { size: 16, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...paidFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.amount.toLocaleString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'المنشآت المدفوعة',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = paidFacilityFilterMonth
+            ? `المنشآت_المدفوعة_${paidFacilityFilterMonth}.docx`
+            : `المنشآت_المدفوعة_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     // Medical Professional Registration handlers (for dept6)
     const handleMedicalProfessionalInputChange = (field: string, value: string) => {
         setMedicalProfessionalFormData(prev => ({ ...prev, [field]: value }));
@@ -915,6 +1243,90 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingMedicalProfessionalId(null);
+    };
+
+    // Export functions for Medical Professional Registrations
+    const exportMedicalProfessionalsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = medicalProfessionalRegistrations.map((registration, index) => {
+            const [year, month] = registration.month.split('-');
+            return {
+                '#': index + 1,
+                'نوع المنشأة': registration.facilityType,
+                'اسم المنشأة': registration.facilityName,
+                'المحافظة': registration.governorate,
+                'حالة الاعتماد': registration.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'أعضاء المهن الطبية');
+
+        const fileName = medicalProfessionalFilterMonth
+            ? `أعضاء_المهن_الطبية_${medicalProfessionalFilterMonth}.xlsx`
+            : `أعضاء_المهن_الطبية_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportMedicalProfessionalsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 24, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 16, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...medicalProfessionalRegistrations.map((registration, index) => {
+                const [year, month] = registration.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: registration.facilityType, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: registration.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: registration.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: registration.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'مرحلة تسجيل أعضاء المهن الطبية',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = medicalProfessionalFilterMonth
+            ? `أعضاء_المهن_الطبية_${medicalProfessionalFilterMonth}.docx`
+            : `أعضاء_المهن_الطبية_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
     };
 
     const filteredSubmissions = getFilteredAndSortedSubmissions();
@@ -1315,18 +1727,58 @@ export default function DepartmentPage() {
 
                             {/* Facilities Table */}
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         المنشآت المسجلة
                                     </h3>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                        <input
-                                            type="month"
-                                            className="form-input"
-                                            value={facilityFilterMonth}
-                                            onChange={(e) => setFacilityFilterMonth(e.target.value)}
-                                            placeholder="فلترة حسب الشهر"
-                                        />
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {facilities.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={facilityFilterMonth}
+                                                onChange={(e) => setFacilityFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1567,18 +2019,58 @@ export default function DepartmentPage() {
 
                             {/* Completion Facilities Table */}
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         المنشآت المسجلة
                                     </h3>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                        <input
-                                            type="month"
-                                            className="form-input"
-                                            value={completionFacilityFilterMonth}
-                                            onChange={(e) => setCompletionFacilityFilterMonth(e.target.value)}
-                                            placeholder="فلترة حسب الشهر"
-                                        />
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {completionFacilities.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportCompletionFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportCompletionFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={completionFacilityFilterMonth}
+                                                onChange={(e) => setCompletionFacilityFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1819,18 +2311,58 @@ export default function DepartmentPage() {
 
                             {/* Payment Facilities Table */}
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         المنشآت المسجلة
                                     </h3>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                        <input
-                                            type="month"
-                                            className="form-input"
-                                            value={paymentFacilityFilterMonth}
-                                            onChange={(e) => setPaymentFacilityFilterMonth(e.target.value)}
-                                            placeholder="فلترة حسب الشهر"
-                                        />
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {paymentFacilities.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportPaymentFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportPaymentFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={paymentFacilityFilterMonth}
+                                                onChange={(e) => setPaymentFacilityFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -2088,18 +2620,58 @@ export default function DepartmentPage() {
 
                             {/* Paid Facilities Table */}
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         المنشآت المسجلة
                                     </h3>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                        <input
-                                            type="month"
-                                            className="form-input"
-                                            value={paidFacilityFilterMonth}
-                                            onChange={(e) => setPaidFacilityFilterMonth(e.target.value)}
-                                            placeholder="فلترة حسب الشهر"
-                                        />
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {paidFacilities.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportPaidFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportPaidFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={paidFacilityFilterMonth}
+                                                onChange={(e) => setPaidFacilityFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -2362,18 +2934,58 @@ export default function DepartmentPage() {
 
                             {/* Medical Professional Registrations Table */}
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         التسجيلات المسجلة
                                     </h3>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                        <input
-                                            type="month"
-                                            className="form-input"
-                                            value={medicalProfessionalFilterMonth}
-                                            onChange={(e) => setMedicalProfessionalFilterMonth(e.target.value)}
-                                            placeholder="فلترة حسب الشهر"
-                                        />
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {medicalProfessionalRegistrations.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportMedicalProfessionalsToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportMedicalProfessionalsToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={medicalProfessionalFilterMonth}
+                                                onChange={(e) => setMedicalProfessionalFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

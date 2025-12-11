@@ -12,6 +12,7 @@
     "restore": "powershell -ExecutionPolicy Bypass -File ./scripts/restore.ps1"
   },
   "dependencies": {
+    "docx": "^9.5.1",
     "firebase": "^12.6.0",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
