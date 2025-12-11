@@ -194,7 +194,7 @@ export default function DepartmentPage() {
     const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
     const [facilityFilterMonth, setFacilityFilterMonth] = useState('');
     const [facilitySubmitted, setFacilitySubmitted] = useState(false);
-    const [isFacilitiesSectionExpanded, setIsFacilitiesSectionExpanded] = useState(true);
+    const [isFacilitiesSectionExpanded, setIsFacilitiesSectionExpanded] = useState(false);
 
     // Completion Facilities tracking states (for dept6 only)
     const [completionFacilities, setCompletionFacilities] = useState<CompletionFacility[]>([]);
@@ -207,7 +207,7 @@ export default function DepartmentPage() {
     const [editingCompletionFacilityId, setEditingCompletionFacilityId] = useState<string | null>(null);
     const [completionFacilityFilterMonth, setCompletionFacilityFilterMonth] = useState('');
     const [completionFacilitySubmitted, setCompletionFacilitySubmitted] = useState(false);
-    const [isCompletionFacilitiesSectionExpanded, setIsCompletionFacilitiesSectionExpanded] = useState(true);
+    const [isCompletionFacilitiesSectionExpanded, setIsCompletionFacilitiesSectionExpanded] = useState(false);
 
     // Payment Facilities tracking states (for dept6 only)
     const [paymentFacilities, setPaymentFacilities] = useState<PaymentFacility[]>([]);
@@ -220,7 +220,7 @@ export default function DepartmentPage() {
     const [editingPaymentFacilityId, setEditingPaymentFacilityId] = useState<string | null>(null);
     const [paymentFacilityFilterMonth, setPaymentFacilityFilterMonth] = useState('');
     const [paymentFacilitySubmitted, setPaymentFacilitySubmitted] = useState(false);
-    const [isPaymentFacilitiesSectionExpanded, setIsPaymentFacilitiesSectionExpanded] = useState(true);
+    const [isPaymentFacilitiesSectionExpanded, setIsPaymentFacilitiesSectionExpanded] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
