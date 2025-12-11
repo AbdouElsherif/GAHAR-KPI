@@ -62,6 +62,19 @@ export interface CompletionFacility {
     updatedBy?: string;
 }
 
+export interface PaymentFacility {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    accreditationStatus: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -370,6 +383,86 @@ export async function deleteCompletionFacility(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting completion facility:', error);
+        return false;
+    }
+}
+
+// Payment Facilities Functions
+export async function savePaymentFacility(
+    facilityData: Omit<PaymentFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'payment_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...facilityData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving payment facility:', error);
+        return null;
+    }
+}
+
+export async function getPaymentFacilities(month?: string): Promise<PaymentFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'payment_facilities');
+        let q;
+
+        if (month) {
+            q = query(facilitiesRef, where('month', '==', month));
+        } else {
+            q = query(facilitiesRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as PaymentFacility));
+
+        if (month) {
+            facilities.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting payment facilities:', error);
+        return [];
+    }
+}
+
+export async function updatePaymentFacility(
+    id: string,
+    updates: Partial<PaymentFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'payment_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating payment facility:', error);
+        return false;
+    }
+}
+
+export async function deletePaymentFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'payment_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting payment facility:', error);
         return false;
     }
 }
