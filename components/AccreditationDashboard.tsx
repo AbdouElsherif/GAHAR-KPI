@@ -14,9 +14,17 @@ interface AccreditationDashboardProps {
         month: string;
         year: number;
     }>;
+    completionFacilities?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        accreditationStatus: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function AccreditationDashboard({ submissions, facilities = [] }: AccreditationDashboardProps) {
+export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [] }: AccreditationDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -270,6 +278,28 @@ export default function AccreditationDashboard({ submissions, facilities = [] }:
     };
 
     const filteredFacilities = getFacilitiesForSelectedMonth();
+
+    // دالة لفلترة وترتيب منشآت الاستكمال حسب الشهر المحدد وحالة الاعتماد
+    const getCompletionFacilitiesForSelectedMonth = () => {
+        if (comparisonType !== 'monthly' || !completionFacilities || completionFacilities.length === 0) return [];
+
+        // فلترة المنشآت حسب الشهر والسنة المحددة
+        const filtered = completionFacilities.filter(facility => {
+            if (!facility.month) return false;
+            const [year, month] = facility.month.split('-');
+            const facilityMonth = parseInt(month);
+            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
+
+            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+        });
+
+        // ترتيب المنشآت حسب حالة الاعتماد (تجميع كل نوع مع بعضه)
+        return filtered.sort((a, b) => {
+            return a.accreditationStatus.localeCompare(b.accreditationStatus, 'ar');
+        });
+    };
+
+    const filteredCompletionFacilities = getCompletionFacilitiesForSelectedMonth();
 
     const preparePieData = (metric: 'newFacilities' | 'reviewedAppeals' | 'reviewedPlans' | 'accreditation' | 'renewal' | 'completion') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
@@ -1075,6 +1105,86 @@ export default function AccreditationDashboard({ submissions, facilities = [] }:
                             wordBreak: 'break-word'
                         }}>
                             {currentAdditionalActivities}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم منشآت الاستكمال - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && filteredCompletionFacilities.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #17a2b8',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #17a2b8'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>🏗️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#17a2b8',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                مرحلة استكمال الطلب (طرف المنشأة) خلال {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                            <span style={{ marginLeft: 'auto', fontSize: '1rem', color: '#666', fontWeight: '500' }}>
+                                ({filteredCompletionFacilities.length} منشأة)
+                            </span>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '0.95rem'
+                            }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredCompletionFacilities.map((facility, index) => (
+                                        <tr key={facility.id || index} style={{
+                                            borderBottom: '1px solid #eee',
+                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                        }}>
+                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
+                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                <span style={{
+                                                    padding: '6px 14px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.85rem',
+                                                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                                                    color: '#17a2b8',
+                                                    fontWeight: '500',
+                                                    display: 'inline-block'
+                                                }}>
+                                                    {facility.accreditationStatus}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

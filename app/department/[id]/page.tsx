@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -196,6 +196,19 @@ export default function DepartmentPage() {
     const [facilitySubmitted, setFacilitySubmitted] = useState(false);
     const [isFacilitiesSectionExpanded, setIsFacilitiesSectionExpanded] = useState(true);
 
+    // Completion Facilities tracking states (for dept6 only)
+    const [completionFacilities, setCompletionFacilities] = useState<CompletionFacility[]>([]);
+    const [completionFacilityFormData, setCompletionFacilityFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        accreditationStatus: '',
+        month: ''
+    });
+    const [editingCompletionFacilityId, setEditingCompletionFacilityId] = useState<string | null>(null);
+    const [completionFacilityFilterMonth, setCompletionFacilityFilterMonth] = useState('');
+    const [completionFacilitySubmitted, setCompletionFacilitySubmitted] = useState(false);
+    const [isCompletionFacilitiesSectionExpanded, setIsCompletionFacilitiesSectionExpanded] = useState(true);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -253,9 +266,21 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, facilityFilterMonth]);
 
+    // Load completion facilities for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadCompletionFacilities();
+        }
+    }, [id, currentUser, completionFacilityFilterMonth]);
+
     const loadFacilities = async () => {
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
         setFacilities(data);
+    };
+
+    const loadCompletionFacilities = async () => {
+        const data = await getCompletionFacilities(completionFacilityFilterMonth || undefined);
+        setCompletionFacilities(data);
     };
 
     const handleChange = (name: string, value: string) => {
@@ -509,6 +534,82 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingFacilityId(null);
+    };
+
+    // Completion Facility handlers (for dept6)
+    const handleCompletionFacilityInputChange = (field: string, value: string) => {
+        setCompletionFacilityFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleCompletionFacilitySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingCompletionFacilityId) {
+                // Update
+                const success = await updateCompletionFacility(editingCompletionFacilityId, {
+                    ...completionFacilityFormData,
+                    year: parseInt(completionFacilityFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setCompletionFacilitySubmitted(true);
+                    setTimeout(() => setCompletionFacilitySubmitted(false), 3000);
+                    resetCompletionFacilityForm();
+                    await loadCompletionFacilities();
+                }
+            } else {
+                // Create
+                const docId = await saveCompletionFacility({
+                    ...completionFacilityFormData,
+                    year: parseInt(completionFacilityFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setCompletionFacilitySubmitted(true);
+                    setTimeout(() => setCompletionFacilitySubmitted(false), 3000);
+                    resetCompletionFacilityForm();
+                    await loadCompletionFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving completion facility:', error);
+            alert('حدث خطأ أثناء الحفظ');
+        }
+    };
+
+    const handleEditCompletionFacility = (facility: CompletionFacility) => {
+        setEditingCompletionFacilityId(facility.id || null);
+        setCompletionFacilityFormData({
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            accreditationStatus: facility.accreditationStatus,
+            month: facility.month
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteCompletionFacility = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذه المنشأة؟')) return;
+
+        const success = await deleteCompletionFacility(id);
+        if (success) {
+            await loadCompletionFacilities();
+        }
+    };
+
+    const resetCompletionFacilityForm = () => {
+        setCompletionFacilityFormData({
+            facilityName: '',
+            governorate: '',
+            accreditationStatus: '',
+            month: ''
+        });
+        setEditingCompletionFacilityId(null);
     };
 
     const filteredSubmissions = getFilteredAndSortedSubmissions();
@@ -1031,6 +1132,258 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Completion Facilities Tracking Section - Only for dept6 */}
+            {id === 'dept6' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isCompletionFacilitiesSectionExpanded ? '20px' : '0',
+                            paddingBottom: isCompletionFacilitiesSectionExpanded ? '15px' : '0',
+                            borderBottom: isCompletionFacilitiesSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsCompletionFacilitiesSectionExpanded(!isCompletionFacilitiesSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📋 مرحلة استكمال الطلب (طرف المنشأة) عدد {completionFacilities.length} منشأة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isCompletionFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isCompletionFacilitiesSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isCompletionFacilitiesSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {completionFacilitySubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingCompletionFacilityId ? 'تحديث' : 'إضافة'} المنشأة بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleCompletionFacilitySubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={completionFacilityFormData.facilityName}
+                                                    onChange={(e) => handleCompletionFacilityInputChange('facilityName', e.target.value)}
+                                                    placeholder="أدخل اسم المنشأة"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={completionFacilityFormData.governorate}
+                                                    onChange={(e) => handleCompletionFacilityInputChange('governorate', e.target.value)}
+                                                    placeholder="أدخل المحافظة"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">حالة الاعتماد *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={completionFacilityFormData.accreditationStatus}
+                                                    onChange={(e) => handleCompletionFacilityInputChange('accreditationStatus', e.target.value)}
+                                                >
+                                                    <option value="">اختر حالة الاعتماد</option>
+                                                    <option value="منشأة جديدة">منشأة جديدة</option>
+                                                    <option value="تجديد / استكمال اعتماد">تجديد / استكمال اعتماد</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={completionFacilityFormData.month}
+                                                    onChange={(e) => handleCompletionFacilityInputChange('month', e.target.value)}
+                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn btn-primary">
+                                                {editingCompletionFacilityId ? 'تحديث المنشأة' : 'إضافة المنشأة'}
+                                            </button>
+                                            {editingCompletionFacilityId && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetCompletionFacilityForm}
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Completion Facilities Table */}
+                            <div style={{ marginTop: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                        المنشآت المسجلة
+                                    </h3>
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            value={completionFacilityFilterMonth}
+                                            onChange={(e) => setCompletionFacilityFilterMonth(e.target.value)}
+                                            placeholder="فلترة حسب الشهر"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.9rem',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                {userCanEdit && (
+                                                    <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {completionFacilities.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                        padding: '40px',
+                                                        textAlign: 'center',
+                                                        color: '#999'
+                                                    }}>
+                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                        لا توجد منشآت مسجلة
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                completionFacilities.map((facility, index) => (
+                                                    <tr key={facility.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityName}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {facility.governorate}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '4px 12px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '0.85rem',
+                                                                backgroundColor: 'var(--background-color)',
+                                                                color: 'var(--primary-color)',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                {facility.accreditationStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                            {(() => {
+                                                                const [year, month] = facility.month.split('-');
+                                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                            })()}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditCompletionFacility(facility)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteCompletionFacility(facility.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {submissions.length > 0 && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     {/* Filter and Search UI */}
@@ -1417,7 +1770,7 @@ export default function DepartmentPage() {
                         onClose={() => setIsAccreditationDashboardOpen(false)}
                         title="لوحة بيانات الإدارة العامة للاعتماد والتسجيل"
                     >
-                        <AccreditationDashboard submissions={submissions} facilities={facilities} />
+                        <AccreditationDashboard submissions={submissions} facilities={facilities} completionFacilities={completionFacilities} />
                     </DashboardModal>
                 )
             }
