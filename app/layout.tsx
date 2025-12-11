@@ -20,7 +20,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="ar" dir="rtl">
+        <html lang="ar" dir="rtl" suppressHydrationWarning={true}>
             <body suppressHydrationWarning={true}>
                 <header className="header">
                     <div className="container header-content">

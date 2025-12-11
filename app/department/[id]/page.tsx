@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -236,6 +236,20 @@ export default function DepartmentPage() {
     const [paidFacilitySubmitted, setPaidFacilitySubmitted] = useState(false);
     const [isPaidFacilitiesSectionExpanded, setIsPaidFacilitiesSectionExpanded] = useState(false);
 
+    // Medical Professional Registration tracking states (for dept6 only)
+    const [medicalProfessionalRegistrations, setMedicalProfessionalRegistrations] = useState<MedicalProfessionalRegistration[]>([]);
+    const [medicalProfessionalFormData, setMedicalProfessionalFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        accreditationStatus: '',
+        facilityType: '',
+        month: ''
+    });
+    const [editingMedicalProfessionalId, setEditingMedicalProfessionalId] = useState<string | null>(null);
+    const [medicalProfessionalFilterMonth, setMedicalProfessionalFilterMonth] = useState('');
+    const [medicalProfessionalSubmitted, setMedicalProfessionalSubmitted] = useState(false);
+    const [isMedicalProfessionalSectionExpanded, setIsMedicalProfessionalSectionExpanded] = useState(false);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -314,6 +328,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, paidFacilityFilterMonth]);
 
+    // Load medical professional registrations for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadMedicalProfessionalRegistrations();
+        }
+    }, [id, currentUser, medicalProfessionalFilterMonth]);
+
     const loadFacilities = async () => {
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
         setFacilities(data);
@@ -332,6 +353,11 @@ export default function DepartmentPage() {
     const loadPaidFacilities = async () => {
         const data = await getPaidFacilities(paidFacilityFilterMonth || undefined);
         setPaidFacilities(data);
+    };
+
+    const loadMedicalProfessionalRegistrations = async () => {
+        const data = await getMedicalProfessionalRegistrations(medicalProfessionalFilterMonth || undefined);
+        setMedicalProfessionalRegistrations(data);
     };
 
     const handleChange = (name: string, value: string) => {
@@ -813,6 +839,82 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingPaidFacilityId(null);
+    };
+
+    // Medical Professional Registration handlers (for dept6)
+    const handleMedicalProfessionalInputChange = (field: string, value: string) => {
+        setMedicalProfessionalFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleMedicalProfessionalSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingMedicalProfessionalId) {
+                const success = await updateMedicalProfessionalRegistration(editingMedicalProfessionalId, {
+                    ...medicalProfessionalFormData,
+                    year: parseInt(medicalProfessionalFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setMedicalProfessionalSubmitted(true);
+                    setTimeout(() => setMedicalProfessionalSubmitted(false), 3000);
+                    resetMedicalProfessionalForm();
+                    await loadMedicalProfessionalRegistrations();
+                }
+            } else {
+                const docId = await saveMedicalProfessionalRegistration({
+                    ...medicalProfessionalFormData,
+                    year: parseInt(medicalProfessionalFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setMedicalProfessionalSubmitted(true);
+                    setTimeout(() => setMedicalProfessionalSubmitted(false), 3000);
+                    resetMedicalProfessionalForm();
+                    await loadMedicalProfessionalRegistrations();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving medical professional registration:', error);
+            alert('حدث خطأ أثناء الحفظ');
+        }
+    };
+
+    const handleEditMedicalProfessional = (registration: MedicalProfessionalRegistration) => {
+        setEditingMedicalProfessionalId(registration.id || null);
+        setMedicalProfessionalFormData({
+            facilityName: registration.facilityName,
+            governorate: registration.governorate,
+            accreditationStatus: registration.accreditationStatus,
+            facilityType: registration.facilityType,
+            month: registration.month
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteMedicalProfessional = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذا التسجيل؟')) return;
+
+        const success = await deleteMedicalProfessionalRegistration(id);
+        if (success) {
+            await loadMedicalProfessionalRegistrations();
+        }
+    };
+
+    const resetMedicalProfessionalForm = () => {
+        setMedicalProfessionalFormData({
+            facilityName: '',
+            governorate: '',
+            accreditationStatus: '',
+            facilityType: '',
+            month: ''
+        });
+        setEditingMedicalProfessionalId(null);
     };
 
     const filteredSubmissions = getFilteredAndSortedSubmissions();
@@ -2112,6 +2214,280 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Medical Professional Registration Section - Only for dept6 */}
+            {id === 'dept6' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isMedicalProfessionalSectionExpanded ? '20px' : '0',
+                            paddingBottom: isMedicalProfessionalSectionExpanded ? '15px' : '0',
+                            borderBottom: isMedicalProfessionalSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsMedicalProfessionalSectionExpanded(!isMedicalProfessionalSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            👨‍⚕️ مرحلة تسجيل عضو مهن على المنصة - عدد {medicalProfessionalRegistrations.length} عضو مهن طبية
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isMedicalProfessionalSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isMedicalProfessionalSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isMedicalProfessionalSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {medicalProfessionalSubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingMedicalProfessionalId ? 'تحديث' : 'إضافة'} التسجيل بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleMedicalProfessionalSubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={medicalProfessionalFormData.facilityType}
+                                                    onChange={(e) => handleMedicalProfessionalInputChange('facilityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="صيدلية">صيدلية</option>
+                                                    <option value="مستشفى">مستشفى</option>
+                                                    <option value="عيادة">عيادة</option>
+                                                    <option value="وحدة طب أسرة">وحدة طب أسرة</option>
+                                                    <option value="مركز طب أسرة">مركز طب أسرة</option>
+                                                    <option value="أخرى">أخرى</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={medicalProfessionalFormData.facilityName}
+                                                    onChange={(e) => handleMedicalProfessionalInputChange('facilityName', e.target.value)}
+                                                    placeholder="أدخل اسم المنشأة"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={medicalProfessionalFormData.governorate}
+                                                    onChange={(e) => handleMedicalProfessionalInputChange('governorate', e.target.value)}
+                                                    placeholder="أدخل المحافظة"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">حالة الاعتماد *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={medicalProfessionalFormData.accreditationStatus}
+                                                    onChange={(e) => handleMedicalProfessionalInputChange('accreditationStatus', e.target.value)}
+                                                >
+                                                    <option value="">اختر حالة الاعتماد</option>
+                                                    <option value="منشأة جديدة">منشأة جديدة</option>
+                                                    <option value="تجديد / استكمال اعتماد">تجديد / استكمال اعتماد</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={medicalProfessionalFormData.month}
+                                                    onChange={(e) => handleMedicalProfessionalInputChange('month', e.target.value)}
+                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn btn-primary">
+                                                {editingMedicalProfessionalId ? 'تحديث التسجيل' : 'إضافة تسجيل'}
+                                            </button>
+                                            {editingMedicalProfessionalId && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetMedicalProfessionalForm}
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Medical Professional Registrations Table */}
+                            <div style={{ marginTop: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                        التسجيلات المسجلة
+                                    </h3>
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            value={medicalProfessionalFilterMonth}
+                                            onChange={(e) => setMedicalProfessionalFilterMonth(e.target.value)}
+                                            placeholder="فلترة حسب الشهر"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.9rem',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                {userCanEdit && (
+                                                    <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {medicalProfessionalRegistrations.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                        padding: '40px',
+                                                        textAlign: 'center',
+                                                        color: '#999'
+                                                    }}>
+                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                        لا توجد تسجيلات مسجلة
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                medicalProfessionalRegistrations.map((registration, index) => (
+                                                    <tr key={registration.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {registration.facilityName}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {registration.governorate}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '4px 12px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '0.85rem',
+                                                                backgroundColor: 'var(--background-color)',
+                                                                color: 'var(--primary-color)',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                {registration.accreditationStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#dc3545' }}>
+                                                            {registration.facilityType}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                            {(() => {
+                                                                const [year, month] = registration.month.split('-');
+                                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                            })()}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditMedicalProfessional(registration)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteMedicalProfessional(registration.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {submissions.length > 0 && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     {/* Filter and Search UI */}
@@ -2498,7 +2874,7 @@ export default function DepartmentPage() {
                         onClose={() => setIsAccreditationDashboardOpen(false)}
                         title="لوحة بيانات الإدارة العامة للاعتماد والتسجيل"
                     >
-                        <AccreditationDashboard submissions={submissions} facilities={facilities} completionFacilities={completionFacilities} paymentFacilities={paymentFacilities} paidFacilities={paidFacilities} />
+                        <AccreditationDashboard submissions={submissions} facilities={facilities} completionFacilities={completionFacilities} paymentFacilities={paymentFacilities} paidFacilities={paidFacilities} medicalProfessionalRegistrations={medicalProfessionalRegistrations} />
                     </DashboardModal>
                 )
             }

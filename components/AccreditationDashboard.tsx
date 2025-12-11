@@ -39,9 +39,18 @@ interface AccreditationDashboardProps {
         month: string;
         year: number;
     }>;
+    medicalProfessionalRegistrations?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        accreditationStatus: string;
+        facilityType: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [] }: AccreditationDashboardProps) {
+export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [], medicalProfessionalRegistrations = [] }: AccreditationDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);

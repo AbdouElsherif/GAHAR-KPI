@@ -89,6 +89,20 @@ export interface PaidFacility {
     updatedBy?: string;
 }
 
+export interface MedicalProfessionalRegistration {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    accreditationStatus: string;
+    facilityType: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -557,6 +571,86 @@ export async function deletePaidFacility(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting paid facility:', error);
+        return false;
+    }
+}
+
+// Medical Professional Registration Functions
+export async function saveMedicalProfessionalRegistration(
+    data: Omit<MedicalProfessionalRegistration, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const registrationsRef = collection(db, 'medical_professional_registrations');
+        const docRef = await addDoc(registrationsRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving medical professional registration:', error);
+        return null;
+    }
+}
+
+export async function getMedicalProfessionalRegistrations(month?: string): Promise<MedicalProfessionalRegistration[]> {
+    try {
+        const registrationsRef = collection(db, 'medical_professional_registrations');
+        let q;
+
+        if (month) {
+            q = query(registrationsRef, where('month', '==', month));
+        } else {
+            q = query(registrationsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let registrations = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as MedicalProfessionalRegistration));
+
+        if (month) {
+            registrations.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return registrations;
+    } catch (error) {
+        console.error('Error getting medical professional registrations:', error);
+        return [];
+    }
+}
+
+export async function updateMedicalProfessionalRegistration(
+    id: string,
+    updates: Partial<MedicalProfessionalRegistration> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const registrationRef = doc(db, 'medical_professional_registrations', id);
+        await setDoc(registrationRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating medical professional registration:', error);
+        return false;
+    }
+}
+
+export async function deleteMedicalProfessionalRegistration(id: string): Promise<boolean> {
+    try {
+        const registrationRef = doc(db, 'medical_professional_registrations', id);
+        await deleteDoc(registrationRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting medical professional registration:', error);
         return false;
     }
 }
