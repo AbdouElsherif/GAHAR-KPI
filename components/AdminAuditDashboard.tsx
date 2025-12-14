@@ -580,7 +580,7 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     color="#0eacb8"
                 />
                 <KPICard
-                    title="زيارات التدقيق الإداري والسلامة"
+                    title="تدقيق إداري وسلامة بيئية"
                     icon="🔍"
                     currentValue={currentTotalAdminAuditVisits}
                     previousValue={previousTotalAdminAuditVisits}
@@ -591,7 +591,7 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     color="#8884d8"
                 />
                 <KPICard
-                    title="زيارات التفتيش الإداري"
+                    title="تفتيش إداري"
                     icon="📋"
                     currentValue={currentTotalAdminInspectionVisits}
                     previousValue={previousTotalAdminInspectionVisits}
@@ -602,7 +602,7 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     color="#82ca9d"
                 />
                 <KPICard
-                    title="زيارات المتابعة"
+                    title="زيارات متابعة"
                     icon="🔄"
                     currentValue={currentTotalFollowUpVisits}
                     previousValue={previousTotalFollowUpVisits}
@@ -613,7 +613,7 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     color="#ffc658"
                 />
                 <KPICard
-                    title="زيارات الفحص والإحالة"
+                    title="فحص / إحالة / تكليف"
                     icon="📄"
                     currentValue={currentTotalExamReferralVisits}
                     previousValue={previousTotalExamReferralVisits}
@@ -624,7 +624,7 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     color="#ff8042"
                 />
                 <KPICard
-                    title="المنشآت المزارة"
+                    title="عدد المنشآت التي تم زيارتها"
                     icon="🏢"
                     currentValue={currentTotalVisitedFacilities}
                     previousValue={previousTotalVisitedFacilities}
@@ -864,23 +864,76 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>إجمالي {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>إجمالي {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تدقيق {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تدقيق {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تفتيش {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تفتيش {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>متابعة {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>متابعة {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>فحص/إحالة {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>فحص/إحالة {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>المؤشر</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const year = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                        return `${monthNames[selectedMonth - 1]} ${year}`;
+                                    })()}
+                                </th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const year = selectedMonth >= 7 ? targetYear - 2 : targetYear - 1;
+                                        return `${monthNames[selectedMonth - 1]} ${year}`;
+                                    })()}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {(() => {
+                                const currentData = Object.values(currentAggregated).find((_, idx) => {
+                                    const key = Object.keys(currentAggregated)[idx];
+                                    if (key.includes('-')) {
+                                        return parseInt(key.split('-')[1]) === selectedMonth;
+                                    }
+                                    return false;
+                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0 };
+
+                                const previousData = Object.values(previousAggregated).find((_, idx) => {
+                                    const key = Object.keys(previousAggregated)[idx];
+                                    if (key.includes('-')) {
+                                        return parseInt(key.split('-')[1]) === selectedMonth;
+                                    }
+                                    return false;
+                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0 };
+
+                                const indicators = [
+                                    { label: 'تدقيق إداري وسلامة بيئية', current: currentData.adminAuditVisits || 0, previous: previousData.adminAuditVisits || 0 },
+                                    { label: 'تفتيش إداري', current: currentData.adminInspectionVisits || 0, previous: previousData.adminInspectionVisits || 0 },
+                                    { label: 'زيارات متابعة', current: currentData.followUpVisits || 0, previous: previousData.followUpVisits || 0 },
+                                    { label: 'فحص / إحالة', current: currentData.examReferralVisits || 0, previous: previousData.examReferralVisits || 0 },
+                                ];
+
+                                const totalCurrent = indicators.reduce((sum, ind) => sum + ind.current, 0);
+                                const totalPrevious = indicators.reduce((sum, ind) => sum + ind.previous, 0);
+
+                                return (
+                                    <>
+                                        {indicators.map((ind, index) => (
+                                            <tr key={ind.label} style={{
+                                                borderBottom: '1px solid #eee',
+                                                backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                            }}>
+                                                <td style={{ padding: '12px', fontWeight: '500' }}>{ind.label}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{ind.current}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{ind.previous}</td>
+                                            </tr>
+                                        ))}
+                                        <tr style={{
+                                            borderTop: '2px solid var(--primary-color)',
+                                            backgroundColor: 'var(--primary-color)',
+                                            fontWeight: 'bold',
+                                            color: 'white'
+                                        }}>
+                                            <td style={{ padding: '12px', fontWeight: 'bold', color: 'white' }}>المجموع</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: '1.1rem' }}>{totalCurrent}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: 'white', fontSize: '1.1rem' }}>{totalPrevious}</td>
+                                        </tr>
+                                    </>
+                                );
+                            })()}
                         </tbody>
                     </table>
                 </div>
