@@ -156,6 +156,20 @@ export interface TechnicalClinicalFacility {
     updatedBy?: string;
 }
 
+export interface AdminAuditFacility {
+    id?: string;
+    facilityType: string;
+    facilityName: string;
+    visitType: string;
+    governorate: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -1006,6 +1020,72 @@ export async function deleteTechnicalClinicalFacility(id: string): Promise<boole
         return true;
     } catch (error) {
         console.error('Error deleting technical clinical facility:', error);
+        return false;
+    }
+}
+
+// Admin Audit Facility functions (for dept5)
+export async function saveAdminAuditFacility(
+    facility: Omit<AdminAuditFacility, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+    try {
+        const facilityRef = collection(db, 'admin_audit_facilities');
+        const docRef = await addDoc(facilityRef, {
+            ...facility,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving admin audit facility:', error);
+        return null;
+    }
+}
+
+export async function getAdminAuditFacilities(filterMonth?: string): Promise<AdminAuditFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'admin_audit_facilities');
+        let q;
+        if (filterMonth) {
+            q = query(facilitiesRef, where('month', '==', filterMonth));
+        } else {
+            q = query(facilitiesRef);
+        }
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        })) as AdminAuditFacility[];
+    } catch (error) {
+        console.error('Error getting admin audit facilities:', error);
+        return [];
+    }
+}
+
+export async function updateAdminAuditFacility(
+    id: string,
+    updates: Partial<AdminAuditFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'admin_audit_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating admin audit facility:', error);
+        return false;
+    }
+}
+
+export async function deleteAdminAuditFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'admin_audit_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting admin audit facility:', error);
         return false;
     }
 }
