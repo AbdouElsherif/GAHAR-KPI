@@ -2088,7 +2088,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsDataEntrySectionExpanded(!isDataEntrySectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--primary-color)' }}>
-                                📝 {editingId ? 'تعديل البيانات' : 'إدخال البيانات'}
+                                📝 المؤشرات الرئيسية
                             </h2>
                             <div style={{
                                 display: 'flex',
