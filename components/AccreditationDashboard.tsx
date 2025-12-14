@@ -64,9 +64,17 @@ interface AccreditationDashboardProps {
         month: string;
         year: number;
     }>;
+    appealsFacilities?: Array<{
+        id?: string;
+        facilityType: string;
+        facilityName: string;
+        governorate: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [], medicalProfessionalRegistrations = [], correctivePlanFacilities = [], basicRequirementsFacilities = [] }: AccreditationDashboardProps) {
+export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [], medicalProfessionalRegistrations = [], correctivePlanFacilities = [], basicRequirementsFacilities = [], appealsFacilities = [] }: AccreditationDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -442,6 +450,26 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     };
 
     const filteredBasicRequirementsFacilities = getBasicRequirementsFacilitiesForSelectedMonth();
+
+    // دالة لفلترة وترتيب منشآت الالتماسات حسب الشهر المحدد ونوع المنشأة
+    const getAppealsFacilitiesForSelectedMonth = () => {
+        if (comparisonType !== 'monthly' || !appealsFacilities || appealsFacilities.length === 0) return [];
+
+        const filtered = appealsFacilities.filter(facility => {
+            if (!facility.month) return false;
+            const [year, month] = facility.month.split('-');
+            const facilityMonth = parseInt(month);
+            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
+
+            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+        });
+
+        return filtered.sort((a, b) => {
+            return a.facilityType.localeCompare(b.facilityType, 'ar');
+        });
+    };
+
+    const filteredAppealsFacilities = getAppealsFacilitiesForSelectedMonth();
 
     const preparePieData = (metric: 'newFacilities' | 'reviewedAppeals' | 'reviewedPlans' | 'accreditation' | 'renewal' | 'completion') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
@@ -1744,6 +1772,71 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 </thead>
                                 <tbody>
                                     {filteredBasicRequirementsFacilities.map((facility, index) => (
+                                        <tr key={facility.id || index} style={{
+                                            borderBottom: '1px solid #eee',
+                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                        }}>
+                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
+                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityType}</td>
+                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم دراسة الالتماسات - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && filteredAppealsFacilities.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #9370db',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #9370db'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>📋</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#9370db',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                دراسة الالتماسات - {filteredAppealsFacilities.length} التماس - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '0.9rem',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                            }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#9370db', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredAppealsFacilities.map((facility, index) => (
                                         <tr key={facility.id || index} style={{
                                             borderBottom: '1px solid #eee',
                                             backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'

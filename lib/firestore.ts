@@ -101,6 +101,19 @@ export interface BasicRequirementsFacility {
     updatedBy?: string;
 }
 
+export interface AppealsFacility {
+    id?: string;
+    facilityType: string;
+    facilityName: string;
+    governorate: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export interface PaidFacility {
     id?: string;
@@ -750,6 +763,76 @@ export async function deleteBasicRequirementsFacility(id: string): Promise<boole
         return true;
     } catch (error) {
         console.error('Error deleting basic requirements facility:', error);
+        return false;
+    }
+}
+
+// Appeals Facilities Functions
+export async function saveAppealsFacility(
+    data: Omit<AppealsFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'appeals_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving appeals facility:', error);
+        return null;
+    }
+}
+
+export async function getAppealsFacilities(
+    departmentId: string,
+    filterMonth?: string
+): Promise<AppealsFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'appeals_facilities');
+        const snapshot = await getDocs(facilitiesRef);
+
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        })) as AppealsFacility[];
+
+        if (filterMonth) {
+            facilities = facilities.filter(facility => facility.month === filterMonth);
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting appeals facilities:', error);
+        return [];
+    }
+}
+
+export async function updateAppealsFacility(
+    id: string,
+    updates: Partial<AppealsFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'appeals_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating appeals facility:', error);
+        return false;
+    }
+}
+
+export async function deleteAppealsFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'appeals_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting appeals facility:', error);
         return false;
     }
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -253,6 +253,19 @@ export default function DepartmentPage() {
     const [basicRequirementsFacilitySubmitted, setBasicRequirementsFacilitySubmitted] = useState(false);
     const [isBasicRequirementsFacilitiesSectionExpanded, setIsBasicRequirementsFacilitiesSectionExpanded] = useState(false);
 
+    // Appeals Facilities tracking states (for dept6 only)
+    const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
+    const [appealsFacilityFormData, setAppealsFacilityFormData] = useState({
+        facilityType: '',
+        facilityName: '',
+        governorate: '',
+        month: ''
+    });
+    const [editingAppealsFacilityId, setEditingAppealsFacilityId] = useState<string | null>(null);
+    const [appealsFacilityFilterMonth, setAppealsFacilityFilterMonth] = useState('');
+    const [appealsFacilitySubmitted, setAppealsFacilitySubmitted] = useState(false);
+    const [isAppealsFacilitiesSectionExpanded, setIsAppealsFacilitiesSectionExpanded] = useState(false);
+
 
     // Paid Facilities tracking states (for dept6 only)
     const [paidFacilities, setPaidFacilities] = useState<PaidFacility[]>([]);
@@ -367,6 +380,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, basicRequirementsFacilityFilterMonth]);
 
+    // Load appeals facilities for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadAppealsFacilities();
+        }
+    }, [id, currentUser, appealsFacilityFilterMonth]);
+
 
     // Load paid facilities for dept6
     useEffect(() => {
@@ -410,6 +430,11 @@ export default function DepartmentPage() {
     const loadBasicRequirementsFacilities = async () => {
         const data = await getBasicRequirementsFacilities(id as string, basicRequirementsFacilityFilterMonth || undefined);
         setBasicRequirementsFacilities(data);
+    };
+
+    const loadAppealsFacilities = async () => {
+        const data = await getAppealsFacilities(id as string, appealsFacilityFilterMonth || undefined);
+        setAppealsFacilities(data);
     };
 
 
@@ -1367,6 +1392,155 @@ export default function DepartmentPage() {
         const fileName = basicRequirementsFacilityFilterMonth
             ? `متابعة_استكمال_المتطلبات_الأساسية_${basicRequirementsFacilityFilterMonth}.docx`
             : `متابعة_استكمال_المتطلبات_الأساسية_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Appeals Facility handlers (for dept6)
+    const handleAppealsFacilityInputChange = (field: string, value: string) => {
+        setAppealsFacilityFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleAppealsFacilitySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingAppealsFacilityId) {
+                const success = await updateAppealsFacility(editingAppealsFacilityId, {
+                    ...appealsFacilityFormData,
+                    year: parseInt(appealsFacilityFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setAppealsFacilitySubmitted(true);
+                    setTimeout(() => setAppealsFacilitySubmitted(false), 3000);
+                    resetAppealsFacilityForm();
+                    await loadAppealsFacilities();
+                }
+            } else {
+                const id = await saveAppealsFacility({
+                    ...appealsFacilityFormData,
+                    year: parseInt(appealsFacilityFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (id) {
+                    setAppealsFacilitySubmitted(true);
+                    setTimeout(() => setAppealsFacilitySubmitted(false), 3000);
+                    resetAppealsFacilityForm();
+                    await loadAppealsFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting appeals facility:', error);
+        }
+    };
+
+    const handleEditAppealsFacility = (facility: AppealsFacility) => {
+        setAppealsFacilityFormData({
+            facilityType: facility.facilityType,
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            month: facility.month
+        });
+        setEditingAppealsFacilityId(facility.id || null);
+    };
+
+    const handleDeleteAppealsFacility = async (id: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا الالتماس؟')) {
+            const success = await deleteAppealsFacility(id);
+            if (success) {
+                await loadAppealsFacilities();
+            }
+        }
+    };
+
+    const resetAppealsFacilityForm = () => {
+        setAppealsFacilityFormData({
+            facilityType: '',
+            facilityName: '',
+            governorate: '',
+            month: ''
+        });
+        setEditingAppealsFacilityId(null);
+    };
+
+    const exportAppealsFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const data = appealsFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'نوع المنشأة': facility.facilityType,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'دراسة الالتماسات');
+        const fileName = appealsFacilityFilterMonth
+            ? `دراسة_الالتماسات_${appealsFacilityFilterMonth}.xlsx`
+            : `دراسة_الالتماسات_جميع.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportAppealsFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...appealsFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'دراسة الالتماسات',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = appealsFacilityFilterMonth
+            ? `دراسة_الالتماسات_${appealsFacilityFilterMonth}.docx`
+            : `دراسة_الالتماسات_جميع.docx`;
         link.download = fileName;
         link.click();
         URL.revokeObjectURL(url);
@@ -4099,6 +4273,295 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Appeals Facilities Section - Dept6 only */}
+            {id === 'dept6' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: isAppealsFacilitiesSectionExpanded ? '20px' : '0',
+                            paddingBottom: isAppealsFacilitiesSectionExpanded ? '15px' : '0',
+                            borderBottom: isAppealsFacilitiesSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer'
+                        }}
+                        onClick={() => setIsAppealsFacilitiesSectionExpanded(!isAppealsFacilitiesSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📋 دراسة الالتماسات - عدد {appealsFacilities.length} التماس
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isAppealsFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isAppealsFacilitiesSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isAppealsFacilitiesSectionExpanded && userCanEdit && (
+                        <>
+                            <form onSubmit={handleAppealsFacilitySubmit} style={{ marginBottom: '30px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                    <div className="form-group">
+                                        <label className="form-label">نوع المنشأة *</label>
+                                        <select
+                                            className="form-input"
+                                            required
+                                            value={appealsFacilityFormData.facilityType}
+                                            onChange={(e) => handleAppealsFacilityInputChange('facilityType', e.target.value)}
+                                        >
+                                            <option value="">اختر نوع المنشأة</option>
+                                            <option value="صيدلية">صيدلية</option>
+                                            <option value="مستشفى">مستشفى</option>
+                                            <option value="عيادة">عيادة</option>
+                                            <option value="وحدة طب أسرة">وحدة طب أسرة</option>
+                                            <option value="مركز طب أسرة">مركز طب أسرة</option>
+                                            <option value="أخرى">أخرى</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">اسم المنشأة *</label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            required
+                                            value={appealsFacilityFormData.facilityName}
+                                            onChange={(e) => handleAppealsFacilityInputChange('facilityName', e.target.value)}
+                                            placeholder="أدخل اسم المنشأة"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">المحافظة *</label>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            required
+                                            value={appealsFacilityFormData.governorate}
+                                            onChange={(e) => handleAppealsFacilityInputChange('governorate', e.target.value)}
+                                            placeholder="أدخل المحافظة"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">الشهر *</label>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            required
+                                            value={appealsFacilityFormData.month}
+                                            onChange={(e) => handleAppealsFacilityInputChange('month', e.target.value)}
+                                            max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                    <button type="submit" className="btn btn-primary">
+                                        {editingAppealsFacilityId ? 'تحديث الالتماس' : 'إضافة التماس'}
+                                    </button>
+                                    {editingAppealsFacilityId && (
+                                        <button
+                                            type="button"
+                                            onClick={resetAppealsFacilityForm}
+                                            className="btn"
+                                            style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                        >
+                                            إلغاء
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
+
+                            {appealsFacilitySubmitted && (
+                                <div style={{
+                                    padding: '12px',
+                                    backgroundColor: '#d4edda',
+                                    color: '#155724',
+                                    borderRadius: '8px',
+                                    marginBottom: '20px',
+                                    border: '1px solid #c3e6cb'
+                                }}>
+                                    ✓ تم {editingAppealsFacilityId ? 'تحديث' : 'إضافة'} الالتماس بنجاح
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {isAppealsFacilitiesSectionExpanded && (
+                        <div style={{ marginTop: '20px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                                <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                    الالتماسات المسجلة
+                                </h3>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    {appealsFacilities.length > 0 && (
+                                        <>
+                                            <button
+                                                onClick={exportAppealsFacilitiesToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportAppealsFacilitiesToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#2b5797',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </>
+                                    )}
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            value={appealsFacilityFilterMonth}
+                                            onChange={(e) => setAppealsFacilityFilterMonth(e.target.value)}
+                                            placeholder="فلترة حسب الشهر"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    backgroundColor: 'white',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                    borderRadius: '8px',
+                                    overflow: 'hidden'
+                                }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>الشهر</th>
+                                            {userCanEdit && (
+                                                <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {appealsFacilities.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                    padding: '40px',
+                                                    textAlign: 'center',
+                                                    color: '#999'
+                                                }}>
+                                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                    لا توجد التماسات مسجلة
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            appealsFacilities.map((facility, index) => (
+                                                <tr key={facility.id} style={{
+                                                    borderBottom: '1px solid #eee',
+                                                    backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                }}>
+                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                        {facility.facilityType}
+                                                    </td>
+                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                        {facility.facilityName}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {facility.governorate}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {facility.month}
+                                                    </td>
+                                                    {userCanEdit && (
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditAppealsFacility(facility)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: 'var(--primary-color)',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteAppealsFacility(facility.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
 
             {
                 submissions.length > 0 && (
@@ -4497,6 +4960,7 @@ export default function DepartmentPage() {
                             medicalProfessionalRegistrations={medicalProfessionalRegistrations}
                             correctivePlanFacilities={correctivePlanFacilities}
                             basicRequirementsFacilities={basicRequirementsFacilities}
+                            appealsFacilities={appealsFacilities}
                         />
                     </DashboardModal>
                 )
