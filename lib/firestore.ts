@@ -88,6 +88,19 @@ export interface CorrectivePlanFacility {
     updatedBy?: string;
 }
 
+export interface BasicRequirementsFacility {
+    id?: string;
+    facilityType: string;
+    facilityName: string;
+    governorate: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export interface PaidFacility {
     id?: string;
@@ -666,6 +679,77 @@ export async function deletePaidFacility(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting paid facility:', error);
+        return false;
+    }
+}
+
+// Basic Requirements Facilities Functions
+export async function saveBasicRequirementsFacility(
+    data: Omit<BasicRequirementsFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'basic_requirements_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving basic requirements facility:', error);
+        return null;
+    }
+}
+
+export async function getBasicRequirementsFacilities(
+    departmentId: string,
+    filterMonth?: string
+): Promise<BasicRequirementsFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'basic_requirements_facilities');
+        const snapshot = await getDocs(facilitiesRef);
+
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        })) as BasicRequirementsFacility[];
+
+        // Client-side filtering by month if provided
+        if (filterMonth) {
+            facilities = facilities.filter(facility => facility.month === filterMonth);
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting basic requirements facilities:', error);
+        return [];
+    }
+}
+
+export async function updateBasicRequirementsFacility(
+    id: string,
+    updates: Partial<BasicRequirementsFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'basic_requirements_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating basic requirements facility:', error);
+        return false;
+    }
+}
+
+export async function deleteBasicRequirementsFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'basic_requirements_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting basic requirements facility:', error);
         return false;
     }
 }

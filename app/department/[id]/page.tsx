@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -240,6 +240,19 @@ export default function DepartmentPage() {
     const [correctivePlanFacilitySubmitted, setCorrectivePlanFacilitySubmitted] = useState(false);
     const [isCorrectivePlanFacilitiesSectionExpanded, setIsCorrectivePlanFacilitiesSectionExpanded] = useState(false);
 
+    // Basic Requirements Facilities tracking states (for dept6 only)
+    const [basicRequirementsFacilities, setBasicRequirementsFacilities] = useState<BasicRequirementsFacility[]>([]);
+    const [basicRequirementsFacilityFormData, setBasicRequirementsFacilityFormData] = useState({
+        facilityType: '',
+        facilityName: '',
+        governorate: '',
+        month: ''
+    });
+    const [editingBasicRequirementsFacilityId, setEditingBasicRequirementsFacilityId] = useState<string | null>(null);
+    const [basicRequirementsFacilityFilterMonth, setBasicRequirementsFacilityFilterMonth] = useState('');
+    const [basicRequirementsFacilitySubmitted, setBasicRequirementsFacilitySubmitted] = useState(false);
+    const [isBasicRequirementsFacilitiesSectionExpanded, setIsBasicRequirementsFacilitiesSectionExpanded] = useState(false);
+
 
     // Paid Facilities tracking states (for dept6 only)
     const [paidFacilities, setPaidFacilities] = useState<PaidFacility[]>([]);
@@ -347,6 +360,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, correctivePlanFacilityFilterMonth]);
 
+    // Load basic requirements facilities for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadBasicRequirementsFacilities();
+        }
+    }, [id, currentUser, basicRequirementsFacilityFilterMonth]);
+
 
     // Load paid facilities for dept6
     useEffect(() => {
@@ -385,6 +405,11 @@ export default function DepartmentPage() {
     const loadCorrectivePlanFacilities = async () => {
         const data = await getCorrectivePlanFacilities(correctivePlanFacilityFilterMonth || undefined);
         setCorrectivePlanFacilities(data);
+    };
+
+    const loadBasicRequirementsFacilities = async () => {
+        const data = await getBasicRequirementsFacilities(id as string, basicRequirementsFacilityFilterMonth || undefined);
+        setBasicRequirementsFacilities(data);
     };
 
 
@@ -1189,6 +1214,159 @@ export default function DepartmentPage() {
         const fileName = correctivePlanFacilityFilterMonth
             ? `متابعة_الخطط_التصحيحية_${correctivePlanFacilityFilterMonth}.docx`
             : `متابعة_الخطط_التصحيحية_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Basic Requirements Facility handlers (for dept6)
+    const handleBasicRequirementsFacilityInputChange = (field: string, value: string) => {
+        setBasicRequirementsFacilityFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleBasicRequirementsFacilitySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingBasicRequirementsFacilityId) {
+                const success = await updateBasicRequirementsFacility(editingBasicRequirementsFacilityId, {
+                    ...basicRequirementsFacilityFormData,
+                    year: parseInt(basicRequirementsFacilityFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setBasicRequirementsFacilitySubmitted(true);
+                    setTimeout(() => setBasicRequirementsFacilitySubmitted(false), 3000);
+                    resetBasicRequirementsFacilityForm();
+                    await loadBasicRequirementsFacilities();
+                }
+            } else {
+                const id = await saveBasicRequirementsFacility({
+                    ...basicRequirementsFacilityFormData,
+                    year: parseInt(basicRequirementsFacilityFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (id) {
+                    setBasicRequirementsFacilitySubmitted(true);
+                    setTimeout(() => setBasicRequirementsFacilitySubmitted(false), 3000);
+                    resetBasicRequirementsFacilityForm();
+                    await loadBasicRequirementsFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting basic requirements facility:', error);
+        }
+    };
+
+    const handleEditBasicRequirementsFacility = (facility: BasicRequirementsFacility) => {
+        setBasicRequirementsFacilityFormData({
+            facilityType: facility.facilityType,
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            month: facility.month
+        });
+        setEditingBasicRequirementsFacilityId(facility.id || null);
+    };
+
+    const handleDeleteBasicRequirementsFacility = async (id: string) => {
+        if (confirm('هل أنت متأكد من حذف هذه المنشأة؟')) {
+            const success = await deleteBasicRequirementsFacility(id);
+            if (success) {
+                await loadBasicRequirementsFacilities();
+            }
+        }
+    };
+
+    const resetBasicRequirementsFacilityForm = () => {
+        setBasicRequirementsFacilityFormData({
+            facilityType: '',
+            facilityName: '',
+            governorate: '',
+            month: ''
+        });
+        setEditingBasicRequirementsFacilityId(null);
+    };
+
+    const exportBasicRequirementsFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = basicRequirementsFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'نوع المنشأة': facility.facilityType,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'المتطلبات الأساسية');
+
+        const fileName = basicRequirementsFacilityFilterMonth
+            ? `متابعة_استكمال_المتطلبات_الأساسية_${basicRequirementsFacilityFilterMonth}.xlsx`
+            : `متابعة_استكمال_المتطلبات_الأساسية_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportBasicRequirementsFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...basicRequirementsFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'متابعة استكمال المتطلبات الأساسية',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = basicRequirementsFacilityFilterMonth
+            ? `متابعة_استكمال_المتطلبات_الأساسية_${basicRequirementsFacilityFilterMonth}.docx`
+            : `متابعة_استكمال_المتطلبات_الأساسية_جميع.docx`;
         link.download = fileName;
         link.click();
         URL.revokeObjectURL(url);
@@ -3406,14 +3584,20 @@ export default function DepartmentPage() {
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                                                 <div className="form-group">
                                                     <label className="form-label">نوع المنشأة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={correctivePlanFacilityFormData.facilityType}
                                                         onChange={(e) => handleCorrectivePlanFacilityInputChange('facilityType', e.target.value)}
-                                                        placeholder="أدخل نوع المنشأة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر نوع المنشأة</option>
+                                                        <option value="صيدلية">صيدلية</option>
+                                                        <option value="مستشفى">مستشفى</option>
+                                                        <option value="عيادة">عيادة</option>
+                                                        <option value="وحدة طب أسرة">وحدة طب أسرة</option>
+                                                        <option value="مركز طب أسرة">مركز طب أسرة</option>
+                                                        <option value="أخرى">أخرى</option>
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
@@ -3627,6 +3811,293 @@ export default function DepartmentPage() {
                     </div>
                 )
             }
+
+            {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
+            {id === 'dept6' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isBasicRequirementsFacilitiesSectionExpanded ? '20px' : '0',
+                            paddingBottom: isBasicRequirementsFacilitiesSectionExpanded ? '15px' : '0',
+                            borderBottom: isBasicRequirementsFacilitiesSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsBasicRequirementsFacilitiesSectionExpanded(!isBasicRequirementsFacilitiesSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📝 متابعة استكمال المتطلبات الأساسية - عدد {basicRequirementsFacilities.length} منشأة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isBasicRequirementsFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isBasicRequirementsFacilitiesSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isBasicRequirementsFacilitiesSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {basicRequirementsFacilitySubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingBasicRequirementsFacilityId ? 'تحديث' : 'إضافة'} المنشأة بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleBasicRequirementsFacilitySubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={basicRequirementsFacilityFormData.facilityType}
+                                                    onChange={(e) => handleBasicRequirementsFacilityInputChange('facilityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="صيدلية">صيدلية</option>
+                                                    <option value="مستشفى">مستشفى</option>
+                                                    <option value="عيادة">عيادة</option>
+                                                    <option value="وحدة طب أسرة">وحدة طب أسرة</option>
+                                                    <option value="مركز طب أسرة">مركز طب أسرة</option>
+                                                    <option value="أخرى">أخرى</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={basicRequirementsFacilityFormData.facilityName}
+                                                    onChange={(e) => handleBasicRequirementsFacilityInputChange('facilityName', e.target.value)}
+                                                    placeholder="أدخل اسم المنشأة"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={basicRequirementsFacilityFormData.governorate}
+                                                    onChange={(e) => handleBasicRequirementsFacilityInputChange('governorate', e.target.value)}
+                                                    placeholder="أدخل المحافظة"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={basicRequirementsFacilityFormData.month}
+                                                    onChange={(e) => handleBasicRequirementsFacilityInputChange('month', e.target.value)}
+                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn btn-primary">
+                                                {editingBasicRequirementsFacilityId ? 'تحديث المنشأة' : 'إضافة المنشأة'}
+                                            </button>
+                                            {editingBasicRequirementsFacilityId && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetBasicRequirementsFacilityForm}
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Basic Requirements Facilities Table */}
+                            <div style={{ marginTop: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                        المنشآت المسجلة
+                                    </h3>
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {basicRequirementsFacilities.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportBasicRequirementsFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportBasicRequirementsFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={basicRequirementsFacilityFilterMonth}
+                                                onChange={(e) => setBasicRequirementsFacilityFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.9rem',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                {userCanEdit && (
+                                                    <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {basicRequirementsFacilities.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                        padding: '40px',
+                                                        textAlign: 'center',
+                                                        color: '#999'
+                                                    }}>
+                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                        لا توجد منشآت مسجلة
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                basicRequirementsFacilities.map((facility, index) => (
+                                                    <tr key={facility.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityType}
+                                                        </td>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityName}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {facility.governorate}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                            {(() => {
+                                                                const [year, month] = facility.month.split('-');
+                                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                            })()}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditBasicRequirementsFacility(facility)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteBasicRequirementsFacility(facility.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
 
 
             {
