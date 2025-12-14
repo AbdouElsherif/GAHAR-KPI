@@ -4488,7 +4488,16 @@ export default function DepartmentPage() {
                         onClose={() => setIsAccreditationDashboardOpen(false)}
                         title="لوحة بيانات الإدارة العامة للاعتماد والتسجيل"
                     >
-                        <AccreditationDashboard submissions={submissions} facilities={facilities} completionFacilities={completionFacilities} paymentFacilities={paymentFacilities} paidFacilities={paidFacilities} medicalProfessionalRegistrations={medicalProfessionalRegistrations} />
+                        <AccreditationDashboard
+                            submissions={submissions}
+                            facilities={facilities}
+                            completionFacilities={completionFacilities}
+                            paymentFacilities={paymentFacilities}
+                            paidFacilities={paidFacilities}
+                            medicalProfessionalRegistrations={medicalProfessionalRegistrations}
+                            correctivePlanFacilities={correctivePlanFacilities}
+                            basicRequirementsFacilities={basicRequirementsFacilities}
+                        />
                     </DashboardModal>
                 )
             }
