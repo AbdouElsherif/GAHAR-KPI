@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { TechnicalClinicalFacility } from '@/lib/firestore';
 
 interface TechnicalClinicalDashboardProps {
     submissions: Array<Record<string, any>>;
+    facilities: TechnicalClinicalFacility[];
 }
 
-export default function TechnicalClinicalDashboard({ submissions }: TechnicalClinicalDashboardProps) {
+export default function TechnicalClinicalDashboard({ submissions, facilities }: TechnicalClinicalDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // Default to October
@@ -450,7 +452,7 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                         style={{ width: '100%' }}
                     >
                         {[2026, 2025, 2024].map(year => (
-                            <option key={year} value={year}>{year}</option>
+                            <option key={year} value={year}>{year - 1} - {year}</option>
                         ))}
                     </select>
                 </div>
@@ -905,6 +907,96 @@ export default function TechnicalClinicalDashboard({ submissions }: TechnicalCli
                             wordBreak: 'break-word'
                         }}>
                             {currentAdditionalActivities}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم المنشآت التي تم زيارتها - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid #e0e0e0',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                🏥 المنشآت التي تم زيارتها خلال {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                            <div style={{
+                                backgroundColor: 'var(--primary-color)',
+                                color: 'white',
+                                padding: '5px 15px',
+                                borderRadius: '20px',
+                                fontSize: '0.9rem',
+                                fontWeight: 'bold'
+                            }}>
+                                العدد: {facilities.filter(f => {
+                                    const [year, month] = f.month.split('-');
+                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                                }).length}
+                            </div>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '0.9rem'
+                            }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#f8f9fa', color: '#495057' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #dee2e6' }}>نوع المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #dee2e6' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #dee2e6' }}>المحافظة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {facilities.filter(f => {
+                                        const [year, month] = f.month.split('-');
+                                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                        return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                                    }).length === 0 ? (
+                                        <tr>
+                                            <td colSpan={3} style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                                                لا توجد زيارات مسجلة لهذا الشهر
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        facilities.filter(f => {
+                                            const [year, month] = f.month.split('-');
+                                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                                        }).map((facility, index) => (
+                                            <tr key={index} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                <td style={{ padding: '12px' }}>{facility.facilityType}</td>
+                                                <td style={{ padding: '12px', fontWeight: 'bold' }}>{facility.facilityName}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

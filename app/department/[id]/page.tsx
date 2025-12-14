@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -295,6 +295,19 @@ export default function DepartmentPage() {
     const [medicalProfessionalSubmitted, setMedicalProfessionalSubmitted] = useState(false);
     const [isMedicalProfessionalSectionExpanded, setIsMedicalProfessionalSectionExpanded] = useState(false);
 
+    // Technical Clinical Facilities tracking states (for dept4)
+    const [technicalClinicalFacilities, setTechnicalClinicalFacilities] = useState<TechnicalClinicalFacility[]>([]);
+    const [technicalClinicalFacilityFormData, setTechnicalClinicalFacilityFormData] = useState({
+        facilityType: '',
+        facilityName: '',
+        governorate: '',
+        month: ''
+    });
+    const [editingTechnicalClinicalFacilityId, setEditingTechnicalClinicalFacilityId] = useState<string | null>(null);
+    const [technicalClinicalFacilityFilterMonth, setTechnicalClinicalFacilityFilterMonth] = useState('');
+    const [technicalClinicalFacilitySubmitted, setTechnicalClinicalFacilitySubmitted] = useState(false);
+    const [isTechnicalClinicalFacilitiesSectionExpanded, setIsTechnicalClinicalFacilitiesSectionExpanded] = useState(false);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -402,6 +415,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, medicalProfessionalFilterMonth]);
 
+    // Load Technical Clinical facilities for dept4
+    useEffect(() => {
+        if (id === 'dept4' && currentUser) {
+            loadTechnicalClinicalFacilities();
+        }
+    }, [id, currentUser, technicalClinicalFacilityFilterMonth]);
+
     const loadFacilities = async () => {
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
         setFacilities(data);
@@ -441,6 +461,11 @@ export default function DepartmentPage() {
     const loadMedicalProfessionalRegistrations = async () => {
         const data = await getMedicalProfessionalRegistrations(medicalProfessionalFilterMonth || undefined);
         setMedicalProfessionalRegistrations(data);
+    };
+
+    const loadTechnicalClinicalFacilities = async () => {
+        const data = await getTechnicalClinicalFacilities(technicalClinicalFacilityFilterMonth || undefined);
+        setTechnicalClinicalFacilities(data);
     };
 
     const handleChange = (name: string, value: string) => {
@@ -618,6 +643,159 @@ export default function DepartmentPage() {
             setSortColumn(fieldName);
             setSortDirection('asc');
         }
+    };
+
+    // Technical Clinical Facility handlers (for dept4)
+    const handleTechnicalClinicalFacilityInputChange = (field: string, value: string) => {
+        setTechnicalClinicalFacilityFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleTechnicalClinicalFacilitySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingTechnicalClinicalFacilityId) {
+                const success = await updateTechnicalClinicalFacility(editingTechnicalClinicalFacilityId, {
+                    ...technicalClinicalFacilityFormData,
+                    year: parseInt(technicalClinicalFacilityFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setTechnicalClinicalFacilitySubmitted(true);
+                    setTimeout(() => setTechnicalClinicalFacilitySubmitted(false), 3000);
+                    resetTechnicalClinicalFacilityForm();
+                    await loadTechnicalClinicalFacilities();
+                }
+            } else {
+                const id = await saveTechnicalClinicalFacility({
+                    ...technicalClinicalFacilityFormData,
+                    year: parseInt(technicalClinicalFacilityFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (id) {
+                    setTechnicalClinicalFacilitySubmitted(true);
+                    setTimeout(() => setTechnicalClinicalFacilitySubmitted(false), 3000);
+                    resetTechnicalClinicalFacilityForm();
+                    await loadTechnicalClinicalFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting technical clinical facility:', error);
+        }
+    };
+
+    const handleEditTechnicalClinicalFacility = (facility: TechnicalClinicalFacility) => {
+        setTechnicalClinicalFacilityFormData({
+            facilityType: facility.facilityType,
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            month: facility.month
+        });
+        setEditingTechnicalClinicalFacilityId(facility.id || null);
+    };
+
+    const handleDeleteTechnicalClinicalFacility = async (id: string) => {
+        if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
+            const success = await deleteTechnicalClinicalFacility(id);
+            if (success) {
+                await loadTechnicalClinicalFacilities();
+            }
+        }
+    };
+
+    const resetTechnicalClinicalFacilityForm = () => {
+        setTechnicalClinicalFacilityFormData({
+            facilityType: '',
+            facilityName: '',
+            governorate: '',
+            month: ''
+        });
+        setEditingTechnicalClinicalFacilityId(null);
+    };
+
+    // Export functions for Technical Clinical Facilities
+    const exportTechnicalClinicalFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = technicalClinicalFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'نوع المنشأة': facility.facilityType,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الرقابة الفنية والإكلينيكية');
+
+        const fileName = technicalClinicalFacilityFilterMonth
+            ? `الرقابة_الفنية_والإكلينيكية_${technicalClinicalFacilityFilterMonth}.xlsx`
+            : `الرقابة_الفنية_والإكلينيكية_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportTechnicalClinicalFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...technicalClinicalFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'زيارات الرقابة الفنية والإكلينيكية',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = technicalClinicalFacilityFilterMonth
+            ? `الرقابة_الفنية_والإكلينيكية_${technicalClinicalFacilityFilterMonth}.docx`
+            : `الرقابة_الفنية_والإكلينيكية_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
     };
 
     // Facility handlers (for dept6)
@@ -3986,6 +4164,322 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* Technical Clinical Facilities Section - Dept4 only */}
+            {id === 'dept4' && (
+                <div className="card" style={{ marginBottom: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: isTechnicalClinicalFacilitiesSectionExpanded ? '20px' : '0',
+                            paddingBottom: isTechnicalClinicalFacilitiesSectionExpanded ? '15px' : '0',
+                            borderBottom: isTechnicalClinicalFacilitiesSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease',
+                            cursor: 'pointer'
+                        }}
+                        onClick={() => setIsTechnicalClinicalFacilitiesSectionExpanded(!isTechnicalClinicalFacilitiesSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            🏥 المنشآت التي تم زيارتها خلال الشهر
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isTechnicalClinicalFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isTechnicalClinicalFacilitiesSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isTechnicalClinicalFacilitiesSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {technicalClinicalFacilitySubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingTechnicalClinicalFacilityId ? 'تحديث' : 'إضافة'} الزيارة بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleTechnicalClinicalFacilitySubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalFacilityFormData.facilityType}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('facilityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="مستشفى">مستشفى</option>
+                                                    <option value="صيدلية">صيدلية</option>
+                                                    <option value="مركز طب أسرة">مركز طب أسرة</option>
+                                                    <option value="وحدة طب أسرة">وحدة طب أسرة</option>
+                                                    <option value="معمل">معمل</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalFacilityFormData.facilityName}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('facilityName', e.target.value)}
+                                                    placeholder="أدخل اسم المنشأة"
+                                                />
+                                            </div>
+
+
+
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalFacilityFormData.governorate}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('governorate', e.target.value)}
+                                                >
+                                                    <option value="">اختر المحافظة</option>
+                                                    <option value="القاهرة">القاهرة</option>
+                                                    <option value="الجيزة">الجيزة</option>
+                                                    <option value="الإسكندرية">الإسكندرية</option>
+                                                    <option value="الدقهلية">الدقهلية</option>
+                                                    <option value="الشرقية">الشرقية</option>
+                                                    <option value="المنوفية">المنوفية</option>
+                                                    <option value="القليوبية">القليوبية</option>
+                                                    <option value="البحيرة">البحيرة</option>
+                                                    <option value="الغربية">الغربية</option>
+                                                    <option value="بور سعيد">بور سعيد</option>
+                                                    <option value="دمياط">دمياط</option>
+                                                    <option value="الإسماعيلية">الإسماعيلية</option>
+                                                    <option value="السويس">السويس</option>
+                                                    <option value="كفر الشيخ">كفر الشيخ</option>
+                                                    <option value="الفيوم">الفيوم</option>
+                                                    <option value="بني سويف">بني سويف</option>
+                                                    <option value="المنيا">المنيا</option>
+                                                    <option value="أسيوط">أسيوط</option>
+                                                    <option value="سوهاج">سوهاج</option>
+                                                    <option value="قنا">قنا</option>
+                                                    <option value="الأقصر">الأقصر</option>
+                                                    <option value="أسوان">أسوان</option>
+                                                    <option value="البحر الأحمر">البحر الأحمر</option>
+                                                    <option value="الوادي الجديد">الوادي الجديد</option>
+                                                    <option value="مطروح">مطروح</option>
+                                                    <option value="شمال سيناء">شمال سيناء</option>
+                                                    <option value="جنوب سيناء">جنوب سيناء</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalFacilityFormData.month}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('month', e.target.value)}
+                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn btn-primary">
+                                                {editingTechnicalClinicalFacilityId ? 'تحديث الزيارة' : 'إضافة الزيارة'}
+                                            </button>
+                                            {editingTechnicalClinicalFacilityId && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetTechnicalClinicalFacilityForm}
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            <div style={{ marginTop: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
+                                        سجل الزيارات
+                                    </h3>
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {technicalClinicalFacilities.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportTechnicalClinicalFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportTechnicalClinicalFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={technicalClinicalFacilityFilterMonth}
+                                                onChange={(e) => setTechnicalClinicalFacilityFilterMonth(e.target.value)}
+                                                placeholder="فلترة حسب الشهر"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.9rem',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                {userCanEdit && (
+                                                    <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {technicalClinicalFacilities.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                        padding: '40px',
+                                                        textAlign: 'center',
+                                                        color: '#999'
+                                                    }}>
+                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                        لا توجد زيارات مسجلة
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                technicalClinicalFacilities.map((facility, index) => (
+                                                    <tr key={facility.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityType}
+                                                        </td>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityName}
+                                                        </td>
+
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {facility.governorate}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                            {(() => {
+                                                                const [year, month] = facility.month.split('-');
+                                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                            })()}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditTechnicalClinicalFacility(facility)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteTechnicalClinicalFacility(facility.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
             {id === 'dept6' && (
                 <div className="card" style={{ marginTop: '30px' }}>
@@ -4928,7 +5422,10 @@ export default function DepartmentPage() {
                         isOpen={isTechnicalClinicalDashboardOpen}
                         onClose={() => setIsTechnicalClinicalDashboardOpen(false)}
                     >
-                        <TechnicalClinicalDashboard submissions={submissions} />
+                        <TechnicalClinicalDashboard
+                            submissions={submissions}
+                            facilities={technicalClinicalFacilities}
+                        />
                     </DashboardModal>
                 )
             }
