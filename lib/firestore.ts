@@ -75,6 +75,20 @@ export interface PaymentFacility {
     updatedBy?: string;
 }
 
+export interface CorrectivePlanFacility {
+    id?: string;
+    facilityType: string;
+    facilityName: string;
+    governorate: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+
 export interface PaidFacility {
     id?: string;
     facilityName: string;
@@ -494,6 +508,87 @@ export async function deletePaymentFacility(id: string): Promise<boolean> {
         return false;
     }
 }
+
+// Corrective Plan Facilities Functions
+export async function saveCorrectivePlanFacility(
+    facilityData: Omit<CorrectivePlanFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'corrective_plan_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...facilityData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving corrective plan facility:', error);
+        return null;
+    }
+}
+
+export async function getCorrectivePlanFacilities(month?: string): Promise<CorrectivePlanFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'corrective_plan_facilities');
+        let q;
+
+        if (month) {
+            q = query(facilitiesRef, where('month', '==', month));
+        } else {
+            q = query(facilitiesRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as CorrectivePlanFacility));
+
+        if (month) {
+            facilities.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting corrective plan facilities:', error);
+        return [];
+    }
+}
+
+export async function updateCorrectivePlanFacility(
+    id: string,
+    updates: Partial<CorrectivePlanFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'corrective_plan_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating corrective plan facility:', error);
+        return false;
+    }
+}
+
+export async function deleteCorrectivePlanFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'corrective_plan_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting corrective plan facility:', error);
+        return false;
+    }
+}
+
 
 // Paid Facilities Functions
 export async function savePaidFacility(

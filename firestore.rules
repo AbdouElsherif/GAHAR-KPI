@@ -70,6 +70,12 @@ service cloud.firestore {
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
     
+    match /corrective_plan_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    
     match /medical_professional_registrations/{registrationId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();

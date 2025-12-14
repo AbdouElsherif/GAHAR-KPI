@@ -10,3 +10,7 @@ out/
 # Firebase Admin Service Account (NEVER commit these!)
 *firebase-adminsdk*.json
 gahar-kpi-app-firebase-adminsdk-*.json
+
+# Backups
+backups/
+*.backup
