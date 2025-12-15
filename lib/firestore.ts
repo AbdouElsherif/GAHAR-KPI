@@ -170,6 +170,19 @@ export interface AdminAuditFacility {
     updatedBy?: string;
 }
 
+export interface AdminAuditObservation {
+    id?: string;
+    entityType: string;  // الجهة التابعة: هيئة الرعاية الصحية / وزارة الصحة
+    facilityType: string;  // نوع المنشأة: مراكز الرعاية الأولية / وحدات الرعاية الأولية
+    observation: string;  // نص دليل التطابق/الملاحظة
+    percentage: number;  // نسبة الملاحظات
+    month: string;  // الشهر YYYY-MM
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -1086,6 +1099,86 @@ export async function deleteAdminAuditFacility(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting admin audit facility:', error);
+        return false;
+    }
+}
+
+// Admin Audit Observations Functions (الملاحظات المتكررة)
+export async function saveAdminAuditObservation(
+    data: Omit<AdminAuditObservation, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const observationsRef = collection(db, 'admin_audit_observations');
+        const docRef = await addDoc(observationsRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving admin audit observation:', error);
+        return null;
+    }
+}
+
+export async function getAdminAuditObservations(filterMonth?: string): Promise<AdminAuditObservation[]> {
+    try {
+        const observationsRef = collection(db, 'admin_audit_observations');
+        let q;
+        if (filterMonth) {
+            q = query(observationsRef, where('month', '==', filterMonth));
+        } else {
+            q = query(observationsRef, orderBy('createdAt', 'desc'));
+        }
+        const snapshot = await getDocs(q);
+        let observations = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as AdminAuditObservation));
+
+        // Sort by entityType then by percentage descending
+        if (filterMonth) {
+            observations.sort((a, b) => {
+                if (a.entityType !== b.entityType) {
+                    return a.entityType.localeCompare(b.entityType, 'ar');
+                }
+                return b.percentage - a.percentage;
+            });
+        }
+
+        return observations;
+    } catch (error) {
+        console.error('Error getting admin audit observations:', error);
+        return [];
+    }
+}
+
+export async function updateAdminAuditObservation(
+    id: string,
+    updates: Partial<AdminAuditObservation> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const observationRef = doc(db, 'admin_audit_observations', id);
+        await setDoc(observationRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating admin audit observation:', error);
+        return false;
+    }
+}
+
+export async function deleteAdminAuditObservation(id: string): Promise<boolean> {
+    try {
+        const observationRef = doc(db, 'admin_audit_observations', id);
+        await deleteDoc(observationRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting admin audit observation:', error);
         return false;
     }
 }

@@ -4,14 +4,15 @@ import { useState } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
-import { AdminAuditFacility } from '@/lib/firestore';
+import { AdminAuditFacility, AdminAuditObservation } from '@/lib/firestore';
 
 interface AdminAuditDashboardProps {
     submissions: Array<Record<string, any>>;
     facilities: AdminAuditFacility[];
+    observations: AdminAuditObservation[];
 }
 
-export default function AdminAuditDashboard({ submissions, facilities }: AdminAuditDashboardProps) {
+export default function AdminAuditDashboard({ submissions, facilities, observations }: AdminAuditDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // Default to October
@@ -1171,6 +1172,236 @@ export default function AdminAuditDashboard({ submissions, facilities }: AdminAu
                     </div>
                 </div>
             )}
+
+            {/* Recurring Observations Section - الملاحظات المتكررة */}
+            {comparisonType === 'monthly' && (() => {
+                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+                const filteredObservations = observations.filter(o => o.month === monthStr);
+
+                // Group by entityType
+                const hcaObservations = filteredObservations.filter(o => o.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية');
+                const mohObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لوزارة الصحة');
+                const otherObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لمنشآت أخرى');
+
+                if (filteredObservations.length === 0) return null;
+
+
+                return (
+                    <div style={{ marginBottom: '30px' }}>
+                        <div style={{
+                            backgroundColor: 'white',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                        }}>
+                            <h3 style={{
+                                margin: '0 0 20px 0',
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+
+                            {/* HCA Observations Accordion */}
+                            {hcaObservations.length > 0 && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <details open style={{
+                                        backgroundColor: '#f8f9fa',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <summary style={{
+                                            padding: '15px 20px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.1rem',
+                                            backgroundColor: '#e3f2fd',
+                                            color: '#1565c0',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                        }}>
+                                            <span>المنشآت الصحية التابعة لهيئة الرعاية الصحية</span>
+                                            <span style={{
+                                                backgroundColor: '#1565c0',
+                                                color: 'white',
+                                                padding: '4px 12px',
+                                                borderRadius: '12px',
+                                                fontSize: '0.85rem'
+                                            }}>{hcaObservations.length} ملاحظات</span>
+                                        </summary>
+                                        <div style={{ padding: '15px' }}>
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                <thead>
+                                                    <tr style={{ backgroundColor: '#e3f2fd' }}>
+                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>نوع المنشأة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>أدلة التطابق التي ورد عليها ملاحظات متكررة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #1565c0', width: '120px' }}>نسبة الملاحظات</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {hcaObservations.map((obs, idx) => (
+                                                        <tr key={obs.id || idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                            <td style={{ padding: '12px' }}>{obs.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{obs.observation}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <span style={{
+                                                                    padding: '4px 12px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.9rem',
+                                                                    fontWeight: 'bold',
+                                                                    backgroundColor: obs.percentage > 30 ? '#f8d7da' : obs.percentage >= 20 ? '#fff3cd' : '#d4edda',
+                                                                    color: obs.percentage > 30 ? '#721c24' : obs.percentage >= 20 ? '#856404' : '#155724'
+                                                                }}>
+                                                                    {obs.percentage}%
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </details>
+                                </div>
+                            )}
+
+                            {/* MOH Observations Accordion */}
+                            {mohObservations.length > 0 && (
+                                <div>
+                                    <details open style={{
+                                        backgroundColor: '#f8f9fa',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <summary style={{
+                                            padding: '15px 20px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.1rem',
+                                            backgroundColor: '#fff3e0',
+                                            color: '#e65100',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                        }}>
+                                            <span>منشآت تابعة لوزارة الصحة</span>
+                                            <span style={{
+                                                backgroundColor: '#e65100',
+                                                color: 'white',
+                                                padding: '4px 12px',
+                                                borderRadius: '12px',
+                                                fontSize: '0.85rem'
+                                            }}>{mohObservations.length} ملاحظات</span>
+                                        </summary>
+                                        <div style={{ padding: '15px' }}>
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                <thead>
+                                                    <tr style={{ backgroundColor: '#fff3e0' }}>
+                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>نوع المنشأة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>أدلة التطابق التي ورد عليها ملاحظات متكررة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #e65100', width: '120px' }}>نسبة الملاحظات</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {mohObservations.map((obs, idx) => (
+                                                        <tr key={obs.id || idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                            <td style={{ padding: '12px' }}>{obs.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{obs.observation}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <span style={{
+                                                                    padding: '4px 12px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.9rem',
+                                                                    fontWeight: 'bold',
+                                                                    backgroundColor: obs.percentage > 30 ? '#f8d7da' : obs.percentage >= 20 ? '#fff3cd' : '#d4edda',
+                                                                    color: obs.percentage > 30 ? '#721c24' : obs.percentage >= 20 ? '#856404' : '#155724'
+                                                                }}>
+                                                                    {obs.percentage}%
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </details>
+                                </div>
+                            )}
+
+                            {/* Other Facilities Observations Accordion */}
+                            {otherObservations.length > 0 && (
+                                <div style={{ marginTop: '20px' }}>
+                                    <details open style={{
+                                        backgroundColor: '#f8f9fa',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <summary style={{
+                                            padding: '15px 20px',
+                                            cursor: 'pointer',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.1rem',
+                                            backgroundColor: '#e8f5e9',
+                                            color: '#2e7d32',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                        }}>
+                                            <span>منشآت تابعة لمنشآت أخرى</span>
+                                            <span style={{
+                                                backgroundColor: '#2e7d32',
+                                                color: 'white',
+                                                padding: '4px 12px',
+                                                borderRadius: '12px',
+                                                fontSize: '0.85rem'
+                                            }}>{otherObservations.length} ملاحظات</span>
+                                        </summary>
+                                        <div style={{ padding: '15px' }}>
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                <thead>
+                                                    <tr style={{ backgroundColor: '#e8f5e9' }}>
+                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>نوع المنشأة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>أدلة التطابق التي ورد عليها ملاحظات متكررة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #2e7d32', width: '120px' }}>نسبة الملاحظات</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {otherObservations.map((obs, idx) => (
+                                                        <tr key={obs.id || idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                            <td style={{ padding: '12px' }}>{obs.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{obs.observation}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <span style={{
+                                                                    padding: '4px 12px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.9rem',
+                                                                    fontWeight: 'bold',
+                                                                    backgroundColor: obs.percentage > 30 ? '#f8d7da' : obs.percentage >= 20 ? '#fff3cd' : '#d4edda',
+                                                                    color: obs.percentage > 30 ? '#721c24' : obs.percentage >= 20 ? '#856404' : '#155724'
+                                                                }}>
+                                                                    {obs.percentage}%
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </details>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 }

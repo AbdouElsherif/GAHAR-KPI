@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -322,6 +322,20 @@ export default function DepartmentPage() {
     const [adminAuditFacilitySubmitted, setAdminAuditFacilitySubmitted] = useState(false);
     const [isAdminAuditFacilitiesSectionExpanded, setIsAdminAuditFacilitiesSectionExpanded] = useState(false);
 
+    // Admin Audit Observations tracking states (الملاحظات المتكررة for dept5)
+    const [adminAuditObservations, setAdminAuditObservations] = useState<AdminAuditObservation[]>([]);
+    const [adminAuditObservationFormData, setAdminAuditObservationFormData] = useState({
+        entityType: '',
+        facilityType: '',
+        observation: '',
+        percentage: '',
+        month: ''
+    });
+    const [editingAdminAuditObservationId, setEditingAdminAuditObservationId] = useState<string | null>(null);
+    const [adminAuditObservationFilterMonth, setAdminAuditObservationFilterMonth] = useState('');
+    const [adminAuditObservationSubmitted, setAdminAuditObservationSubmitted] = useState(false);
+    const [isAdminAuditObservationsSectionExpanded, setIsAdminAuditObservationsSectionExpanded] = useState(false);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -443,6 +457,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, adminAuditFacilityFilterMonth]);
 
+    // Load Admin Audit observations for dept5
+    useEffect(() => {
+        if (id === 'dept5' && currentUser) {
+            loadAdminAuditObservations();
+        }
+    }, [id, currentUser, adminAuditObservationFilterMonth]);
+
     const loadFacilities = async () => {
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
         setFacilities(data);
@@ -492,6 +513,11 @@ export default function DepartmentPage() {
     const loadAdminAuditFacilities = async () => {
         const data = await getAdminAuditFacilities(adminAuditFacilityFilterMonth || undefined);
         setAdminAuditFacilities(data);
+    };
+
+    const loadAdminAuditObservations = async () => {
+        const data = await getAdminAuditObservations(adminAuditObservationFilterMonth || undefined);
+        setAdminAuditObservations(data);
     };
 
     const handleChange = (name: string, value: string) => {
@@ -815,6 +841,87 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingAdminAuditFacilityId(null);
+    };
+
+    // Admin Audit Observation handlers (الملاحظات المتكررة)
+    const handleAdminAuditObservationInputChange = (field: string, value: string) => {
+        setAdminAuditObservationFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleAdminAuditObservationSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year, month] = adminAuditObservationFormData.month.split('-');
+
+            if (editingAdminAuditObservationId) {
+                await updateAdminAuditObservation(editingAdminAuditObservationId, {
+                    entityType: adminAuditObservationFormData.entityType,
+                    facilityType: adminAuditObservationFormData.facilityType,
+                    observation: adminAuditObservationFormData.observation,
+                    percentage: parseFloat(adminAuditObservationFormData.percentage),
+                    month: adminAuditObservationFormData.month,
+                    year: parseInt(year),
+                    updatedBy: currentUser.id
+                });
+                setAdminAuditObservationSubmitted(true);
+                setTimeout(() => setAdminAuditObservationSubmitted(false), 3000);
+                resetAdminAuditObservationForm();
+                await loadAdminAuditObservations();
+            } else {
+                const docId = await saveAdminAuditObservation({
+                    entityType: adminAuditObservationFormData.entityType,
+                    facilityType: adminAuditObservationFormData.facilityType,
+                    observation: adminAuditObservationFormData.observation,
+                    percentage: parseFloat(adminAuditObservationFormData.percentage),
+                    month: adminAuditObservationFormData.month,
+                    year: parseInt(year),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setAdminAuditObservationSubmitted(true);
+                    setTimeout(() => setAdminAuditObservationSubmitted(false), 3000);
+                    resetAdminAuditObservationForm();
+                    await loadAdminAuditObservations();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting admin audit observation:', error);
+        }
+    };
+
+    const handleEditAdminAuditObservation = (observation: AdminAuditObservation) => {
+        setAdminAuditObservationFormData({
+            entityType: observation.entityType,
+            facilityType: observation.facilityType,
+            observation: observation.observation,
+            percentage: observation.percentage.toString(),
+            month: observation.month
+        });
+        setEditingAdminAuditObservationId(observation.id || null);
+    };
+
+    const handleDeleteAdminAuditObservation = async (observationId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) {
+            const success = await deleteAdminAuditObservation(observationId);
+            if (success) {
+                await loadAdminAuditObservations();
+            }
+        }
+    };
+
+    const resetAdminAuditObservationForm = () => {
+        setAdminAuditObservationFormData({
+            entityType: '',
+            facilityType: '',
+            observation: '',
+            percentage: '',
+            month: ''
+        });
+        setEditingAdminAuditObservationId(null);
     };
 
     // Export functions for Technical Clinical Facilities
@@ -4857,8 +4964,266 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Admin Audit Observations Section - الملاحظات المتكررة - Only for dept5 */}
+            {id === 'dept5' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isAdminAuditObservationsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isAdminAuditObservationsSectionExpanded ? '15px' : '0',
+                            borderBottom: isAdminAuditObservationsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsAdminAuditObservationsSectionExpanded(!isAdminAuditObservationsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية - عدد {adminAuditObservations.length} ملاحظة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isAdminAuditObservationsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isAdminAuditObservationsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isAdminAuditObservationsSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {adminAuditObservationSubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingAdminAuditObservationId ? 'تحديث' : 'إضافة'} الملاحظة بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleAdminAuditObservationSubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">الجهة التابعة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={adminAuditObservationFormData.entityType}
+                                                    onChange={(e) => handleAdminAuditObservationInputChange('entityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر الجهة</option>
+                                                    <option value="المنشآت الصحية التابعة لهيئة الرعاية الصحية">المنشآت الصحية التابعة لهيئة الرعاية الصحية</option>
+                                                    <option value="منشآت تابعة لوزارة الصحة">منشآت تابعة لوزارة الصحة</option>
+                                                    <option value="منشآت تابعة لمنشآت أخرى">منشآت تابعة لمنشآت أخرى</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={adminAuditObservationFormData.facilityType}
+                                                    onChange={(e) => handleAdminAuditObservationInputChange('facilityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="مراكز الرعاية الأولية">مراكز الرعاية الأولية</option>
+                                                    <option value="وحدات الرعاية الأولية">وحدات الرعاية الأولية</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                                                <label className="form-label">دليل التطابق / الملاحظة *</label>
+                                                <textarea
+                                                    className="form-input"
+                                                    required
+                                                    rows={3}
+                                                    value={adminAuditObservationFormData.observation}
+                                                    onChange={(e) => handleAdminAuditObservationInputChange('observation', e.target.value)}
+                                                    placeholder="أدخل نص الملاحظة أو دليل التطابق"
+                                                    style={{ resize: 'vertical' }}
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">نسبة الملاحظات (%) *</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    required
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.1"
+                                                    value={adminAuditObservationFormData.percentage}
+                                                    onChange={(e) => handleAdminAuditObservationInputChange('percentage', e.target.value)}
+                                                    placeholder="مثال: 32"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={adminAuditObservationFormData.month}
+                                                    onChange={(e) => handleAdminAuditObservationInputChange('month', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                {editingAdminAuditObservationId ? 'تحديث الملاحظة' : 'إضافة الملاحظة'}
+                                            </button>
+                                            {editingAdminAuditObservationId && (
+                                                <button type="button" className="btn" style={{ backgroundColor: '#6c757d', color: 'white' }} onClick={resetAdminAuditObservationForm}>
+                                                    إلغاء التعديل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Filter */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                        <label className="form-label">فلترة حسب الشهر</label>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            value={adminAuditObservationFilterMonth}
+                                            onChange={(e) => setAdminAuditObservationFilterMonth(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>دليل التطابق / الملاحظة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '100px' }}>النسبة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                            {userCanEdit && (
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>إجراءات</th>
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {adminAuditObservations.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                    padding: '40px',
+                                                    textAlign: 'center',
+                                                    color: '#999'
+                                                }}>
+                                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📋</div>
+                                                    لا توجد ملاحظات مسجلة
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            adminAuditObservations.map((observation, index) => (
+                                                <tr key={observation.id} style={{
+                                                    borderBottom: '1px solid #eee',
+                                                    backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                }}>
+                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                        {observation.entityType}
+                                                    </td>
+                                                    <td style={{ padding: '12px' }}>
+                                                        {observation.facilityType}
+                                                    </td>
+                                                    <td style={{ padding: '12px', maxWidth: '400px' }}>
+                                                        {observation.observation}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        <span style={{
+                                                            padding: '4px 12px',
+                                                            borderRadius: '12px',
+                                                            fontSize: '0.9rem',
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: observation.percentage > 30 ? '#f8d7da' : observation.percentage >= 20 ? '#fff3cd' : '#d4edda',
+                                                            color: observation.percentage > 30 ? '#721c24' : observation.percentage >= 20 ? '#856404' : '#155724'
+                                                        }}>
+                                                            {observation.percentage}%
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {observation.month}
+                                                    </td>
+                                                    {userCanEdit && (
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditAdminAuditObservation(observation)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: 'var(--primary-color)',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteAdminAuditObservation(observation.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
             {id === 'dept6' && (
+
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
                         style={{
@@ -5816,8 +6181,10 @@ export default function DepartmentPage() {
                         <AdminAuditDashboard
                             submissions={submissions}
                             facilities={adminAuditFacilities}
+                            observations={adminAuditObservations}
                         />
                     </DashboardModal>
+
                 )
             }
 
