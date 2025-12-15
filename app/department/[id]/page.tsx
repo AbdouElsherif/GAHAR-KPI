@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -336,6 +336,29 @@ export default function DepartmentPage() {
     const [adminAuditObservationSubmitted, setAdminAuditObservationSubmitted] = useState(false);
     const [isAdminAuditObservationsSectionExpanded, setIsAdminAuditObservationsSectionExpanded] = useState(false);
 
+    // Observation Correction Rate states (نسب تصحيح الملاحظات for dept5)
+    const [correctionRates, setCorrectionRates] = useState<ObservationCorrectionRate[]>([]);
+    const [correctionRateFormData, setCorrectionRateFormData] = useState({
+        entityType: '',
+        facilityCategory: '',
+        facilityName: '',
+        governorate: '',
+        visitDate: '',
+        visitType: '',
+        month: '',
+        pccTotal: '', pccCorrected: '',
+        efsTotal: '', efsCorrected: '',
+        ogmTotal: '', ogmCorrected: '',
+        imtTotal: '', imtCorrected: '',
+        wfmTotal: '', wfmCorrected: '',
+        caiTotal: '', caiCorrected: '',
+        qpiTotal: '', qpiCorrected: ''
+    });
+    const [editingCorrectionRateId, setEditingCorrectionRateId] = useState<string | null>(null);
+    const [correctionRateFilterMonth, setCorrectionRateFilterMonth] = useState('');
+    const [correctionRateSubmitted, setCorrectionRateSubmitted] = useState(false);
+    const [isCorrectionRateSectionExpanded, setIsCorrectionRateSectionExpanded] = useState(false);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
@@ -464,6 +487,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, adminAuditObservationFilterMonth]);
 
+    // Load Observation Correction Rates for dept5
+    useEffect(() => {
+        if (id === 'dept5' && currentUser) {
+            loadCorrectionRates();
+        }
+    }, [id, currentUser, correctionRateFilterMonth]);
+
     const loadFacilities = async () => {
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
         setFacilities(data);
@@ -518,6 +548,11 @@ export default function DepartmentPage() {
     const loadAdminAuditObservations = async () => {
         const data = await getAdminAuditObservations(adminAuditObservationFilterMonth || undefined);
         setAdminAuditObservations(data);
+    };
+
+    const loadCorrectionRates = async () => {
+        const data = await getObservationCorrectionRates(correctionRateFilterMonth || undefined);
+        setCorrectionRates(data);
     };
 
     const handleChange = (name: string, value: string) => {
@@ -924,7 +959,129 @@ export default function DepartmentPage() {
         setEditingAdminAuditObservationId(null);
     };
 
+    // Observation Correction Rate handlers (نسب تصحيح الملاحظات)
+    const handleCorrectionRateInputChange = (field: string, value: string) => {
+        setCorrectionRateFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleCorrectionRateSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year] = correctionRateFormData.month.split('-');
+
+            const dataToSave = {
+                entityType: correctionRateFormData.entityType,
+                facilityCategory: correctionRateFormData.facilityCategory,
+                facilityName: correctionRateFormData.facilityName,
+                governorate: correctionRateFormData.governorate,
+                visitDate: correctionRateFormData.visitDate,
+                visitType: correctionRateFormData.visitType,
+                month: correctionRateFormData.month,
+                year: parseInt(year),
+                pccTotal: parseInt(correctionRateFormData.pccTotal) || 0,
+                pccCorrected: parseInt(correctionRateFormData.pccCorrected) || 0,
+                efsTotal: parseInt(correctionRateFormData.efsTotal) || 0,
+                efsCorrected: parseInt(correctionRateFormData.efsCorrected) || 0,
+                ogmTotal: parseInt(correctionRateFormData.ogmTotal) || 0,
+                ogmCorrected: parseInt(correctionRateFormData.ogmCorrected) || 0,
+                imtTotal: parseInt(correctionRateFormData.imtTotal) || 0,
+                imtCorrected: parseInt(correctionRateFormData.imtCorrected) || 0,
+                wfmTotal: parseInt(correctionRateFormData.wfmTotal) || 0,
+                wfmCorrected: parseInt(correctionRateFormData.wfmCorrected) || 0,
+                caiTotal: parseInt(correctionRateFormData.caiTotal) || 0,
+                caiCorrected: parseInt(correctionRateFormData.caiCorrected) || 0,
+                qpiTotal: parseInt(correctionRateFormData.qpiTotal) || 0,
+                qpiCorrected: parseInt(correctionRateFormData.qpiCorrected) || 0
+            };
+
+            if (editingCorrectionRateId) {
+                await updateObservationCorrectionRate(editingCorrectionRateId, {
+                    ...dataToSave,
+                    updatedBy: currentUser.id
+                });
+                setCorrectionRateSubmitted(true);
+                setTimeout(() => setCorrectionRateSubmitted(false), 3000);
+                resetCorrectionRateForm();
+                await loadCorrectionRates();
+            } else {
+                const docId = await saveObservationCorrectionRate({
+                    ...dataToSave,
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setCorrectionRateSubmitted(true);
+                    setTimeout(() => setCorrectionRateSubmitted(false), 3000);
+                    resetCorrectionRateForm();
+                    await loadCorrectionRates();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting correction rate:', error);
+        }
+    };
+
+    const handleEditCorrectionRate = (rate: ObservationCorrectionRate) => {
+        setCorrectionRateFormData({
+            entityType: rate.entityType,
+            facilityCategory: rate.facilityCategory,
+            facilityName: rate.facilityName,
+            governorate: rate.governorate,
+            visitDate: rate.visitDate,
+            visitType: rate.visitType,
+            month: rate.month,
+            pccTotal: rate.pccTotal.toString(),
+            pccCorrected: rate.pccCorrected.toString(),
+            efsTotal: rate.efsTotal.toString(),
+            efsCorrected: rate.efsCorrected.toString(),
+            ogmTotal: rate.ogmTotal.toString(),
+            ogmCorrected: rate.ogmCorrected.toString(),
+            imtTotal: rate.imtTotal.toString(),
+            imtCorrected: rate.imtCorrected.toString(),
+            wfmTotal: rate.wfmTotal.toString(),
+            wfmCorrected: rate.wfmCorrected.toString(),
+            caiTotal: rate.caiTotal.toString(),
+            caiCorrected: rate.caiCorrected.toString(),
+            qpiTotal: rate.qpiTotal.toString(),
+            qpiCorrected: rate.qpiCorrected.toString()
+        });
+        setEditingCorrectionRateId(rate.id || null);
+    };
+
+    const handleDeleteCorrectionRate = async (rateId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            const success = await deleteObservationCorrectionRate(rateId);
+            if (success) {
+                await loadCorrectionRates();
+            }
+        }
+    };
+
+    const resetCorrectionRateForm = () => {
+        setCorrectionRateFormData({
+            entityType: '',
+            facilityCategory: '',
+            facilityName: '',
+            governorate: '',
+            visitDate: '',
+            visitType: '',
+            month: '',
+            pccTotal: '', pccCorrected: '',
+            efsTotal: '', efsCorrected: '',
+            ogmTotal: '', ogmCorrected: '',
+            imtTotal: '', imtCorrected: '',
+            wfmTotal: '', wfmCorrected: '',
+            caiTotal: '', caiCorrected: '',
+            qpiTotal: '', qpiCorrected: ''
+        });
+        setEditingCorrectionRateId(null);
+    };
+
     // Export functions for Technical Clinical Facilities
+
     const exportTechnicalClinicalFacilitiesToExcel = () => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
@@ -5221,8 +5378,352 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Observation Correction Rates Section - نسب تصحيح الملاحظات - Only for dept5 */}
+            {id === 'dept5' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isCorrectionRateSectionExpanded ? '20px' : '0',
+                            paddingBottom: isCorrectionRateSectionExpanded ? '15px' : '0',
+                            borderBottom: isCorrectionRateSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsCorrectionRateSectionExpanded(!isCorrectionRateSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات - عدد {correctionRates.length} سجل
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isCorrectionRateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isCorrectionRateSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isCorrectionRateSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {correctionRateSubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingCorrectionRateId ? 'تحديث' : 'إضافة'} السجل بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleCorrectionRateSubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">الجهة *</label>
+                                                <select className="form-input" required value={correctionRateFormData.entityType}
+                                                    onChange={(e) => {
+                                                        handleCorrectionRateInputChange('entityType', e.target.value);
+                                                        handleCorrectionRateInputChange('facilityCategory', '');
+                                                    }}>
+                                                    <option value="">اختر الجهة</option>
+                                                    <option value="المنشآت الصحية التابعة لهيئة الرعاية">المنشآت الصحية التابعة لهيئة الرعاية</option>
+                                                    <option value="منشآت صحية أخرى">منشآت صحية أخرى</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">فئة المنشأة *</label>
+                                                <select className="form-input" required value={correctionRateFormData.facilityCategory}
+                                                    onChange={(e) => handleCorrectionRateInputChange('facilityCategory', e.target.value)}
+                                                    disabled={!correctionRateFormData.entityType}>
+                                                    <option value="">اختر الفئة</option>
+                                                    {correctionRateFormData.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && (
+                                                        <>
+                                                            <option value="مستشفيات">مستشفيات</option>
+                                                            <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
+                                                        </>
+                                                    )}
+                                                    {correctionRateFormData.entityType === 'منشآت صحية أخرى' && (
+                                                        <>
+                                                            <option value="مراكز الرعاية الأولية">مراكز الرعاية الأولية</option>
+                                                            <option value="المراكز الطبية">المراكز الطبية</option>
+                                                            <option value="المعامل">المعامل</option>
+                                                            <option value="مراكز الأشعة">مراكز الأشعة</option>
+                                                            <option value="أخرى">أخرى</option>
+                                                        </>
+                                                    )}
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input type="text" className="form-input" required value={correctionRateFormData.facilityName}
+                                                    onChange={(e) => handleCorrectionRateInputChange('facilityName', e.target.value)} placeholder="مثال: مستشفى النصر التخصصي" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <input type="text" className="form-input" required value={correctionRateFormData.governorate}
+                                                    onChange={(e) => handleCorrectionRateInputChange('governorate', e.target.value)} placeholder="مثال: بورسعيد" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">تاريخ الزيارة *</label>
+                                                <input type="date" className="form-input" required value={correctionRateFormData.visitDate}
+                                                    onChange={(e) => handleCorrectionRateInputChange('visitDate', e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع الزيارة *</label>
+                                                <select className="form-input" required value={correctionRateFormData.visitType}
+                                                    onChange={(e) => handleCorrectionRateInputChange('visitType', e.target.value)}>
+                                                    <option value="">اختر نوع الزيارة</option>
+                                                    <option value="زيارة متابعة وتدقيق إداري">زيارة متابعة وتدقيق إداري</option>
+                                                    <option value="زيارة متابعة خطة تصحيحية">زيارة متابعة خطة تصحيحية</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر (للفلترة) *</label>
+                                                <input type="month" className="form-input" required value={correctionRateFormData.month}
+                                                    onChange={(e) => handleCorrectionRateInputChange('month', e.target.value)} />
+                                            </div>
+                                        </div>
+
+
+                                        <h4 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>بيانات المعايير (عدد الملاحظات الواردة / عدد المصححة)</h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                                            {['PCC', 'EFS', 'OGM', 'IMT', 'WFM', 'CAI', 'QPI'].map(criterion => (
+                                                <div key={criterion} style={{ textAlign: 'center', backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
+                                                    <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{criterion}</label>
+                                                    <input type="number" min="0" className="form-input" placeholder="الواردة"
+                                                        style={{ marginBottom: '5px', textAlign: 'center' }}
+                                                        value={correctionRateFormData[`${criterion.toLowerCase()}Total` as keyof typeof correctionRateFormData]}
+                                                        onChange={(e) => handleCorrectionRateInputChange(`${criterion.toLowerCase()}Total`, e.target.value)} />
+                                                    <input type="number" min="0" className="form-input" placeholder="المصححة"
+                                                        style={{ textAlign: 'center' }}
+                                                        value={correctionRateFormData[`${criterion.toLowerCase()}Corrected` as keyof typeof correctionRateFormData]}
+                                                        onChange={(e) => handleCorrectionRateInputChange(`${criterion.toLowerCase()}Corrected`, e.target.value)} />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                {editingCorrectionRateId ? 'تحديث السجل' : 'إضافة السجل'}
+                                            </button>
+                                            {editingCorrectionRateId && (
+                                                <button type="button" className="btn" style={{ backgroundColor: '#6c757d', color: 'white' }} onClick={resetCorrectionRateForm}>
+                                                    إلغاء التعديل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Filter */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input type="month" className="form-input" value={correctionRateFilterMonth}
+                                        onChange={(e) => setCorrectionRateFilterMonth(e.target.value)} />
+                                </div>
+                            </div>
+
+                            {/* Data Table */}
+                            <div style={{ overflowX: 'auto' }}>
+                                {correctionRates.length === 0 ? (
+                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                        لا توجد سجلات
+                                    </div>
+                                ) : (
+                                    <div>
+                                        {/* أولاً: المنشآت الصحية التابعة لهيئة الرعاية */}
+                                        {correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length > 0 && (
+                                            <div style={{ marginBottom: '40px' }}>
+                                                <h2 style={{ backgroundColor: '#17a2b8', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                    🏛️ أولاً: المنشآت الصحية التابعة لهيئة الرعاية ({correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length} زيارات)
+                                                </h2>
+                                                <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                    {['مستشفيات', 'مراكز ووحدات الرعاية الأولية'].map(category => {
+                                                        const categoryRates = correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
+                                                        if (categoryRates.length === 0) return null;
+                                                        return (
+                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                <h3 style={{ marginBottom: '15px', color: '#17a2b8', borderBottom: '2px solid #17a2b8', paddingBottom: '10px' }}>
+                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                </h3>
+                                                                {categoryRates.map((rate) => (
+                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                            {userCanEdit && (
+                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                    <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                            <thead>
+                                                                                <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
+                                                                                    <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal}</td>
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected}</td>
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                        return (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                <span style={{
+                                                                                                    padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                                                                    backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                                                    color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                                                                }}>{pct}%</span>
+                                                                                            </td>
+                                                                                        );
+                                                                                    })}
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ثانياً: منشآت صحية أخرى */}
+                                        {correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
+                                            <div style={{ marginBottom: '40px' }}>
+                                                <h2 style={{ backgroundColor: '#28a745', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                    🏢 ثانياً: منشآت صحية أخرى ({correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
+                                                </h2>
+                                                <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                    {['مراكز الرعاية الأولية', 'المعامل', 'المراكز الطبية', 'مراكز الأشعة', 'أخرى'].map(category => {
+                                                        const categoryRates = correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
+                                                        if (categoryRates.length === 0) return null;
+                                                        return (
+                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                <h3 style={{ marginBottom: '15px', color: '#28a745', borderBottom: '2px solid #28a745', paddingBottom: '10px' }}>
+                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                </h3>
+                                                                {categoryRates.map((rate) => (
+                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                            {userCanEdit && (
+                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                    <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                            <thead>
+                                                                                <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
+                                                                                    <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal}</td>
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected}</td>
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                        return (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                <span style={{
+                                                                                                    padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                                                                    backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                                                    color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                                                                }}>{pct}%</span>
+                                                                                            </td>
+                                                                                        );
+                                                                                    })}
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
             {id === 'dept6' && (
+
 
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div

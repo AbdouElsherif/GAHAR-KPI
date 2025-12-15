@@ -184,6 +184,38 @@ export interface AdminAuditObservation {
     updatedBy?: string;
 }
 
+export interface ObservationCorrectionRate {
+    id?: string;
+    entityType: string;  // الجهة: المنشآت الصحية التابعة لهيئة الرعاية / منشآت صحية أخرى
+    facilityCategory: string;  // الفئة: مستشفيات / مراكز ووحدات الرعاية الأولية / المراكز الطبية...
+    facilityName: string;  // اسم المنشأة
+    governorate: string;  // المحافظة
+    visitDate: string;  // تاريخ الزيارة
+    visitType: string;  // نوع الزيارة
+    month: string;  // الشهر YYYY-MM للفلترة
+    year: number;
+    // بيانات كل معيار - عدد الملاحظات الواردة
+    pccTotal: number;
+    efsTotal: number;
+    ogmTotal: number;
+    imtTotal: number;
+    wfmTotal: number;
+    caiTotal: number;
+    qpiTotal: number;
+    // بيانات كل معيار - عدد الملاحظات المصححة
+    pccCorrected: number;
+    efsCorrected: number;
+    ogmCorrected: number;
+    imtCorrected: number;
+    wfmCorrected: number;
+    caiCorrected: number;
+    qpiCorrected: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
         const kpiRef = collection(db, 'kpis');
@@ -1179,6 +1211,108 @@ export async function deleteAdminAuditObservation(id: string): Promise<boolean> 
         return true;
     } catch (error) {
         console.error('Error deleting admin audit observation:', error);
+        return false;
+    }
+}
+
+// Observation Correction Rate CRUD functions - نسب تصحيح الملاحظات
+export async function saveObservationCorrectionRate(
+    data: Omit<ObservationCorrectionRate, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+    try {
+        const collectionRef = collection(db, 'observation_correction_rates');
+        const docRef = await addDoc(collectionRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving observation correction rate:', error);
+        return null;
+    }
+}
+
+export async function getObservationCorrectionRates(
+    filterMonth?: string
+): Promise<ObservationCorrectionRate[]> {
+    try {
+        const collectionRef = collection(db, 'observation_correction_rates');
+        let q;
+
+        if (filterMonth) {
+            q = query(collectionRef, where('month', '==', filterMonth));
+        } else {
+            q = query(collectionRef);
+        }
+
+        const snapshot = await getDocs(q);
+        const rates: ObservationCorrectionRate[] = [];
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            rates.push({
+                id: doc.id,
+                entityType: data.entityType || 'المنشآت الصحية التابعة لهيئة الرعاية',
+                facilityCategory: data.facilityCategory,
+                facilityName: data.facilityName,
+                governorate: data.governorate,
+                visitDate: data.visitDate,
+                visitType: data.visitType || 'زيارة متابعة وتدقيق إداري',
+                month: data.month,
+                year: data.year,
+                pccTotal: data.pccTotal,
+                efsTotal: data.efsTotal,
+                ogmTotal: data.ogmTotal,
+                imtTotal: data.imtTotal,
+                wfmTotal: data.wfmTotal,
+                caiTotal: data.caiTotal,
+                qpiTotal: data.qpiTotal,
+                pccCorrected: data.pccCorrected,
+                efsCorrected: data.efsCorrected,
+                ogmCorrected: data.ogmCorrected,
+                imtCorrected: data.imtCorrected,
+                wfmCorrected: data.wfmCorrected,
+                caiCorrected: data.caiCorrected,
+                qpiCorrected: data.qpiCorrected,
+                createdAt: data.createdAt?.toDate(),
+                createdBy: data.createdBy,
+                updatedAt: data.updatedAt?.toDate(),
+                updatedBy: data.updatedBy
+            });
+        });
+
+        return rates;
+    } catch (error) {
+        console.error('Error getting observation correction rates:', error);
+        return [];
+    }
+}
+
+export async function updateObservationCorrectionRate(
+    id: string,
+    updates: Partial<ObservationCorrectionRate> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'observation_correction_rates', id);
+        await setDoc(docRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating observation correction rate:', error);
+        return false;
+    }
+}
+
+export async function deleteObservationCorrectionRate(id: string): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'observation_correction_rates', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting observation correction rate:', error);
         return false;
     }
 }
