@@ -6683,6 +6683,7 @@ export default function DepartmentPage() {
                             submissions={submissions}
                             facilities={adminAuditFacilities}
                             observations={adminAuditObservations}
+                            correctionRates={correctionRates}
                         />
                     </DashboardModal>
 

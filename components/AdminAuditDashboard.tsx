@@ -4,20 +4,33 @@ import { useState } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
-import { AdminAuditFacility, AdminAuditObservation } from '@/lib/firestore';
+import { AdminAuditFacility, AdminAuditObservation, ObservationCorrectionRate } from '@/lib/firestore';
 
 interface AdminAuditDashboardProps {
     submissions: Array<Record<string, any>>;
     facilities: AdminAuditFacility[];
     observations: AdminAuditObservation[];
+    correctionRates?: ObservationCorrectionRate[];
 }
 
-export default function AdminAuditDashboard({ submissions, facilities, observations }: AdminAuditDashboardProps) {
+export default function AdminAuditDashboard({ submissions, facilities, observations, correctionRates = [] }: AdminAuditDashboardProps) {
+    const getFiscalYear = (dateStr: string): number => {
+        const year = parseInt(dateStr.split('-')[0]);
+        const month = parseInt(dateStr.split('-')[1]);
+        return month >= 7 ? year + 1 : year; // يعيد سنة نهاية السنة المالية
+    };
+
+    // Calculate initial fiscal year based on current date
+    const initialFiscalYear = (() => {
+        const d = new Date();
+        return d.getMonth() + 1 >= 7 ? d.getFullYear() + 1 : d.getFullYear();
+    })();
+
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
-    const [targetYear, setTargetYear] = useState(2025);
-    const [selectedMonth, setSelectedMonth] = useState<number>(10); // Default to October
-    const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
-    const [selectedHalf, setSelectedHalf] = useState<number>(1);
+    const [targetYear, setTargetYear] = useState(initialFiscalYear);
+    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+    const [selectedQuarter, setSelectedQuarter] = useState<number>(Math.ceil((new Date().getMonth() + 1) / 3));
+    const [selectedHalf, setSelectedHalf] = useState<number>(Math.ceil((new Date().getMonth() + 1) / 6));
     const [visibleMetrics, setVisibleMetrics] = useState<{
         adminAudit: boolean;
         adminInspection: boolean;
@@ -31,12 +44,6 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         examReferral: true,
         facilities: true
     });
-
-    const getFiscalYear = (dateStr: string): number => {
-        const year = parseInt(dateStr.split('-')[0]);
-        const month = parseInt(dateStr.split('-')[1]);
-        return month >= 7 ? year + 1 : year;
-    };
 
     const getYear = (dateStr: string): number => {
         return parseInt(dateStr.split('-')[0]);
@@ -1399,6 +1406,182 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 </div>
                             )}
                         </div>
+                    </div>
+                );
+            })()}
+
+            {/* Correction Rates Section */}
+            {comparisonType === 'monthly' && correctionRates.length > 0 && (() => {
+                const filteredRates = correctionRates.filter(r => {
+                    const [rateYear, rateMonth] = r.month.split('-').map(Number);
+                    // حساب السنة المتوقعة بناءً على السنة المالية المختارة
+                    // إذا كان الشهر أكبر من أو يساوي 7 (يوليو - ديسمبر)، تكون السنة هي السنة السابقة لسنة النهاية
+                    // إذا كان الشهر أقل من 7 (يناير - يونيو)، تكون السنة هي نفس سنة النهاية
+                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                    return rateYear === expectedYear && rateMonth === selectedMonth;
+                });
+
+                if (filteredRates.length === 0) return null;
+
+                return (
+                    <div style={{ marginTop: '30px' }}>
+                        <details open style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                            <summary style={{ cursor: 'pointer', fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '20px' }}>
+                                📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات ({filteredRates.length} سجل)
+                            </summary>
+
+                            {/* HCA Facilities */}
+                            {filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length > 0 && (
+                                <div style={{ marginBottom: '30px' }}>
+                                    <h3 style={{ backgroundColor: '#17a2b8', color: 'white', padding: '12px 15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                        🏛️ المنشآت الصحية التابعة لهيئة الرعاية
+                                    </h3>
+                                    <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
+                                        {['مستشفيات', 'مراكز ووحدات الرعاية الأولية'].map(category => {
+                                            const categoryRates = filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
+                                            if (categoryRates.length === 0) return null;
+                                            return (
+                                                <div key={category} style={{ marginBottom: '20px' }}>
+                                                    <h4 style={{ color: '#17a2b8', borderBottom: '1px solid #17a2b8', paddingBottom: '8px', marginBottom: '10px' }}>
+                                                        🏥 {category} ({categoryRates.length})
+                                                    </h4>
+                                                    {categoryRates.map(rate => (
+                                                        <div key={rate.id} style={{ marginBottom: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '12px' }}>
+                                                            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                                                                ● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}
+                                                            </div>
+                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                <thead>
+                                                                    <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
+                                                                        <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>PCC</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EFS</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>OGM</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>IMT</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>WFM</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>CAI</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>QPI</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                        <td style={{ padding: '6px' }}>الواردة</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.pccTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.efsTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.ogmTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.imtTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.wfmTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.caiTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.qpiTotal}</td>
+                                                                    </tr>
+                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                        <td style={{ padding: '6px' }}>المصححة</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.pccCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.efsCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.ogmCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.imtCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.wfmCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.caiCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.qpiCorrected}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                            return (
+                                                                                <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
+                                                                                    <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span>
+                                                                                </td>
+                                                                            );
+                                                                        })}
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Other Facilities */}
+                            {filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
+                                <div>
+                                    <h3 style={{ backgroundColor: '#28a745', color: 'white', padding: '12px 15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                        🏢 منشآت صحية أخرى
+                                    </h3>
+                                    <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
+                                        {['مراكز الرعاية الأولية', 'المعامل', 'المراكز الطبية', 'مراكز الأشعة', 'أخرى'].map(category => {
+                                            const categoryRates = filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
+                                            if (categoryRates.length === 0) return null;
+                                            return (
+                                                <div key={category} style={{ marginBottom: '20px' }}>
+                                                    <h4 style={{ color: '#28a745', borderBottom: '1px solid #28a745', paddingBottom: '8px', marginBottom: '10px' }}>
+                                                        🏥 {category} ({categoryRates.length})
+                                                    </h4>
+                                                    {categoryRates.map(rate => (
+                                                        <div key={rate.id} style={{ marginBottom: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '12px' }}>
+                                                            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                                                                ● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}
+                                                            </div>
+                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                <thead>
+                                                                    <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
+                                                                        <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>PCC</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EFS</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>OGM</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>IMT</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>WFM</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>CAI</th>
+                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>QPI</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                        <td style={{ padding: '6px' }}>الواردة</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.pccTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.efsTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.ogmTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.imtTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.wfmTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.caiTotal}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.qpiTotal}</td>
+                                                                    </tr>
+                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                        <td style={{ padding: '6px' }}>المصححة</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.pccCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.efsCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.ogmCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.imtCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.wfmCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.caiCorrected}</td>
+                                                                        <td style={{ padding: '6px', textAlign: 'center' }}>{rate.qpiCorrected}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                            return (
+                                                                                <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
+                                                                                    <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span>
+                                                                                </td>
+                                                                            );
+                                                                        })}
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </details>
                     </div>
                 );
             })()}
