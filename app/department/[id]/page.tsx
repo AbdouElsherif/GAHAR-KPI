@@ -5654,11 +5654,104 @@ export default function DepartmentPage() {
                                             </div>
                                         )}
 
-                                        {/* ثانياً: منشآت صحية أخرى */}
+                                        {/* ثانياً: المنشآت الصحية التابعة لوزارة الصحة */}
+                                        {correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length > 0 && (
+                                            <div style={{ marginBottom: '40px' }}>
+                                                <h2 style={{ backgroundColor: '#ff9800', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                    🏥 ثانياً: المنشآت الصحية التابعة لوزارة الصحة ({correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length} زيارات)
+                                                </h2>
+                                                <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                    {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية', 'صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
+                                                        const categoryRates = correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
+                                                        if (categoryRates.length === 0) return null;
+                                                        return (
+                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                <h3 style={{ marginBottom: '15px', color: '#ff9800', borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>
+                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                </h3>
+                                                                {categoryRates.map((rate) => (
+                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                            {userCanEdit && (
+                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                    <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                            <thead>
+                                                                                <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
+                                                                                    <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
+                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal || rate.pccTotal === 0 ? rate.pccTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal || rate.efsTotal === 0 ? rate.efsTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal || rate.ogmTotal === 0 ? rate.ogmTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal || rate.imtTotal === 0 ? rate.imtTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal || rate.wfmTotal === 0 ? rate.wfmTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal || rate.caiTotal === 0 ? rate.caiTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal || rate.qpiTotal === 0 ? rate.qpiTotal : 'N/A'}</td>
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected || rate.pccCorrected === 0 ? rate.pccCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected || rate.efsCorrected === 0 ? rate.efsCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected || rate.ogmCorrected === 0 ? rate.ogmCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected || rate.imtCorrected === 0 ? rate.imtCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected || rate.wfmCorrected === 0 ? rate.wfmCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected || rate.caiCorrected === 0 ? rate.caiCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected || rate.qpiCorrected === 0 ? rate.qpiCorrected : 'N/A'}</td>
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                                        if (item.t === null || item.t === undefined) {
+                                                                                            return (
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                </td>
+                                                                                            );
+                                                                                        }
+                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                        return (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                <span style={{
+                                                                                                    padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                                                                    backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                                                    color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                                                                }}>{pct}%</span>
+                                                                                            </td>
+                                                                                        );
+                                                                                    })}
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ثالثاً: منشآت صحية أخرى */}
                                         {correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
                                             <div style={{ marginBottom: '40px' }}>
                                                 <h2 style={{ backgroundColor: '#28a745', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                                    🏢 ثانياً: منشآت صحية أخرى ({correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
+                                                    🏢 ثالثاً: منشآت صحية أخرى ({correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
                                                 </h2>
                                                 <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
                                                     {['صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
