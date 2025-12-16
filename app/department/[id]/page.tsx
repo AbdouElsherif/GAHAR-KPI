@@ -5215,7 +5215,7 @@ export default function DepartmentPage() {
                                                     <option value="">اختر الجهة</option>
                                                     <option value="المنشآت الصحية التابعة لهيئة الرعاية الصحية">المنشآت الصحية التابعة لهيئة الرعاية الصحية</option>
                                                     <option value="منشآت تابعة لوزارة الصحة">منشآت تابعة لوزارة الصحة</option>
-                                                    <option value="منشآت تابعة لمنشآت أخرى">منشآت تابعة لمنشآت أخرى</option>
+                                                    <option value="منشآت تابعة لجهات أخرى">منشآت تابعة لجهات أخرى</option>
                                                 </select>
                                             </div>
 
