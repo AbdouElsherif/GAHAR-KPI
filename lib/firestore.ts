@@ -147,6 +147,7 @@ export interface TechnicalClinicalFacility {
     id?: string;
     facilityType: string;
     facilityName: string;
+    visitType: string;
     governorate: string;
     month: string;
     year: number;

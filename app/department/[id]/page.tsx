@@ -300,6 +300,7 @@ export default function DepartmentPage() {
     const [technicalClinicalFacilityFormData, setTechnicalClinicalFacilityFormData] = useState({
         facilityType: '',
         facilityName: '',
+        visitType: '',
         governorate: '',
         month: ''
     });
@@ -779,6 +780,7 @@ export default function DepartmentPage() {
         setTechnicalClinicalFacilityFormData({
             facilityType: facility.facilityType,
             facilityName: facility.facilityName,
+            visitType: facility.visitType || '',
             governorate: facility.governorate,
             month: facility.month
         });
@@ -798,6 +800,7 @@ export default function DepartmentPage() {
         setTechnicalClinicalFacilityFormData({
             facilityType: '',
             facilityName: '',
+            visitType: '',
             governorate: '',
             month: ''
         });
@@ -4619,6 +4622,19 @@ export default function DepartmentPage() {
                                                 />
                                             </div>
 
+                                            <div className="form-group">
+                                                <label className="form-label">نوع الزيارة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalFacilityFormData.visitType}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('visitType', e.target.value)}
+                                                >
+                                                    <option value="">اختر نوع الزيارة</option>
+                                                    <option value="التدقيق الفني والإكلينيكي">التدقيق الفني والإكلينيكي</option>
+                                                    <option value="التقييم الفني والإكلينيكي">التقييم الفني والإكلينيكي</option>
+                                                </select>
+                                            </div>
 
 
                                             <div className="form-group">
@@ -4759,7 +4775,7 @@ export default function DepartmentPage() {
                                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                 {userCanEdit && (
@@ -4770,7 +4786,7 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {technicalClinicalFacilities.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                    <td colSpan={userCanEdit ? 6 : 5} style={{
                                                         padding: '40px',
                                                         textAlign: 'center',
                                                         color: '#999'
@@ -4791,7 +4807,9 @@ export default function DepartmentPage() {
                                                         <td style={{ padding: '12px', fontWeight: '500' }}>
                                                             {facility.facilityName}
                                                         </td>
-
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.visitType}
+                                                        </td>
                                                         <td style={{ padding: '12px', textAlign: 'center' }}>
                                                             {facility.governorate}
                                                         </td>
