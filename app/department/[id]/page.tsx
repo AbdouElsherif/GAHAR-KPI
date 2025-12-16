@@ -5465,26 +5465,19 @@ export default function DepartmentPage() {
                                                 </select>
                                             </div>
                                             <div className="form-group">
-                                                <label className="form-label">فئة المنشأة *</label>
+                                                <label className="form-label">نوع المنشأة *</label>
                                                 <select className="form-input" required value={correctionRateFormData.facilityCategory}
-                                                    onChange={(e) => handleCorrectionRateInputChange('facilityCategory', e.target.value)}
-                                                    disabled={!correctionRateFormData.entityType}>
-                                                    <option value="">اختر الفئة</option>
-                                                    {correctionRateFormData.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && (
-                                                        <>
-                                                            <option value="مستشفيات">مستشفيات</option>
-                                                            <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
-                                                        </>
-                                                    )}
-                                                    {correctionRateFormData.entityType === 'منشآت صحية أخرى' && (
-                                                        <>
-                                                            <option value="مراكز الرعاية الأولية">مراكز الرعاية الأولية</option>
-                                                            <option value="المراكز الطبية">المراكز الطبية</option>
-                                                            <option value="المعامل">المعامل</option>
-                                                            <option value="مراكز الأشعة">مراكز الأشعة</option>
-                                                            <option value="أخرى">أخرى</option>
-                                                        </>
-                                                    )}
+                                                    onChange={(e) => handleCorrectionRateInputChange('facilityCategory', e.target.value)}>
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
+                                                    <option value="مستشفى">مستشفى</option>
+                                                    <option value="صيدلية">صيدلية</option>
+                                                    <option value="معمل">معمل</option>
+                                                    <option value="مراكز أشعة">مراكز أشعة</option>
+                                                    <option value="مراكز طبية">مراكز طبية</option>
+                                                    <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
+                                                    <option value="عيادات طبية">عيادات طبية</option>
+                                                    <option value="مستشفى صحة نفسية">مستشفى صحة نفسية</option>
                                                 </select>
                                             </div>
                                             <div className="form-group">
