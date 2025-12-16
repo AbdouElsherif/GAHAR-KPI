@@ -5603,27 +5603,34 @@ export default function DepartmentPage() {
                                                                             <tbody>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal || rate.pccTotal === 0 ? rate.pccTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal || rate.efsTotal === 0 ? rate.efsTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal || rate.ogmTotal === 0 ? rate.ogmTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal || rate.imtTotal === 0 ? rate.imtTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal || rate.wfmTotal === 0 ? rate.wfmTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal || rate.caiTotal === 0 ? rate.caiTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal || rate.qpiTotal === 0 ? rate.qpiTotal : 'N/A'}</td>
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected || rate.pccCorrected === 0 ? rate.pccCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected || rate.efsCorrected === 0 ? rate.efsCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected || rate.ogmCorrected === 0 ? rate.ogmCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected || rate.imtCorrected === 0 ? rate.imtCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected || rate.wfmCorrected === 0 ? rate.wfmCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected || rate.caiCorrected === 0 ? rate.caiCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected || rate.qpiCorrected === 0 ? rate.qpiCorrected : 'N/A'}</td>
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                                        if (item.t === null || item.t === undefined) {
+                                                                                            return (
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                </td>
+                                                                                            );
+                                                                                        }
                                                                                         const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
                                                                                         return (
                                                                                             <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
@@ -5689,27 +5696,34 @@ export default function DepartmentPage() {
                                                                             <tbody>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccTotal || rate.pccTotal === 0 ? rate.pccTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsTotal || rate.efsTotal === 0 ? rate.efsTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmTotal || rate.ogmTotal === 0 ? rate.ogmTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtTotal || rate.imtTotal === 0 ? rate.imtTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmTotal || rate.wfmTotal === 0 ? rate.wfmTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiTotal || rate.caiTotal === 0 ? rate.caiTotal : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiTotal || rate.qpiTotal === 0 ? rate.qpiTotal : 'N/A'}</td>
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected}</td>
-                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.pccCorrected || rate.pccCorrected === 0 ? rate.pccCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.efsCorrected || rate.efsCorrected === 0 ? rate.efsCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.ogmCorrected || rate.ogmCorrected === 0 ? rate.ogmCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.imtCorrected || rate.imtCorrected === 0 ? rate.imtCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.wfmCorrected || rate.wfmCorrected === 0 ? rate.wfmCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.caiCorrected || rate.caiCorrected === 0 ? rate.caiCorrected : 'N/A'}</td>
+                                                                                    <td style={{ padding: '8px', textAlign: 'center' }}>{rate.qpiCorrected || rate.qpiCorrected === 0 ? rate.qpiCorrected : 'N/A'}</td>
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }].map((item, i) => {
+                                                                                        if (item.t === null || item.t === undefined) {
+                                                                                            return (
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                </td>
+                                                                                            );
+                                                                                        }
                                                                                         const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
                                                                                         return (
                                                                                             <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
