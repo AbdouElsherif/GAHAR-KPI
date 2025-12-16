@@ -1437,7 +1437,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         🏛️ المنشآت الصحية التابعة لهيئة الرعاية
                                     </h3>
                                     <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مستشفيات', 'مراكز ووحدات الرعاية الأولية'].map(category => {
+                                        {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية'].map(category => {
                                             const categoryRates = filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
                                             if (categoryRates.length === 0) return null;
                                             return (
@@ -1520,7 +1520,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         🏢 منشآت صحية أخرى
                                     </h3>
                                     <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مراكز الرعاية الأولية', 'المعامل', 'المراكز الطبية', 'مراكز الأشعة', 'أخرى'].map(category => {
+                                        {['صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
                                             const categoryRates = filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
                                             if (categoryRates.length === 0) return null;
                                             return (
