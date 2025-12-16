@@ -4597,9 +4597,13 @@ export default function DepartmentPage() {
                                                     <option value="">اختر نوع المنشأة</option>
                                                     <option value="مستشفى">مستشفى</option>
                                                     <option value="صيدلية">صيدلية</option>
-                                                    <option value="مركز طب أسرة">مركز طب أسرة</option>
-                                                    <option value="وحدة طب أسرة">وحدة طب أسرة</option>
+                                                    <option value="مراكز الرعاية الأولية">مراكز الرعاية الأولية</option>
                                                     <option value="معمل">معمل</option>
+                                                    <option value="مركز أشعة">مركز أشعة</option>
+                                                    <option value="مراكز طبية">مراكز طبية</option>
+                                                    <option value="مستشفى صحة نفسية">مستشفى صحة نفسية</option>
+                                                    <option value="عيادات طبية">عيادات طبية</option>
+                                                    <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
                                                 </select>
                                             </div>
 
@@ -4917,6 +4921,9 @@ export default function DepartmentPage() {
                                                     <option value="معمل">معمل</option>
                                                     <option value="مركز أشعة">مركز أشعة</option>
                                                     <option value="مراكز طبية">مراكز طبية</option>
+                                                    <option value="مستشفى صحة نفسية">مستشفى صحة نفسية</option>
+                                                    <option value="عيادات طبية">عيادات طبية</option>
+                                                    <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
                                                 </select>
                                             </div>
 
