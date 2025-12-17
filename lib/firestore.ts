@@ -185,6 +185,21 @@ export interface AdminAuditObservation {
     updatedBy?: string;
 }
 
+// Technical Clinical Observations (الملاحظات المتكررة للرقابة الفنية والإكلينيكية)
+export interface TechnicalClinicalObservation {
+    id?: string;
+    entityType: string;  // الجهة التابعة: هيئة الرعاية الصحية / وزارة الصحة
+    facilityType: string;  // نوع المنشأة: مراكز الرعاية الأولية / وحدات الرعاية الأولية
+    observation: string;  // نص دليل التطابق/الملاحظة
+    percentage: number;  // نسبة الملاحظات
+    month: string;  // الشهر YYYY-MM
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export interface ObservationCorrectionRate {
     id?: string;
     entityType: string;  // الجهة: المنشآت الصحية التابعة لهيئة الرعاية / منشآت صحية أخرى
@@ -1314,6 +1329,86 @@ export async function deleteObservationCorrectionRate(id: string): Promise<boole
         return true;
     } catch (error) {
         console.error('Error deleting observation correction rate:', error);
+        return false;
+    }
+}
+
+// Technical Clinical Observations Functions (الملاحظات المتكررة للرقابة الفنية والإكلينيكية)
+export async function saveTechnicalClinicalObservation(
+    data: Omit<TechnicalClinicalObservation, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const observationsRef = collection(db, 'technical_clinical_observations');
+        const docRef = await addDoc(observationsRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving technical clinical observation:', error);
+        return null;
+    }
+}
+
+export async function getTechnicalClinicalObservations(filterMonth?: string): Promise<TechnicalClinicalObservation[]> {
+    try {
+        const observationsRef = collection(db, 'technical_clinical_observations');
+        let q;
+        if (filterMonth) {
+            q = query(observationsRef, where('month', '==', filterMonth));
+        } else {
+            q = query(observationsRef, orderBy('createdAt', 'desc'));
+        }
+        const snapshot = await getDocs(q);
+        let observations = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as TechnicalClinicalObservation));
+
+        // Sort by entityType then by percentage descending
+        if (filterMonth) {
+            observations.sort((a, b) => {
+                if (a.entityType !== b.entityType) {
+                    return a.entityType.localeCompare(b.entityType, 'ar');
+                }
+                return b.percentage - a.percentage;
+            });
+        }
+
+        return observations;
+    } catch (error) {
+        console.error('Error getting technical clinical observations:', error);
+        return [];
+    }
+}
+
+export async function updateTechnicalClinicalObservation(
+    id: string,
+    updates: Partial<TechnicalClinicalObservation> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const observationRef = doc(db, 'technical_clinical_observations', id);
+        await setDoc(observationRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating technical clinical observation:', error);
+        return false;
+    }
+}
+
+export async function deleteTechnicalClinicalObservation(id: string): Promise<boolean> {
+    try {
+        const observationRef = doc(db, 'technical_clinical_observations', id);
+        await deleteDoc(observationRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting technical clinical observation:', error);
         return false;
     }
 }

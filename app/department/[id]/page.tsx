@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation } from '@/lib/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -309,6 +309,20 @@ export default function DepartmentPage() {
     const [technicalClinicalFacilitySubmitted, setTechnicalClinicalFacilitySubmitted] = useState(false);
     const [isTechnicalClinicalFacilitiesSectionExpanded, setIsTechnicalClinicalFacilitiesSectionExpanded] = useState(false);
 
+    // Technical Clinical Observations tracking states (الملاحظات المتكررة for dept4)
+    const [technicalClinicalObservations, setTechnicalClinicalObservations] = useState<TechnicalClinicalObservation[]>([]);
+    const [technicalClinicalObservationFormData, setTechnicalClinicalObservationFormData] = useState({
+        entityType: '',
+        facilityType: '',
+        observation: '',
+        percentage: '',
+        month: ''
+    });
+    const [editingTechnicalClinicalObservationId, setEditingTechnicalClinicalObservationId] = useState<string | null>(null);
+    const [technicalClinicalObservationFilterMonth, setTechnicalClinicalObservationFilterMonth] = useState('');
+    const [technicalClinicalObservationSubmitted, setTechnicalClinicalObservationSubmitted] = useState(false);
+    const [isTechnicalClinicalObservationsSectionExpanded, setIsTechnicalClinicalObservationsSectionExpanded] = useState(false);
+
     // Admin Audit Facilities tracking states (for dept5)
     const [adminAuditFacilities, setAdminAuditFacilities] = useState<AdminAuditFacility[]>([]);
     const [adminAuditFacilityFormData, setAdminAuditFacilityFormData] = useState({
@@ -474,6 +488,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, technicalClinicalFacilityFilterMonth]);
 
+    // Load Technical Clinical observations for dept4
+    useEffect(() => {
+        if (id === 'dept4' && currentUser) {
+            loadTechnicalClinicalObservations();
+        }
+    }, [id, currentUser, technicalClinicalObservationFilterMonth]);
+
     // Load Admin Audit facilities for dept5
     useEffect(() => {
         if (id === 'dept5' && currentUser) {
@@ -539,6 +560,11 @@ export default function DepartmentPage() {
     const loadTechnicalClinicalFacilities = async () => {
         const data = await getTechnicalClinicalFacilities(technicalClinicalFacilityFilterMonth || undefined);
         setTechnicalClinicalFacilities(data);
+    };
+
+    const loadTechnicalClinicalObservations = async () => {
+        const data = await getTechnicalClinicalObservations(technicalClinicalObservationFilterMonth || undefined);
+        setTechnicalClinicalObservations(data);
     };
 
     const loadAdminAuditFacilities = async () => {
@@ -805,6 +831,87 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingTechnicalClinicalFacilityId(null);
+    };
+
+    // Technical Clinical Observation handlers (الملاحظات المتكررة for dept4)
+    const handleTechnicalClinicalObservationInputChange = (field: string, value: string) => {
+        setTechnicalClinicalObservationFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleTechnicalClinicalObservationSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year, month] = technicalClinicalObservationFormData.month.split('-');
+
+            if (editingTechnicalClinicalObservationId) {
+                await updateTechnicalClinicalObservation(editingTechnicalClinicalObservationId, {
+                    entityType: technicalClinicalObservationFormData.entityType,
+                    facilityType: technicalClinicalObservationFormData.facilityType,
+                    observation: technicalClinicalObservationFormData.observation,
+                    percentage: parseFloat(technicalClinicalObservationFormData.percentage),
+                    month: technicalClinicalObservationFormData.month,
+                    year: parseInt(year),
+                    updatedBy: currentUser.id
+                });
+                setTechnicalClinicalObservationSubmitted(true);
+                setTimeout(() => setTechnicalClinicalObservationSubmitted(false), 3000);
+                resetTechnicalClinicalObservationForm();
+                await loadTechnicalClinicalObservations();
+            } else {
+                const docId = await saveTechnicalClinicalObservation({
+                    entityType: technicalClinicalObservationFormData.entityType,
+                    facilityType: technicalClinicalObservationFormData.facilityType,
+                    observation: technicalClinicalObservationFormData.observation,
+                    percentage: parseFloat(technicalClinicalObservationFormData.percentage),
+                    month: technicalClinicalObservationFormData.month,
+                    year: parseInt(year),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setTechnicalClinicalObservationSubmitted(true);
+                    setTimeout(() => setTechnicalClinicalObservationSubmitted(false), 3000);
+                    resetTechnicalClinicalObservationForm();
+                    await loadTechnicalClinicalObservations();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting technical clinical observation:', error);
+        }
+    };
+
+    const handleEditTechnicalClinicalObservation = (observation: TechnicalClinicalObservation) => {
+        setTechnicalClinicalObservationFormData({
+            entityType: observation.entityType,
+            facilityType: observation.facilityType,
+            observation: observation.observation,
+            percentage: observation.percentage.toString(),
+            month: observation.month
+        });
+        setEditingTechnicalClinicalObservationId(observation.id || null);
+    };
+
+    const handleDeleteTechnicalClinicalObservation = async (observationId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذه الملاحظة؟')) {
+            const success = await deleteTechnicalClinicalObservation(observationId);
+            if (success) {
+                await loadTechnicalClinicalObservations();
+            }
+        }
+    };
+
+    const resetTechnicalClinicalObservationForm = () => {
+        setTechnicalClinicalObservationFormData({
+            entityType: '',
+            facilityType: '',
+            observation: '',
+            percentage: '',
+            month: ''
+        });
+        setEditingTechnicalClinicalObservationId(null);
     };
 
     // Admin Audit Facility handlers (for dept5)
@@ -4860,6 +4967,269 @@ export default function DepartmentPage() {
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* Technical Clinical Observations Section - الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية - Only for dept4 */}
+            {id === 'dept4' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isTechnicalClinicalObservationsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isTechnicalClinicalObservationsSectionExpanded ? '15px' : '0',
+                            borderBottom: isTechnicalClinicalObservationsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsTechnicalClinicalObservationsSectionExpanded(!isTechnicalClinicalObservationsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📋 الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية - عدد {technicalClinicalObservations.length} ملاحظة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isTechnicalClinicalObservationsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isTechnicalClinicalObservationsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isTechnicalClinicalObservationsSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {technicalClinicalObservationSubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingTechnicalClinicalObservationId ? 'تحديث' : 'إضافة'} الملاحظة بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleTechnicalClinicalObservationSubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">الجهة التابعة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalObservationFormData.entityType}
+                                                    onChange={(e) => handleTechnicalClinicalObservationInputChange('entityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر الجهة</option>
+                                                    <option value="المنشآت الصحية التابعة لهيئة الرعاية الصحية">المنشآت الصحية التابعة لهيئة الرعاية الصحية</option>
+                                                    <option value="منشآت تابعة لوزارة الصحة">منشآت تابعة لوزارة الصحة</option>
+                                                    <option value="منشآت تابعة لجهات أخرى">منشآت تابعة لجهات أخرى</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalObservationFormData.facilityType}
+                                                    onChange={(e) => handleTechnicalClinicalObservationInputChange('facilityType', e.target.value)}
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
+                                                    <option value="مستشفيات">مستشفيات</option>
+                                                    <option value="مراكز طبية">مراكز طبية</option>
+                                                    <option value="معامل">معامل</option>
+                                                    <option value="مراكز الأشعة">مراكز الأشعة</option>
+                                                    <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
+                                                    <option value="مستشفيات صحة نفسية">مستشفيات صحة نفسية</option>
+                                                    <option value="صيدليات">صيدليات</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                                                <label className="form-label">دليل التطابق / الملاحظة *</label>
+                                                <textarea
+                                                    className="form-input"
+                                                    required
+                                                    rows={3}
+                                                    value={technicalClinicalObservationFormData.observation}
+                                                    onChange={(e) => handleTechnicalClinicalObservationInputChange('observation', e.target.value)}
+                                                    placeholder="أدخل نص الملاحظة أو دليل التطابق"
+                                                    style={{ resize: 'vertical' }}
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">نسبة الملاحظات (%) *</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    required
+                                                    min="0"
+                                                    max="100"
+                                                    step="0.1"
+                                                    value={technicalClinicalObservationFormData.percentage}
+                                                    onChange={(e) => handleTechnicalClinicalObservationInputChange('percentage', e.target.value)}
+                                                    placeholder="مثال: 32"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalObservationFormData.month}
+                                                    onChange={(e) => handleTechnicalClinicalObservationInputChange('month', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                {editingTechnicalClinicalObservationId ? 'تحديث الملاحظة' : 'إضافة الملاحظة'}
+                                            </button>
+                                            {editingTechnicalClinicalObservationId && (
+                                                <button type="button" className="btn" style={{ backgroundColor: '#6c757d', color: 'white' }} onClick={resetTechnicalClinicalObservationForm}>
+                                                    إلغاء التعديل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Filter */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                        <label className="form-label">فلترة حسب الشهر</label>
+                                        <input
+                                            type="month"
+                                            className="form-input"
+                                            value={technicalClinicalObservationFilterMonth}
+                                            onChange={(e) => setTechnicalClinicalObservationFilterMonth(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>دليل التطابق / الملاحظة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '100px' }}>النسبة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                            {userCanEdit && (
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>إجراءات</th>
+                                            )}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {technicalClinicalObservations.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                    padding: '40px',
+                                                    textAlign: 'center',
+                                                    color: '#999'
+                                                }}>
+                                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📋</div>
+                                                    لا توجد ملاحظات مسجلة
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            technicalClinicalObservations.map((observation, index) => (
+                                                <tr key={observation.id} style={{
+                                                    borderBottom: '1px solid #eee',
+                                                    backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                }}>
+                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                        {observation.entityType}
+                                                    </td>
+                                                    <td style={{ padding: '12px' }}>
+                                                        {observation.facilityType}
+                                                    </td>
+                                                    <td style={{ padding: '12px', maxWidth: '400px' }}>
+                                                        {observation.observation}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        <span style={{
+                                                            padding: '4px 12px',
+                                                            borderRadius: '12px',
+                                                            fontSize: '0.9rem',
+                                                            fontWeight: 'bold',
+                                                            backgroundColor: observation.percentage > 30 ? '#f8d7da' : observation.percentage >= 20 ? '#fff3cd' : '#d4edda',
+                                                            color: observation.percentage > 30 ? '#721c24' : observation.percentage >= 20 ? '#856404' : '#155724'
+                                                        }}>
+                                                            {observation.percentage}%
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {observation.month}
+                                                    </td>
+                                                    {userCanEdit && (
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditTechnicalClinicalObservation(observation)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: 'var(--primary-color)',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteTechnicalClinicalObservation(observation.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </>
                     )}
