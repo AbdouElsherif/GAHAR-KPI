@@ -5598,8 +5598,14 @@ export default function DepartmentPage() {
                                                     onChange={(e) => handleAdminAuditObservationInputChange('facilityType', e.target.value)}
                                                 >
                                                     <option value="">اختر نوع المنشأة</option>
-                                                    <option value="مراكز الرعاية الأولية">مراكز الرعاية الأولية</option>
-                                                    <option value="وحدات الرعاية الأولية">وحدات الرعاية الأولية</option>
+                                                    <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
+                                                    <option value="مستشفيات">مستشفيات</option>
+                                                    <option value="مراكز طبية">مراكز طبية</option>
+                                                    <option value="معامل">معامل</option>
+                                                    <option value="مراكز الأشعة">مراكز الأشعة</option>
+                                                    <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
+                                                    <option value="مستشفيات صحة نفسية">مستشفيات صحة نفسية</option>
+                                                    <option value="صيدليات">صيدليات</option>
                                                 </select>
                                             </div>
 
