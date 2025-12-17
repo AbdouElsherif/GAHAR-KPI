@@ -1008,6 +1008,236 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 </div>
             )}
 
+            {/* Recurring Observations Section */}
+            {comparisonType === 'monthly' && observations.length > 0 && (
+                <div style={{ marginTop: '30px', marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                    }}>
+                        <h3 style={{
+                            margin: '0 0 20px 0',
+                            color: '#dc3545',
+                            fontSize: '1.3rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px'
+                        }}>
+                            🔄 الملاحظات المتكررة - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                        </h3>
+                        {(() => {
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            const filteredObs = observations.filter(o => {
+                                const [year, month] = o.month.split('-');
+                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                            });
+
+                            if (filteredObs.length === 0) {
+                                return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
+                            }
+
+                            // Group by entityType
+                            const hcaObservations = filteredObs.filter(o => o.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية');
+                            const mohObservations = filteredObs.filter(o => o.entityType === 'منشآت تابعة لوزارة الصحة');
+                            const otherObservations = filteredObs.filter(o => o.entityType === 'منشآت تابعة لجهات أخرى');
+
+                            return (
+                                <div>
+                                    {/* HCA Observations Accordion */}
+                                    {hcaObservations.length > 0 && (
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <details open style={{
+                                                backgroundColor: '#f8f9fa',
+                                                borderRadius: '8px',
+                                                overflow: 'hidden'
+                                            }}>
+                                                <summary style={{
+                                                    padding: '15px 20px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.1rem',
+                                                    backgroundColor: '#e3f2fd',
+                                                    color: '#1565c0',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <span>المنشآت الصحية التابعة لهيئة الرعاية الصحية</span>
+                                                    <span style={{
+                                                        backgroundColor: '#1565c0',
+                                                        color: 'white',
+                                                        padding: '4px 12px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.85rem'
+                                                    }}>{hcaObservations.length} ملاحظات</span>
+                                                </summary>
+                                                <div style={{ padding: '15px' }}>
+                                                    <div style={{ overflowX: 'auto' }}>
+                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                            <thead>
+                                                                <tr style={{ backgroundColor: '#e3f2fd' }}>
+                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>نوع المنشأة</th>
+                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>الملاحظة</th>
+                                                                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #1565c0', width: '120px' }}>النسبة</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {hcaObservations.map((obs, idx) => (
+                                                                    <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                                        <td style={{ padding: '12px' }}>{obs.facilityType}</td>
+                                                                        <td style={{ padding: '12px' }}>{obs.observation}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            <span style={{
+                                                                                padding: '4px 10px',
+                                                                                borderRadius: '12px',
+                                                                                fontWeight: 'bold',
+                                                                                backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
+                                                                                color: obs.percentage >= 50 ? '#721c24' : '#856404'
+                                                                            }}>{obs.percentage}%</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </details>
+                                        </div>
+                                    )}
+
+                                    {/* MOH Observations Accordion */}
+                                    {mohObservations.length > 0 && (
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <details open style={{
+                                                backgroundColor: '#f8f9fa',
+                                                borderRadius: '8px',
+                                                overflow: 'hidden'
+                                            }}>
+                                                <summary style={{
+                                                    padding: '15px 20px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.1rem',
+                                                    backgroundColor: '#fff3e0',
+                                                    color: '#e65100',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <span>منشآت تابعة لوزارة الصحة</span>
+                                                    <span style={{
+                                                        backgroundColor: '#e65100',
+                                                        color: 'white',
+                                                        padding: '4px 12px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.85rem'
+                                                    }}>{mohObservations.length} ملاحظات</span>
+                                                </summary>
+                                                <div style={{ padding: '15px' }}>
+                                                    <div style={{ overflowX: 'auto' }}>
+                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                            <thead>
+                                                                <tr style={{ backgroundColor: '#fff3e0' }}>
+                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>نوع المنشأة</th>
+                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>الملاحظة</th>
+                                                                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #e65100', width: '120px' }}>النسبة</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {mohObservations.map((obs, idx) => (
+                                                                    <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                                        <td style={{ padding: '12px' }}>{obs.facilityType}</td>
+                                                                        <td style={{ padding: '12px' }}>{obs.observation}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            <span style={{
+                                                                                padding: '4px 10px',
+                                                                                borderRadius: '12px',
+                                                                                fontWeight: 'bold',
+                                                                                backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
+                                                                                color: obs.percentage >= 50 ? '#721c24' : '#856404'
+                                                                            }}>{obs.percentage}%</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </details>
+                                        </div>
+                                    )}
+
+                                    {/* Other Observations Accordion */}
+                                    {otherObservations.length > 0 && (
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <details open style={{
+                                                backgroundColor: '#f8f9fa',
+                                                borderRadius: '8px',
+                                                overflow: 'hidden'
+                                            }}>
+                                                <summary style={{
+                                                    padding: '15px 20px',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.1rem',
+                                                    backgroundColor: '#e8f5e9',
+                                                    color: '#2e7d32',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <span>منشآت تابعة لجهات أخرى</span>
+                                                    <span style={{
+                                                        backgroundColor: '#2e7d32',
+                                                        color: 'white',
+                                                        padding: '4px 12px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.85rem'
+                                                    }}>{otherObservations.length} ملاحظات</span>
+                                                </summary>
+                                                <div style={{ padding: '15px' }}>
+                                                    <div style={{ overflowX: 'auto' }}>
+                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                            <thead>
+                                                                <tr style={{ backgroundColor: '#e8f5e9' }}>
+                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>نوع المنشأة</th>
+                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>الملاحظة</th>
+                                                                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #2e7d32', width: '120px' }}>النسبة</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {otherObservations.map((obs, idx) => (
+                                                                    <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                                        <td style={{ padding: '12px' }}>{obs.facilityType}</td>
+                                                                        <td style={{ padding: '12px' }}>{obs.observation}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            <span style={{
+                                                                                padding: '4px 10px',
+                                                                                borderRadius: '12px',
+                                                                                fontWeight: 'bold',
+                                                                                backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
+                                                                                color: obs.percentage >= 50 ? '#721c24' : '#856404'
+                                                                            }}>{obs.percentage}%</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </details>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })()}
+                    </div>
+                </div>
+            )}
+
             {/* Correction Rates Section */}
             {comparisonType === 'monthly' && correctionRates.length > 0 && (
                 <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
@@ -1075,58 +1305,6 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                     </div>
                 </div>
             )}
-
-            {/* Recurring Observations Section */}
-            {comparisonType === 'monthly' && observations.length > 0 && (
-                <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                    <h3 style={{ margin: '0 0 15px 0', color: '#dc3545', fontSize: '1.2rem' }}>
-                        🔄 الملاحظات المتكررة - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
-                    </h3>
-                    {(() => {
-                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                        const filteredObs = observations.filter(o => {
-                            const [year, month] = o.month.split('-');
-                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                        });
-
-                        if (filteredObs.length === 0) {
-                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
-                        }
-
-                        return (
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                    <thead>
-                                        <tr style={{ backgroundColor: '#dc3545', color: 'white' }}>
-                                            <th style={{ padding: '10px', textAlign: 'right' }}>الجهة</th>
-                                            <th style={{ padding: '10px', textAlign: 'right' }}>نوع المنشأة</th>
-                                            <th style={{ padding: '10px', textAlign: 'right' }}>الملاحظة</th>
-                                            <th style={{ padding: '10px', textAlign: 'center' }}>النسبة</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredObs.map((obs, idx) => (
-                                            <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                <td style={{ padding: '10px' }}>{obs.entityType}</td>
-                                                <td style={{ padding: '10px' }}>{obs.facilityType}</td>
-                                                <td style={{ padding: '10px' }}>{obs.observation}</td>
-                                                <td style={{ padding: '10px', textAlign: 'center' }}>
-                                                    <span style={{
-                                                        padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold',
-                                                        backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
-                                                        color: obs.percentage >= 50 ? '#721c24' : '#856404'
-                                                    }}>{obs.percentage}%</span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        );
-                    })()}
-                </div>
-            )}
         </div>
     );
 }
-
