@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
-import { TechnicalClinicalFacility } from '@/lib/firestore';
+import { TechnicalClinicalFacility, TechnicalClinicalCorrectionRate, TechnicalClinicalObservation } from '@/lib/firestore';
 
 interface TechnicalClinicalDashboardProps {
     submissions: Array<Record<string, any>>;
     facilities: TechnicalClinicalFacility[];
+    correctionRates?: TechnicalClinicalCorrectionRate[];
+    observations?: TechnicalClinicalObservation[];
 }
 
-export default function TechnicalClinicalDashboard({ submissions, facilities }: TechnicalClinicalDashboardProps) {
+export default function TechnicalClinicalDashboard({ submissions, facilities, correctionRates = [], observations = [] }: TechnicalClinicalDashboardProps) {
+
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // Default to October
@@ -26,7 +29,10 @@ export default function TechnicalClinicalDashboard({ submissions, facilities }: 
         facilities: true
     });
 
+    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
     const getFiscalYear = (dateStr: string): number => {
+
         const year = parseInt(dateStr.split('-')[0]);
         const month = parseInt(dateStr.split('-')[1]);
         return month >= 7 ? year + 1 : year;
@@ -1001,6 +1007,126 @@ export default function TechnicalClinicalDashboard({ submissions, facilities }: 
                     </div>
                 </div>
             )}
+
+            {/* Correction Rates Section */}
+            {comparisonType === 'monthly' && correctionRates.length > 0 && (
+                <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ margin: '0 0 15px 0', color: '#17a2b8', fontSize: '1.2rem' }}>
+                        📊 نسب تصحيح الملاحظات - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                    </h3>
+                    <div style={{ overflowX: 'auto' }}>
+                        {(() => {
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            const filteredRates = correctionRates.filter(r => {
+                                const [year, month] = r.month.split('-');
+                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                            });
+
+                            if (filteredRates.length === 0) {
+                                return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد بيانات لهذا الشهر</p>;
+                            }
+
+                            return (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
+                                            <th style={{ padding: '8px', textAlign: 'right' }}>المنشأة</th>
+                                            <th style={{ padding: '8px', textAlign: 'center' }}>المحافظة</th>
+                                            {['PCC', 'ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'WFM', 'IMT', 'QPI', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                <th key={c} style={{ padding: '6px', textAlign: 'center', fontSize: '0.7rem' }}>{c}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredRates.map((rate, idx) => (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                <td style={{ padding: '8px', fontWeight: '500' }}>{rate.facilityName}</td>
+                                                <td style={{ padding: '8px', textAlign: 'center' }}>{rate.governorate}</td>
+                                                {[
+                                                    { t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected },
+                                                    { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected },
+                                                    { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected },
+                                                    { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected },
+                                                    { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected },
+                                                    { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected },
+                                                    { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected },
+                                                    { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }
+                                                ].map((item, i) => {
+                                                    if (item.t === 0 && item.c === 0) {
+                                                        return <td key={i} style={{ padding: '6px', textAlign: 'center', color: '#6c757d' }}>-</td>;
+                                                    }
+                                                    const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                    return (
+                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '2px 5px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold',
+                                                                backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                            }}>{pct}%</span>
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            );
+                        })()}
+                    </div>
+                </div>
+            )}
+
+            {/* Recurring Observations Section */}
+            {comparisonType === 'monthly' && observations.length > 0 && (
+                <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ margin: '0 0 15px 0', color: '#dc3545', fontSize: '1.2rem' }}>
+                        🔄 الملاحظات المتكررة - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                    </h3>
+                    {(() => {
+                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                        const filteredObs = observations.filter(o => {
+                            const [year, month] = o.month.split('-');
+                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                        });
+
+                        if (filteredObs.length === 0) {
+                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
+                        }
+
+                        return (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#dc3545', color: 'white' }}>
+                                            <th style={{ padding: '10px', textAlign: 'right' }}>الجهة</th>
+                                            <th style={{ padding: '10px', textAlign: 'right' }}>نوع المنشأة</th>
+                                            <th style={{ padding: '10px', textAlign: 'right' }}>الملاحظة</th>
+                                            <th style={{ padding: '10px', textAlign: 'center' }}>النسبة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredObs.map((obs, idx) => (
+                                            <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
+                                                <td style={{ padding: '10px' }}>{obs.entityType}</td>
+                                                <td style={{ padding: '10px' }}>{obs.facilityType}</td>
+                                                <td style={{ padding: '10px' }}>{obs.observation}</td>
+                                                <td style={{ padding: '10px', textAlign: 'center' }}>
+                                                    <span style={{
+                                                        padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold',
+                                                        backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
+                                                        color: obs.percentage >= 50 ? '#721c24' : '#856404'
+                                                    }}>{obs.percentage}%</span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        );
+                    })()}
+                </div>
+            )}
         </div>
     );
 }
+

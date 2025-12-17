@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate } from '@/lib/firestore';
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -374,7 +375,41 @@ export default function DepartmentPage() {
     const [correctionRateSubmitted, setCorrectionRateSubmitted] = useState(false);
     const [isCorrectionRateSectionExpanded, setIsCorrectionRateSectionExpanded] = useState(false);
 
+    // Technical Clinical Correction Rate states (نسب تصحيح الملاحظات for dept4)
+    const [tcCorrectionRates, setTcCorrectionRates] = useState<TechnicalClinicalCorrectionRate[]>([]);
+    const [tcCorrectionRateFormData, setTcCorrectionRateFormData] = useState({
+        entityType: '',
+        facilityCategory: '',
+        facilityName: '',
+        governorate: '',
+        visitDate: '',
+        visitType: '',
+        month: '',
+        pccTotal: '', pccCorrected: '',
+        actTotal: '', actCorrected: '',
+        icdTotal: '', icdCorrected: '',
+        dasTotal: '', dasCorrected: '',
+        mmsTotal: '', mmsCorrected: '',
+        sipTotal: '', sipCorrected: '',
+        ipcTotal: '', ipcCorrected: '',
+        wfmTotal: '', wfmCorrected: '',
+        imtTotal: '', imtCorrected: '',
+        qpiTotal: '', qpiCorrected: '',
+        scmTotal: '', scmCorrected: '',
+        texTotal: '', texCorrected: '',
+        teqTotal: '', teqCorrected: '',
+        tpoTotal: '', tpoCorrected: '',
+        nsrTotal: '', nsrCorrected: '',
+        sasTotal: '', sasCorrected: ''
+    });
+
+    const [editingTcCorrectionRateId, setEditingTcCorrectionRateId] = useState<string | null>(null);
+    const [tcCorrectionRateFilterMonth, setTcCorrectionRateFilterMonth] = useState('');
+    const [tcCorrectionRateSubmitted, setTcCorrectionRateSubmitted] = useState(false);
+    const [isTcCorrectionRateSectionExpanded, setIsTcCorrectionRateSectionExpanded] = useState(false);
+
     useEffect(() => {
+
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
                 router.push('/login');
@@ -516,7 +551,15 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, correctionRateFilterMonth]);
 
+    // Load Technical Clinical Correction Rates for dept4
+    useEffect(() => {
+        if (id === 'dept4' && currentUser) {
+            loadTcCorrectionRates();
+        }
+    }, [id, currentUser, tcCorrectionRateFilterMonth]);
+
     const loadFacilities = async () => {
+
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
         setFacilities(data);
     };
@@ -582,7 +625,13 @@ export default function DepartmentPage() {
         setCorrectionRates(data);
     };
 
+    const loadTcCorrectionRates = async () => {
+        const data = await getTechnicalClinicalCorrectionRates(tcCorrectionRateFilterMonth || undefined);
+        setTcCorrectionRates(data);
+    };
+
     const handleChange = (name: string, value: string) => {
+
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
@@ -1189,6 +1238,174 @@ export default function DepartmentPage() {
         });
         setEditingCorrectionRateId(null);
     };
+
+    // Technical Clinical Correction Rate handlers (نسب تصحيح الملاحظات for dept4)
+    const handleTcCorrectionRateInputChange = (field: string, value: string) => {
+        setTcCorrectionRateFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleTcCorrectionRateSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year] = tcCorrectionRateFormData.month.split('-');
+
+            const dataToSave = {
+                entityType: tcCorrectionRateFormData.entityType,
+                facilityCategory: tcCorrectionRateFormData.facilityCategory,
+                facilityName: tcCorrectionRateFormData.facilityName,
+                governorate: tcCorrectionRateFormData.governorate,
+                visitDate: tcCorrectionRateFormData.visitDate,
+                visitType: tcCorrectionRateFormData.visitType,
+                month: tcCorrectionRateFormData.month,
+                year: parseInt(year),
+                pccTotal: parseInt(tcCorrectionRateFormData.pccTotal) || 0,
+                pccCorrected: parseInt(tcCorrectionRateFormData.pccCorrected) || 0,
+                actTotal: parseInt(tcCorrectionRateFormData.actTotal) || 0,
+                actCorrected: parseInt(tcCorrectionRateFormData.actCorrected) || 0,
+                icdTotal: parseInt(tcCorrectionRateFormData.icdTotal) || 0,
+                icdCorrected: parseInt(tcCorrectionRateFormData.icdCorrected) || 0,
+                dasTotal: parseInt(tcCorrectionRateFormData.dasTotal) || 0,
+                dasCorrected: parseInt(tcCorrectionRateFormData.dasCorrected) || 0,
+                mmsTotal: parseInt(tcCorrectionRateFormData.mmsTotal) || 0,
+                mmsCorrected: parseInt(tcCorrectionRateFormData.mmsCorrected) || 0,
+                sipTotal: parseInt(tcCorrectionRateFormData.sipTotal) || 0,
+                sipCorrected: parseInt(tcCorrectionRateFormData.sipCorrected) || 0,
+                ipcTotal: parseInt(tcCorrectionRateFormData.ipcTotal) || 0,
+                ipcCorrected: parseInt(tcCorrectionRateFormData.ipcCorrected) || 0,
+                wfmTotal: parseInt(tcCorrectionRateFormData.wfmTotal) || 0,
+                wfmCorrected: parseInt(tcCorrectionRateFormData.wfmCorrected) || 0,
+                imtTotal: parseInt(tcCorrectionRateFormData.imtTotal) || 0,
+                imtCorrected: parseInt(tcCorrectionRateFormData.imtCorrected) || 0,
+                qpiTotal: parseInt(tcCorrectionRateFormData.qpiTotal) || 0,
+                qpiCorrected: parseInt(tcCorrectionRateFormData.qpiCorrected) || 0,
+                scmTotal: parseInt(tcCorrectionRateFormData.scmTotal) || 0,
+                scmCorrected: parseInt(tcCorrectionRateFormData.scmCorrected) || 0,
+                texTotal: parseInt(tcCorrectionRateFormData.texTotal) || 0,
+                texCorrected: parseInt(tcCorrectionRateFormData.texCorrected) || 0,
+                teqTotal: parseInt(tcCorrectionRateFormData.teqTotal) || 0,
+                teqCorrected: parseInt(tcCorrectionRateFormData.teqCorrected) || 0,
+                tpoTotal: parseInt(tcCorrectionRateFormData.tpoTotal) || 0,
+                tpoCorrected: parseInt(tcCorrectionRateFormData.tpoCorrected) || 0,
+                nsrTotal: parseInt(tcCorrectionRateFormData.nsrTotal) || 0,
+                nsrCorrected: parseInt(tcCorrectionRateFormData.nsrCorrected) || 0,
+                sasTotal: parseInt(tcCorrectionRateFormData.sasTotal) || 0,
+                sasCorrected: parseInt(tcCorrectionRateFormData.sasCorrected) || 0
+            };
+
+
+            if (editingTcCorrectionRateId) {
+                await updateTechnicalClinicalCorrectionRate(editingTcCorrectionRateId, {
+                    ...dataToSave,
+                    updatedBy: currentUser.id
+                });
+                setTcCorrectionRateSubmitted(true);
+                setTimeout(() => setTcCorrectionRateSubmitted(false), 3000);
+                resetTcCorrectionRateForm();
+                await loadTcCorrectionRates();
+            } else {
+                const docId = await saveTechnicalClinicalCorrectionRate({
+                    ...dataToSave,
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setTcCorrectionRateSubmitted(true);
+                    setTimeout(() => setTcCorrectionRateSubmitted(false), 3000);
+                    resetTcCorrectionRateForm();
+                    await loadTcCorrectionRates();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting technical clinical correction rate:', error);
+        }
+    };
+
+    const handleEditTcCorrectionRate = (rate: TechnicalClinicalCorrectionRate) => {
+        setTcCorrectionRateFormData({
+            entityType: rate.entityType,
+            facilityCategory: rate.facilityCategory,
+            facilityName: rate.facilityName,
+            governorate: rate.governorate,
+            visitDate: rate.visitDate,
+            visitType: rate.visitType,
+            month: rate.month,
+            pccTotal: rate.pccTotal.toString(),
+            pccCorrected: rate.pccCorrected.toString(),
+            actTotal: rate.actTotal.toString(),
+            actCorrected: rate.actCorrected.toString(),
+            icdTotal: rate.icdTotal.toString(),
+            icdCorrected: rate.icdCorrected.toString(),
+            dasTotal: rate.dasTotal.toString(),
+            dasCorrected: rate.dasCorrected.toString(),
+            mmsTotal: rate.mmsTotal.toString(),
+            mmsCorrected: rate.mmsCorrected.toString(),
+            sipTotal: rate.sipTotal.toString(),
+            sipCorrected: rate.sipCorrected.toString(),
+            ipcTotal: rate.ipcTotal.toString(),
+            ipcCorrected: rate.ipcCorrected.toString(),
+            wfmTotal: rate.wfmTotal.toString(),
+            wfmCorrected: rate.wfmCorrected.toString(),
+            imtTotal: rate.imtTotal.toString(),
+            imtCorrected: rate.imtCorrected.toString(),
+            qpiTotal: rate.qpiTotal.toString(),
+            qpiCorrected: rate.qpiCorrected.toString(),
+            scmTotal: rate.scmTotal.toString(),
+            scmCorrected: rate.scmCorrected.toString(),
+            texTotal: rate.texTotal.toString(),
+            texCorrected: rate.texCorrected.toString(),
+            teqTotal: rate.teqTotal.toString(),
+            teqCorrected: rate.teqCorrected.toString(),
+            tpoTotal: rate.tpoTotal.toString(),
+            tpoCorrected: rate.tpoCorrected.toString(),
+            nsrTotal: rate.nsrTotal.toString(),
+            nsrCorrected: rate.nsrCorrected.toString(),
+            sasTotal: rate.sasTotal.toString(),
+            sasCorrected: rate.sasCorrected.toString()
+        });
+        setEditingTcCorrectionRateId(rate.id || null);
+    };
+
+    const handleDeleteTcCorrectionRate = async (rateId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            const success = await deleteTechnicalClinicalCorrectionRate(rateId);
+            if (success) {
+                await loadTcCorrectionRates();
+            }
+        }
+    };
+
+    const resetTcCorrectionRateForm = () => {
+        setTcCorrectionRateFormData({
+            entityType: '',
+            facilityCategory: '',
+            facilityName: '',
+            governorate: '',
+            visitDate: '',
+            visitType: '',
+            month: '',
+            pccTotal: '', pccCorrected: '',
+            actTotal: '', actCorrected: '',
+            icdTotal: '', icdCorrected: '',
+            dasTotal: '', dasCorrected: '',
+            mmsTotal: '', mmsCorrected: '',
+            sipTotal: '', sipCorrected: '',
+            ipcTotal: '', ipcCorrected: '',
+            wfmTotal: '', wfmCorrected: '',
+            imtTotal: '', imtCorrected: '',
+            qpiTotal: '', qpiCorrected: '',
+            scmTotal: '', scmCorrected: '',
+            texTotal: '', texCorrected: '',
+            teqTotal: '', teqCorrected: '',
+            tpoTotal: '', tpoCorrected: '',
+            nsrTotal: '', nsrCorrected: '',
+            sasTotal: '', sasCorrected: ''
+        });
+        setEditingTcCorrectionRateId(null);
+    };
+
 
     // Export functions for Technical Clinical Facilities
 
@@ -5236,7 +5453,385 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Technical Clinical Correction Rates Section - نسب تصحيح الملاحظات للرقابة الفنية والإكلينيكية - Only for dept4 */}
+            {id === 'dept4' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isTcCorrectionRateSectionExpanded ? '20px' : '0',
+                            paddingBottom: isTcCorrectionRateSectionExpanded ? '15px' : '0',
+                            borderBottom: isTcCorrectionRateSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsTcCorrectionRateSectionExpanded(!isTcCorrectionRateSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات - عدد {tcCorrectionRates.length} سجل
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isTcCorrectionRateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isTcCorrectionRateSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isTcCorrectionRateSectionExpanded && (
+                        <>
+                            {userCanEdit ? (
+                                <>
+                                    {tcCorrectionRateSubmitted && (
+                                        <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                            <strong>تم بنجاح!</strong> تم {editingTcCorrectionRateId ? 'تحديث' : 'إضافة'} السجل بنجاح.
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleTcCorrectionRateSubmit} style={{ marginBottom: '30px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">الجهة *</label>
+                                                <select className="form-input" required value={tcCorrectionRateFormData.entityType}
+                                                    onChange={(e) => {
+                                                        handleTcCorrectionRateInputChange('entityType', e.target.value);
+                                                        handleTcCorrectionRateInputChange('facilityCategory', '');
+                                                    }}>
+                                                    <option value="">اختر الجهة</option>
+                                                    <option value="المنشآت الصحية التابعة لهيئة الرعاية">المنشآت الصحية التابعة لهيئة الرعاية</option>
+                                                    <option value="المنشآت الصحية التابعة لوزارة الصحة">المنشآت الصحية التابعة لوزارة الصحة</option>
+                                                    <option value="منشآت صحية أخرى">منشآت صحية أخرى</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select className="form-input" required value={tcCorrectionRateFormData.facilityCategory}
+                                                    onChange={(e) => handleTcCorrectionRateInputChange('facilityCategory', e.target.value)}>
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
+                                                    <option value="مستشفى">مستشفى</option>
+                                                    <option value="صيدلية">صيدلية</option>
+                                                    <option value="معمل">معمل</option>
+                                                    <option value="مراكز أشعة">مراكز أشعة</option>
+                                                    <option value="مراكز طبية">مراكز طبية</option>
+                                                    <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
+                                                    <option value="عيادات طبية">عيادات طبية</option>
+                                                    <option value="مستشفى صحة نفسية">مستشفى صحة نفسية</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input type="text" className="form-input" required value={tcCorrectionRateFormData.facilityName}
+                                                    onChange={(e) => handleTcCorrectionRateInputChange('facilityName', e.target.value)} placeholder="مثال: مستشفى النصر التخصصي" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">المحافظة *</label>
+                                                <input type="text" className="form-input" required value={tcCorrectionRateFormData.governorate}
+                                                    onChange={(e) => handleTcCorrectionRateInputChange('governorate', e.target.value)} placeholder="مثال: بورسعيد" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">تاريخ الزيارة *</label>
+                                                <input type="date" className="form-input" required value={tcCorrectionRateFormData.visitDate}
+                                                    onChange={(e) => handleTcCorrectionRateInputChange('visitDate', e.target.value)} />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع الزيارة *</label>
+                                                <select className="form-input" required value={tcCorrectionRateFormData.visitType}
+                                                    onChange={(e) => handleTcCorrectionRateInputChange('visitType', e.target.value)}>
+                                                    <option value="">اختر نوع الزيارة</option>
+                                                    <option value="زيارة متابعة وتدقيق فني وإكلينيكي">زيارة متابعة وتدقيق فني وإكلينيكي</option>
+                                                    <option value="زيارة متابعة خطة تصحيحية">زيارة متابعة خطة تصحيحية</option>
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر (للفلترة) *</label>
+                                                <input type="month" className="form-input" required value={tcCorrectionRateFormData.month}
+                                                    onChange={(e) => handleTcCorrectionRateInputChange('month', e.target.value)} />
+                                            </div>
+                                        </div>
+
+
+
+                                        <h4 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>بيانات المعايير (عدد الملاحظات الواردة / عدد المصححة)</h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                                            {['PCC', 'ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'WFM', 'IMT', 'QPI', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(criterion => (
+                                                <div key={criterion} style={{ textAlign: 'center', backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
+                                                    <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{criterion}</label>
+                                                    <input type="number" min="0" className="form-input" placeholder="الواردة"
+                                                        style={{ marginBottom: '5px', textAlign: 'center' }}
+                                                        value={tcCorrectionRateFormData[`${criterion.toLowerCase()}Total` as keyof typeof tcCorrectionRateFormData]}
+                                                        onChange={(e) => handleTcCorrectionRateInputChange(`${criterion.toLowerCase()}Total`, e.target.value)} />
+                                                    <input type="number" min="0" className="form-input" placeholder="المصححة"
+                                                        style={{ textAlign: 'center' }}
+                                                        value={tcCorrectionRateFormData[`${criterion.toLowerCase()}Corrected` as keyof typeof tcCorrectionRateFormData]}
+                                                        onChange={(e) => handleTcCorrectionRateInputChange(`${criterion.toLowerCase()}Corrected`, e.target.value)} />
+                                                </div>
+                                            ))}
+                                        </div>
+
+
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                {editingTcCorrectionRateId ? 'تحديث السجل' : 'إضافة السجل'}
+                                            </button>
+                                            {editingTcCorrectionRateId && (
+                                                <button type="button" className="btn" style={{ backgroundColor: '#6c757d', color: 'white' }} onClick={resetTcCorrectionRateForm}>
+                                                    إلغاء التعديل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                </>
+                            ) : null}
+
+                            {/* Filter */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input type="month" className="form-input" value={tcCorrectionRateFilterMonth}
+                                        onChange={(e) => setTcCorrectionRateFilterMonth(e.target.value)} />
+                                </div>
+                            </div>
+
+                            {/* Data Table */}
+                            <div style={{ overflowX: 'auto' }}>
+                                {tcCorrectionRates.length === 0 ? (
+                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                        لا توجد سجلات
+                                    </div>
+                                ) : (
+                                    <div>
+                                        {/* أولاً: المنشآت الصحية التابعة لهيئة الرعاية */}
+                                        {tcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length > 0 && (
+                                            <div style={{ marginBottom: '40px' }}>
+                                                <h2 style={{ backgroundColor: '#17a2b8', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                    🏛️ أولاً: المنشآت الصحية التابعة لهيئة الرعاية ({tcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length} زيارات)
+                                                </h2>
+                                                <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                    {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية'].map(category => {
+                                                        const categoryRates = tcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
+                                                        if (categoryRates.length === 0) return null;
+                                                        return (
+                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                <h3 style={{ marginBottom: '15px', color: '#17a2b8', borderBottom: '2px solid #17a2b8', paddingBottom: '10px' }}>
+                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                </h3>
+                                                                {categoryRates.map((rate) => (
+                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                            {userCanEdit && (
+                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                    <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                                                                            <thead>
+                                                                                <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
+                                                                                    <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                                    {['PCC', 'ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'WFM', 'IMT', 'QPI', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                        <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
+                                                                                    ))}
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
+                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
+                                                                                        }
+                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
+                                                                                    })}
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ثانياً: المنشآت الصحية التابعة لوزارة الصحة */}
+                                        {tcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length > 0 && (
+                                            <div style={{ marginBottom: '40px' }}>
+                                                <h2 style={{ backgroundColor: '#ff9800', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                    🏥 ثانياً: المنشآت الصحية التابعة لوزارة الصحة ({tcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length} زيارات)
+                                                </h2>
+                                                <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                    {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية', 'صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
+                                                        const categoryRates = tcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
+                                                        if (categoryRates.length === 0) return null;
+                                                        return (
+                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                <h3 style={{ marginBottom: '15px', color: '#ff9800', borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>
+                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                </h3>
+                                                                {categoryRates.map((rate) => (
+                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                            {userCanEdit && (
+                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                    <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                                                                            <thead>
+                                                                                <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
+                                                                                    <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                                    {['PCC', 'ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'WFM', 'IMT', 'QPI', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                        <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
+                                                                                    ))}
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
+                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
+                                                                                        }
+                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
+                                                                                    })}
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ثالثاً: منشآت صحية أخرى */}
+                                        {tcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
+                                            <div style={{ marginBottom: '40px' }}>
+                                                <h2 style={{ backgroundColor: '#28a745', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                    🏢 ثالثاً: منشآت صحية أخرى ({tcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
+                                                </h2>
+                                                <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                    {['صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
+                                                        const categoryRates = tcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
+                                                        if (categoryRates.length === 0) return null;
+                                                        return (
+                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                <h3 style={{ marginBottom: '15px', color: '#28a745', borderBottom: '2px solid #28a745', paddingBottom: '10px' }}>
+                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                </h3>
+                                                                {categoryRates.map((rate) => (
+                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                            {userCanEdit && (
+                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                    <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                                                                            <thead>
+                                                                                <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
+                                                                                    <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                                    {['PCC', 'ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'WFM', 'IMT', 'QPI', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                        <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
+                                                                                    ))}
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                    ))}
+                                                                                </tr>
+                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                    <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
+                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
+                                                                                        }
+                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
+                                                                                    })}
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
+
             {id === 'dept5' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
@@ -7146,8 +7741,12 @@ export default function DepartmentPage() {
                         <TechnicalClinicalDashboard
                             submissions={submissions}
                             facilities={technicalClinicalFacilities}
+                            correctionRates={tcCorrectionRates}
+                            observations={technicalClinicalObservations}
                         />
                     </DashboardModal>
+
+
                 )
             }
             {

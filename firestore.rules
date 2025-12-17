@@ -115,5 +115,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
+
+    match /technical_clinical_correction_rates/{rateId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
   }
 }
+

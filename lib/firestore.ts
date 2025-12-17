@@ -1412,3 +1412,176 @@ export async function deleteTechnicalClinicalObservation(id: string): Promise<bo
         return false;
     }
 }
+
+// Technical Clinical Correction Rate Interface and CRUD functions
+// نسب تصحيح الملاحظات للرقابة الفنية والإكلينيكية
+export interface TechnicalClinicalCorrectionRate {
+    id?: string;
+    entityType: string;  // الجهة: المنشآت الصحية التابعة لهيئة الرعاية / منشآت صحية أخرى
+    facilityCategory: string;  // الفئة: مستشفيات / مراكز ووحدات الرعاية الأولية / المراكز الطبية...
+    facilityName: string;  // اسم المنشأة
+    governorate: string;  // المحافظة
+    visitDate: string;  // تاريخ الزيارة
+    visitType: string;  // نوع الزيارة
+    month: string;  // الشهر YYYY-MM للفلترة
+    year: number;
+    // بيانات كل معيار - عدد الملاحظات الواردة (16 معيار)
+    pccTotal: number;
+    actTotal: number;
+    icdTotal: number;
+    dasTotal: number;
+    mmsTotal: number;
+    sipTotal: number;
+    ipcTotal: number;
+    wfmTotal: number;
+    imtTotal: number;
+    qpiTotal: number;
+    scmTotal: number;
+    texTotal: number;
+    teqTotal: number;
+    tpoTotal: number;
+    nsrTotal: number;
+    sasTotal: number;
+    // بيانات كل معيار - عدد الملاحظات المصححة (16 معيار)
+    pccCorrected: number;
+    actCorrected: number;
+    icdCorrected: number;
+    dasCorrected: number;
+    mmsCorrected: number;
+    sipCorrected: number;
+    ipcCorrected: number;
+    wfmCorrected: number;
+    imtCorrected: number;
+    qpiCorrected: number;
+    scmCorrected: number;
+    texCorrected: number;
+    teqCorrected: number;
+    tpoCorrected: number;
+    nsrCorrected: number;
+    sasCorrected: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+
+export async function saveTechnicalClinicalCorrectionRate(
+    data: Omit<TechnicalClinicalCorrectionRate, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+    try {
+        const collectionRef = collection(db, 'technical_clinical_correction_rates');
+        const docRef = await addDoc(collectionRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving technical clinical correction rate:', error);
+        return null;
+    }
+}
+
+export async function getTechnicalClinicalCorrectionRates(
+    filterMonth?: string
+): Promise<TechnicalClinicalCorrectionRate[]> {
+    try {
+        const collectionRef = collection(db, 'technical_clinical_correction_rates');
+        let q;
+
+        if (filterMonth) {
+            q = query(collectionRef, where('month', '==', filterMonth));
+        } else {
+            q = query(collectionRef);
+        }
+
+        const snapshot = await getDocs(q);
+        const rates: TechnicalClinicalCorrectionRate[] = [];
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            rates.push({
+                id: doc.id,
+                entityType: data.entityType || 'المنشآت الصحية التابعة لهيئة الرعاية',
+                facilityCategory: data.facilityCategory,
+                facilityName: data.facilityName,
+                governorate: data.governorate,
+                visitDate: data.visitDate,
+                visitType: data.visitType || 'زيارة متابعة وتدقيق فني وإكلينيكي',
+                month: data.month,
+                year: data.year,
+                pccTotal: data.pccTotal || 0,
+                actTotal: data.actTotal || 0,
+                icdTotal: data.icdTotal || 0,
+                dasTotal: data.dasTotal || 0,
+                mmsTotal: data.mmsTotal || 0,
+                sipTotal: data.sipTotal || 0,
+                ipcTotal: data.ipcTotal || 0,
+                wfmTotal: data.wfmTotal || 0,
+                imtTotal: data.imtTotal || 0,
+                qpiTotal: data.qpiTotal || 0,
+                scmTotal: data.scmTotal || 0,
+                texTotal: data.texTotal || 0,
+                teqTotal: data.teqTotal || 0,
+                tpoTotal: data.tpoTotal || 0,
+                nsrTotal: data.nsrTotal || 0,
+                sasTotal: data.sasTotal || 0,
+                pccCorrected: data.pccCorrected || 0,
+                actCorrected: data.actCorrected || 0,
+                icdCorrected: data.icdCorrected || 0,
+                dasCorrected: data.dasCorrected || 0,
+                mmsCorrected: data.mmsCorrected || 0,
+                sipCorrected: data.sipCorrected || 0,
+                ipcCorrected: data.ipcCorrected || 0,
+                wfmCorrected: data.wfmCorrected || 0,
+                imtCorrected: data.imtCorrected || 0,
+                qpiCorrected: data.qpiCorrected || 0,
+                scmCorrected: data.scmCorrected || 0,
+                texCorrected: data.texCorrected || 0,
+                teqCorrected: data.teqCorrected || 0,
+                tpoCorrected: data.tpoCorrected || 0,
+                nsrCorrected: data.nsrCorrected || 0,
+                sasCorrected: data.sasCorrected || 0,
+                createdAt: data.createdAt?.toDate(),
+                createdBy: data.createdBy,
+                updatedAt: data.updatedAt?.toDate(),
+                updatedBy: data.updatedBy
+            });
+        });
+
+
+        return rates;
+    } catch (error) {
+        console.error('Error getting technical clinical correction rates:', error);
+        return [];
+    }
+}
+
+export async function updateTechnicalClinicalCorrectionRate(
+    id: string,
+    updates: Partial<TechnicalClinicalCorrectionRate> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'technical_clinical_correction_rates', id);
+        await setDoc(docRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating technical clinical correction rate:', error);
+        return false;
+    }
+}
+
+export async function deleteTechnicalClinicalCorrectionRate(id: string): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'technical_clinical_correction_rates', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting technical clinical correction rate:', error);
+        return false;
+    }
+}
