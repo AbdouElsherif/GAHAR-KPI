@@ -759,19 +759,48 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>إجمالي {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>إجمالي {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تدقيق {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تدقيق {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تقييم {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تقييم {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>البيان</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>السنة المالية {targetYear - 1} - {targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>السنة المالية {targetYear - 2} - {targetYear - 1}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {(() => {
+                                // حساب إجمالي زيارات التدقيق للسنة الحالية
+                                const currentAuditTotal = calculateFilteredTotal(currentAggregated, 'auditVisits', comparisonType);
+                                // حساب إجمالي زيارات التدقيق للسنة السابقة
+                                const previousAuditTotal = calculateFilteredTotal(previousAggregated, 'auditVisits', comparisonType);
+
+                                // حساب إجمالي زيارات التقييم للسنة الحالية
+                                const currentAssessmentTotal = calculateFilteredTotal(currentAggregated, 'assessmentVisits', comparisonType);
+                                // حساب إجمالي زيارات التقييم للسنة السابقة
+                                const previousAssessmentTotal = calculateFilteredTotal(previousAggregated, 'assessmentVisits', comparisonType);
+
+                                // حساب إجمالي جميع الزيارات للسنة الحالية
+                                const currentTotalVisits = calculateFilteredTotal(currentAggregated, 'totalFieldVisits', comparisonType);
+                                // حساب إجمالي جميع الزيارات للسنة السابقة
+                                const previousTotalVisits = calculateFilteredTotal(previousAggregated, 'totalFieldVisits', comparisonType);
+
+                                return (
+                                    <>
+                                        <tr style={{ borderBottom: '1px solid #eee', backgroundColor: 'transparent' }}>
+                                            <td style={{ padding: '12px', fontWeight: '500' }}>زيارات التدقيق الفني والإكلينيكي</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{currentAuditTotal}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousAuditTotal}</td>
+                                        </tr>
+                                        <tr style={{ borderBottom: '1px solid #eee', backgroundColor: 'var(--background-color)' }}>
+                                            <td style={{ padding: '12px', fontWeight: '500' }}>زيارات التقييم الفني والإكلينيكي</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{currentAssessmentTotal}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousAssessmentTotal}</td>
+                                        </tr>
+                                        <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white', fontWeight: 'bold' }}>
+                                            <td style={{ padding: '12px' }}>إجمالي الزيارات</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{currentTotalVisits}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{previousTotalVisits}</td>
+                                        </tr>
+                                    </>
+                                );
+                            })()}
                         </tbody>
                     </table>
                 </div>
