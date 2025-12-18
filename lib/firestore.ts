@@ -1274,7 +1274,7 @@ export async function getObservationCorrectionRates(
                 facilityName: data.facilityName,
                 governorate: data.governorate,
                 visitDate: data.visitDate,
-                visitType: data.visitType || 'زيارة متابعة وتدقيق إداري',
+                visitType: data.visitType || 'زيارة متابعة تدقيق إداري',
                 month: data.month,
                 year: data.year,
                 pccTotal: data.pccTotal,

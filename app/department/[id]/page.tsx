@@ -6471,7 +6471,7 @@ export default function DepartmentPage() {
                                                 <select className="form-input" required value={correctionRateFormData.visitType}
                                                     onChange={(e) => handleCorrectionRateInputChange('visitType', e.target.value)}>
                                                     <option value="">اختر نوع الزيارة</option>
-                                                    <option value="زيارة متابعة وتدقيق إداري">زيارة متابعة وتدقيق إداري</option>
+                                                    <option value="زيارة متابعة تدقيق إداري">زيارة متابعة تدقيق إداري</option>
                                                     <option value="زيارة متابعة خطة تصحيحية">زيارة متابعة خطة تصحيحية</option>
                                                 </select>
                                             </div>
