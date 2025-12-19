@@ -6503,44 +6503,31 @@ export default function DepartmentPage() {
                                 <form onSubmit={handleRemoteTechSupportSubmit} style={{ marginBottom: '30px', marginTop: '20px' }}>
                                     <div style={{
                                         display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
                                         gap: '15px',
                                         marginBottom: '20px'
                                     }}>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
-                                                اسم المنشأة *
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
                                             </label>
                                             <input
                                                 type="text"
                                                 value={remoteTechSupportFormData.facilityName}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityName: e.target.value }))}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
-                                                placeholder="أدخل اسم المنشأة"
+                                                className="form-input"
+                                                required
                                             />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
-                                                المحافظة *
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                المحافظة <span style={{ color: 'red' }}>*</span>
                                             </label>
                                             <select
                                                 value={remoteTechSupportFormData.governorate}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, governorate: e.target.value }))}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
+                                                className="form-input"
+                                                required
                                             >
                                                 <option value="">اختر المحافظة</option>
                                                 {egyptGovernorates.map(gov => (
@@ -6549,61 +6536,40 @@ export default function DepartmentPage() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
-                                                نوع الزيارة *
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
                                             </label>
                                             <input
                                                 type="text"
                                                 value={remoteTechSupportFormData.visitType}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, visitType: e.target.value }))}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
-                                                placeholder="أدخل نوع الزيارة"
+                                                className="form-input"
+                                                required
+                                                placeholder="مثال: دعم فني عن بعد"
                                             />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
-                                                الجهة التابعة *
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
                                             </label>
-                                            <select
+                                            <input
+                                                type="text"
                                                 value={remoteTechSupportFormData.affiliatedEntity}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, affiliatedEntity: e.target.value }))}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
-                                            >
-                                                <option value="">اختر الجهة</option>
-                                                <option value="هيئة الرعاية الصحية">هيئة الرعاية الصحية</option>
-                                                <option value="وزارة الصحة">وزارة الصحة</option>
-                                                <option value="القطاع الخاص">القطاع الخاص</option>
-                                            </select>
+                                                className="form-input"
+                                                required
+                                                placeholder="مثال: وزارة الصحة"
+                                            />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
-                                                نوع المنشأة *
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع المنشأة <span style={{ color: 'red' }}>*</span>
                                             </label>
                                             <select
                                                 value={remoteTechSupportFormData.facilityType}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityType: e.target.value }))}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
+                                                className="form-input"
+                                                required
                                             >
                                                 <option value="">اختر نوع المنشأة</option>
                                                 {techSupportFacilityTypes.map(type => (
@@ -6612,21 +6578,15 @@ export default function DepartmentPage() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
-                                                الشهر *
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الشهر <span style={{ color: 'red' }}>*</span>
                                             </label>
                                             <input
                                                 type="month"
                                                 value={remoteTechSupportFormData.month}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, month: e.target.value }))}
-                                                style={{
-                                                    width: '100%',
-                                                    padding: '10px',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
+                                                className="form-input"
+                                                required
                                             />
                                         </div>
                                     </div>
