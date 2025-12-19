@@ -116,6 +116,22 @@ export interface TechnicalSupportVisit {
     updatedBy?: string;
 }
 
+export interface RemoteTechnicalSupport {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    visitType: string;
+    affiliatedEntity: string;
+    facilityType: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+
 export interface AppealsFacility {
     id?: string;
     facilityType: string;
@@ -551,6 +567,86 @@ export async function deleteTechnicalSupportVisit(id: string): Promise<boolean> 
         return true;
     } catch (error) {
         console.error('Error deleting technical support visit:', error);
+        return false;
+    }
+}
+
+// Remote Technical Support Functions (الدعم الفني عن بعد)
+export async function saveRemoteTechnicalSupport(
+    supportData: Omit<RemoteTechnicalSupport, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const supportsRef = collection(db, 'remote_technical_supports');
+        const docRef = await addDoc(supportsRef, {
+            ...supportData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving remote technical support:', error);
+        return null;
+    }
+}
+
+export async function getRemoteTechnicalSupports(month?: string): Promise<RemoteTechnicalSupport[]> {
+    try {
+        const supportsRef = collection(db, 'remote_technical_supports');
+        let q;
+
+        if (month) {
+            q = query(supportsRef, where('month', '==', month));
+        } else {
+            q = query(supportsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let supports = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as RemoteTechnicalSupport));
+
+        if (month) {
+            supports.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return supports;
+    } catch (error) {
+        console.error('Error getting remote technical supports:', error);
+        return [];
+    }
+}
+
+export async function updateRemoteTechnicalSupport(
+    id: string,
+    updates: Partial<RemoteTechnicalSupport> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const supportRef = doc(db, 'remote_technical_supports', id);
+        await setDoc(supportRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating remote technical support:', error);
+        return false;
+    }
+}
+
+export async function deleteRemoteTechnicalSupport(id: string): Promise<boolean> {
+    try {
+        const supportRef = doc(db, 'remote_technical_supports', id);
+        await deleteDoc(supportRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting remote technical support:', error);
         return false;
     }
 }

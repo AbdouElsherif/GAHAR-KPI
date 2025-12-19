@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -288,6 +288,20 @@ export default function DepartmentPage() {
     const [techSupportVisitsFilter, setTechSupportVisitsFilter] = useState('');
     const [isTechSupportVisitsSectionExpanded, setIsTechSupportVisitsSectionExpanded] = useState(true);
 
+    // Remote Technical Support tracking states (الدعم الفني عن بعد for dept2 only)
+    const [remoteTechnicalSupports, setRemoteTechnicalSupports] = useState<RemoteTechnicalSupport[]>([]);
+    const [remoteTechSupportFormData, setRemoteTechSupportFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        visitType: '',
+        affiliatedEntity: '',
+        facilityType: '',
+        month: ''
+    });
+    const [editingRemoteTechSupportId, setEditingRemoteTechSupportId] = useState<string | null>(null);
+    const [remoteTechSupportFilter, setRemoteTechSupportFilter] = useState('');
+    const [isRemoteTechSupportSectionExpanded, setIsRemoteTechSupportSectionExpanded] = useState(true);
+
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
     const [appealsFacilityFormData, setAppealsFacilityFormData] = useState({
@@ -491,12 +505,18 @@ export default function DepartmentPage() {
     useEffect(() => {
         if (id === 'dept2') {
             loadTechSupportVisits();
+            loadRemoteTechnicalSupports();
         }
     }, [id]);
 
     const loadTechSupportVisits = async () => {
         const visits = await getTechnicalSupportVisits();
         setTechSupportVisits(visits);
+    };
+
+    const loadRemoteTechnicalSupports = async () => {
+        const supports = await getRemoteTechnicalSupports();
+        setRemoteTechnicalSupports(supports);
     };
 
     // Reset to first page when filters change
@@ -2651,6 +2671,121 @@ export default function DepartmentPage() {
                 alert('تم حذف الزيارة بنجاح');
             } else {
                 alert('حدث خطأ أثناء حذف الزيارة');
+            }
+        }
+    };
+
+    // Remote Technical Support handlers (الدعم الفني عن بعد)
+    const handleRemoteTechSupportSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!currentUser) {
+            alert('يجب تسجيل الدخول أولاً');
+            return;
+        }
+
+        if (!canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لإضافة البيانات');
+            return;
+        }
+
+        const { facilityName, governorate, visitType, affiliatedEntity, facilityType, month } = remoteTechSupportFormData;
+
+        if (!facilityName || !governorate || !visitType || !affiliatedEntity || !facilityType || !month) {
+            alert('الرجاء ملء جميع الحقول المطلوبة');
+            return;
+        }
+
+        try {
+            const [year] = month.split('-');
+
+            if (editingRemoteTechSupportId) {
+                const success = await updateRemoteTechnicalSupport(editingRemoteTechSupportId, {
+                    facilityName,
+                    governorate,
+                    visitType,
+                    affiliatedEntity,
+                    facilityType,
+                    month,
+                    year: parseInt(year),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setEditingRemoteTechSupportId(null);
+                    setRemoteTechSupportFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        affiliatedEntity: '',
+                        facilityType: '',
+                        month: ''
+                    });
+                    await loadRemoteTechnicalSupports();
+                    alert('تم تحديث الدعم بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء تحديث الدعم');
+                }
+            } else {
+                const docId = await saveRemoteTechnicalSupport({
+                    facilityName,
+                    governorate,
+                    visitType,
+                    affiliatedEntity,
+                    facilityType,
+                    month,
+                    year: parseInt(year),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setRemoteTechSupportFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        affiliatedEntity: '',
+                        facilityType: '',
+                        month: ''
+                    });
+                    await loadRemoteTechnicalSupports();
+                    alert('تمت إضافة الدعم بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء حفظ الدعم');
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء حفظ البيانات');
+        }
+    };
+
+    const handleEditRemoteTechSupport = (support: RemoteTechnicalSupport) => {
+        setRemoteTechSupportFormData({
+            facilityName: support.facilityName,
+            governorate: support.governorate,
+            visitType: support.visitType,
+            affiliatedEntity: support.affiliatedEntity,
+            facilityType: support.facilityType,
+            month: support.month
+        });
+        setEditingRemoteTechSupportId(support.id || null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteRemoteTechSupport = async (supportId: string) => {
+        if (!currentUser || !canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لحذف البيانات');
+            return;
+        }
+
+        if (confirm('هل أنت متأكد من حذف هذا الدعم؟')) {
+            const success = await deleteRemoteTechnicalSupport(supportId);
+            if (success) {
+                await loadRemoteTechnicalSupports();
+                alert('تم حذف الدعم بنجاح');
+            } else {
+                alert('حدث خطأ أثناء حذف الدعم');
             }
         }
     };
@@ -6304,6 +6439,361 @@ export default function DepartmentPage() {
                     </div>
                 </div>
             )}
+            {id === 'dept2' && (
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                💻 الدعم الفني عن بعد خلال شهر {remoteTechSupportFilter ? (() => {
+                                    const [year, month] = remoteTechSupportFilter.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[parseInt(month) - 1];
+                                })() : '...'} - عدد {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length} زيارة
+                            </h3>
+                            <button
+                                onClick={() => setIsRemoteTechSupportSectionExpanded(!isRemoteTechSupportSectionExpanded)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--primary-color)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    padding: '0',
+                                    fontFamily: 'inherit',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}
+                            >
+                                {isRemoteTechSupportSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isRemoteTechSupportSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        {isRemoteTechSupportSectionExpanded && (
+                            <>
+                                <form onSubmit={handleRemoteTechSupportSubmit} style={{ marginBottom: '30px', marginTop: '20px' }}>
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                        gap: '15px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
+                                                اسم المنشأة *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={remoteTechSupportFormData.facilityName}
+                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityName: e.target.value }))}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                                placeholder="أدخل اسم المنشأة"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
+                                                المحافظة *
+                                            </label>
+                                            <select
+                                                value={remoteTechSupportFormData.governorate}
+                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, governorate: e.target.value }))}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
+                                                نوع الزيارة *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={remoteTechSupportFormData.visitType}
+                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, visitType: e.target.value }))}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                                placeholder="أدخل نوع الزيارة"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
+                                                الجهة التابعة *
+                                            </label>
+                                            <select
+                                                value={remoteTechSupportFormData.affiliatedEntity}
+                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, affiliatedEntity: e.target.value }))}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                            >
+                                                <option value="">اختر الجهة</option>
+                                                <option value="هيئة الرعاية الصحية">هيئة الرعاية الصحية</option>
+                                                <option value="وزارة الصحة">وزارة الصحة</option>
+                                                <option value="القطاع الخاص">القطاع الخاص</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
+                                                نوع المنشأة *
+                                            </label>
+                                            <select
+                                                value={remoteTechSupportFormData.facilityType}
+                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityType: e.target.value }))}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                            >
+                                                <option value="">اختر نوع المنشأة</option>
+                                                {techSupportFacilityTypes.map(type => (
+                                                    <option key={type} value={type}>{type}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-secondary)' }}>
+                                                الشهر *
+                                            </label>
+                                            <input
+                                                type="month"
+                                                value={remoteTechSupportFormData.month}
+                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, month: e.target.value }))}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '10px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            padding: '12px 30px',
+                                            backgroundColor: 'var(--primary-color)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {editingRemoteTechSupportId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                    </button>
+                                    {editingRemoteTechSupportId && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingRemoteTechSupportId(null);
+                                                setRemoteTechSupportFormData({
+                                                    facilityName: '',
+                                                    governorate: '',
+                                                    visitType: '',
+                                                    affiliatedEntity: '',
+                                                    facilityType: '',
+                                                    month: ''
+                                                });
+                                            }}
+                                            style={{
+                                                padding: '12px 30px',
+                                                backgroundColor: '#6c757d',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '1rem',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer',
+                                                marginLeft: '10px'
+                                            }}
+                                        >
+                                            إلغاء التعديل
+                                        </button>
+                                    )}
+                                </form>
+                                <div>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        alignItems: 'center',
+                                        marginBottom: '15px'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <label style={{ color: 'var(--text-secondary)' }}>فلترة حسب الشهر:</label>
+                                            <input
+                                                type="month"
+                                                value={remoteTechSupportFilter}
+                                                onChange={(e) => setRemoteTechSupportFilter(e.target.value)}
+                                                style={{
+                                                    padding: '8px',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid var(--border-color)',
+                                                    backgroundColor: 'var(--input-bg)',
+                                                    color: 'var(--text-primary)'
+                                                }}
+                                            />
+                                            {remoteTechSupportFilter && (
+                                                <button
+                                                    onClick={() => setRemoteTechSupportFilter('')}
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                        backgroundColor: '#6c757d',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    إظهار الكل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{
+                                            width: '100%',
+                                            borderCollapse: 'collapse',
+                                            backgroundColor: 'white',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {remoteTechnicalSupports
+                                                    .filter(support => !remoteTechSupportFilter || support.month === remoteTechSupportFilter)
+                                                    .map((support, index) => (
+                                                        <tr key={support.id} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                        }}>
+                                                            <td style={{ padding: '12px' }}>{support.facilityName}</td>
+                                                            <td style={{ padding: '12px' }}>{support.governorate}</td>
+                                                            <td style={{ padding: '12px' }}>{support.visitType}</td>
+                                                            <td style={{ padding: '12px' }}>{support.affiliatedEntity}</td>
+                                                            <td style={{ padding: '12px' }}>{support.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{support.month}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditRemoteTechSupport(support)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#ffc107',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        marginRight: '5px'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteRemoteTechSupport(support.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                            لا يوجد دعم فني مسجل
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
             {id === 'dept5' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
@@ -8193,6 +8683,7 @@ export default function DepartmentPage() {
                         <TechnicalSupportDashboard
                             submissions={submissions}
                             visits={techSupportVisits}
+                            remoteSupports={remoteTechnicalSupports}
                         />
                     </DashboardModal>
                 )

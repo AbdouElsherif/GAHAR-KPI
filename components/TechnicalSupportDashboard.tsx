@@ -16,9 +16,19 @@ interface TechnicalSupportDashboardProps {
         month: string;
         year: number;
     }>;
+    remoteSupports?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        visitType: string;
+        affiliatedEntity: string;
+        facilityType: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function TechnicalSupportDashboard({ submissions, visits = [] }: TechnicalSupportDashboardProps) {
+export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [] }: TechnicalSupportDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -1084,6 +1094,84 @@ export default function TechnicalSupportDashboard({ submissions, visits = [] }: 
                                                     fontWeight: '500'
                                                 }}>
                                                     {visit.facilityType}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Remote Technical Support Section */}
+            {comparisonType === 'monthly' && remoteSupports.length > 0 && (() => {
+                const monthlyRemoteSupports = remoteSupports.filter(s => {
+                    const supportMonth = parseInt(s.month.split('-')[1]);
+                    const supportYear = parseInt(s.month.split('-')[0]);
+                    const fiscalYear = supportMonth >= 7 ? supportYear + 1 : supportYear;
+                    return supportMonth === selectedMonth && fiscalYear === targetYear;
+                });
+
+                if (monthlyRemoteSupports.length === 0) return null;
+
+                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+                return (
+                    <div style={{ marginTop: '40px' }}>
+                        <h3 style={{
+                            fontSize: '1.4rem',
+                            fontWeight: 'bold',
+                            color: 'var(--primary-color)',
+                            marginBottom: '20px',
+                            padding: '15px',
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '8px',
+                            borderRight: '4px solid #ffc658'
+                        }}>
+                            💻 الدعم الفني عن بعد - {monthNames[selectedMonth - 1]} {targetYear} ({monthlyRemoteSupports.length} زيارة)
+                        </h3>
+
+                        <div style={{
+                            backgroundColor: 'white',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            overflowX: 'auto'
+                        }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الجهة التابعة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع المنشأة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {monthlyRemoteSupports.map((support, index) => (
+                                        <tr key={support.id || index} style={{
+                                            borderBottom: '1px solid #eee',
+                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                        }}>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{support.facilityName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{support.governorate}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{support.visitType}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{support.affiliatedEntity}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>
+                                                <span style={{
+                                                    padding: '4px 12px',
+                                                    backgroundColor: '#fff3cd',
+                                                    color: '#856404',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    {support.facilityType}
                                                 </span>
                                             </td>
                                         </tr>

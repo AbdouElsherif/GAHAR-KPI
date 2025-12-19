@@ -125,6 +125,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
+
+    match /remote_technical_supports/{supportId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
   }
 }
 
