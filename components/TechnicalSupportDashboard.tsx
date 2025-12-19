@@ -353,69 +353,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
         });
     }
 
-    function renderTableRows() {
-        let periods = Object.keys(currentAggregated).sort();
 
-        if (comparisonType === 'monthly') {
-            // فلترة حسب الشهر المحدد فقط
-            periods = periods.filter(p => {
-                if (p.includes('-')) {
-                    const month = parseInt(p.split('-')[1]);
-                    return month === selectedMonth;
-                }
-                return false;
-            });
-        } else if (comparisonType === 'quarterly') {
-            const targetPeriod = `Q${selectedQuarter}`;
-            periods = periods.filter(p => p === targetPeriod);
-        } else if (comparisonType === 'halfYearly') {
-            const targetPeriod = `H${selectedHalf}`;
-            periods = periods.filter(p => p === targetPeriod);
-        }
-
-        if (periods.length === 0) {
-            return (
-                <tr>
-                    <td colSpan={11} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
-                        لا توجد بيانات متاحة للسنة المحددة
-                    </td>
-                </tr>
-            );
-        }
-
-        return periods.map((period, index) => {
-            let previousPeriodKey = period;
-
-            if (comparisonType === 'monthly' && period.includes('-')) {
-                const [year, month] = period.split('-');
-                const currentYear = parseInt(year);
-                const previousYear = currentYear - 1;
-                previousPeriodKey = `${previousYear}-${month}`;
-            }
-
-            const currentData = currentAggregated[period];
-            const previousData = previousAggregated[previousPeriodKey];
-
-            return (
-                <tr key={period} style={{
-                    borderBottom: '1px solid #eee',
-                    backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                }}>
-                    <td style={{ padding: '12px', fontWeight: '500' }}>{formatPeriodLabel(period)}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.supportPrograms || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.supportPrograms || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.introVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.introVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.fieldSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.fieldSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.remoteSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.remoteSupportVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.supportedFacilities || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.supportedFacilities || 0}</td>
-                </tr>
-            );
-        });
-    }
 
     return (
         <div>
@@ -803,21 +741,77 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>برامج {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>برامج {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تمهيدية {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تمهيدية {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>ميداني {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>ميداني {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عن بعد {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عن بعد {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>المؤشر</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const year = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                        return `${monthNames[selectedMonth - 1]} ${year}`;
+                                    })()}
+                                </th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const year = selectedMonth >= 7 ? targetYear - 2 : targetYear - 1;
+                                        return `${monthNames[selectedMonth - 1]} ${year}`;
+                                    })()}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {(() => {
+                                const currentData = Object.values(currentAggregated).find((_, idx) => {
+                                    const key = Object.keys(currentAggregated)[idx];
+                                    if (key.includes('-')) {
+                                        return parseInt(key.split('-')[1]) === selectedMonth;
+                                    }
+                                    return false;
+                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0 };
+
+                                const previousData = Object.values(previousAggregated).find((_, idx) => {
+                                    const key = Object.keys(previousAggregated)[idx];
+                                    if (key.includes('-')) {
+                                        return parseInt(key.split('-')[1]) === selectedMonth;
+                                    }
+                                    return false;
+                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0 };
+
+                                const indicators = [
+                                    { label: 'برامج الدعم الفني', current: currentData.supportPrograms || 0, previous: previousData.supportPrograms || 0 },
+                                    { label: 'زيارات تمهيدية', current: currentData.introVisits || 0, previous: previousData.introVisits || 0 },
+                                    { label: 'دعم فني ميداني', current: currentData.fieldSupportVisits || 0, previous: previousData.fieldSupportVisits || 0 },
+                                    { label: 'دعم فني عن بعد', current: currentData.remoteSupportVisits || 0, previous: previousData.remoteSupportVisits || 0 },
+                                    { label: 'منشآت مدعومة', current: currentData.supportedFacilities || 0, previous: previousData.supportedFacilities || 0 },
+                                ];
+
+                                const totalCurrent = indicators.reduce((sum, ind) => sum + ind.current, 0);
+                                const totalPrevious = indicators.reduce((sum, ind) => sum + ind.previous, 0);
+
+                                return (
+                                    <>
+                                        {indicators.map((ind, index) => (
+                                            <tr key={ind.label} style={{
+                                                borderBottom: '1px solid #eee',
+                                                backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                            }}>
+                                                <td style={{ padding: '12px', fontWeight: '500' }}>{ind.label}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{ind.current}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{ind.previous}</td>
+                                            </tr>
+                                        ))}
+                                        <tr style={{
+                                            borderTop: '2px solid var(--primary-color)',
+                                            backgroundColor: 'var(--primary-color)',
+                                            fontWeight: 'bold',
+                                            color: 'white'
+                                        }}>
+                                            <td style={{ padding: '12px', fontWeight: 'bold', color: 'white' }}>المجموع</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: '1.1rem' }}>{totalCurrent}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: 'white', fontSize: '1.1rem' }}>{totalPrevious}</td>
+                                        </tr>
+                                    </>
+                                );
+                            })()}
                         </tbody>
                     </table>
                 </div>
