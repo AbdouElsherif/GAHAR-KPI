@@ -62,6 +62,8 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
             fieldSupportVisits: number;
             remoteSupportVisits: number;
             supportedFacilities: number;
+            toolReleasesUpdates: number;
+            reportsComplianceRate: number;
             count: number;
         }> = {};
 
@@ -93,6 +95,8 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     fieldSupportVisits: 0,
                     remoteSupportVisits: 0,
                     supportedFacilities: 0,
+                    toolReleasesUpdates: 0,
+                    reportsComplianceRate: 0,
                     count: 0
                 };
             }
@@ -102,6 +106,8 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
             aggregated[periodKey].fieldSupportVisits += parseFloat(sub.fieldSupportVisits) || 0;
             aggregated[periodKey].remoteSupportVisits += parseFloat(sub.remoteSupportVisits) || 0;
             aggregated[periodKey].supportedFacilities += parseFloat(sub.supportedFacilities) || 0;
+            aggregated[periodKey].toolReleasesUpdates += parseFloat(sub.toolReleasesUpdates) || 0;
+            aggregated[periodKey].reportsComplianceRate += parseFloat(sub.reportsComplianceRate) || 0;
             aggregated[periodKey].count += 1;
         });
 
@@ -172,6 +178,14 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
     const previousTotalFacilities = calculateFilteredTotal(previousAggregated, 'supportedFacilities', comparisonType);
     const facilitiesChange = calculateChange(currentTotalFacilities, previousTotalFacilities);
 
+    const currentTotalReleases = calculateFilteredTotal(currentAggregated, 'toolReleasesUpdates', comparisonType);
+    const previousTotalReleases = calculateFilteredTotal(previousAggregated, 'toolReleasesUpdates', comparisonType);
+    const releasesChange = calculateChange(currentTotalReleases, previousTotalReleases);
+
+    const currentComplianceRate = calculateFilteredTotal(currentAggregated, 'reportsComplianceRate', comparisonType);
+    const previousComplianceRate = calculateFilteredTotal(previousAggregated, 'reportsComplianceRate', comparisonType);
+    const complianceChange = calculateChange(currentComplianceRate, previousComplianceRate);
+
     const formatPeriodLabel = (period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
         if (period.startsWith('H')) return `النصف ${period.slice(1)}`;
@@ -230,7 +244,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
-    const preparePieData = (metric: 'supportPrograms' | 'introVisits' | 'fieldSupportVisits' | 'remoteSupportVisits' | 'supportedFacilities') => {
+    const preparePieData = (metric: 'supportPrograms' | 'introVisits' | 'fieldSupportVisits' | 'remoteSupportVisits' | 'supportedFacilities' | 'toolReleasesUpdates' | 'reportsComplianceRate') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
@@ -255,6 +269,14 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                 case 'supportedFacilities':
                     currentVal = currentTotalFacilities;
                     previousVal = previousTotalFacilities;
+                    break;
+                case 'toolReleasesUpdates':
+                    currentVal = currentTotalReleases;
+                    previousVal = previousTotalReleases;
+                    break;
+                case 'reportsComplianceRate':
+                    currentVal = currentComplianceRate;
+                    previousVal = previousComplianceRate;
                     break;
             }
 
@@ -288,6 +310,8 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
     const fieldVisitsPieData = preparePieData('fieldSupportVisits');
     const remoteVisitsPieData = preparePieData('remoteSupportVisits');
     const facilitiesPieData = preparePieData('supportedFacilities');
+    const releasesPieData = preparePieData('toolReleasesUpdates');
+    const compliancePieData = preparePieData('reportsComplianceRate');
 
     function prepareChartData() {
         const currentPeriods = Object.keys(currentAggregated);
@@ -537,6 +561,28 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                     pieData={facilitiesPieData}
                     color="#ff7c7c"
                 />
+                <KPICard
+                    title="عدد إصدارات وتحديثات أدوات التقييم الذاتي"
+                    icon="🔧"
+                    currentValue={currentTotalReleases}
+                    previousValue={previousTotalReleases}
+                    changePercentage={releasesChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={releasesPieData}
+                    color="#9b59b6"
+                />
+                <KPICard
+                    title="نسبة استيفاء التقارير (%)"
+                    icon="📋"
+                    currentValue={currentComplianceRate}
+                    previousValue={previousComplianceRate}
+                    changePercentage={complianceChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={compliancePieData}
+                    color="#3498db"
+                />
             </div>
 
             <div style={{ marginBottom: '30px' }}>
@@ -766,7 +812,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                                         return parseInt(key.split('-')[1]) === selectedMonth;
                                     }
                                     return false;
-                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0 };
+                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0, toolReleasesUpdates: 0, reportsComplianceRate: 0 };
 
                                 const previousData = Object.values(previousAggregated).find((_, idx) => {
                                     const key = Object.keys(previousAggregated)[idx];
@@ -774,7 +820,7 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                                         return parseInt(key.split('-')[1]) === selectedMonth;
                                     }
                                     return false;
-                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0 };
+                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0, toolReleasesUpdates: 0, reportsComplianceRate: 0 };
 
                                 const indicators = [
                                     { label: 'برامج الدعم الفني', current: currentData.supportPrograms || 0, previous: previousData.supportPrograms || 0 },
@@ -782,6 +828,8 @@ export default function TechnicalSupportDashboard({ submissions }: TechnicalSupp
                                     { label: 'دعم فني ميداني', current: currentData.fieldSupportVisits || 0, previous: previousData.fieldSupportVisits || 0 },
                                     { label: 'دعم فني عن بعد', current: currentData.remoteSupportVisits || 0, previous: previousData.remoteSupportVisits || 0 },
                                     { label: 'منشآت مدعومة', current: currentData.supportedFacilities || 0, previous: previousData.supportedFacilities || 0 },
+                                    { label: 'عدد إصدارات وتحديثات أدوات التقييم الذاتي', current: currentData.toolReleasesUpdates || 0, previous: previousData.toolReleasesUpdates || 0 },
+                                    { label: 'نسبة استيفاء التقارير (%)', current: currentData.reportsComplianceRate || 0, previous: previousData.reportsComplianceRate || 0 },
                                 ];
 
                                 const totalCurrent = indicators.reduce((sum, ind) => sum + ind.current, 0);
