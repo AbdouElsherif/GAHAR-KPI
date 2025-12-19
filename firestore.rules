@@ -120,6 +120,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
+
+    match /technical_support_visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
   }
 }
 

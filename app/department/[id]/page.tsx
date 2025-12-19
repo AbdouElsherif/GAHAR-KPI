@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -152,6 +152,24 @@ const formatMonthYear = (date: Date): string => {
     return `${month} ${year}`;
 };
 
+// Egypt Governorates
+const egyptGovernorates = [
+    'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'البحر الأحمر', 'البحيرة',
+    'الفيوم', 'الغربية', 'الإسماعيلية', 'المنوفية', 'المنيا', 'القليوبية',
+    'الوادي الجديد', 'الشرقية', 'السويس', 'أسوان', 'أسيوط', 'بني سويف',
+    'بورسعيد', 'دمياط', 'الأقصر', 'مطروح', 'قنا', 'شمال سيناء', 'جنوب سيناء',
+    'كفر الشيخ', 'سوهاج'
+];
+
+// Facility Types for Technical Support
+const techSupportFacilityTypes = [
+    'مستشفيات',
+    'عيادات خاصة',
+    'معامل',
+    'صيدليات',
+    'مراكز جراحات اليوم الواحد'
+];
+
 export const dynamicParams = true;
 
 export default function DepartmentPage() {
@@ -255,6 +273,20 @@ export default function DepartmentPage() {
     const [basicRequirementsFacilityFilterMonth, setBasicRequirementsFacilityFilterMonth] = useState('');
     const [basicRequirementsFacilitySubmitted, setBasicRequirementsFacilitySubmitted] = useState(false);
     const [isBasicRequirementsFacilitiesSectionExpanded, setIsBasicRequirementsFacilitiesSectionExpanded] = useState(false);
+
+    // Technical Support Visits tracking states (for dept2 only)
+    const [techSupportVisits, setTechSupportVisits] = useState<TechnicalSupportVisit[]>([]);
+    const [techSupportVisitFormData, setTechSupportVisitFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        visitType: '',
+        affiliatedEntity: '',
+        facilityType: '',
+        month: ''
+    });
+    const [editingTechSupportVisitId, setEditingTechSupportVisitId] = useState<string | null>(null);
+    const [techSupportVisitsFilter, setTechSupportVisitsFilter] = useState('');
+    const [isTechSupportVisitsSectionExpanded, setIsTechSupportVisitsSectionExpanded] = useState(true);
 
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
@@ -455,6 +487,17 @@ export default function DepartmentPage() {
 
         return () => unsubscribe();
     }, [id, router]);
+
+    useEffect(() => {
+        if (id === 'dept2') {
+            loadTechSupportVisits();
+        }
+    }, [id]);
+
+    const loadTechSupportVisits = async () => {
+        const visits = await getTechnicalSupportVisits();
+        setTechSupportVisits(visits);
+    };
 
     // Reset to first page when filters change
     useEffect(() => {
@@ -2494,6 +2537,122 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingPaidFacilityId(null);
+    };
+
+    // Technical Support Visit handlers
+    const handleTechSupportVisitSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!currentUser) {
+            alert('يجب تسجيل الدخول أولاً');
+            return;
+        }
+
+        if (!canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لإضافة البيانات');
+            return;
+        }
+
+        const { facilityName, governorate, visitType, affiliatedEntity, facilityType, month } = techSupportVisitFormData;
+
+        if (!facilityName || !governorate || !visitType || !affiliatedEntity || !facilityType || !month) {
+            alert('يرجى ملء جميع الحقول المطلوبة');
+            return;
+        }
+
+        const [year, monthNum] = month.split('-');
+
+        try {
+            if (editingTechSupportVisitId) {
+                const success = await updateTechnicalSupportVisit(editingTechSupportVisitId, {
+                    facilityName,
+                    governorate,
+                    visitType,
+                    affiliatedEntity,
+                    facilityType,
+                    month,
+                    year: parseInt(year),
+                    updatedBy: currentUser.email
+                });
+
+                if (success) {
+                    await loadTechSupportVisits();
+                    setTechSupportVisitFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        affiliatedEntity: '',
+                        facilityType: '',
+                        month: ''
+                    });
+                    setEditingTechSupportVisitId(null);
+                    alert('تم تحديث الزيارة بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء تحديث الزيارة');
+                }
+            } else {
+                const visitId = await saveTechnicalSupportVisit({
+                    facilityName,
+                    governorate,
+                    visitType,
+                    affiliatedEntity,
+                    facilityType,
+                    month,
+                    year: parseInt(year),
+                    createdBy: currentUser.email,
+                    updatedBy: currentUser.email
+                });
+
+                if (visitId) {
+                    await loadTechSupportVisits();
+                    setTechSupportVisitFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        affiliatedEntity: '',
+                        facilityType: '',
+                        month: ''
+                    });
+                    alert('تمت إضافة الزيارة بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء حفظ الزيارة');
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء حفظ البيانات');
+        }
+    };
+
+    const handleEditTechSupportVisit = (visit: TechnicalSupportVisit) => {
+        setTechSupportVisitFormData({
+            facilityName: visit.facilityName,
+            governorate: visit.governorate,
+            visitType: visit.visitType,
+            affiliatedEntity: visit.affiliatedEntity,
+            facilityType: visit.facilityType,
+            month: visit.month
+        });
+        setEditingTechSupportVisitId(visit.id || null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+
+    const handleDeleteTechSupportVisit = async (visitId: string) => {
+        if (!currentUser || !canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لحذف البيانات');
+            return;
+        }
+
+        if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
+            const success = await deleteTechnicalSupportVisit(visitId);
+            if (success) {
+                await loadTechSupportVisits();
+                alert('تم حذف الزيارة بنجاح');
+            } else {
+                alert('حدث خطأ أثناء حذف الزيارة');
+            }
+        }
     };
 
     // Export functions for Paid Facilities
@@ -5833,7 +5992,318 @@ export default function DepartmentPage() {
             )}
 
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
-
+            {/* Technical Support Visits Section - Dept2 Only */}
+            {id === 'dept2' && (
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                🏥 الزيارات الميدانية للمنشآت خلال شهر {techSupportVisitsFilter ? (() => {
+                                    const [year, month] = techSupportVisitsFilter.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[parseInt(month) - 1];
+                                })() : '...'} - عدد {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length} زيارة
+                            </h3>
+                            <button
+                                onClick={() => setIsTechSupportVisitsSectionExpanded(!isTechSupportVisitsSectionExpanded)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--primary-color)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    padding: '0',
+                                    fontFamily: 'inherit',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}
+                            >
+                                {isTechSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isTechSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        {isTechSupportVisitsSectionExpanded && (
+                            <>
+                                {/* Form */}
+                                <form onSubmit={handleTechSupportVisitSubmit} style={{ marginBottom: '30px' }}>
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                        gap: '15px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={techSupportVisitFormData.facilityName}
+                                                onChange={(e) => setTechSupportVisitFormData({
+                                                    ...techSupportVisitFormData,
+                                                    facilityName: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                المحافظة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={techSupportVisitFormData.governorate}
+                                                onChange={(e) => setTechSupportVisitFormData({
+                                                    ...techSupportVisitFormData,
+                                                    governorate: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={techSupportVisitFormData.visitType}
+                                                onChange={(e) => setTechSupportVisitFormData({
+                                                    ...techSupportVisitFormData,
+                                                    visitType: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                                placeholder="مثال: دعم فني ميداني"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={techSupportVisitFormData.affiliatedEntity}
+                                                onChange={(e) => setTechSupportVisitFormData({
+                                                    ...techSupportVisitFormData,
+                                                    affiliatedEntity: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                                placeholder="مثال: وزارة الصحة"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={techSupportVisitFormData.facilityType}
+                                                onChange={(e) => setTechSupportVisitFormData({
+                                                    ...techSupportVisitFormData,
+                                                    facilityType: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر نوع المنشأة</option>
+                                                {techSupportFacilityTypes.map(type => (
+                                                    <option key={type} value={type}>{type}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الشهر <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="month"
+                                                value={techSupportVisitFormData.month}
+                                                onChange={(e) => setTechSupportVisitFormData({
+                                                    ...techSupportVisitFormData,
+                                                    month: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            padding: '12px 30px',
+                                            backgroundColor: 'var(--primary-color)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {editingTechSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                    </button>
+                                    {editingTechSupportVisitId && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingTechSupportVisitId(null);
+                                                setTechSupportVisitFormData({
+                                                    facilityName: '',
+                                                    governorate: '',
+                                                    visitType: '',
+                                                    affiliatedEntity: '',
+                                                    facilityType: '',
+                                                    month: ''
+                                                });
+                                            }}
+                                            style={{
+                                                padding: '12px 30px',
+                                                backgroundColor: '#6c757d',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '1rem',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer',
+                                                marginLeft: '10px'
+                                            }}
+                                        >
+                                            إلغاء التعديل
+                                        </button>
+                                    )}
+                                </form>
+                                {/* Filter and Table */}
+                                <div>
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            value={techSupportVisitsFilter}
+                                            onChange={(e) => setTechSupportVisitsFilter(e.target.value)}
+                                            className="form-input"
+                                            style={{ maxWidth: '300px' }}
+                                        />
+                                    </div>
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{
+                                            width: '100%',
+                                            borderCollapse: 'collapse',
+                                            backgroundColor: 'white',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزي
+                                                        ارة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {techSupportVisits
+                                                    .filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter)
+                                                    .map((visit, index) => (
+                                                        <tr key={visit.id} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                        }}>
+                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.visitType}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.affiliatedEntity}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditTechSupportVisit(visit)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#ffc107',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        marginRight: '5px'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteTechSupportVisit(visit.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                {techSupportVisits.filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter).length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                            لا توجد زيارات مسجلة
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
             {id === 'dept5' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
@@ -7720,7 +8190,10 @@ export default function DepartmentPage() {
                         isOpen={isTechSupportDashboardOpen}
                         onClose={() => setIsTechSupportDashboardOpen(false)}
                     >
-                        <TechnicalSupportDashboard submissions={submissions} />
+                        <TechnicalSupportDashboard
+                            submissions={submissions}
+                            visits={techSupportVisits}
+                        />
                     </DashboardModal>
                 )
             }
