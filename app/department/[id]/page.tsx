@@ -6726,11 +6726,11 @@ export default function DepartmentPage() {
                                                 <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right', width: '10%' }}>نوع الزيارة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center', width: '15%' }}>الإجراءات</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
