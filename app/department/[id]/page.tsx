@@ -286,7 +286,7 @@ export default function DepartmentPage() {
     });
     const [editingTechSupportVisitId, setEditingTechSupportVisitId] = useState<string | null>(null);
     const [techSupportVisitsFilter, setTechSupportVisitsFilter] = useState('');
-    const [isTechSupportVisitsSectionExpanded, setIsTechSupportVisitsSectionExpanded] = useState(true);
+    const [isTechSupportVisitsSectionExpanded, setIsTechSupportVisitsSectionExpanded] = useState(false);
 
     // Remote Technical Support tracking states (الدعم الفني عن بعد for dept2 only)
     const [remoteTechnicalSupports, setRemoteTechnicalSupports] = useState<RemoteTechnicalSupport[]>([]);
@@ -300,7 +300,7 @@ export default function DepartmentPage() {
     });
     const [editingRemoteTechSupportId, setEditingRemoteTechSupportId] = useState<string | null>(null);
     const [remoteTechSupportFilter, setRemoteTechSupportFilter] = useState('');
-    const [isRemoteTechSupportSectionExpanded, setIsRemoteTechSupportSectionExpanded] = useState(true);
+    const [isRemoteTechSupportSectionExpanded, setIsRemoteTechSupportSectionExpanded] = useState(false);
 
     // Introductory Support Visit tracking states (زيارات الدعم الفني التمهيدية for dept2 only)
     const [introSupportVisits, setIntroSupportVisits] = useState<IntroductorySupportVisit[]>([]);
@@ -314,7 +314,7 @@ export default function DepartmentPage() {
     });
     const [editingIntroSupportVisitId, setEditingIntroSupportVisitId] = useState<string | null>(null);
     const [introSupportVisitsFilter, setIntroSupportVisitsFilter] = useState('');
-    const [isIntroSupportVisitsSectionExpanded, setIsIntroSupportVisitsSectionExpanded] = useState(true);
+    const [isIntroSupportVisitsSectionExpanded, setIsIntroSupportVisitsSectionExpanded] = useState(false);
 
     // Queued Support Visit tracking states (زيارات الدعم الفني بقائمة الانتظار for dept2 only)
     const [queuedSupportVisits, setQueuedSupportVisits] = useState<QueuedSupportVisit[]>([]);
@@ -325,7 +325,7 @@ export default function DepartmentPage() {
     });
     const [editingQueuedSupportVisitId, setEditingQueuedSupportVisitId] = useState<string | null>(null);
     const [queuedSupportVisitsFilter, setQueuedSupportVisitsFilter] = useState('');
-    const [isQueuedSupportVisitsSectionExpanded, setIsQueuedSupportVisitsSectionExpanded] = useState(true);
+    const [isQueuedSupportVisitsSectionExpanded, setIsQueuedSupportVisitsSectionExpanded] = useState(false);
 
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
