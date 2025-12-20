@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -316,6 +316,17 @@ export default function DepartmentPage() {
     const [introSupportVisitsFilter, setIntroSupportVisitsFilter] = useState('');
     const [isIntroSupportVisitsSectionExpanded, setIsIntroSupportVisitsSectionExpanded] = useState(true);
 
+    // Queued Support Visit tracking states (زيارات الدعم الفني بقائمة الانتظار for dept2 only)
+    const [queuedSupportVisits, setQueuedSupportVisits] = useState<QueuedSupportVisit[]>([]);
+    const [queuedSupportVisitFormData, setQueuedSupportVisitFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        month: ''
+    });
+    const [editingQueuedSupportVisitId, setEditingQueuedSupportVisitId] = useState<string | null>(null);
+    const [queuedSupportVisitsFilter, setQueuedSupportVisitsFilter] = useState('');
+    const [isQueuedSupportVisitsSectionExpanded, setIsQueuedSupportVisitsSectionExpanded] = useState(true);
+
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
     const [appealsFacilityFormData, setAppealsFacilityFormData] = useState({
@@ -521,6 +532,7 @@ export default function DepartmentPage() {
             loadTechSupportVisits();
             loadRemoteTechnicalSupports();
             loadIntroSupportVisits();
+            loadQueuedSupportVisits();
         }
     }, [id]);
 
@@ -537,6 +549,11 @@ export default function DepartmentPage() {
     const loadIntroSupportVisits = async () => {
         const visits = await getIntroductorySupportVisits();
         setIntroSupportVisits(visits);
+    };
+
+    const loadQueuedSupportVisits = async () => {
+        const visits = await getQueuedSupportVisits();
+        setQueuedSupportVisits(visits);
     };
 
     // Reset to first page when filters change
@@ -7201,6 +7218,299 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Queued Support Visits Section - Dept2 Only */}
+            {id === 'dept2' && (
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                ⏳ زيارات الدعم الفني بقائمة الانتظار خلال شهر {queuedSupportVisitsFilter ? (() => {
+                                    const [year, month] = queuedSupportVisitsFilter.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[parseInt(month) - 1];
+                                })() : '...'} - عدد {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length} زيارة
+                            </h3>
+                            <button
+                                onClick={() => setIsQueuedSupportVisitsSectionExpanded(!isQueuedSupportVisitsSectionExpanded)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--primary-color)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    padding: '0',
+                                    fontFamily: 'inherit',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}
+                            >
+                                {isQueuedSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isQueuedSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        {isQueuedSupportVisitsSectionExpanded && (
+                            <>
+                                {/* Form */}
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    if (!currentUser) return;
+
+                                    const [year, month] = queuedSupportVisitFormData.month.split('-');
+
+                                    if (editingQueuedSupportVisitId) {
+                                        await updateQueuedSupportVisit(editingQueuedSupportVisitId, {
+                                            facilityName: queuedSupportVisitFormData.facilityName,
+                                            governorate: queuedSupportVisitFormData.governorate,
+                                            month: queuedSupportVisitFormData.month,
+                                            year: parseInt(year),
+                                            updatedBy: currentUser.id
+                                        });
+                                    } else {
+                                        await saveQueuedSupportVisit({
+                                            facilityName: queuedSupportVisitFormData.facilityName,
+                                            governorate: queuedSupportVisitFormData.governorate,
+                                            month: queuedSupportVisitFormData.month,
+                                            year: parseInt(year),
+                                            createdBy: currentUser.id,
+                                            updatedBy: currentUser.id
+                                        });
+                                    }
+
+                                    setQueuedSupportVisitFormData({ facilityName: '', governorate: '', month: '' });
+                                    setEditingQueuedSupportVisitId(null);
+                                    await loadQueuedSupportVisits();
+                                }} style={{ marginBottom: '30px' }}>
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                        gap: '15px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={queuedSupportVisitFormData.facilityName}
+                                                onChange={(e) => setQueuedSupportVisitFormData({
+                                                    ...queuedSupportVisitFormData,
+                                                    facilityName: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                المحافظة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={queuedSupportVisitFormData.governorate}
+                                                onChange={(e) => setQueuedSupportVisitFormData({
+                                                    ...queuedSupportVisitFormData,
+                                                    governorate: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الشهر <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="month"
+                                                value={queuedSupportVisitFormData.month}
+                                                onChange={(e) => setQueuedSupportVisitFormData({
+                                                    ...queuedSupportVisitFormData,
+                                                    month: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            padding: '12px 30px',
+                                            backgroundColor: 'var(--primary-color)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {editingQueuedSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                    </button>
+                                    {editingQueuedSupportVisitId && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingQueuedSupportVisitId(null);
+                                                setQueuedSupportVisitFormData({
+                                                    facilityName: '',
+                                                    governorate: '',
+                                                    month: ''
+                                                });
+                                            }}
+                                            style={{
+                                                padding: '12px 30px',
+                                                backgroundColor: '#6c757d',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '1rem',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer',
+                                                marginLeft: '10px'
+                                            }}
+                                        >
+                                            إلغاء التعديل
+                                        </button>
+                                    )}
+                                </form>
+                                {/* Filter and Table */}
+                                <div>
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            value={queuedSupportVisitsFilter}
+                                            onChange={(e) => setQueuedSupportVisitsFilter(e.target.value)}
+                                            className="form-input"
+                                            style={{ maxWidth: '300px' }}
+                                        />
+                                    </div>
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{
+                                            width: '100%',
+                                            borderCollapse: 'collapse',
+                                            backgroundColor: 'white',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {queuedSupportVisits
+                                                    .filter(visit => !queuedSupportVisitsFilter || visit.month === queuedSupportVisitsFilter)
+                                                    .map((visit, index) => (
+                                                        <tr key={visit.id} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                        }}>
+                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setEditingQueuedSupportVisitId(visit.id!);
+                                                                        setQueuedSupportVisitFormData({
+                                                                            facilityName: visit.facilityName,
+                                                                            governorate: visit.governorate,
+                                                                            month: visit.month
+                                                                        });
+                                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#ffc107',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        marginRight: '5px'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
+                                                                            await deleteQueuedSupportVisit(visit.id!);
+                                                                            await loadQueuedSupportVisits();
+                                                                        }
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                            لا يوجد زيارات مسجلة
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {id === 'dept5' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
@@ -9092,6 +9402,7 @@ export default function DepartmentPage() {
                             visits={techSupportVisits}
                             remoteSupports={remoteTechnicalSupports}
                             introductoryVisits={introSupportVisits}
+                            queuedVisits={queuedSupportVisits}
                         />
                     </DashboardModal>
                 )

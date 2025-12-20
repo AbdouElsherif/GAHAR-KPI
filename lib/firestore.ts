@@ -146,6 +146,19 @@ export interface IntroductorySupportVisit {
     updatedBy?: string;
 }
 
+export interface QueuedSupportVisit {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+
 
 export interface AppealsFacility {
     id?: string;
@@ -1871,3 +1884,84 @@ export async function deleteTechnicalClinicalCorrectionRate(id: string): Promise
         return false;
     }
 }
+
+// Queued Support Visit Functions (زيارات الدعم الفني بقائمة الانتظار)
+export async function saveQueuedSupportVisit(
+    visitData: Omit<QueuedSupportVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const visitsRef = collection(db, 'queued_support_visits');
+        const docRef = await addDoc(visitsRef, {
+            ...visitData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving queued support visit:', error);
+        return null;
+    }
+}
+
+export async function getQueuedSupportVisits(month?: string): Promise<QueuedSupportVisit[]> {
+    try {
+        const visitsRef = collection(db, 'queued_support_visits');
+        let q;
+
+        if (month) {
+            q = query(visitsRef, where('month', '==', month));
+        } else {
+            q = query(visitsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let visits = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as QueuedSupportVisit));
+
+        if (month) {
+            visits.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return visits;
+    } catch (error) {
+        console.error('Error getting queued support visits:', error);
+        return [];
+    }
+}
+
+export async function updateQueuedSupportVisit(
+    id: string,
+    updates: Partial<QueuedSupportVisit> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'queued_support_visits', id);
+        await setDoc(visitRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating queued support visit:', error);
+        return false;
+    }
+}
+
+export async function deleteQueuedSupportVisit(id: string): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'queued_support_visits', id);
+        await deleteDoc(visitRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting queued support visit:', error);
+        return false;
+    }
+}
+
