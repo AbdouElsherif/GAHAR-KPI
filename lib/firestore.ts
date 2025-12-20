@@ -131,6 +131,21 @@ export interface RemoteTechnicalSupport {
     updatedBy?: string;
 }
 
+export interface IntroductorySupportVisit {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    visitType: string;
+    affiliatedEntity: string;
+    facilityType: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export interface AppealsFacility {
     id?: string;
@@ -647,6 +662,86 @@ export async function deleteRemoteTechnicalSupport(id: string): Promise<boolean>
         return true;
     } catch (error) {
         console.error('Error deleting remote technical support:', error);
+        return false;
+    }
+}
+
+// Introductory Support Visit Functions (زيارات الدعم الفني التمهيدية)
+export async function saveIntroductorySupportVisit(
+    visitData: Omit<IntroductorySupportVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const visitsRef = collection(db, 'introductory_support_visits');
+        const docRef = await addDoc(visitsRef, {
+            ...visitData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving introductory support visit:', error);
+        return null;
+    }
+}
+
+export async function getIntroductorySupportVisits(month?: string): Promise<IntroductorySupportVisit[]> {
+    try {
+        const visitsRef = collection(db, 'introductory_support_visits');
+        let q;
+
+        if (month) {
+            q = query(visitsRef, where('month', '==', month));
+        } else {
+            q = query(visitsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let visits = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as IntroductorySupportVisit));
+
+        if (month) {
+            visits.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return visits;
+    } catch (error) {
+        console.error('Error getting introductory support visits:', error);
+        return [];
+    }
+}
+
+export async function updateIntroductorySupportVisit(
+    id: string,
+    updates: Partial<IntroductorySupportVisit> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'introductory_support_visits', id);
+        await setDoc(visitRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating introductory support visit:', error);
+        return false;
+    }
+}
+
+export async function deleteIntroductorySupportVisit(id: string): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'introductory_support_visits', id);
+        await deleteDoc(visitRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting introductory support visit:', error);
         return false;
     }
 }

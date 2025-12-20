@@ -26,9 +26,19 @@ interface TechnicalSupportDashboardProps {
         month: string;
         year: number;
     }>;
+    introductoryVisits?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        visitType: string;
+        affiliatedEntity: string;
+        facilityType: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [] }: TechnicalSupportDashboardProps) {
+export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [], introductoryVisits = [] }: TechnicalSupportDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -1172,6 +1182,90 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                                     fontWeight: '500'
                                                 }}>
                                                     {support.facilityType}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Introductory Support Visits Section */}
+            {comparisonType === 'monthly' && introductoryVisits.length > 0 && (() => {
+                const monthlyIntroVisits = introductoryVisits.filter(v => {
+                    const visitMonth = parseInt(v.month.split('-')[1]);
+                    const visitYear = parseInt(v.month.split('-')[0]);
+                    const fiscalYear = visitMonth >= 7 ? visitYear + 1 : visitYear;
+                    return visitMonth === selectedMonth && fiscalYear === targetYear;
+                });
+
+                if (monthlyIntroVisits.length === 0) return null;
+
+                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+                return (
+                    <div style={{
+                        marginTop: '30px',
+                        padding: '25px',
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                    }}>
+                        <h3 style={{
+                            margin: '0 0 20px 0',
+                            color: '#00796b',
+                            fontSize: '1.3rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
+                            زيارات الدعم الفني التمهيدية خلال شهر {monthNames[selectedMonth - 1]} - عدد {monthlyIntroVisits.length} زيارة
+                        </h3>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{
+                                width: '100%',
+                                borderCollapse: 'collapse',
+                                fontSize: '0.95rem'
+                            }}>
+                                <thead>
+                                    <tr style={{
+                                        backgroundColor: '#00796b',
+                                        color: 'white'
+                                    }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الجهة التابعة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع المنشأة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {monthlyIntroVisits.map((visit, index) => (
+                                        <tr key={visit.id || index} style={{
+                                            borderBottom: '1px solid #e0e0e0',
+                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                        }}>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.visitType}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.affiliatedEntity}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>
+                                                <span style={{
+                                                    padding: '4px 12px',
+                                                    backgroundColor: '#e0f2f1',
+                                                    color: '#00695c',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    {visit.facilityType}
                                                 </span>
                                             </td>
                                         </tr>

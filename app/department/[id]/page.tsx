@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -302,6 +302,20 @@ export default function DepartmentPage() {
     const [remoteTechSupportFilter, setRemoteTechSupportFilter] = useState('');
     const [isRemoteTechSupportSectionExpanded, setIsRemoteTechSupportSectionExpanded] = useState(true);
 
+    // Introductory Support Visit tracking states (زيارات الدعم الفني التمهيدية for dept2 only)
+    const [introSupportVisits, setIntroSupportVisits] = useState<IntroductorySupportVisit[]>([]);
+    const [introSupportVisitFormData, setIntroSupportVisitFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        visitType: '',
+        affiliatedEntity: '',
+        facilityType: '',
+        month: ''
+    });
+    const [editingIntroSupportVisitId, setEditingIntroSupportVisitId] = useState<string | null>(null);
+    const [introSupportVisitsFilter, setIntroSupportVisitsFilter] = useState('');
+    const [isIntroSupportVisitsSectionExpanded, setIsIntroSupportVisitsSectionExpanded] = useState(true);
+
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
     const [appealsFacilityFormData, setAppealsFacilityFormData] = useState({
@@ -506,6 +520,7 @@ export default function DepartmentPage() {
         if (id === 'dept2') {
             loadTechSupportVisits();
             loadRemoteTechnicalSupports();
+            loadIntroSupportVisits();
         }
     }, [id]);
 
@@ -517,6 +532,11 @@ export default function DepartmentPage() {
     const loadRemoteTechnicalSupports = async () => {
         const supports = await getRemoteTechnicalSupports();
         setRemoteTechnicalSupports(supports);
+    };
+
+    const loadIntroSupportVisits = async () => {
+        const visits = await getIntroductorySupportVisits();
+        setIntroSupportVisits(visits);
     };
 
     // Reset to first page when filters change
@@ -2786,6 +2806,121 @@ export default function DepartmentPage() {
                 alert('تم حذف الدعم بنجاح');
             } else {
                 alert('حدث خطأ أثناء حذف الدعم');
+            }
+        }
+    };
+
+    // Introductory Support Visit handlers (زيارات الدعم الفني التمهيدية)
+    const handleIntroSupportVisitSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!currentUser) {
+            alert('يجب تسجيل الدخول أولاً');
+            return;
+        }
+
+        if (!canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لإضافة البيانات');
+            return;
+        }
+
+        const { facilityName, governorate, visitType, affiliatedEntity, facilityType, month } = introSupportVisitFormData;
+
+        if (!facilityName || !governorate || !visitType || !affiliatedEntity || !facilityType || !month) {
+            alert('الرجاء ملء جميع الحقول المطلوبة');
+            return;
+        }
+
+        try {
+            const [year] = month.split('-');
+
+            if (editingIntroSupportVisitId) {
+                const success = await updateIntroductorySupportVisit(editingIntroSupportVisitId, {
+                    facilityName,
+                    governorate,
+                    visitType,
+                    affiliatedEntity,
+                    facilityType,
+                    month,
+                    year: parseInt(year),
+                    updatedBy: currentUser.email
+                });
+
+                if (success) {
+                    setEditingIntroSupportVisitId(null);
+                    setIntroSupportVisitFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        affiliatedEntity: '',
+                        facilityType: '',
+                        month: ''
+                    });
+                    await loadIntroSupportVisits();
+                    alert('تم تحديث الزيارة بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء تحديث الزيارة');
+                }
+            } else {
+                const visitId = await saveIntroductorySupportVisit({
+                    facilityName,
+                    governorate,
+                    visitType,
+                    affiliatedEntity,
+                    facilityType,
+                    month,
+                    year: parseInt(year),
+                    createdBy: currentUser.email,
+                    updatedBy: currentUser.email
+                });
+
+                if (visitId) {
+                    setIntroSupportVisitFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        affiliatedEntity: '',
+                        facilityType: '',
+                        month: ''
+                    });
+                    await loadIntroSupportVisits();
+                    alert('تمت إضافة الزيارة بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء حفظ الزيارة');
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء حفظ البيانات');
+        }
+    };
+
+    const handleEditIntroSupportVisit = (visit: IntroductorySupportVisit) => {
+        setIntroSupportVisitFormData({
+            facilityName: visit.facilityName,
+            governorate: visit.governorate,
+            visitType: visit.visitType,
+            affiliatedEntity: visit.affiliatedEntity,
+            facilityType: visit.facilityType,
+            month: visit.month
+        });
+        setEditingIntroSupportVisitId(visit.id || null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteIntroSupportVisit = async (visitId: string) => {
+        if (!currentUser || !canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لحذف البيانات');
+            return;
+        }
+
+        if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
+            const success = await deleteIntroductorySupportVisit(visitId);
+            if (success) {
+                await loadIntroSupportVisits();
+                alert('تم حذف الزيارة بنجاح');
+            } else {
+                alert('حدث خطأ أثناء حذف الزيارة');
             }
         }
     };
@@ -6753,6 +6888,319 @@ export default function DepartmentPage() {
                     </div>
                 </div>
             )}
+
+            {/* Introductory Support Visits Section - Dept2 Only */}
+            {id === 'dept2' && (
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                🎯 زيارات الدعم الفني التمهيدية خلال شهر {introSupportVisitsFilter ? (() => {
+                                    const [year, month] = introSupportVisitsFilter.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[parseInt(month) - 1];
+                                })() : '...'} - عدد {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length} زيارة
+                            </h3>
+                            <button
+                                onClick={() => setIsIntroSupportVisitsSectionExpanded(!isIntroSupportVisitsSectionExpanded)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--primary-color)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    padding: '0',
+                                    fontFamily: 'inherit',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}
+                            >
+                                {isIntroSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isIntroSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        {isIntroSupportVisitsSectionExpanded && (
+                            <>
+                                {/* Form */}
+                                <form onSubmit={handleIntroSupportVisitSubmit} style={{ marginBottom: '30px' }}>
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                        gap: '15px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={introSupportVisitFormData.facilityName}
+                                                onChange={(e) => setIntroSupportVisitFormData({
+                                                    ...introSupportVisitFormData,
+                                                    facilityName: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                المحافظة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={introSupportVisitFormData.governorate}
+                                                onChange={(e) => setIntroSupportVisitFormData({
+                                                    ...introSupportVisitFormData,
+                                                    governorate: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={introSupportVisitFormData.visitType}
+                                                onChange={(e) => setIntroSupportVisitFormData({
+                                                    ...introSupportVisitFormData,
+                                                    visitType: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                                placeholder="مثال: دعم فني تمهيدي"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={introSupportVisitFormData.affiliatedEntity}
+                                                onChange={(e) => setIntroSupportVisitFormData({
+                                                    ...introSupportVisitFormData,
+                                                    affiliatedEntity: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                                placeholder="مثال: وزارة الصحة"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={introSupportVisitFormData.facilityType}
+                                                onChange={(e) => setIntroSupportVisitFormData({
+                                                    ...introSupportVisitFormData,
+                                                    facilityType: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر نوع المنشأة</option>
+                                                {techSupportFacilityTypes.map(type => (
+                                                    <option key={type} value={type}>{type}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الشهر <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="month"
+                                                value={introSupportVisitFormData.month}
+                                                onChange={(e) => setIntroSupportVisitFormData({
+                                                    ...introSupportVisitFormData,
+                                                    month: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            padding: '12px 30px',
+                                            backgroundColor: 'var(--primary-color)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {editingIntroSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                    </button>
+                                    {editingIntroSupportVisitId && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingIntroSupportVisitId(null);
+                                                setIntroSupportVisitFormData({
+                                                    facilityName: '',
+                                                    governorate: '',
+                                                    visitType: '',
+                                                    affiliatedEntity: '',
+                                                    facilityType: '',
+                                                    month: ''
+                                                });
+                                            }}
+                                            style={{
+                                                padding: '12px 30px',
+                                                backgroundColor: '#6c757d',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '1rem',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer',
+                                                marginLeft: '10px'
+                                            }}
+                                        >
+                                            إلغاء التعديل
+                                        </button>
+                                    )}
+                                </form>
+                                {/* Filter and Table */}
+                                <div>
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            value={introSupportVisitsFilter}
+                                            onChange={(e) => setIntroSupportVisitsFilter(e.target.value)}
+                                            className="form-input"
+                                            style={{ maxWidth: '300px' }}
+                                        />
+                                    </div>
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{
+                                            width: '100%',
+                                            borderCollapse: 'collapse',
+                                            backgroundColor: 'white',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {introSupportVisits
+                                                    .filter(visit => !introSupportVisitsFilter || visit.month === introSupportVisitsFilter)
+                                                    .map((visit, index) => (
+                                                        <tr key={visit.id} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                        }}>
+                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.visitType}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.affiliatedEntity}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditIntroSupportVisit(visit)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#ffc107',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        marginRight: '5px'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteIntroSupportVisit(visit.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                            لا يوجد زيارات مسجلة
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {id === 'dept5' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
@@ -8643,6 +9091,7 @@ export default function DepartmentPage() {
                             submissions={submissions}
                             visits={techSupportVisits}
                             remoteSupports={remoteTechnicalSupports}
+                            introductoryVisits={introSupportVisits}
                         />
                     </DashboardModal>
                 )
