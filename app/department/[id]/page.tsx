@@ -9198,7 +9198,14 @@ export default function DepartmentPage() {
                         onClick={() => setIsScheduledSupportVisitsSectionExpanded(!isScheduledSupportVisitsSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            📅 زيارات الدعم الفني المجدولة في شهر .... - عدد {scheduledSupportVisits.length} زيارة
+                            📅 زيارات الدعم الفني المجدولة في شهر {(() => {
+                                if (scheduledSupportVisitsFilter) {
+                                    const [year, month] = scheduledSupportVisitsFilter.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....';
+                            })()} - عدد {scheduledSupportVisits.length} زيارة
                         </h2>
                         <div style={{
                             display: 'flex',
