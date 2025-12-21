@@ -172,6 +172,23 @@ export interface ScheduledSupportVisit {
     updatedBy?: string;
 }
 
+// Accredited Supported Facilities (المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم)
+export interface AccreditedSupportedFacility {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    decisionNumber: string;
+    decisionDate: string;
+    supportType: string;
+    accreditationStatus: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export interface AppealsFacility {
     id?: string;
     facilityType: string;
@@ -847,6 +864,87 @@ export async function deleteScheduledSupportVisit(id: string): Promise<boolean> 
         return true;
     } catch (error) {
         console.error('Error deleting scheduled support visit:', error);
+        return false;
+    }
+}
+
+// ==================== Accredited Supported Facilities Functions ====================
+
+export async function saveAccreditedSupportedFacility(
+    facilityData: Omit<AccreditedSupportedFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'accredited_supported_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...facilityData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving accredited supported facility:', error);
+        return null;
+    }
+}
+
+export async function getAccreditedSupportedFacilities(month?: string): Promise<AccreditedSupportedFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'accredited_supported_facilities');
+        let q;
+
+        if (month) {
+            q = query(facilitiesRef, where('month', '==', month));
+        } else {
+            q = query(facilitiesRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as AccreditedSupportedFacility));
+
+        if (month) {
+            facilities.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting accredited supported facilities:', error);
+        return [];
+    }
+}
+
+export async function updateAccreditedSupportedFacility(
+    id: string,
+    updates: Partial<Omit<AccreditedSupportedFacility, 'id' | 'createdAt'>> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'accredited_supported_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating accredited supported facility:', error);
+        return false;
+    }
+}
+
+export async function deleteAccreditedSupportedFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'accredited_supported_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting accredited supported facility:', error);
         return false;
     }
 }

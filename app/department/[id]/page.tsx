@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -339,6 +339,21 @@ export default function DepartmentPage() {
     const [scheduledSupportVisitsFilter, setScheduledSupportVisitsFilter] = useState('');
     const [isScheduledSupportVisitsSectionExpanded, setIsScheduledSupportVisitsSectionExpanded] = useState(false);
 
+    // Accredited Supported Facilities states (for dept2 only)
+    const [accreditedSupportedFacilities, setAccreditedSupportedFacilities] = useState<AccreditedSupportedFacility[]>([]);
+    const [accreditedSupportedFacilityFormData, setAccreditedSupportedFacilityFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        decisionNumber: '',
+        decisionDate: '',
+        supportType: '',
+        accreditationStatus: '',
+        month: ''
+    });
+    const [editingAccreditedSupportedFacilityId, setEditingAccreditedSupportedFacilityId] = useState<string | null>(null);
+    const [accreditedSupportedFacilitiesFilter, setAccreditedSupportedFacilitiesFilter] = useState('');
+    const [isAccreditedSupportedFacilitiesSectionExpanded, setIsAccreditedSupportedFacilitiesSectionExpanded] = useState(false);
+
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
     const [appealsFacilityFormData, setAppealsFacilityFormData] = useState({
@@ -546,6 +561,7 @@ export default function DepartmentPage() {
             loadIntroSupportVisits();
             loadQueuedSupportVisits();
             loadScheduledSupportVisits();
+            loadAccreditedSupportedFacilities();
         }
     }, [id]);
 
@@ -679,6 +695,13 @@ export default function DepartmentPage() {
             loadScheduledSupportVisits();
         }
     }, [id, currentUser, scheduledSupportVisitsFilter]);
+
+    // Load Accredited Supported Facilities when filter changes (for dept2)
+    useEffect(() => {
+        if (id === 'dept2' && currentUser) {
+            loadAccreditedSupportedFacilities();
+        }
+    }, [id, currentUser, accreditedSupportedFacilitiesFilter]);
 
     const loadFacilities = async () => {
 
@@ -3068,6 +3091,107 @@ export default function DepartmentPage() {
                 alert('تم حذف الزيارة المجدولة بنجاح');
             } else {
                 alert('حدث خطأ أثناء حذف الزيارة المجدولة');
+            }
+        }
+    };
+
+    // ==================== Accredited Supported Facilities Handlers (for dept2 only) ====================
+
+    const loadAccreditedSupportedFacilities = async () => {
+        if (id === 'dept2') {
+            const facilities = await getAccreditedSupportedFacilities(accreditedSupportedFacilitiesFilter || undefined);
+            setAccreditedSupportedFacilities(facilities);
+        }
+    };
+
+    const handleAccreditedSupportedFacilitySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!currentUser || !canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لإضافة البيانات');
+            return;
+        }
+
+        const [year, month] = accreditedSupportedFacilityFormData.month.split('-');
+
+        const facilityData = {
+            facilityName: accreditedSupportedFacilityFormData.facilityName,
+            governorate: accreditedSupportedFacilityFormData.governorate,
+            decisionNumber: accreditedSupportedFacilityFormData.decisionNumber,
+            decisionDate: accreditedSupportedFacilityFormData.decisionDate,
+            supportType: accreditedSupportedFacilityFormData.supportType,
+            accreditationStatus: accreditedSupportedFacilityFormData.accreditationStatus,
+            month: accreditedSupportedFacilityFormData.month,
+            year: parseInt(year),
+            createdBy: currentUser.email || '',
+            updatedBy: currentUser.email || ''
+        };
+
+        if (editingAccreditedSupportedFacilityId) {
+            const success = await updateAccreditedSupportedFacility(editingAccreditedSupportedFacilityId, facilityData);
+            if (success) {
+                await loadAccreditedSupportedFacilities();
+                setAccreditedSupportedFacilityFormData({
+                    facilityName: '',
+                    governorate: '',
+                    decisionNumber: '',
+                    decisionDate: '',
+                    supportType: '',
+                    accreditationStatus: '',
+                    month: ''
+                });
+                setEditingAccreditedSupportedFacilityId(null);
+                alert('تم تحديث المنشأة بنجاح');
+            } else {
+                alert('حدث خطأ أثناء تحديث المنشأة');
+            }
+        } else {
+            const facilityId = await saveAccreditedSupportedFacility(facilityData);
+            if (facilityId) {
+                await loadAccreditedSupportedFacilities();
+                setAccreditedSupportedFacilityFormData({
+                    facilityName: '',
+                    governorate: '',
+                    decisionNumber: '',
+                    decisionDate: '',
+                    supportType: '',
+                    accreditationStatus: '',
+                    month: ''
+                });
+                alert('تم إضافة المنشأة بنجاح');
+            } else {
+                alert('حدث خطأ أثناء إضافة المنشأة');
+            }
+        }
+    };
+
+    const handleEditAccreditedSupportedFacility = (facility: AccreditedSupportedFacility) => {
+        setAccreditedSupportedFacilityFormData({
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            decisionNumber: facility.decisionNumber,
+            decisionDate: facility.decisionDate,
+            supportType: facility.supportType,
+            accreditationStatus: facility.accreditationStatus,
+            month: facility.month
+        });
+        setEditingAccreditedSupportedFacilityId(facility.id || null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteAccreditedSupportedFacility = async (facilityId: string) => {
+        if (!currentUser || !canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لحذف البيانات');
+            return;
+        }
+
+        if (confirm('هل أنت متأكد من حذف هذه المنشأة؟')) {
+            const success = await deleteAccreditedSupportedFacility(facilityId);
+            if (success) {
+                await loadAccreditedSupportedFacilities();
+                alert('تم حذف المنشأة بنجاح');
+            } else {
+                alert('حدث خطأ أثناء حذف المنشأة');
             }
         }
     };
@@ -9412,6 +9536,255 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Accredited Supported Facilities Section - المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم (for dept2 only) */}
+            {id === 'dept2' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isAccreditedSupportedFacilitiesSectionExpanded ? '20px' : '0',
+                            paddingBottom: isAccreditedSupportedFacilitiesSectionExpanded ? '15px' : '0',
+                            borderBottom: isAccreditedSupportedFacilitiesSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsAccreditedSupportedFacilitiesSectionExpanded(!isAccreditedSupportedFacilitiesSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم خلال شهر {(() => {
+                                if (accreditedSupportedFacilitiesFilter) {
+                                    const [year, month] = accreditedSupportedFacilitiesFilter.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....';
+                            })()} - عدد {accreditedSupportedFacilities.length} منشأة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isAccreditedSupportedFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isAccreditedSupportedFacilitiesSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isAccreditedSupportedFacilitiesSectionExpanded && (
+                        <>
+                            {/* Form - Only for users with edit permission */}
+                            {userCanEdit && (
+                                <form onSubmit={handleAccreditedSupportedFacilitySubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                    <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                        {editingAccreditedSupportedFacilityId ? 'تعديل منشأة معتمدة' : 'إضافة منشأة معتمدة جديدة'}
+                                    </h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+                                        <div className="form-group">
+                                            <label className="form-label">اسم المنشأة *</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.facilityName}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, facilityName: e.target.value })}
+                                                placeholder="أدخل اسم المنشأة"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">المحافظة *</label>
+                                            <select
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.governorate}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, governorate: e.target.value })}
+                                                required
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">رقم القرار *</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.decisionNumber}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, decisionNumber: e.target.value })}
+                                                placeholder="أدخل رقم القرار"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">تاريخ القرار *</label>
+                                            <input
+                                                type="date"
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.decisionDate}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, decisionDate: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">نوع الدعم المقدم للمنشأة *</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.supportType}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, supportType: e.target.value })}
+                                                placeholder="أدخل نوع الدعم المقدم"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">موقف المنشأة من الاعتماد *</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.accreditationStatus}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, accreditationStatus: e.target.value })}
+                                                placeholder="أدخل موقف المنشأة من الاعتماد"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">الشهر *</label>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={accreditedSupportedFacilityFormData.month}
+                                                onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, month: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                        <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            {editingAccreditedSupportedFacilityId ? 'تحديث المنشأة' : 'إضافة المنشأة'}
+                                        </button>
+                                        {editingAccreditedSupportedFacilityId && (
+                                            <button
+                                                type="button"
+                                                className="btn"
+                                                style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                onClick={() => {
+                                                    setEditingAccreditedSupportedFacilityId(null);
+                                                    setAccreditedSupportedFacilityFormData({
+                                                        facilityName: '',
+                                                        governorate: '',
+                                                        decisionNumber: '',
+                                                        decisionDate: '',
+                                                        supportType: '',
+                                                        accreditationStatus: '',
+                                                        month: ''
+                                                    });
+                                                }}
+                                            >
+                                                إلغاء التعديل
+                                            </button>
+                                        )}
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* Filter */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input
+                                        type="month"
+                                        className="form-input"
+                                        value={accreditedSupportedFacilitiesFilter}
+                                        onChange={(e) => setAccreditedSupportedFacilitiesFilter(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Table */}
+                            <div style={{ overflowX: 'auto' }}>
+                                {accreditedSupportedFacilities.length === 0 ? (
+                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🏥</div>
+                                        لا توجد منشآت معتمدة
+                                    </div>
+                                ) : (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>رقم القرار</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>تاريخ القرار</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>نوع الدعم</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>موقف الاعتماد</th>
+                                                {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {accreditedSupportedFacilities.map((facility, index) => (
+                                                <tr key={facility.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'right' }}>{facility.facilityName}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.decisionNumber}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.decisionDate}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.supportType}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.accreditationStatus}</td>
+                                                    {userCanEdit && (
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditAccreditedSupportedFacility(facility)}
+                                                                    style={{
+                                                                        padding: '5px 10px',
+                                                                        backgroundColor: 'var(--primary-color)',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteAccreditedSupportedFacility(facility.id!)}
+                                                                    style={{
+                                                                        padding: '5px 10px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '0.85rem'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {
                 submissions.length > 0 && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -9764,6 +10137,7 @@ export default function DepartmentPage() {
                             introductoryVisits={introSupportVisits}
                             queuedVisits={queuedSupportVisits}
                             scheduledVisits={scheduledSupportVisits}
+                            accreditedSupportedFacilities={accreditedSupportedFacilities}
                         />
                     </DashboardModal>
                 )

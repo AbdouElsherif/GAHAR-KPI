@@ -51,9 +51,20 @@ interface TechnicalSupportDashboardProps {
         month: string;
         year: number;
     }>;
+    accreditedSupportedFacilities?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        decisionNumber: string;
+        decisionDate: string;
+        supportType: string;
+        accreditationStatus: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [], introductoryVisits = [], queuedVisits = [], scheduledVisits = [] }: TechnicalSupportDashboardProps) {
+export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [], introductoryVisits = [], queuedVisits = [], scheduledVisits = [], accreditedSupportedFacilities = [] }: TechnicalSupportDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -1416,6 +1427,86 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                                     fontWeight: '500'
                                                 }}>
                                                     {visit.visitType}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Accredited Supported Facilities Section */}
+            {comparisonType === 'monthly' && accreditedSupportedFacilities.length > 0 && (() => {
+                const monthlyAccreditedFacilities = accreditedSupportedFacilities.filter(facility => {
+                    const facilityMonth = parseInt(facility.month.split('-')[1]);
+                    const facilityYear = parseInt(facility.month.split('-')[0]);
+                    const fiscalYear = facilityMonth >= 7 ? facilityYear + 1 : facilityYear;
+                    return facilityMonth === selectedMonth && fiscalYear === targetYear;
+                });
+
+                if (monthlyAccreditedFacilities.length === 0) return null;
+
+                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+                return (
+                    <div style={{ marginTop: '40px' }}>
+                        <h3 style={{
+                            fontSize: '1.4rem',
+                            fontWeight: 'bold',
+                            color: '#198754',
+                            marginBottom: '20px',
+                            padding: '15px',
+                            backgroundColor: '#d1e7dd',
+                            borderRadius: '8px',
+                            borderRight: '4px solid #198754'
+                        }}>
+                            🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم - {monthNames[selectedMonth - 1]} {targetYear} ({monthlyAccreditedFacilities.length} منشأة)
+                        </h3>
+
+                        <div style={{
+                            backgroundColor: 'white',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            overflowX: 'auto'
+                        }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#198754', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>رقم القرار</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>تاريخ القرار</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الدعم</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>موقف الاعتماد</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {monthlyAccreditedFacilities.map((facility, index) => (
+                                        <tr key={facility.id || index} style={{
+                                            borderBottom: '1px solid #e0e0e0',
+                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                        }}>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{facility.facilityName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.governorate}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.decisionNumber}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.decisionDate}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.supportType}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>
+                                                <span style={{
+                                                    padding: '4px 12px',
+                                                    backgroundColor: '#d1e7dd',
+                                                    color: '#198754',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    {facility.accreditationStatus}
                                                 </span>
                                             </td>
                                         </tr>
