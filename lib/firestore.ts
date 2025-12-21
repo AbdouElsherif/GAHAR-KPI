@@ -158,7 +158,19 @@ export interface QueuedSupportVisit {
     updatedBy?: string;
 }
 
-
+// Scheduled Support Visits (زيارات الدعم الفني المجدولة في شهر ....)
+export interface ScheduledSupportVisit {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    visitType: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
 
 export interface AppealsFacility {
     id?: string;
@@ -755,6 +767,86 @@ export async function deleteIntroductorySupportVisit(id: string): Promise<boolea
         return true;
     } catch (error) {
         console.error('Error deleting introductory support visit:', error);
+        return false;
+    }
+}
+
+// Scheduled Support Visit Functions (زيارات الدعم الفني المجدولة في شهر ....)
+export async function saveScheduledSupportVisit(
+    visitData: Omit<ScheduledSupportVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const visitsRef = collection(db, 'scheduled_support_visits');
+        const docRef = await addDoc(visitsRef, {
+            ...visitData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving scheduled support visit:', error);
+        return null;
+    }
+}
+
+export async function getScheduledSupportVisits(month?: string): Promise<ScheduledSupportVisit[]> {
+    try {
+        const visitsRef = collection(db, 'scheduled_support_visits');
+        let q;
+
+        if (month) {
+            q = query(visitsRef, where('month', '==', month));
+        } else {
+            q = query(visitsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let visits = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as ScheduledSupportVisit));
+
+        if (month) {
+            visits.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return visits;
+    } catch (error) {
+        console.error('Error getting scheduled support visits:', error);
+        return [];
+    }
+}
+
+export async function updateScheduledSupportVisit(
+    id: string,
+    updates: Partial<ScheduledSupportVisit> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'scheduled_support_visits', id);
+        await setDoc(visitRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating scheduled support visit:', error);
+        return false;
+    }
+}
+
+export async function deleteScheduledSupportVisit(id: string): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'scheduled_support_visits', id);
+        await deleteDoc(visitRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting scheduled support visit:', error);
         return false;
     }
 }

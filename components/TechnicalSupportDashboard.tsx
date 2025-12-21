@@ -43,9 +43,17 @@ interface TechnicalSupportDashboardProps {
         month: string;
         year: number;
     }>;
+    scheduledVisits?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        visitType: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [], introductoryVisits = [], queuedVisits = [] }: TechnicalSupportDashboardProps) {
+export default function TechnicalSupportDashboard({ submissions, visits = [], remoteSupports = [], introductoryVisits = [], queuedVisits = [], scheduledVisits = [] }: TechnicalSupportDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -1336,6 +1344,80 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                             <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
                                             <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
                                             <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            })()}
+
+            {/* Scheduled Support Visits Section */}
+            {comparisonType === 'monthly' && scheduledVisits.length > 0 && (() => {
+                const monthlyScheduledVisits = scheduledVisits.filter(v => {
+                    const visitMonth = parseInt(v.month.split('-')[1]);
+                    const visitYear = parseInt(v.month.split('-')[0]);
+                    const fiscalYear = visitMonth >= 7 ? visitYear + 1 : visitYear;
+                    return visitMonth === selectedMonth && fiscalYear === targetYear;
+                });
+
+                if (monthlyScheduledVisits.length === 0) return null;
+
+                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+                return (
+                    <div style={{ marginTop: '40px' }}>
+                        <h3 style={{
+                            fontSize: '1.4rem',
+                            fontWeight: 'bold',
+                            color: '#1976d2',
+                            marginBottom: '20px',
+                            padding: '15px',
+                            backgroundColor: '#e3f2fd',
+                            borderRadius: '8px',
+                            borderRight: '4px solid #1976d2'
+                        }}>
+                            📅 زيارات الدعم الفني المجدولة في شهر {monthNames[selectedMonth - 1]} {targetYear} ({monthlyScheduledVisits.length} زيارة)
+                        </h3>
+
+                        <div style={{
+                            backgroundColor: 'white',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            overflowX: 'auto'
+                        }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#1976d2', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {monthlyScheduledVisits.map((visit, index) => (
+                                        <tr key={visit.id || index} style={{
+                                            borderBottom: '1px solid #e0e0e0',
+                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                        }}>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>
+                                                <span style={{
+                                                    padding: '4px 12px',
+                                                    backgroundColor: '#e3f2fd',
+                                                    color: '#1976d2',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    {visit.visitType}
+                                                </span>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

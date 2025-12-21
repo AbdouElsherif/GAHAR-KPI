@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -327,6 +327,18 @@ export default function DepartmentPage() {
     const [queuedSupportVisitsFilter, setQueuedSupportVisitsFilter] = useState('');
     const [isQueuedSupportVisitsSectionExpanded, setIsQueuedSupportVisitsSectionExpanded] = useState(false);
 
+    // Scheduled Support Visit tracking states (زيارات الدعم الفني المجدولة في شهر .... for dept2 only)
+    const [scheduledSupportVisits, setScheduledSupportVisits] = useState<ScheduledSupportVisit[]>([]);
+    const [scheduledSupportVisitFormData, setScheduledSupportVisitFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        visitType: '',
+        month: ''
+    });
+    const [editingScheduledSupportVisitId, setEditingScheduledSupportVisitId] = useState<string | null>(null);
+    const [scheduledSupportVisitsFilter, setScheduledSupportVisitsFilter] = useState('');
+    const [isScheduledSupportVisitsSectionExpanded, setIsScheduledSupportVisitsSectionExpanded] = useState(false);
+
     // Appeals Facilities tracking states (for dept6 only)
     const [appealsFacilities, setAppealsFacilities] = useState<AppealsFacility[]>([]);
     const [appealsFacilityFormData, setAppealsFacilityFormData] = useState({
@@ -533,6 +545,7 @@ export default function DepartmentPage() {
             loadRemoteTechnicalSupports();
             loadIntroSupportVisits();
             loadQueuedSupportVisits();
+            loadScheduledSupportVisits();
         }
     }, [id]);
 
@@ -659,6 +672,13 @@ export default function DepartmentPage() {
             loadTcCorrectionRates();
         }
     }, [id, currentUser, tcCorrectionRateFilterMonth]);
+
+    // Load Scheduled Support Visits when filter changes (for dept2)
+    useEffect(() => {
+        if (id === 'dept2' && currentUser) {
+            loadScheduledSupportVisits();
+        }
+    }, [id, currentUser, scheduledSupportVisitsFilter]);
 
     const loadFacilities = async () => {
 
@@ -2938,6 +2958,116 @@ export default function DepartmentPage() {
                 alert('تم حذف الزيارة بنجاح');
             } else {
                 alert('حدث خطأ أثناء حذف الزيارة');
+            }
+        }
+    };
+
+    // Scheduled Support Visit handlers (زيارات الدعم الفني المجدولة في شهر ....)
+    const loadScheduledSupportVisits = async () => {
+        const visits = await getScheduledSupportVisits(scheduledSupportVisitsFilter || undefined);
+        setScheduledSupportVisits(visits);
+    };
+
+    const handleScheduledSupportVisitSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!currentUser) {
+            alert('يجب تسجيل الدخول أولاً');
+            return;
+        }
+
+        if (!canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لإضافة البيانات');
+            return;
+        }
+
+        const { facilityName, governorate, visitType, month } = scheduledSupportVisitFormData;
+
+        if (!facilityName || !governorate || !visitType || !month) {
+            alert('الرجاء ملء جميع الحقول المطلوبة');
+            return;
+        }
+
+        try {
+            const [year] = month.split('-');
+
+            if (editingScheduledSupportVisitId) {
+                const success = await updateScheduledSupportVisit(editingScheduledSupportVisitId, {
+                    facilityName,
+                    governorate,
+                    visitType,
+                    month,
+                    year: parseInt(year),
+                    updatedBy: currentUser.email
+                });
+
+                if (success) {
+                    setEditingScheduledSupportVisitId(null);
+                    setScheduledSupportVisitFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        month: ''
+                    });
+                    await loadScheduledSupportVisits();
+                    alert('تم تحديث الزيارة المجدولة بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء تحديث الزيارة المجدولة');
+                }
+            } else {
+                const visitId = await saveScheduledSupportVisit({
+                    facilityName,
+                    governorate,
+                    visitType,
+                    month,
+                    year: parseInt(year),
+                    createdBy: currentUser.email,
+                    updatedBy: currentUser.email
+                });
+
+                if (visitId) {
+                    setScheduledSupportVisitFormData({
+                        facilityName: '',
+                        governorate: '',
+                        visitType: '',
+                        month: ''
+                    });
+                    await loadScheduledSupportVisits();
+                    alert('تمت إضافة الزيارة المجدولة بنجاح');
+                } else {
+                    alert('حدث خطأ أثناء حفظ الزيارة المجدولة');
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء حفظ البيانات');
+        }
+    };
+
+    const handleEditScheduledSupportVisit = (visit: ScheduledSupportVisit) => {
+        setScheduledSupportVisitFormData({
+            facilityName: visit.facilityName,
+            governorate: visit.governorate,
+            visitType: visit.visitType,
+            month: visit.month
+        });
+        setEditingScheduledSupportVisitId(visit.id || null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteScheduledSupportVisit = async (visitId: string) => {
+        if (!currentUser || !canEdit(currentUser)) {
+            alert('ليس لديك صلاحية لحذف البيانات');
+            return;
+        }
+
+        if (confirm('هل أنت متأكد من حذف هذه الزيارة المجدولة؟')) {
+            const success = await deleteScheduledSupportVisit(visitId);
+            if (success) {
+                await loadScheduledSupportVisits();
+                alert('تم حذف الزيارة المجدولة بنجاح');
+            } else {
+                alert('حدث خطأ أثناء حذف الزيارة المجدولة');
             }
         }
     };
@@ -9051,6 +9181,229 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Scheduled Support Visits Section - زيارات الدعم الفني المجدولة في شهر .... (for dept2 only) */}
+            {id === 'dept2' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isScheduledSupportVisitsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isScheduledSupportVisitsSectionExpanded ? '15px' : '0',
+                            borderBottom: isScheduledSupportVisitsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsScheduledSupportVisitsSectionExpanded(!isScheduledSupportVisitsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📅 زيارات الدعم الفني المجدولة في شهر .... - عدد {scheduledSupportVisits.length} زيارة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isScheduledSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isScheduledSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isScheduledSupportVisitsSectionExpanded && (
+                        <>
+                            {/* Form - Only for users with edit permission */}
+                            {userCanEdit && (
+                                <form onSubmit={handleScheduledSupportVisitSubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                    <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                        {editingScheduledSupportVisitId ? 'تعديل زيارة مجدولة' : 'إضافة زيارة مجدولة جديدة'}
+                                    </h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+                                        <div className="form-group">
+                                            <label className="form-label">اسم المنشأة *</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={scheduledSupportVisitFormData.facilityName}
+                                                onChange={(e) => setScheduledSupportVisitFormData({ ...scheduledSupportVisitFormData, facilityName: e.target.value })}
+                                                placeholder="أدخل اسم المنشأة"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">المحافظة *</label>
+                                            <select
+                                                className="form-input"
+                                                value={scheduledSupportVisitFormData.governorate}
+                                                onChange={(e) => setScheduledSupportVisitFormData({ ...scheduledSupportVisitFormData, governorate: e.target.value })}
+                                                required
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">نوع الزيارة *</label>
+                                            <select
+                                                className="form-input"
+                                                value={scheduledSupportVisitFormData.visitType}
+                                                onChange={(e) => setScheduledSupportVisitFormData({ ...scheduledSupportVisitFormData, visitType: e.target.value })}
+                                                required
+                                            >
+                                                <option value="">اختر نوع الزيارة</option>
+                                                <option value="زيارة ميدانية أساسية">زيارة ميدانية أساسية</option>
+                                                <option value="زيارة ميدانية متابعة">زيارة ميدانية متابعة</option>
+                                                <option value="زيارة ميدانية (ورشة عمل)">زيارة ميدانية (ورشة عمل)</option>
+                                                <option value="زيارة ميدانية (مراجعة وثائق)">زيارة ميدانية (مراجعة وثائق)</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">الشهر *</label>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={scheduledSupportVisitFormData.month}
+                                                onChange={(e) => setScheduledSupportVisitFormData({ ...scheduledSupportVisitFormData, month: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                        <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            {editingScheduledSupportVisitId ? 'تحديث الزيارة' : 'إضافة الزيارة'}
+                                        </button>
+                                        {editingScheduledSupportVisitId && (
+                                            <button
+                                                type="button"
+                                                className="btn"
+                                                style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                onClick={() => {
+                                                    setEditingScheduledSupportVisitId(null);
+                                                    setScheduledSupportVisitFormData({
+                                                        facilityName: '',
+                                                        governorate: '',
+                                                        visitType: '',
+                                                        month: ''
+                                                    });
+                                                }}
+                                            >
+                                                إلغاء التعديل
+                                            </button>
+                                        )}
+                                    </div>
+                                </form>
+                            )}
+
+                            {/* Filter */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input
+                                        type="month"
+                                        className="form-input"
+                                        value={scheduledSupportVisitsFilter}
+                                        onChange={(e) => setScheduledSupportVisitsFilter(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Table */}
+                            <div style={{ overflowX: 'auto' }}>
+                                {scheduledSupportVisits.length === 0 ? (
+                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📅</div>
+                                        لا توجد زيارات مجدولة
+                                    </div>
+                                ) : (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>نوع الزيارة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {scheduledSupportVisits.map((visit, index) => {
+                                                const [year, month] = visit.month.split('-');
+                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                const monthName = monthNames[parseInt(month) - 1];
+
+                                                return (
+                                                    <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'right' }}>{visit.facilityName}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{visit.governorate}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '4px 12px',
+                                                                borderRadius: '12px',
+                                                                backgroundColor: '#e3f2fd',
+                                                                color: '#1976d2',
+                                                                fontSize: '0.85rem',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                {visit.visitType}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{monthName} {year}</td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditScheduledSupportVisit(visit)}
+                                                                        style={{
+                                                                            padding: '5px 10px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteScheduledSupportVisit(visit.id!)}
+                                                                        style={{
+                                                                            padding: '5px 10px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
 
             {
                 submissions.length > 0 && (
@@ -9403,6 +9756,7 @@ export default function DepartmentPage() {
                             remoteSupports={remoteTechnicalSupports}
                             introductoryVisits={introSupportVisits}
                             queuedVisits={queuedSupportVisits}
+                            scheduledVisits={scheduledSupportVisits}
                         />
                     </DashboardModal>
                 )
