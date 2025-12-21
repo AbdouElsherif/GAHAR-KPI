@@ -19,6 +19,7 @@ import TechnicalClinicalDashboard from '@/components/TechnicalClinicalDashboard'
 import AdminAuditDashboard from '@/components/AdminAuditDashboard';
 import AccreditationDashboard from '@/components/AccreditationDashboard';
 import MedicalProfessionalsDashboard from '@/components/MedicalProfessionalsDashboard';
+import ReviewersDashboard from '@/components/ReviewersDashboard';
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -29,6 +30,7 @@ const departments: Record<string, string> = {
     'dept6': 'الإدارة العامة للاعتماد والتسجيل',
     'dept7': 'الإدارة العامة لتسجيل أعضاء المهن الطبية',
     'dept8': 'الإدارة العامة لأبحاث وتطوير المعايير',
+    'dept9': 'الإدارة العامة لشئون المراجعين',
 };
 
 interface Field {
@@ -139,6 +141,22 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
+    'dept9': [
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
+        { name: 'totalEvaluationVisits', label: 'إجمالي الزيارات التقييمية', type: 'number' },
+        { name: 'evaluationDays', label: 'عدد أيام التقييم', type: 'number' },
+        { name: 'visitsToInsuranceGovernorate', label: 'عدد الزيارات لمحافظات التأمين الصحي الشامل', type: 'number' },
+        { name: 'visitsToGovFacilities', label: 'عدد الزيارات للمنشآت الحكومية', type: 'number' },
+        { name: 'visitsToPrivateFacilities', label: 'عدد الزيارات لمنشآت القطاع الخاص', type: 'number' },
+        { name: 'visitsToMOHFacilities', label: 'عدد الزيارات لمنشآت وزارة الصحة والسكان', type: 'number' },
+        { name: 'accreditationCommittees', label: 'عدد لجان الاعتماد المنعقدة', type: 'number' },
+        { name: 'reportsToCommittee', label: 'عدد تقارير الزيارات التقييمية المعروضة على اللجنة', type: 'number' },
+        { name: 'appealsSubmitted', label: 'عدد الالتماسات المقدمة', type: 'number' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
+        { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },
+        { name: 'notes', label: 'ملاحظات', type: 'text' },
+    ],
 };
 
 // Helper function to format date consistently on server and client
@@ -208,6 +226,7 @@ export default function DepartmentPage() {
     const [isAdminAuditDashboardOpen, setIsAdminAuditDashboardOpen] = useState(false);
     const [isAccreditationDashboardOpen, setIsAccreditationDashboardOpen] = useState(false);
     const [isMedicalProfessionalsDashboardOpen, setIsMedicalProfessionalsDashboardOpen] = useState(false);
+    const [isReviewersDashboardOpen, setIsReviewersDashboardOpen] = useState(false);
 
     // Facilities tracking states (for dept6 only)
     const [facilities, setFacilities] = useState<AccreditationFacility[]>([]);
@@ -9912,6 +9931,15 @@ export default function DepartmentPage() {
                                     📊 لوحة البيانات
                                 </button>
                             )}
+                            {id === 'dept9' && (
+                                <button
+                                    onClick={() => setIsReviewersDashboardOpen(true)}
+                                    className="btn"
+                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                                >
+                                    📊 لوحة البيانات
+                                </button>
+                            )}
                             <button
                                 onClick={handleExportPDF}
                                 className="btn"
@@ -10217,6 +10245,18 @@ export default function DepartmentPage() {
                         title="لوحة بيانات الإدارة العامة لتسجيل أعضاء المهن الطبية"
                     >
                         <MedicalProfessionalsDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+
+            {
+                id === 'dept9' && (
+                    <DashboardModal
+                        isOpen={isReviewersDashboardOpen}
+                        onClose={() => setIsReviewersDashboardOpen(false)}
+                        title="لوحة بيانات الإدارة العامة لشئون المراجعين"
+                    >
+                        <ReviewersDashboard submissions={submissions} />
                     </DashboardModal>
                 )
             }
