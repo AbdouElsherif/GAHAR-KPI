@@ -320,6 +320,19 @@ export interface ObservationCorrectionRate {
     updatedBy?: string;
 }
 
+// Reviewer Evaluation Visits (الزيارات التقييمية وفقا لنوع المنشأة للمراجعين)
+export interface ReviewerEvaluationVisit {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    facilityType: string;  // نوع المنشأة
+    visitsCount: number;  // عدد الزيارات
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
         const kpiRef = collection(db, 'kpis');
@@ -2151,6 +2164,86 @@ export async function deleteQueuedSupportVisit(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting queued support visit:', error);
+        return false;
+    }
+}
+
+// Reviewer Evaluation Visits Functions (الزيارات التقييمية وفقا لنوع المنشأة للمراجعين)
+export async function saveReviewerEvaluationVisit(
+    visitData: Omit<ReviewerEvaluationVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const visitsRef = collection(db, 'reviewer_evaluation_visits');
+        const docRef = await addDoc(visitsRef, {
+            ...visitData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving reviewer evaluation visit:', error);
+        return null;
+    }
+}
+
+export async function getReviewerEvaluationVisits(month?: string): Promise<ReviewerEvaluationVisit[]> {
+    try {
+        const visitsRef = collection(db, 'reviewer_evaluation_visits');
+        let q;
+
+        if (month) {
+            q = query(visitsRef, where('month', '==', month));
+        } else {
+            q = query(visitsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let visits = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as ReviewerEvaluationVisit));
+
+        if (month) {
+            visits.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return visits;
+    } catch (error) {
+        console.error('Error getting reviewer evaluation visits:', error);
+        return [];
+    }
+}
+
+export async function updateReviewerEvaluationVisit(
+    id: string,
+    updates: Partial<ReviewerEvaluationVisit> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'reviewer_evaluation_visits', id);
+        await setDoc(visitRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating reviewer evaluation visit:', error);
+        return false;
+    }
+}
+
+export async function deleteReviewerEvaluationVisit(id: string): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'reviewer_evaluation_visits', id);
+        await deleteDoc(visitRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting reviewer evaluation visit:', error);
         return false;
     }
 }

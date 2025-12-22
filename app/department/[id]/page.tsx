@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
-import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility } from '@/lib/firestore';
+import { saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -527,6 +527,18 @@ export default function DepartmentPage() {
     const [tcCorrectionRateSubmitted, setTcCorrectionRateSubmitted] = useState(false);
     const [isTcCorrectionRateSectionExpanded, setIsTcCorrectionRateSectionExpanded] = useState(false);
 
+    // Reviewer Evaluation Visits states (الزيارات التقييمية وفقا لنوع المنشأة for dept9)
+    const [reviewerEvaluationVisits, setReviewerEvaluationVisits] = useState<ReviewerEvaluationVisit[]>([]);
+    const [reviewerEvaluationVisitFormData, setReviewerEvaluationVisitFormData] = useState({
+        month: '',
+        facilityType: '',
+        visitsCount: ''
+    });
+    const [editingReviewerEvaluationVisitId, setEditingReviewerEvaluationVisitId] = useState<string | null>(null);
+    const [reviewerEvaluationVisitFilterMonth, setReviewerEvaluationVisitFilterMonth] = useState('');
+    const [reviewerEvaluationVisitSubmitted, setReviewerEvaluationVisitSubmitted] = useState(false);
+    const [isReviewerEvaluationVisitsSectionExpanded, setIsReviewerEvaluationVisitsSectionExpanded] = useState(false);
+
     useEffect(() => {
 
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -722,6 +734,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, accreditedSupportedFacilitiesFilter]);
 
+    // Load Reviewer Evaluation Visits for dept9
+    useEffect(() => {
+        if (id === 'dept9' && currentUser) {
+            loadReviewerEvaluationVisits();
+        }
+    }, [id, currentUser, reviewerEvaluationVisitFilterMonth]);
+
     const loadFacilities = async () => {
 
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
@@ -792,6 +811,21 @@ export default function DepartmentPage() {
     const loadTcCorrectionRates = async () => {
         const data = await getTechnicalClinicalCorrectionRates(tcCorrectionRateFilterMonth || undefined);
         setTcCorrectionRates(data);
+    };
+
+    const loadReviewerEvaluationVisits = async () => {
+        const data = await getReviewerEvaluationVisits(reviewerEvaluationVisitFilterMonth || undefined);
+        setReviewerEvaluationVisits(data);
+    };
+
+    const loadScheduledSupportVisits = async () => {
+        const data = await getScheduledSupportVisits(scheduledSupportVisitsFilter || undefined);
+        setScheduledSupportVisits(data);
+    };
+
+    const loadAccreditedSupportedFacilities = async () => {
+        const data = await getAccreditedSupportedFacilities(accreditedSupportedFacilitiesFilter || undefined);
+        setAccreditedSupportedFacilities(data);
     };
 
     const handleChange = (name: string, value: string) => {
@@ -1568,6 +1602,158 @@ export default function DepartmentPage() {
             sasTotal: '', sasCorrected: ''
         });
         setEditingTcCorrectionRateId(null);
+    };
+
+    // Reviewer Evaluation Visit handlers (for dept9)
+    const handleReviewerEvaluationVisitSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const visitsCount = parseInt(reviewerEvaluationVisitFormData.visitsCount);
+            if (isNaN(visitsCount) || visitsCount < 0) {
+                alert('يرجى إدخال عدد زيارات صحيح');
+                return;
+            }
+
+            if (editingReviewerEvaluationVisitId) {
+                const success = await updateReviewerEvaluationVisit(editingReviewerEvaluationVisitId, {
+                    ...reviewerEvaluationVisitFormData,
+                    visitsCount,
+                    year: parseInt(reviewerEvaluationVisitFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setReviewerEvaluationVisitSubmitted(true);
+                    setTimeout(() => setReviewerEvaluationVisitSubmitted(false), 3000);
+                    resetReviewerEvaluationVisitForm();
+                    await loadReviewerEvaluationVisits();
+                }
+            } else {
+                const docId = await saveReviewerEvaluationVisit({
+                    ...reviewerEvaluationVisitFormData,
+                    visitsCount,
+                    year: parseInt(reviewerEvaluationVisitFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setReviewerEvaluationVisitSubmitted(true);
+                    setTimeout(() => setReviewerEvaluationVisitSubmitted(false), 3000);
+                    resetReviewerEvaluationVisitForm();
+                    await loadReviewerEvaluationVisits();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving reviewer evaluation visit:', error);
+            alert('حدث خطأ أثناء الحفظ');
+        }
+    };
+
+    const handleEditReviewerEvaluationVisit = (visit: ReviewerEvaluationVisit) => {
+        setReviewerEvaluationVisitFormData({
+            month: visit.month,
+            facilityType: visit.facilityType,
+            visitsCount: visit.visitsCount.toString()
+        });
+        setEditingReviewerEvaluationVisitId(visit.id || null);
+    };
+
+    const handleDeleteReviewerEvaluationVisit = async (visitId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            const success = await deleteReviewerEvaluationVisit(visitId);
+            if (success) {
+                await loadReviewerEvaluationVisits();
+            }
+        }
+    };
+
+    const resetReviewerEvaluationVisitForm = () => {
+        setReviewerEvaluationVisitFormData({
+            month: '',
+            facilityType: '',
+            visitsCount: ''
+        });
+        setEditingReviewerEvaluationVisitId(null);
+    };
+
+    const exportReviewerEvaluationVisitsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = reviewerEvaluationVisits.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return {
+                '#': index + 1,
+                'نوع المنشأة': visit.facilityType,
+                'عدد الزيارات': visit.visitsCount,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الزيارات التقييمية');
+
+        const fileName = reviewerEvaluationVisitFilterMonth
+            ? `الزيارات_التقييمية_نوع_المنشأة_${reviewerEvaluationVisitFilterMonth}.xlsx`
+            : `الزيارات_التقييمية_نوع_المنشأة_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportReviewerEvaluationVisitsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 40, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'عدد الزيارات', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...reviewerEvaluationVisits.map((visit, index) => {
+                const [year, month] = visit.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: visit.facilityType, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: visit.visitsCount.toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'الزيارات التقييمية وفقا لنوع المنشأة',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = reviewerEvaluationVisitFilterMonth
+            ? `الزيارات_التقييمية_نوع_المنشأة_${reviewerEvaluationVisitFilterMonth}.docx`
+            : `الزيارات_التقييمية_نوع_المنشأة_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
     };
 
 
@@ -3005,10 +3191,6 @@ export default function DepartmentPage() {
     };
 
     // Scheduled Support Visit handlers (زيارات الدعم الفني المجدولة في شهر ....)
-    const loadScheduledSupportVisits = async () => {
-        const visits = await getScheduledSupportVisits(scheduledSupportVisitsFilter || undefined);
-        setScheduledSupportVisits(visits);
-    };
 
     const handleScheduledSupportVisitSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -3115,13 +3297,6 @@ export default function DepartmentPage() {
     };
 
     // ==================== Accredited Supported Facilities Handlers (for dept2 only) ====================
-
-    const loadAccreditedSupportedFacilities = async () => {
-        if (id === 'dept2') {
-            const facilities = await getAccreditedSupportedFacilities(accreditedSupportedFacilitiesFilter || undefined);
-            setAccreditedSupportedFacilities(facilities);
-        }
-    };
 
     const handleAccreditedSupportedFacilitySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -9804,6 +9979,254 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Reviewer Evaluation Visits Section - الزيارات التقييمية وفقا لنوع المنشأة (for dept9 only) */}
+            {id === 'dept9' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isReviewerEvaluationVisitsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isReviewerEvaluationVisitsSectionExpanded ? '15px' : '0',
+                            borderBottom: isReviewerEvaluationVisitsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsReviewerEvaluationVisitsSectionExpanded(!isReviewerEvaluationVisitsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📊 الزيارات التقييمية وفقا لنوع المنشأة - شهر {(() => {
+                                if (reviewerEvaluationVisitFilterMonth) {
+                                    const [year, month] = reviewerEvaluationVisitFilterMonth.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....'
+                            })()} - عدد {reviewerEvaluationVisits.reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
+                        }}>
+                            <span style={{ fontSize: '0.9rem' }}>
+                                {isReviewerEvaluationVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                            </span>
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                style={{
+                                    transform: isReviewerEvaluationVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isReviewerEvaluationVisitsSectionExpanded && (
+                        <>
+                            {/* Form - Only for users with edit permission */}
+                            {userCanEdit && (
+                                <form onSubmit={handleReviewerEvaluationVisitSubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                    <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                        {editingReviewerEvaluationVisitId ? 'تعديل زيارة تقييمية' : 'إضافة زيارة تقييمية جديدة'}
+                                    </h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+                                        <div className="form-group">
+                                            <label className="form-label">الشهر *</label>
+                                            <input
+                                                type="month"
+                                                className="form-input"
+                                                value={reviewerEvaluationVisitFormData.month}
+                                                onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, month: e.target.value })}
+                                                max={new Date().toISOString().split('T')[0].slice(0, 7)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">نوع المنشأة *</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={reviewerEvaluationVisitFormData.facilityType}
+                                                onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, facilityType: e.target.value })}
+                                                placeholder="أدخل نوع المنشأة"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">عدد الزيارات *</label>
+                                            <input
+                                                type="number"
+                                                className="form-input"
+                                                value={reviewerEvaluationVisitFormData.visitsCount}
+                                                onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, visitsCount: e.target.value })}
+                                                placeholder="0"
+                                                min="0"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                        <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            {editingReviewerEvaluationVisitId ? 'تحديث الزيارة' : 'إضافة الزيارة'}
+                                        </button>
+                                        {editingReviewerEvaluationVisitId && (
+                                            <button
+                                                type="button"
+                                                className="btn"
+                                                style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                onClick={resetReviewerEvaluationVisitForm}
+                                            >
+                                                إلغاء التعديل
+                                            </button>
+                                        )}
+                                    </div>
+                                    {reviewerEvaluationVisitSubmitted && (
+                                        <div style={{
+                                            padding: '12px',
+                                            backgroundColor: '#d4edda',
+                                            color: '#155724',
+                                            borderRadius: '8px',
+                                            marginTop: '15px',
+                                            border: '1px solid #c3e6cb'
+                                        }}>
+                                            ✓ تم {editingReviewerEvaluationVisitId ? 'تحديث' : 'إضافة'} الزيارة التقييمية بنجاح
+                                        </div>
+                                    )}
+                                </form>
+                            )}
+
+                            {/* Filter and Export Buttons */}
+                            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input
+                                        type="month"
+                                        className="form-input"
+                                        value={reviewerEvaluationVisitFilterMonth}
+                                        onChange={(e) => setReviewerEvaluationVisitFilterMonth(e.target.value)}
+                                    />
+                                </div>
+                                {reviewerEvaluationVisits.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportReviewerEvaluationVisitsToExcel}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#28a745',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        >
+                                            📊 تصدير Excel
+                                        </button>
+                                        <button
+                                            onClick={exportReviewerEvaluationVisitsToWord}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#2b5797',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem'
+                                            }}
+                                        >
+                                            📄 تصدير Word
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Table */}
+                            <div style={{ overflowX: 'auto' }}>
+                                {reviewerEvaluationVisits.length === 0 ? (
+                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                        لا توجد زيارات تقييمية مسجلة
+                                    </div>
+                                ) : (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>عدد الزيارات</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {reviewerEvaluationVisits.map((visit, index) => {
+                                                const [year, month] = visit.month.split('-');
+                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                const monthName = monthNames[parseInt(month) - 1];
+
+                                                return (
+                                                    <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'right' }}>{visit.facilityType}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{visit.visitsCount}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{monthName} {year}</td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditReviewerEvaluationVisit(visit)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteReviewerEvaluationVisit(visit.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             {
                 submissions.length > 0 && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -10256,7 +10679,7 @@ export default function DepartmentPage() {
                         onClose={() => setIsReviewersDashboardOpen(false)}
                         title="لوحة بيانات الإدارة العامة لشئون المراجعين"
                     >
-                        <ReviewersDashboard submissions={submissions} />
+                        <ReviewersDashboard submissions={submissions} evaluationVisits={reviewerEvaluationVisits} />
                     </DashboardModal>
                 )
             }
