@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface KPIData {
@@ -326,6 +326,18 @@ export interface ReviewerEvaluationVisit {
     month: string;  // الشهر YYYY-MM
     facilityType: string;  // نوع المنشأة
     visitsCount: number;  // عدد الزيارات
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export interface ReviewerEvaluationVisitByGovernorate {
+    id?: string;
+    month: string;
+    governorate: string;
+    visitsCount: number;
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -2244,6 +2256,73 @@ export async function deleteReviewerEvaluationVisit(id: string): Promise<boolean
         return true;
     } catch (error) {
         console.error('Error deleting reviewer evaluation visit:', error);
+        return false;
+    }
+}
+
+// ==================== Reviewer Evaluation Visits By Governorate Functions ====================
+
+export async function saveReviewerEvaluationVisitByGovernorate(
+    visitData: Omit<ReviewerEvaluationVisitByGovernorate, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+    try {
+        const visitRef = collection(db, 'reviewer_evaluation_visits_by_governorate');
+        const docRef = await addDoc(visitRef, {
+            ...visitData,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving reviewer evaluation visit by governorate:', error);
+        return null;
+    }
+}
+
+export async function getReviewerEvaluationVisitsByGovernorate(month?: string): Promise<ReviewerEvaluationVisitByGovernorate[]> {
+    try {
+        const visitRef = collection(db, 'reviewer_evaluation_visits_by_governorate');
+        let q = query(visitRef, orderBy('month', 'desc'));
+
+        if (month) {
+            q = query(visitRef, where('month', '==', month), orderBy('governorate', 'asc'));
+        }
+
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as ReviewerEvaluationVisitByGovernorate));
+    } catch (error) {
+        console.error('Error getting reviewer evaluation visits by governorate:', error);
+        return [];
+    }
+}
+
+export async function updateReviewerEvaluationVisitByGovernorate(
+    id: string,
+    visitData: Partial<Omit<ReviewerEvaluationVisitByGovernorate, 'id' | 'createdAt' | 'createdBy'>>
+): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'reviewer_evaluation_visits_by_governorate', id);
+        await updateDoc(visitRef, {
+            ...visitData,
+            updatedAt: new Date()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating reviewer evaluation visit by governorate:', error);
+        return false;
+    }
+}
+
+export async function deleteReviewerEvaluationVisitByGovernorate(id: string): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'reviewer_evaluation_visits_by_governorate', id);
+        await deleteDoc(visitRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting reviewer evaluation visit by governorate:', error);
         return false;
     }
 }

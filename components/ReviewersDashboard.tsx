@@ -12,12 +12,21 @@ interface ReviewerEvaluationVisit {
     year: number;
 }
 
+interface ReviewerEvaluationVisitByGovernorate {
+    id?: string;
+    month: string;
+    governorate: string;
+    visitsCount: number;
+    year: number;
+}
+
 interface ReviewersDashboardProps {
     submissions: Array<Record<string, any>>;
     evaluationVisits: ReviewerEvaluationVisit[];
+    governorateVisits: ReviewerEvaluationVisitByGovernorate[];
 }
 
-export default function ReviewersDashboard({ submissions, evaluationVisits }: ReviewersDashboardProps) {
+export default function ReviewersDashboard({ submissions, evaluationVisits, governorateVisits }: ReviewersDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -832,6 +841,86 @@ export default function ReviewersDashboard({ submissions, evaluationVisits }: Re
                         }}>
                             <strong style={{ color: '#0c5460' }}>
                                 إجمالي الزيارات: {evaluationVisits.reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Governorate Visits Chart */}
+            {governorateVisits && governorateVisits.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #28a745',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #28a745'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>📍</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#155724',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                الزيارات التقييمية وفقا للمحافظة
+                            </h3>
+                        </div>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart
+                                data={governorateVisits.map(visit => ({
+                                    name: visit.governorate,
+                                    'عدد الزيارات': visit.visitsCount,
+                                    month: visit.month
+                                }))}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis
+                                    dataKey="name"
+                                    height={80}
+                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                />
+                                <YAxis
+                                    label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
+                                    style={{ fontSize: '0.9rem' }}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        border: '1px solid #28a745',
+                                        borderRadius: '8px',
+                                        padding: '10px'
+                                    }}
+                                />
+                                <Legend />
+                                <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
+                                    <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                    {governorateVisits.map((_, index) => {
+                                        const colors = ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
+                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                    })}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                        <div style={{
+                            marginTop: '15px',
+                            padding: '15px',
+                            backgroundColor: '#d4edda',
+                            borderRadius: '8px',
+                            textAlign: 'center'
+                        }}>
+                            <strong style={{ color: '#155724' }}>
+                                إجمالي الزيارات: {governorateVisits.reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
                             </strong>
                         </div>
                     </div>

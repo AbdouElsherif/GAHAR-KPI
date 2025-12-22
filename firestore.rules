@@ -155,6 +155,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
+
+    match /reviewer_evaluation_visits_by_governorate/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
   }
 }
 
