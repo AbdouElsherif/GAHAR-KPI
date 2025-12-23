@@ -345,6 +345,19 @@ export interface ReviewerEvaluationVisitByGovernorate {
     updatedBy?: string;
 }
 
+// Reviewer Evaluation Visits By Visit Type (الزيارات التقييمية وفقا لنوع الزيارة)
+export interface ReviewerEvaluationVisitByType {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    visitType: string;  // نوع الزيارة
+    visitsCount: number;  // عدد الزيارات
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
         const kpiRef = collection(db, 'kpis');
@@ -2323,6 +2336,73 @@ export async function deleteReviewerEvaluationVisitByGovernorate(id: string): Pr
         return true;
     } catch (error) {
         console.error('Error deleting reviewer evaluation visit by governorate:', error);
+        return false;
+    }
+}
+
+// ==================== Reviewer Evaluation Visits By Visit Type Functions ====================
+
+export async function saveReviewerEvaluationVisitByType(
+    visitData: Omit<ReviewerEvaluationVisitByType, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+    try {
+        const visitRef = collection(db, 'reviewer_evaluation_visits_by_type');
+        const docRef = await addDoc(visitRef, {
+            ...visitData,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving reviewer evaluation visit by type:', error);
+        return null;
+    }
+}
+
+export async function getReviewerEvaluationVisitsByType(month?: string): Promise<ReviewerEvaluationVisitByType[]> {
+    try {
+        const visitRef = collection(db, 'reviewer_evaluation_visits_by_type');
+        let q = query(visitRef, orderBy('month', 'desc'));
+
+        if (month) {
+            q = query(visitRef, where('month', '==', month), orderBy('visitType', 'asc'));
+        }
+
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as ReviewerEvaluationVisitByType));
+    } catch (error) {
+        console.error('Error getting reviewer evaluation visits by type:', error);
+        return [];
+    }
+}
+
+export async function updateReviewerEvaluationVisitByType(
+    id: string,
+    visitData: Partial<Omit<ReviewerEvaluationVisitByType, 'id' | 'createdAt' | 'createdBy'>>
+): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'reviewer_evaluation_visits_by_type', id);
+        await updateDoc(visitRef, {
+            ...visitData,
+            updatedAt: new Date()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating reviewer evaluation visit by type:', error);
+        return false;
+    }
+}
+
+export async function deleteReviewerEvaluationVisitByType(id: string): Promise<boolean> {
+    try {
+        const visitRef = doc(db, 'reviewer_evaluation_visits_by_type', id);
+        await deleteDoc(visitRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting reviewer evaluation visit by type:', error);
         return false;
     }
 }
