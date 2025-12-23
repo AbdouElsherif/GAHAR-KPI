@@ -170,9 +170,33 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     const previousTotalVisits = calculateFilteredTotal(previousAggregated, 'totalEvaluationVisits', comparisonType);
     const visitsChange = calculateChange(currentTotalVisits, previousTotalVisits);
 
+    const currentEvaluationDays = calculateFilteredTotal(currentAggregated, 'evaluationDays', comparisonType);
+    const previousEvaluationDays = calculateFilteredTotal(previousAggregated, 'evaluationDays', comparisonType);
+    const evaluationDaysChange = calculateChange(currentEvaluationDays, previousEvaluationDays);
+
+    const currentInsuranceVisits = calculateFilteredTotal(currentAggregated, 'visitsToInsuranceGovernorate', comparisonType);
+    const previousInsuranceVisits = calculateFilteredTotal(previousAggregated, 'visitsToInsuranceGovernorate', comparisonType);
+    const insuranceVisitsChange = calculateChange(currentInsuranceVisits, previousInsuranceVisits);
+
+    const currentGovVisits = calculateFilteredTotal(currentAggregated, 'visitsToGovFacilities', comparisonType);
+    const previousGovVisits = calculateFilteredTotal(previousAggregated, 'visitsToGovFacilities', comparisonType);
+    const govVisitsChange = calculateChange(currentGovVisits, previousGovVisits);
+
+    const currentPrivateVisits = calculateFilteredTotal(currentAggregated, 'visitsToPrivateFacilities', comparisonType);
+    const previousPrivateVisits = calculateFilteredTotal(previousAggregated, 'visitsToPrivateFacilities', comparisonType);
+    const privateVisitsChange = calculateChange(currentPrivateVisits, previousPrivateVisits);
+
+    const currentMOHVisits = calculateFilteredTotal(currentAggregated, 'visitsToMOHFacilities', comparisonType);
+    const previousMOHVisits = calculateFilteredTotal(previousAggregated, 'visitsToMOHFacilities', comparisonType);
+    const mohVisitsChange = calculateChange(currentMOHVisits, previousMOHVisits);
+
     const currentCommittees = calculateFilteredTotal(currentAggregated, 'accreditationCommittees', comparisonType);
     const previousCommittees = calculateFilteredTotal(previousAggregated, 'accreditationCommittees', comparisonType);
     const committeesChange = calculateChange(currentCommittees, previousCommittees);
+
+    const currentReports = calculateFilteredTotal(currentAggregated, 'reportsToCommittee', comparisonType);
+    const previousReports = calculateFilteredTotal(previousAggregated, 'reportsToCommittee', comparisonType);
+    const reportsChange = calculateChange(currentReports, previousReports);
 
     const currentAppeals = calculateFilteredTotal(currentAggregated, 'appealsSubmitted', comparisonType);
     const previousAppeals = calculateFilteredTotal(previousAggregated, 'appealsSubmitted', comparisonType);
@@ -216,7 +240,13 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     };
 
     const visitsPieData = preparePieData('totalEvaluationVisits');
+    const evaluationDaysPieData = preparePieData('evaluationDays');
+    const insuranceVisitsPieData = preparePieData('visitsToInsuranceGovernorate');
+    const govVisitsPieData = preparePieData('visitsToGovFacilities');
+    const privateVisitsPieData = preparePieData('visitsToPrivateFacilities');
+    const mohVisitsPieData = preparePieData('visitsToMOHFacilities');
     const committeesPieData = preparePieData('accreditationCommittees');
+    const reportsPieData = preparePieData('reportsToCommittee');
     const appealsPieData = preparePieData('appealsSubmitted');
 
     function prepareChartData() {
@@ -277,6 +307,20 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     }
 
     function renderTableRows() {
+        // Define indicators to display
+        const indicators = [
+            { name: 'إجمالي الزيارات التقييمية', key: 'totalEvaluationVisits' },
+            { name: 'عدد أيام التقييم', key: 'evaluationDays' },
+            { name: 'زيارات محافظات التأمين الصحي الشامل', key: 'visitsToInsuranceGovernorate' },
+            { name: 'زيارات المنشآت الحكومية', key: 'visitsToGovFacilities' },
+            { name: 'زيارات منشآت القطاع الخاص', key: 'visitsToPrivateFacilities' },
+            { name: 'زيارات منشآت وزارة الصحة والسكان', key: 'visitsToMOHFacilities' },
+            { name: 'لجان الاعتماد المنعقدة', key: 'accreditationCommittees' },
+            { name: 'تقارير الزيارات المعروضة على اللجنة', key: 'reportsToCommittee' },
+            { name: 'الالتماسات المقدمة', key: 'appealsSubmitted' }
+        ];
+
+        // Get current and previous period keys
         let periods = Object.keys(currentAggregated).sort();
 
         if (comparisonType === 'monthly') {
@@ -298,45 +342,41 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
         if (periods.length === 0) {
             return (
                 <tr>
-                    <td colSpan={11} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
-                        لا توجد بيانات متاحة للسنة المحددة
+                    <td colSpan={3} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
+                        لا توجد بيانات متاحة للفترة المحددة
                     </td>
                 </tr>
             );
         }
 
-        return periods.map((period, index) => {
-            let previousPeriodKey = period;
+        const period = periods[0]; // Get the first (and should be only) period
+        let previousPeriodKey = period;
 
-            if (comparisonType === 'monthly' && period.includes('-')) {
-                const [year, month] = period.split('-');
-                const currentYear = parseInt(year);
-                const previousYear = currentYear - 1;
-                previousPeriodKey = `${previousYear}-${month}`;
-            }
+        if (comparisonType === 'monthly' && period.includes('-')) {
+            const [year, month] = period.split('-');
+            const currentYear = parseInt(year);
+            const previousYear = currentYear - 1;
+            previousPeriodKey = `${previousYear}-${month}`;
+        }
 
-            const curr = currentAggregated[period];
-            const prev = previousAggregated[previousPeriodKey];
+        const curr = currentAggregated[period];
+        const prev = previousAggregated[previousPeriodKey];
 
-            return (
-                <tr key={period} style={{
-                    borderBottom: '1px solid #eee',
-                    backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                }}>
-                    <td style={{ padding: '12px', fontWeight: '500' }}>{formatPeriodLabel(period)}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.totalEvaluationVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{prev?.totalEvaluationVisits || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.visitsToInsuranceGovernorate || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.visitsToGovFacilities || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.visitsToPrivateFacilities || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.visitsToMOHFacilities || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.accreditationCommittees || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{prev?.accreditationCommittees || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{curr?.appealsSubmitted || 0}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{prev?.appealsSubmitted || 0}</td>
-                </tr>
-            );
-        });
+        // Render each indicator as a row
+        return indicators.map((indicator, index) => (
+            <tr key={indicator.key} style={{
+                borderBottom: '1px solid #eee',
+                backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+            }}>
+                <td style={{ padding: '12px', fontWeight: '500', textAlign: 'right' }}>{indicator.name}</td>
+                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#1976d2' }}>
+                    {curr?.[indicator.key as keyof typeof curr] || 0}
+                </td>
+                <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>
+                    {prev?.[indicator.key as keyof typeof prev] || 0}
+                </td>
+            </tr>
+        ));
     }
 
     return (
@@ -476,6 +516,61 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     color="#0eacb8"
                 />
                 <KPICard
+                    title="عدد أيام التقييم"
+                    icon="📅"
+                    currentValue={currentEvaluationDays}
+                    previousValue={previousEvaluationDays}
+                    changePercentage={evaluationDaysChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={evaluationDaysPieData}
+                    color="#28a745"
+                />
+                <KPICard
+                    title="زيارات محافظات التأمين الصحي"
+                    icon="🏛️"
+                    currentValue={currentInsuranceVisits}
+                    previousValue={previousInsuranceVisits}
+                    changePercentage={insuranceVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={insuranceVisitsPieData}
+                    color="#6f42c1"
+                />
+                <KPICard
+                    title="زيارات المنشآت الحكومية"
+                    icon="🏢"
+                    currentValue={currentGovVisits}
+                    previousValue={previousGovVisits}
+                    changePercentage={govVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={govVisitsPieData}
+                    color="#17a2b8"
+                />
+                <KPICard
+                    title="زيارات منشآت القطاع الخاص"
+                    icon="🏪"
+                    currentValue={currentPrivateVisits}
+                    previousValue={previousPrivateVisits}
+                    changePercentage={privateVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={privateVisitsPieData}
+                    color="#ffc107"
+                />
+                <KPICard
+                    title="زيارات منشآت وزارة الصحة"
+                    icon="🏥"
+                    currentValue={currentMOHVisits}
+                    previousValue={previousMOHVisits}
+                    changePercentage={mohVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={mohVisitsPieData}
+                    color="#20c997"
+                />
+                <KPICard
                     title="لجان الاعتماد المنعقدة"
                     icon="👨‍⚖️"
                     currentValue={currentCommittees}
@@ -487,6 +582,17 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     color="#8884d8"
                 />
                 <KPICard
+                    title="تقارير الزيارات المعروضة على اللجنة"
+                    icon="📋"
+                    currentValue={currentReports}
+                    previousValue={previousReports}
+                    changePercentage={reportsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={reportsPieData}
+                    color="#fd7e14"
+                />
+                <KPICard
                     title="الالتماسات المقدمة"
                     icon="📝"
                     currentValue={currentAppeals}
@@ -495,7 +601,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     currentYear={targetYear}
                     previousYear={targetYear - 1}
                     pieData={appealsPieData}
-                    color="#ff9800"
+                    color="#e83e8c"
                 />
             </div>
 
@@ -607,17 +713,9 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>زيارات {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>زيارات {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>تأمين</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>حكومي</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>خاص</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>وزارة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>لجان {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>لجان {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>التماسات {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>التماسات {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '50%' }}>المؤشر</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', width: '25%' }}>{targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', width: '25%' }}>{targetYear - 1}</th>
                             </tr>
                         </thead>
                         <tbody>
