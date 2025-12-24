@@ -4714,7 +4714,18 @@ export default function DepartmentPage() {
             {id === 'dept7' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: isMedProfByCategorySectionExpanded ? '20px' : '0', paddingBottom: isMedProfByCategorySectionExpanded ? '15px' : '0', borderBottom: isMedProfByCategorySectionExpanded ? '2px solid var(--background-color)' : 'none', transition: 'all 0.3s ease' }} onClick={() => setIsMedProfByCategorySectionExpanded(!isMedProfByCategorySectionExpanded)}>
-                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>👥 أعضاء المهن الطبية حسب الفئة</h2>
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            👥 أعضاء المهن الطبية حسب الفئة
+                            {medProfByCategoryFilterMonth && (
+                                <span>
+                                    {' '}خلال شهر {(() => {
+                                        const [year, month] = medProfByCategoryFilterMonth.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                    })()}
+                                </span>
+                            )}
+                        </h2>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                             <span style={{ fontSize: '0.9rem' }}>{isMedProfByCategorySectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: isMedProfByCategorySectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}><polyline points="6 9 12 15 18 9"></polyline></svg>
