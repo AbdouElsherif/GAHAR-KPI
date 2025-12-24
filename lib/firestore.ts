@@ -358,6 +358,28 @@ export interface ReviewerEvaluationVisitByType {
     updatedBy?: string;
 }
 
+// Medical Professionals By Category (أعضاء المهن الطبية حسب الفئة)
+export interface MedicalProfessionalByCategory {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    branch: string;  // الفرع (رئاسة الهيئة، بورسعيد، الأقصر، الإسماعيلية، السويس)
+    doctors: number;  // أطباء بشريين
+    dentists: number;  // أطباء أسنان
+    pharmacists: number;  // صيادلة
+    physiotherapy: number;  // علاج طبيعي
+    veterinarians: number;  // بيطريين
+    seniorNursing: number;  // تمريض عالي
+    technicalNursing: number;  // فني تمريض
+    healthTechnician: number;  // فني صحي
+    scientists: number;  // علميين
+    total: number;  // الإجمالي (محسوب)
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
         const kpiRef = collection(db, 'kpis');
@@ -2403,6 +2425,73 @@ export async function deleteReviewerEvaluationVisitByType(id: string): Promise<b
         return true;
     } catch (error) {
         console.error('Error deleting reviewer evaluation visit by type:', error);
+        return false;
+    }
+}
+
+// ==================== Medical Professionals By Category Functions ====================
+
+export async function saveMedicalProfessionalByCategory(
+    data: Omit<MedicalProfessionalByCategory, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+    try {
+        const collectionRef = collection(db, 'medical_professionals_by_category');
+        const docRef = await addDoc(collectionRef, {
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving medical professional by category:', error);
+        return null;
+    }
+}
+
+export async function getMedicalProfessionalsByCategory(month?: string): Promise<MedicalProfessionalByCategory[]> {
+    try {
+        const collectionRef = collection(db, 'medical_professionals_by_category');
+        let q = query(collectionRef, orderBy('month', 'desc'));
+
+        if (month) {
+            q = query(collectionRef, where('month', '==', month), orderBy('branch', 'asc'));
+        }
+
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as MedicalProfessionalByCategory));
+    } catch (error) {
+        console.error('Error getting medical professionals by category:', error);
+        return [];
+    }
+}
+
+export async function updateMedicalProfessionalByCategory(
+    id: string,
+    data: Partial<Omit<MedicalProfessionalByCategory, 'id' | 'createdAt' | 'createdBy'>>
+): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'medical_professionals_by_category', id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: new Date()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating medical professional by category:', error);
+        return false;
+    }
+}
+
+export async function deleteMedicalProfessionalByCategory(id: string): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'medical_professionals_by_category', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting medical professional by category:', error);
         return false;
     }
 }
