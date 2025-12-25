@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc, limit } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface KPIData {
@@ -363,6 +363,27 @@ export interface MedicalProfessionalByCategory {
     id?: string;
     month: string;  // الشهر YYYY-MM
     branch: string;  // الفرع (رئاسة الهيئة، بورسعيد، الأقصر، الإسماعيلية، السويس)
+    doctors: number;  // أطباء بشريين
+    dentists: number;  // أطباء أسنان
+    pharmacists: number;  // صيادلة
+    physiotherapy: number;  // علاج طبيعي
+    veterinarians: number;  // بيطريين
+    seniorNursing: number;  // تمريض عالي
+    technicalNursing: number;  // فني تمريض
+    healthTechnician: number;  // فني صحي
+    scientists: number;  // علميين
+    total: number;  // الإجمالي (محسوب)
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export interface MedicalProfessionalByGovernorate {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    governorate: string;  // المحافظة
     doctors: number;  // أطباء بشريين
     dentists: number;  // أطباء أسنان
     pharmacists: number;  // صيادلة
@@ -2496,3 +2517,80 @@ export async function deleteMedicalProfessionalByCategory(id: string): Promise<b
     }
 }
 
+
+// Medical Professionals by Governorate CRUD
+export async function saveMedicalProfessionalByGovernorate(data: Omit<MedicalProfessionalByGovernorate, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
+    try {
+        const collectionRef = collection(db, 'medical_professionals_by_governorate');
+        // Check for duplicates
+        const q = query(
+            collectionRef,
+            where('month', '==', data.month),
+            where('governorate', '==', data.governorate)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            console.error('Record already exists for this month and governorate');
+            return null; // Handle duplicate appropriately
+        }
+
+        const docRef = await addDoc(collectionRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving medical professional by governorate:', error);
+        return null;
+    }
+}
+
+export async function getMedicalProfessionalsByGovernorate(month?: string): Promise<MedicalProfessionalByGovernorate[]> {
+    try {
+        const collectionRef = collection(db, 'medical_professionals_by_governorate');
+        let q;
+
+        if (month) {
+            q = query(collectionRef, where('month', '==', month), orderBy('governorate', 'asc'));
+        } else {
+            // Default to current year if no month specified or just get recent
+            q = query(collectionRef, orderBy('month', 'desc'), orderBy('governorate', 'asc'), limit(100));
+        }
+
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as MedicalProfessionalByGovernorate));
+    } catch (error) {
+        console.error('Error fetching medical professionals by governorate:', error);
+        return [];
+    }
+}
+
+export async function updateMedicalProfessionalByGovernorate(id: string, data: Partial<MedicalProfessionalByGovernorate>): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'medical_professionals_by_governorate', id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating medical professional by governorate:', error);
+        return false;
+    }
+}
+
+export async function deleteMedicalProfessionalByGovernorate(id: string): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'medical_professionals_by_governorate', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting medical professional by governorate:', error);
+        return false;
+    }
+}

@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
-    saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveReviewerEvaluationVisitByGovernorate, getReviewerEvaluationVisitsByGovernorate, updateReviewerEvaluationVisitByGovernorate, deleteReviewerEvaluationVisitByGovernorate, type ReviewerEvaluationVisitByGovernorate, saveReviewerEvaluationVisitByType, getReviewerEvaluationVisitsByType, updateReviewerEvaluationVisitByType, deleteReviewerEvaluationVisitByType, type ReviewerEvaluationVisitByType, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory
+    saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveReviewerEvaluationVisitByGovernorate, getReviewerEvaluationVisitsByGovernorate, updateReviewerEvaluationVisitByGovernorate, deleteReviewerEvaluationVisitByGovernorate, type ReviewerEvaluationVisitByGovernorate, saveReviewerEvaluationVisitByType, getReviewerEvaluationVisitsByType, updateReviewerEvaluationVisitByType, deleteReviewerEvaluationVisitByType, type ReviewerEvaluationVisitByType, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
+    saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate
 } from '@/lib/firestore';
 
 import jsPDF from 'jspdf';
@@ -585,6 +586,27 @@ export default function DepartmentPage() {
     const [medProfByCategorySubmitted, setMedProfByCategorySubmitted] = useState(false);
     const [isMedProfByCategorySectionExpanded, setIsMedProfByCategorySectionExpanded] = useState(false);
 
+    // Medical Professionals By Governorate State
+    const [medProfsByGovernorate, setMedProfsByGovernorate] = useState<MedicalProfessionalByGovernorate[]>([]);
+    const [medProfByGovernorateFormData, setMedProfByGovernorateFormData] = useState<Omit<MedicalProfessionalByGovernorate, 'id' | 'createdAt' | 'updatedAt' | 'total'>>({
+        month: '',
+        governorate: '',
+        doctors: 0,
+        dentists: 0,
+        pharmacists: 0,
+        physiotherapy: 0,
+        veterinarians: 0,
+        seniorNursing: 0,
+        technicalNursing: 0,
+        healthTechnician: 0,
+        scientists: 0,
+        year: new Date().getFullYear()
+    });
+    const [editingMedProfByGovernorateId, setEditingMedProfByGovernorateId] = useState<string | null>(null);
+    const [medProfByGovernorateFilterMonth, setMedProfByGovernorateFilterMonth] = useState('');
+    const [medProfByGovernorateSubmitted, setMedProfByGovernorateSubmitted] = useState(false);
+    const [isMedProfByGovernorateSectionExpanded, setIsMedProfByGovernorateSectionExpanded] = useState(false);
+
     useEffect(() => {
 
         const unsubscribe = onAuthChange(async (user: User | null) => {
@@ -808,6 +830,12 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, medProfByCategoryFilterMonth]);
 
+    useEffect(() => {
+        if (id === 'dept7' && currentUser) {
+            loadMedicalProfessionalsByGovernorate();
+        }
+    }, [id, currentUser, medProfByGovernorateFilterMonth]);
+
     const loadFacilities = async () => {
 
         const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
@@ -888,6 +916,11 @@ export default function DepartmentPage() {
     const loadMedicalProfessionalsByCategory = async () => {
         const data = await getMedicalProfessionalsByCategory(medProfByCategoryFilterMonth || undefined);
         setMedProfsByCategory(data);
+    };
+
+    const loadMedicalProfessionalsByGovernorate = async () => {
+        const data = await getMedicalProfessionalsByGovernorate(medProfByGovernorateFilterMonth || undefined);
+        setMedProfsByGovernorate(data);
     };
 
     const loadScheduledSupportVisits = async () => {
@@ -4102,6 +4135,111 @@ export default function DepartmentPage() {
         URL.revokeObjectURL(url);
     };
 
+    // Medical Professionals By Governorate Handlers
+    const handleMedProfByGovernorateInputChange = (field: keyof Omit<MedicalProfessionalByGovernorate, 'id' | 'createdAt' | 'updatedAt' | 'total'>, value: any) => {
+        setMedProfByGovernorateFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleMedProfByGovernorateSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser || !canEdit(currentUser)) return;
+
+        try {
+            // Calculate total
+            const total =
+                Number(medProfByGovernorateFormData.doctors) +
+                Number(medProfByGovernorateFormData.dentists) +
+                Number(medProfByGovernorateFormData.pharmacists) +
+                Number(medProfByGovernorateFormData.physiotherapy) +
+                Number(medProfByGovernorateFormData.veterinarians) +
+                Number(medProfByGovernorateFormData.seniorNursing) +
+                Number(medProfByGovernorateFormData.technicalNursing) +
+                Number(medProfByGovernorateFormData.healthTechnician) +
+                Number(medProfByGovernorateFormData.scientists);
+
+            const dataToSave = {
+                ...medProfByGovernorateFormData,
+                doctors: Number(medProfByGovernorateFormData.doctors),
+                dentists: Number(medProfByGovernorateFormData.dentists),
+                pharmacists: Number(medProfByGovernorateFormData.pharmacists),
+                physiotherapy: Number(medProfByGovernorateFormData.physiotherapy),
+                veterinarians: Number(medProfByGovernorateFormData.veterinarians),
+                seniorNursing: Number(medProfByGovernorateFormData.seniorNursing),
+                technicalNursing: Number(medProfByGovernorateFormData.technicalNursing),
+                healthTechnician: Number(medProfByGovernorateFormData.healthTechnician),
+                scientists: Number(medProfByGovernorateFormData.scientists),
+                total,
+                year: parseInt(medProfByGovernorateFormData.month.split('-')[0]) || new Date().getFullYear(),
+                createdBy: currentUser.email || 'unknown'
+            };
+
+            if (editingMedProfByGovernorateId) {
+                await updateMedicalProfessionalByGovernorate(editingMedProfByGovernorateId, {
+                    ...dataToSave,
+                    updatedBy: currentUser.email || 'unknown'
+                });
+            } else {
+                await saveMedicalProfessionalByGovernorate(dataToSave);
+            }
+
+            setMedProfByGovernorateSubmitted(true);
+            setTimeout(() => setMedProfByGovernorateSubmitted(false), 3000);
+            resetMedProfByGovernorateForm();
+            loadMedicalProfessionalsByGovernorate();
+        } catch (error) {
+            console.error('Error saving medical professionals by governorate:', error);
+            alert('حدث خطأ أثناء حفظ البيانات');
+        }
+    };
+
+    const handleEditMedProfByGovernorate = (item: MedicalProfessionalByGovernorate) => {
+        setMedProfByGovernorateFormData({
+            month: item.month,
+            governorate: item.governorate,
+            doctors: item.doctors,
+            dentists: item.dentists,
+            pharmacists: item.pharmacists,
+            physiotherapy: item.physiotherapy,
+            veterinarians: item.veterinarians,
+            seniorNursing: item.seniorNursing,
+            technicalNursing: item.technicalNursing,
+            healthTechnician: item.healthTechnician,
+            scientists: item.scientists,
+            year: item.year
+        });
+        setEditingMedProfByGovernorateId(item.id || null);
+        setIsMedProfByGovernorateSectionExpanded(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteMedProfByGovernorate = async (id: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            await deleteMedicalProfessionalByGovernorate(id);
+            loadMedicalProfessionalsByGovernorate();
+        }
+    };
+
+    const resetMedProfByGovernorateForm = () => {
+        setMedProfByGovernorateFormData({
+            month: new Date().toISOString().slice(0, 7),
+            governorate: '',
+            doctors: 0,
+            dentists: 0,
+            pharmacists: 0,
+            physiotherapy: 0,
+            veterinarians: 0,
+            seniorNursing: 0,
+            technicalNursing: 0,
+            healthTechnician: 0,
+            scientists: 0,
+            year: new Date().getFullYear()
+        });
+        setEditingMedProfByGovernorateId(null);
+    };
+
     const filteredSubmissions = getFilteredAndSortedSubmissions();
 
     // Determine active and completed fields for dept8
@@ -4711,7 +4849,7 @@ export default function DepartmentPage() {
             }
 
             {/* Medical Professionals By Category Section - أعضاء المهن الطبية حسب الفئة (for dept7 only) */}
-            {id === 'dept7' && (
+            {false && id === 'dept7' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: isMedProfByCategorySectionExpanded ? '20px' : '0', paddingBottom: isMedProfByCategorySectionExpanded ? '15px' : '0', borderBottom: isMedProfByCategorySectionExpanded ? '2px solid var(--background-color)' : 'none', transition: 'all 0.3s ease' }} onClick={() => setIsMedProfByCategorySectionExpanded(!isMedProfByCategorySectionExpanded)}>
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
@@ -11336,7 +11474,7 @@ export default function DepartmentPage() {
             )}
 
             {
-                submissions.length > 0 && (
+                submissions.length > 0 && id !== 'dept7' && (
                     <div className="card" style={{ marginTop: '30px' }}>
                         {/* Filter and Search UI */}
                         <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: 'var(--background-color)', borderRadius: '8px' }}>
@@ -11929,7 +12067,8 @@ export default function DepartmentPage() {
                                 <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
                                     <input type="month" className="form-input" value={medProfByCategoryFilterMonth}
-                                        onChange={(e) => setMedProfByCategoryFilterMonth(e.target.value)} />
+                                        onChange={(e) => setMedProfByCategoryFilterMonth(e.target.value)}
+                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
                                 </div>
                             </div>
 
@@ -12058,6 +12197,460 @@ export default function DepartmentPage() {
                     )}
                 </div>
             )}
+
+            {/* Medical Professionals By Governorate Section - for dept7 only */}
+            {id === 'dept7' && (
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            marginBottom: isMedProfByGovernorateSectionExpanded ? '20px' : '0',
+                            paddingBottom: isMedProfByGovernorateSectionExpanded ? '15px' : '0',
+                            borderBottom: isMedProfByGovernorateSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsMedProfByGovernorateSectionExpanded(!isMedProfByGovernorateSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات
+                        </h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                            <span style={{ fontSize: '0.9rem' }}>{isMedProfByGovernorateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isMedProfByGovernorateSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isMedProfByGovernorateSectionExpanded && (
+                        <>
+                            {userCanEdit && (
+                                <form onSubmit={handleMedProfByGovernorateSubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                    <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                        {editingMedProfByGovernorateId ? 'تعديل بيانات' : 'إضافة بيانات جديدة'}
+                                    </h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                                        <div className="form-group">
+                                            <label className="form-label">الشهر *</label>
+                                            <input type="month" className="form-input" required value={medProfByGovernorateFormData.month}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('month', e.target.value)}
+                                                max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">المحافظة *</label>
+                                            <select className="form-input" required value={medProfByGovernorateFormData.governorate}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('governorate', e.target.value)}>
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">أطباء بشريين *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.doctors}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('doctors', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">أطباء أسنان *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.dentists}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('dentists', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">صيادلة *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.pharmacists}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('pharmacists', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">علاج طبيعي *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.physiotherapy}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('physiotherapy', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">بيطريين *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.veterinarians}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('veterinarians', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">تمريض عالي *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.seniorNursing}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('seniorNursing', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">فني تمريض *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.technicalNursing}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('technicalNursing', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">فني صحي *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.healthTechnician}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('healthTechnician', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">علميين *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={medProfByGovernorateFormData.scientists}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('scientists', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                                        <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            {editingMedProfByGovernorateId ? 'تحديث البيانات' : 'حفظ البيانات'}
+                                        </button>
+                                        {editingMedProfByGovernorateId && (
+                                            <button type="button" className="btn" style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                onClick={resetMedProfByGovernorateForm}>إلغاء التعديل</button>
+                                        )}
+                                    </div>
+                                    {medProfByGovernorateSubmitted && (
+                                        <div style={{ padding: '12px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginTop: '15px', border: '1px solid #c3e6cb' }}>
+                                            ✓ تم {editingMedProfByGovernorateId ? 'تحديث' : 'إضافة'} البيانات بنجاح
+                                        </div>
+                                    )}
+                                </form>
+                            )}
+
+                            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input type="month" className="form-input" value={medProfByGovernorateFilterMonth}
+                                        onChange={(e) => setMedProfByGovernorateFilterMonth(e.target.value)}
+                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                </div>
+                                {medProfByGovernorateFilterMonth && (
+                                    <button
+                                        type="button"
+                                        className="btn"
+                                        onClick={() => setMedProfByGovernorateFilterMonth('')}
+                                        style={{ backgroundColor: '#6c757d', color: 'white', height: 'fit-content' }}
+                                    >
+                                        عرض الكل
+                                    </button>
+                                )}
+                            </div>
+
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#00BCD4', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>أطباء بشريين</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>أطباء أسنان</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>صيادلة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>علاج طبيعي</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>بيطريين</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>تمريض عالي</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>فني تمريض</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>فني صحي</th>
+                                            <th style={{ padding: '12px', textAlign: 'center' }}>علميين</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', backgroundColor: '#FFA726' }}>الإجمالي</th>
+                                            {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>إجراءات</th>}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {medProfsByGovernorate.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={userCanEdit ? 12 : 11} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                    لا توجد بيانات
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            <>
+                                                {medProfsByGovernorate.map((item, index) => (
+                                                    <tr key={item.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>{item.governorate}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button onClick={() => handleEditMedProfByGovernorate(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
+                                                                    <button onClick={() => handleDeleteMedProfByGovernorate(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))}
+                                                <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.doctors, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.dentists, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.pharmacists, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.physiotherapy, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.veterinarians, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.seniorNursing, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.technicalNursing, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.healthTechnician, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.scientists, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {medProfsByGovernorate.reduce((sum, item) => sum + item.total, 0)}
+                                                    </td>
+                                                    {userCanEdit && <td></td>}
+                                                </tr>
+                                            </>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* Main Data Table for dept7 (Moved to bottom) */}
+            {
+                submissions.length > 0 && id === 'dept7' && (
+                    <div className="card" style={{ marginTop: '30px' }}>
+                        {/* Filter and Search UI */}
+                        <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: 'var(--background-color)', borderRadius: '8px' }}>
+                            <h3 style={{ marginBottom: '15px', color: 'var(--primary-color)', fontSize: '1.1rem' }}>🔍 فلترة وبحث</h3>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                                {/* Search */}
+                                <div className="form-group">
+                                    <label className="form-label">بحث في جميع الحقول</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="ابحث..."
+                                        value={searchText}
+                                        onChange={(e) => setSearchText(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* Date From */}
+                                <div className="form-group">
+                                    <label className="form-label">من تاريخ</label>
+                                    <input
+                                        type="month"
+                                        className="form-input"
+                                        value={dateFrom}
+                                        onChange={(e) => setDateFrom(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* Date To */}
+                                <div className="form-group">
+                                    <label className="form-label">إلى تاريخ</label>
+                                    <input
+                                        type="month"
+                                        className="form-input"
+                                        value={dateTo}
+                                        onChange={(e) => setDateTo(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Clear Filters + Results Count */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+                                <button
+                                    onClick={() => {
+                                        setSearchText('');
+                                        setDateFrom('');
+                                        setDateTo('');
+                                    }}
+                                    className="btn"
+                                    style={{ backgroundColor: '#6c757d', color: 'white', padding: '8px 16px', fontSize: '0.9rem' }}
+                                >
+                                    مسح الفلاتر
+                                </button>
+                                <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                                    عرض <strong>{filteredSubmissions.length}</strong> من أصل <strong>{submissions.length}</strong> سجل
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Export Buttons */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
+                            <button
+                                onClick={() => setIsMedicalProfessionalsDashboardOpen(true)}
+                                className="btn"
+                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                📊 لوحة البيانات
+                            </button>
+                            <button
+                                onClick={handleExportPDF}
+                                className="btn"
+                                style={{ backgroundColor: '#dc3545', color: 'white', fontSize: '0.9rem' }}
+                            >
+                                تصدير PDF
+                            </button>
+                            {currentUser?.role === 'super_admin' && (
+                                <button
+                                    onClick={handleExportExcel}
+                                    className="btn"
+                                    style={{ backgroundColor: '#28a745', color: 'white', fontSize: '0.9rem' }}
+                                >
+                                    تصدير Excel
+                                </button>
+                            )}
+                        </div>
+
+
+
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities').map(field => (
+                                            <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
+                                                <button
+                                                    onClick={() => handleSort(field.name)}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        color: 'inherit',
+                                                        fontWeight: 'bold',
+                                                        fontSize: '1rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    {field.label}
+                                                    {sortColumn === field.name && (
+                                                        <span style={{ fontSize: '0.8rem' }}>
+                                                            {sortDirection === 'asc' ? '↑' : '↓'}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            </th>
+                                        ))}
+                                        {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>إجراءات</th>}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedSubmissions.map((sub, index) => (
+                                        <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities').map(field => (
+                                                <td key={field.name} style={{ padding: '12px' }}>
+                                                    {field.name === 'date' && sub[field.name] ? (
+                                                        (() => {
+                                                            // Handle both YYYY-MM and YYYY-MM-DD
+                                                            const dateVal = sub[field.name].length === 7 ? sub[field.name] + '-01' : sub[field.name];
+                                                            return formatMonthYear(new Date(dateVal));
+                                                        })()
+                                                    ) : (
+                                                        sub[field.name] || '-'
+                                                    )}
+                                                </td>
+                                            ))}
+                                            {userCanEdit && (
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                    {canEditRecord(sub) ? (
+                                                        <button
+                                                            onClick={() => handleEdit(sub)}
+                                                            style={{ padding: '8px 20px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '500', transition: 'all 0.2s' }}
+                                                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0c98a3'}
+                                                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0eacb8'}
+                                                        >
+                                                            تعديل
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            disabled
+                                                            title="لا يمكن تعديل بيانات السنوات السابقة (للمدير العام فقط)"
+                                                            style={{
+                                                                padding: '8px 20px',
+                                                                backgroundColor: '#ccc',
+                                                                color: '#666',
+                                                                border: 'none',
+                                                                borderRadius: '6px',
+                                                                cursor: 'not-allowed',
+                                                                fontSize: '0.9rem',
+                                                                fontWeight: '500'
+                                                            }}
+                                                        >
+                                                            🔒 مقفل
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))
+                                    }
+                                    {/* Totals Row */}
+                                    {filteredSubmissions.length > 0 && (
+                                        <tr style={{
+                                            backgroundColor: '#f0f9fa',
+                                            borderTop: '2px solid var(--primary-color)',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map((field, index) => (
+                                                <td key={field.name} style={{
+                                                    padding: '14px 12px',
+                                                    color: 'var(--primary-color)',
+                                                    fontSize: '1.05rem'
+                                                }}>
+                                                    {index === 0 ? (
+                                                        'المجموع'
+                                                    ) : field.type === 'number' ? (
+                                                        totals[field.name] || 0
+                                                    ) : (
+                                                        '-'
+                                                    )}
+                                                </td>
+                                            ))}
+                                            {userCanEdit && <td style={{ padding: '14px 12px' }}></td>}
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination Component */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredSubmissions.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                            onItemsPerPageChange={setItemsPerPage}
+                        />
+                    </div>
+                )
+            }
         </div >
     );
 }
