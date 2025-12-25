@@ -26,6 +26,10 @@ service cloud.firestore {
       return getUserData().departmentId;
     }
     
+    function isDepartmentAdmin(deptId) {
+      return isAuthenticated() && getUserData().role == 'dept_admin' && getUserData().departmentId == deptId;
+    }
+    
     match /users/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;
       allow read: if isSuperAdmin();
@@ -168,12 +172,12 @@ service cloud.firestore {
 
     match /medical_professionals_by_category/{docId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
 
     match /medical_professionals_by_governorate/{docId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
   }
 }

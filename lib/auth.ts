@@ -150,7 +150,7 @@ export async function deleteUser(id: string) {
     }
 }
 
-export async function resetUserPassword(userId: string, newPassword: string = 'Gahar@123'): Promise<{ success: boolean; error?: string; newPassword?: string }> {
+export async function resetUserPassword(userId: string, newPassword: string = 'Gahar@' + Math.random().toString(36).slice(-8) + '123'): Promise<{ success: boolean; error?: string; newPassword?: string }> {
     try {
         // Call the API route to reset password using Firebase Admin SDK
         const response = await fetch('/api/reset-password', {
@@ -186,18 +186,26 @@ export async function resetUserPassword(userId: string, newPassword: string = 'G
 // Authentication
 export async function login(email: string, password: string): Promise<User | null> {
     try {
-        console.log('Attempting login for:', email);
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('Attempting login for:', email);
+        }
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log('Auth successful. UID:', userCredential.user.uid);
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('Auth successful. UID:', userCredential.user.uid);
+        }
 
         const userProfile = await getUserProfile(userCredential.user.uid);
-        console.log('User profile result:', userProfile);
+        if (process.env.NODE_ENV !== 'production') {
+            console.log('User profile result:', userProfile);
+        }
 
         if (!userProfile) {
-            console.error('User profile not found for UID:', userCredential.user.uid);
+            if (process.env.NODE_ENV !== 'production') {
+                console.error('User profile not found for UID:', userCredential.user.uid);
+            }
             // Emergency recovery: if it's the admin, try to recreate the profile
             if (email === 'admin@gahar.gov.eg') {
-                console.log('Attempting emergency profile recovery for admin...');
+
                 const adminProfile = {
                     username: 'Admin',
                     email: email,
@@ -308,7 +316,7 @@ export async function initializeUsers() {
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-            console.log('Admin profile missing in Firestore. Attempting to create/restore...');
+
 
             try {
                 // Try to create the user (Auth + Firestore)
@@ -318,15 +326,12 @@ export async function initializeUsers() {
                     password: 'admin123',
                     role: 'super_admin'
                 });
-                console.log('Default super admin created successfully.');
+
             } catch (error: any) {
                 // If Auth user already exists but Firestore profile is missing
                 if (error.message === 'البريد الإلكتروني مستخدم بالفعل') {
-                    console.log('Admin Auth exists but Firestore profile missing. Restoring profile...');
-                    // We need the UID. Since we can't get it easily without logging in, 
-                    // we'll rely on the login function's emergency recovery or try to sign in here temporarily.
-                    // However, login() now has recovery logic, so we can just let the user try to login.
-                    console.log('Please try logging in as admin to complete recovery.');
+                    // Admin Auth exists but Firestore profile missing
+                    // The login function has emergency recovery logic
                 } else {
                     console.error('Error creating admin:', error);
                 }
