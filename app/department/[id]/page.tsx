@@ -623,12 +623,12 @@ export default function DepartmentPage() {
             // Load KPI data from Firestore
             const kpiData = await getKPIData(id);
 
-            // Sort by date (oldest first)
+            // Sort by date (newest first)
             kpiData.sort((a: any, b: any) => {
                 // Assuming createdAt is a Firestore Timestamp or Date object
                 const dateA = a.createdAt instanceof Date ? a.createdAt : a.createdAt.toDate();
                 const dateB = b.createdAt instanceof Date ? b.createdAt : b.createdAt.toDate();
-                return dateA.getTime() - dateB.getTime();
+                return dateB.getTime() - dateA.getTime();
             });
 
             const formattedData = kpiData.map((item: any) => {
