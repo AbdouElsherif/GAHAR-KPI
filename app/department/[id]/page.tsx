@@ -11989,6 +11989,8 @@ export default function DepartmentPage() {
                                                 <option value="الأقصر">الأقصر</option>
                                                 <option value="الإسماعيلية">الإسماعيلية</option>
                                                 <option value="السويس">السويس</option>
+                                                <option value="أسوان">أسوان</option>
+                                                <option value="جنوب سيناء">جنوب سيناء</option>
                                             </select>
                                         </div>
                                         <div className="form-group">
@@ -12100,7 +12102,7 @@ export default function DepartmentPage() {
                                             </tr>
                                         ) : (
                                             <>
-                                                {['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس'].map(branch => {
+                                                {['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس', 'أسوان', 'جنوب سيناء'].map(branch => {
                                                     const branchData = medProfsByCategory.filter(item => item.branch === branch);
                                                     if (branchData.length === 0) return null;
                                                     const totals = branchData.reduce((acc, item) => ({

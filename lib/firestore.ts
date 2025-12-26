@@ -362,7 +362,7 @@ export interface ReviewerEvaluationVisitByType {
 export interface MedicalProfessionalByCategory {
     id?: string;
     month: string;  // الشهر YYYY-MM
-    branch: string;  // الفرع (رئاسة الهيئة، بورسعيد، الأقصر، الإسماعيلية، السويس)
+    branch: string;  // الفرع (رئاسة الهيئة، بورسعيد، الأقصر، الإسماعيلية، السويس، أسوان، جنوب سيناء)
     doctors: number;  // أطباء بشريين
     dentists: number;  // أطباء أسنان
     pharmacists: number;  // صيادلة
