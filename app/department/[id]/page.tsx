@@ -215,7 +215,7 @@ export default function DepartmentPage() {
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
     const [sortColumn, setSortColumn] = useState<string>('date');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
