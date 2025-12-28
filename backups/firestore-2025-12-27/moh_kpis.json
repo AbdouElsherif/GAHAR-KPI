@@ -1,0 +1,959 @@
+{
+  "0cZdnnWDCmBaB2Y3QtYT": {
+    "name": "حجم عينة قياس تجربة مريض",
+    "unit": "عينة استبيان",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "31500",
+      "achieved": "37476"
+    },
+    "q2": {
+      "target": "31500",
+      "achieved": "38046"
+    },
+    "q3": {
+      "target": "31500",
+      "achieved": "45395"
+    },
+    "q4": {
+      "target": "31500",
+      "achieved": "42973"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581535,
+      "_nanoseconds": 602000000
+    },
+    "department": "رضاء المتعاملين",
+    "updatedAt": {
+      "_seconds": 1764591285,
+      "_nanoseconds": 342000000
+    }
+  },
+  "0uaegu4beudfFLBTJBDo": {
+    "name": "نسبة زيارات الدعم الفني عن بعد",
+    "unit": "زيارة",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100% (27  دعم فني عن بعد)"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100% (14  دعم فني عن بعد)"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100% (13  دعم فني عن بعد)"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100% (27  دعم فني عن بعد)"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575110,
+      "_nanoseconds": 482000000
+    },
+    "department": "الدعم الفني",
+    "updatedAt": {
+      "_seconds": 1764591856,
+      "_nanoseconds": 596000000
+    }
+  },
+  "5hIy0YZb0RuyWkwCS0ry": {
+    "name": "نسبة إنجاز  الدليل الاسترشادي للتجهيزات الطبية للمستشفيات",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "75%",
+      "achieved": "85%"
+    },
+    "q2": {
+      "target": "95%",
+      "achieved": "95%"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575818,
+      "_nanoseconds": 266000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764661952,
+      "_nanoseconds": 646000000
+    }
+  },
+  "6UlA8aGPkaQmGDiCZDQl": {
+    "name": "نسبة المنشآت التي تم تجديد اعتمادها (التي حل موعد تجديد اعتمادها)",
+    "unit": "%",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100% (27 منشأة)"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100% (37 منشأة)"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100% (26 منشأة)"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100% (37 منشأة)"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764492817,
+      "_nanoseconds": 166000000
+    },
+    "annualTarget": "",
+    "department": "الاعتماد والتسجيل",
+    "updatedAt": {
+      "_seconds": 1764661861,
+      "_nanoseconds": 747000000
+    }
+  },
+  "BDwmLFNTSSpdjk2yerla": {
+    "name": "نسبة الاستجابة للإحالات والتكليفات (الرقابة الإدارية)",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581479,
+      "_nanoseconds": 246000000
+    },
+    "department": "الرقابة الإدارية",
+    "updatedAt": {
+      "_seconds": 1764591704,
+      "_nanoseconds": 826000000
+    }
+  },
+  "CNJglgHQgouHUI5sz5R7": {
+    "name": "عدد المنشآت الحاصلة على الاعتماد",
+    "unit": "منشأة صحية",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "45",
+      "achieved": "48"
+    },
+    "q2": {
+      "target": "25",
+      "achieved": "20"
+    },
+    "q3": {
+      "target": "45",
+      "achieved": "35"
+    },
+    "q4": {
+      "target": "35",
+      "achieved": "25"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764492668,
+      "_nanoseconds": 678000000
+    },
+    "annualTarget": null,
+    "department": "الاعتماد والتسجيل",
+    "updatedAt": {
+      "_seconds": 1764661747,
+      "_nanoseconds": 61000000
+    }
+  },
+  "CP2YDYxvrA6bibOmliOZ": {
+    "name": "نسبة الإنجاز في معايير المستشفيات اصدار 2025 ",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q2": {
+      "target": "",
+      "achieved": ""
+    },
+    "q3": {
+      "target": "",
+      "achieved": ""
+    },
+    "q4": {
+      "target": "",
+      "achieved": ""
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764577534,
+      "_nanoseconds": 257000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764661768,
+      "_nanoseconds": 933000000
+    }
+  },
+  "DmYErqwOr7zsdwZR2Cm8": {
+    "name": "عدد زيارات الرقابة الفنية والإكلينيكية (تقييم فني وتدقيق فني)",
+    "unit": "زيارة",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "135",
+      "achieved": "113"
+    },
+    "q2": {
+      "target": "135",
+      "achieved": "129"
+    },
+    "q3": {
+      "target": "135",
+      "achieved": "127"
+    },
+    "q4": {
+      "target": "135",
+      "achieved": "129"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764580631,
+      "_nanoseconds": 988000000
+    },
+    "department": "الرقابة الفنية والإكلينيكية",
+    "updatedAt": {
+      "_seconds": 1764591453,
+      "_nanoseconds": 242000000
+    }
+  },
+  "DpQDcc0MMAyRhKU5PjcN": {
+    "name": "عدد زيارات الرقابة الإدارية على المؤسسات الصحية",
+    "unit": "زيارة رقابية",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "135",
+      "achieved": "154"
+    },
+    "q2": {
+      "target": "135",
+      "achieved": "146"
+    },
+    "q3": {
+      "target": "135",
+      "achieved": "172"
+    },
+    "q4": {
+      "target": "135",
+      "achieved": "178"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581439,
+      "_nanoseconds": 497000000
+    },
+    "department": "الرقابة الإدارية",
+    "updatedAt": {
+      "_seconds": 1764591433,
+      "_nanoseconds": 349000000
+    }
+  },
+  "FKmVWBdYhNYA5BvMGHh1": {
+    "name": "نسبة الإنجاز في معايير المعامل الإكلينيكية (الإصدار الثاني)",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "10%",
+      "achieved": "10%"
+    },
+    "q2": {
+      "target": "30%",
+      "achieved": "25%"
+    },
+    "q3": {
+      "target": "70%",
+      "achieved": "98%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "98%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764578671,
+      "_nanoseconds": 82000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764661792,
+      "_nanoseconds": 445000000
+    }
+  },
+  "H4mquPg5SaPu8V8HIKrs": {
+    "name": "نسبة الزيارات التقييمية للمنشآت الراغبة في الحصول على الاعتماد",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764574543,
+      "_nanoseconds": 445000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764661830,
+      "_nanoseconds": 261000000
+    }
+  },
+  "Iga6Dezypw9vD1YgJRAE": {
+    "name": "نسبة المنشآت التي حصلت على الدعم الفني",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575329,
+      "_nanoseconds": 987000000
+    },
+    "department": "الدعم الفني",
+    "updatedAt": {
+      "_seconds": 1764591822,
+      "_nanoseconds": 634000000
+    }
+  },
+  "Lr3BeZfUmbJoaPmZzrVs": {
+    "name": "نسبة الإنجاز في معايير العلاج الطبيعي (الإصدار الثاني)",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "0",
+      "achieved": "0"
+    },
+    "q2": {
+      "target": "0",
+      "achieved": "0"
+    },
+    "q3": {
+      "target": "10%",
+      "achieved": "15%"
+    },
+    "q4": {
+      "target": "50%",
+      "achieved": "80%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764578737,
+      "_nanoseconds": 368000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764593586,
+      "_nanoseconds": 98000000
+    }
+  },
+  "MstdhWCKUqTOREZT4Lc3": {
+    "name": "نسبة الزيارات التمهيدية لخدمات الدعم الفني",
+    "unit": "زيارة",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100% (84 زيارة تمهيدية)"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100% (128 زيارة تمهيدية)"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100% (114 زيارة تمهيدية)"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100% (65 زيارة تمهيدية)"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575000,
+      "_nanoseconds": 757000000
+    },
+    "department": "الدعم الفني",
+    "updatedAt": {
+      "_seconds": 1764591779,
+      "_nanoseconds": 271000000
+    }
+  },
+  "NtrxPmbsebKhErMIOsHV": {
+    "name": "حجم عينة قياس رضاء العاملين",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "10%",
+      "achieved": "17%"
+    },
+    "q2": {
+      "target": "10%",
+      "achieved": "19%"
+    },
+    "q3": {
+      "target": "10%",
+      "achieved": "21%"
+    },
+    "q4": {
+      "target": "10%",
+      "achieved": "35%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581721,
+      "_nanoseconds": 563000000
+    },
+    "department": "رضاء المتعاملين",
+    "updatedAt": {
+      "_seconds": 1764591302,
+      "_nanoseconds": 835000000
+    }
+  },
+  "OEj4jlYlwq6ZUxYJD5EB": {
+    "name": "عدد البرامج التدريبية",
+    "unit": "برنامج تدريبي",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "12",
+      "achieved": "19"
+    },
+    "q2": {
+      "target": "15",
+      "achieved": "17"
+    },
+    "q3": {
+      "target": "10",
+      "achieved": "17"
+    },
+    "q4": {
+      "target": "11",
+      "achieved": "20"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575417,
+      "_nanoseconds": 829000000
+    },
+    "department": "التدريب للغير",
+    "updatedAt": {
+      "_seconds": 1764591313,
+      "_nanoseconds": 87000000
+    }
+  },
+  "PMLBS5didHLCNadP6j58": {
+    "name": "نسبة زيارات الدعم الفني الميداني",
+    "unit": "زيارة",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100% (29 زيارة ميدانية)"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100% (52 زيارة ميدانية)"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100% (54 زيارة ميدانية)"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100% (52 زيارة ميدانية)"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575056,
+      "_nanoseconds": 888000000
+    },
+    "department": "الدعم الفني",
+    "updatedAt": {
+      "_seconds": 1764591845,
+      "_nanoseconds": 705000000
+    }
+  },
+  "UoX1wilvlJrvpN7vpGq9": {
+    "name": "نسبة المنشآت التي حصلت على الدعم الفني",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575171,
+      "_nanoseconds": 496000000
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "department": "الدعم الفني",
+    "updatedAt": {
+      "_seconds": 1764591805,
+      "_nanoseconds": 725000000
+    }
+  },
+  "VcN2eUXx8QS56gksO72k": {
+    "name": "نسبة المنشآت التي تم تجديد اعتمادها (التي حل موعد تجديد اعتمادها)",
+    "unit": "%",
+    "department": "الاعتماد والتسجيل",
+    "annualTarget": "100%",
+    "q1": {
+      "target": "100%",
+      "achieved": "100% (40 منشأة)"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "0"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "0"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "0"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764663110,
+      "_nanoseconds": 661000000
+    },
+    "fiscalYear": "2025-2026",
+    "updatedAt": {
+      "_seconds": 1764663141,
+      "_nanoseconds": 7000000
+    }
+  },
+  "VeCUsxpgtGxHeXI6ihfn": {
+    "name": "نسبة الإنجاز في معايير السياحة الاستشفائية ",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "20%",
+      "achieved": "28%"
+    },
+    "q2": {
+      "target": "55%",
+      "achieved": "57%"
+    },
+    "q3": {
+      "target": "80%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575707,
+      "_nanoseconds": 492000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764591882,
+      "_nanoseconds": 160000000
+    }
+  },
+  "YBfBs1LkQW731kNZEQXs": {
+    "name": "إجمالي الإيرادات نظير عمليات الاعتماد/ الاعتماد المبدئي",
+    "unit": "مليون جنيه",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": " 3,000,000 ",
+      "achieved": " 3,235,000 "
+    },
+    "q2": {
+      "target": "2,000,000",
+      "achieved": "4,915,219"
+    },
+    "q3": {
+      "target": "2,000,000",
+      "achieved": "5,958,500"
+    },
+    "q4": {
+      "target": "2,000,000",
+      "achieved": "6,140,000"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764574602,
+      "_nanoseconds": 703000000
+    },
+    "department": "الاعتماد والتسجيل",
+    "updatedAt": {
+      "_seconds": 1764592142,
+      "_nanoseconds": 417000000
+    }
+  },
+  "aKbOlocdUMt58w0J99ix": {
+    "name": "نسبة أعضاء المهن الطبية المسجلين",
+    "unit": "عضو مهن طبية",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "6642",
+      "achieved": "93% (6182 عضو مهن طبية)"
+    },
+    "q2": {
+      "target": "90%",
+      "achieved": "96% (6969 عضو مهن طبية)"
+    },
+    "q3": {
+      "target": "90%",
+      "achieved": "92% (10187 عضو مهن طبية)"
+    },
+    "q4": {
+      "target": "90%",
+      "achieved": "92% (7958 عضو مهن طبية)"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581831,
+      "_nanoseconds": 828000000
+    },
+    "department": "أعضاء المهن",
+    "updatedAt": {
+      "_seconds": 1764591565,
+      "_nanoseconds": 137000000
+    }
+  },
+  "fD6MWQdpZRgN1RjgBhIn": {
+    "name": "نسبة برامج الدعم الفني المقدمة",
+    "unit": "برنامج",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764574672,
+      "_nanoseconds": 362000000
+    },
+    "q1": {
+      "target": "100%",
+      "achieved": "100% (140 برنامج)"
+    },
+    "q2": {
+      "target": "100%",
+      "achieved": "100% (194 برنامج)"
+    },
+    "q3": {
+      "target": "100%",
+      "achieved": "100% (181 برنامج)"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100% (144 برنامج)"
+    },
+    "department": "الدعم الفني",
+    "updatedAt": {
+      "_seconds": 1764591995,
+      "_nanoseconds": 479000000
+    }
+  },
+  "gV0v4w6k1M41dMXRHzS0": {
+    "name": "نسبة الإنجاز من معايير دور النقاهة والرعاية الممتدة",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "20%",
+      "achieved": "18%"
+    },
+    "q2": {
+      "target": "45%",
+      "achieved": "50%"
+    },
+    "q3": {
+      "target": "75%",
+      "achieved": "100%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575640,
+      "_nanoseconds": 334000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764661808,
+      "_nanoseconds": 508000000
+    }
+  },
+  "jS6OkoGCOtBGSgbm0kFl": {
+    "name": "نسبة الإنجاز في معايير الرعاية الأولية 2025",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "15%",
+      "achieved": "18%"
+    },
+    "q2": {
+      "target": "40%",
+      "achieved": "39%"
+    },
+    "q3": {
+      "target": "65%",
+      "achieved": "99%"
+    },
+    "q4": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575764,
+      "_nanoseconds": 948000000
+    },
+    "department": "تطوير المعايير",
+    "updatedAt": {
+      "_seconds": 1764591892,
+      "_nanoseconds": 315000000
+    }
+  },
+  "rnp6m5Stcw12bmz83VYg": {
+    "name": "عدد المنشآت الحاصلة على الاعتماد",
+    "unit": "منشأة صحية",
+    "department": "الاعتماد والتسجيل",
+    "annualTarget": "300",
+    "fiscalYear": "2025-2026",
+    "q1": {
+      "target": "75",
+      "achieved": "89"
+    },
+    "q2": {
+      "target": "75",
+      "achieved": "0"
+    },
+    "q3": {
+      "target": "75",
+      "achieved": "0"
+    },
+    "q4": {
+      "target": "75",
+      "achieved": "0"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764662927,
+      "_nanoseconds": 60000000
+    },
+    "updatedAt": {
+      "_seconds": 1764662927,
+      "_nanoseconds": 60000000
+    }
+  },
+  "xM2NAVFowfROmgbuHDtH": {
+    "name": "نسبة الاستجابة للإحالات (الرقابة الفنية والإكلينيكية)",
+    "unit": "%",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "100%",
+      "achieved": "100%"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581300,
+      "_nanoseconds": 794000000
+    },
+    "q2": {
+      "achieved": "100%",
+      "target": "100%"
+    },
+    "q3": {
+      "achieved": "100%",
+      "target": "100%"
+    },
+    "q4": {
+      "achieved": "100%",
+      "target": "100%"
+    },
+    "department": "الرقابة الفنية والإكلينيكية",
+    "updatedAt": {
+      "_seconds": 1764591657,
+      "_nanoseconds": 987000000
+    }
+  },
+  "zUmirgQuFvMgmGe1ip27": {
+    "name": "عدد المنشآت التي تم إجراء استبيانات بها",
+    "unit": "منشأة صحية",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "139",
+      "achieved": "135"
+    },
+    "q2": {
+      "target": "139",
+      "achieved": "137"
+    },
+    "q3": {
+      "target": "139",
+      "achieved": "144"
+    },
+    "q4": {
+      "target": "139",
+      "achieved": "153"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764581773,
+      "_nanoseconds": 79000000
+    },
+    "department": "رضاء المتعاملين",
+    "updatedAt": {
+      "_seconds": 1764591348,
+      "_nanoseconds": 58000000
+    }
+  },
+  "zW7qvKJ4PFLYN5FSxSvC": {
+    "name": "عدد المتدربين على متطلبات الاعتماد/ الاعتماد المبدئي للمنشآت",
+    "unit": "متدرب",
+    "annualTarget": "",
+    "fiscalYear": "2024-2025",
+    "q1": {
+      "target": "600",
+      "achieved": "2238"
+    },
+    "q2": {
+      "target": "1400",
+      "achieved": "2021"
+    },
+    "q3": {
+      "target": "1000",
+      "achieved": "1123"
+    },
+    "q4": {
+      "target": "1000",
+      "achieved": "3075"
+    },
+    "createdBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "updatedBy": "uWAGs4IibMYzSU02vLXUqZwmVLn1",
+    "createdAt": {
+      "_seconds": 1764575540,
+      "_nanoseconds": 193000000
+    },
+    "department": "التدريب للغير",
+    "updatedAt": {
+      "_seconds": 1764591330,
+      "_nanoseconds": 534000000
+    }
+  }
+}

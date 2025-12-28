@@ -1,0 +1,190 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isSuperAdmin() {
+      return isAuthenticated() && getUserData().role == 'super_admin';
+    }
+    
+    function isDeptAdmin() {
+      return isAuthenticated() && getUserData().role == 'dept_admin';
+    }
+    
+    function isGeneralViewer() {
+      return isAuthenticated() && getUserData().role == 'general_viewer';
+    }
+    
+    function userDepartmentId() {
+      return getUserData().departmentId;
+    }
+    
+    function isDepartmentAdmin(deptId) {
+      return isAuthenticated() && getUserData().role == 'dept_admin' && getUserData().departmentId == deptId;
+    }
+    
+    match /users/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isSuperAdmin();
+      allow update: if isAuthenticated() && request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email']);
+      allow create, update, delete: if isSuperAdmin();
+    }
+    
+    match /kpis/{kpiId} {
+      allow read: if isAuthenticated() && (isSuperAdmin() || isGeneralViewer() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId) || (getUserData().role == 'dept_viewer' && userDepartmentId() == resource.data.departmentId));
+      allow create: if isAuthenticated() && (isSuperAdmin() || (isDeptAdmin() && request.resource.data.departmentId == userDepartmentId())) && request.resource.data.keys().hasAll(['departmentId', 'month', 'year']) && request.resource.data.keys().size() < 50;
+      allow update: if isAuthenticated() && (isSuperAdmin() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId && userDepartmentId() == request.resource.data.departmentId)) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['departmentId']);
+      allow delete: if isSuperAdmin();
+    }
+    
+    match /auditLogs/{logId} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+    
+    match /moh_kpis/{kpiId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin();
+    }
+    
+    match /accreditation_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+    
+    match /completion_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+    
+    match /payment_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+    
+    match /paid_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+    
+    match /corrective_plan_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /basic_requirements_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /appeals_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    
+    match /medical_professional_registrations/{registrationId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /technical_clinical_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /admin_audit_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /admin_audit_observations/{observationId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /technical_clinical_observations/{observationId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /observation_correction_rates/{rateId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /technical_clinical_correction_rates/{rateId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /technical_support_visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /remote_technical_supports/{supportId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /introductory_support_visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /queued_support_visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /scheduled_support_visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /accredited_supported_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /reviewer_evaluation_visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /reviewer_evaluation_visits_by_governorate/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /reviewer_evaluation_visits_by_type/{visitId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    match /medical_professionals_by_category/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
+    }
+
+    match /medical_professionals_by_governorate/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
+    }
+
+    // Training Entities (الجهات الحاصلة على التدريب for dept1)
+    match /training_entities/{entityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
+    }
+  }
+}
+
