@@ -8476,12 +8476,12 @@ export default function DepartmentPage() {
                                         }}>
                                             <thead>
                                                 <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right', width: '15%' }}>نوع الزيارة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
                                                     <th style={{ padding: '12px', textAlign: 'center', width: '15%' }}>الإجراءات</th>
                                                 </tr>
                                             </thead>
@@ -8493,12 +8493,12 @@ export default function DepartmentPage() {
                                                             borderBottom: '1px solid #eee',
                                                             backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
                                                         }}>
+                                                            <td style={{ padding: '12px' }}>{support.month}</td>
                                                             <td style={{ padding: '12px' }}>{support.facilityName}</td>
                                                             <td style={{ padding: '12px' }}>{support.governorate}</td>
                                                             <td style={{ padding: '12px' }}>{support.visitType}</td>
                                                             <td style={{ padding: '12px' }}>{support.affiliatedEntity}</td>
                                                             <td style={{ padding: '12px' }}>{support.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{support.month}</td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 <button
                                                                     onClick={() => handleEditRemoteTechSupport(support)}
