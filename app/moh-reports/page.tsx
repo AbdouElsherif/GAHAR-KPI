@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, User, onAuthChange } from '@/lib/auth';
 import { getMOHKPIs, saveMOHKPI, updateMOHKPI, deleteMOHKPI, MOHKPI } from '@/lib/firestore';
+import { logger } from '@/lib/logger';
 
 const emptyKPI: Omit<MOHKPI, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'> = {
     name: '',
@@ -42,7 +43,7 @@ interface KPITableProps {
 
 // Memoized Table Component
 const KPITable = memo(({ kpis, userCanEdit, onEdit, onDelete }: KPITableProps) => {
-    console.log('KPITable rendering with', kpis.length, 'KPIs');
+    logger.log('KPITable rendering with', kpis.length, 'KPIs');
     return (
         <div style={{ overflowX: 'auto' }}>
             <table style={{
@@ -298,31 +299,31 @@ export default function MOHReportsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('handleSubmit called!', { formData, currentUser });
+        logger.log('handleSubmit called!', { formData, currentUser });
         if (!currentUser) return;
 
         try {
             if (editingId) {
                 // Update existing KPI
-                console.log('Updating KPI:', editingId, formData);
+                logger.log('Updating KPI:', editingId, formData);
                 const result = await updateMOHKPI(editingId, {
                     ...formData,
                     updatedBy: currentUser.id
                 });
 
                 if (result.success) {
-                    console.log('KPI updated successfully');
+                    logger.log('KPI updated successfully');
                     setSubmitted(true);
                     setTimeout(() => setSubmitted(false), 3000);
                     resetForm();
                     await loadKPIs(selectedYear);
                 } else {
-                    console.error('Failed to update KPI:', result.error);
+                    logger.error('Failed to update KPI:', result.error);
                     alert(`فشل في تحديث المؤشر: ${result.error}`);
                 }
             } else {
                 // Create new KPI
-                console.log('Creating new KPI:', formData);
+                logger.log('Creating new KPI:', formData);
                 const docId = await saveMOHKPI({
                     ...formData,
                     createdBy: currentUser.id,
@@ -330,19 +331,19 @@ export default function MOHReportsPage() {
                 });
 
                 if (docId) {
-                    console.log('KPI created successfully with ID:', docId);
+                    logger.log('KPI created successfully with ID:', docId);
                     setSubmitted(true);
                     setTimeout(() => setSubmitted(false), 3000);
                     resetForm();
                     // إعادة تحميل البيانات
                     await loadKPIs(selectedYear);
                 } else {
-                    console.error('Failed to create KPI');
+                    logger.error('Failed to create KPI');
                     alert('فشل في حفظ المؤشر. يرجى المحاولة مرة أخرى.');
                 }
             }
         } catch (error) {
-            console.error('Error in handleSubmit:', error);
+            logger.error('Error in handleSubmit:', error);
             alert('حدث خطأ. يرجى التحقق من Console للمزيد من التفاصيل.');
         }
     };

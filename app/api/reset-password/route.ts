@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
     try {
@@ -51,14 +52,14 @@ export async function POST(request: NextRequest) {
             firebaseAuthUser = await adminAuth.getUserByEmail(userEmail);
         } catch (error: any) {
             // User doesn't exist in Auth, that's okay
-            console.log('User not found in Auth, will create new one');
+            logger.log('User not found in Auth, will create new one');
         }
 
         // Step 2: If user exists in Auth, delete them
         if (firebaseAuthUser) {
             try {
                 await adminAuth.deleteUser(firebaseAuthUser.uid);
-                console.log(`Deleted user from Auth: ${firebaseAuthUser.uid}`);
+                logger.log(`Deleted user from Auth: ${firebaseAuthUser.uid}`);
             } catch (error: any) {
                 console.error('Error deleting user from Auth:', error);
                 return NextResponse.json(
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
                 password: newPassword,
                 emailVerified: false,
             });
-            console.log(`Created new user in Auth: ${newUser.uid}`);
+            logger.log(`Created new user in Auth: ${newUser.uid}`);
         } catch (error: any) {
             console.error('Error creating user in Auth:', error);
             return NextResponse.json(
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
                 departmentName: userData?.departmentName || null,
             });
 
-            console.log(`Updated Firestore document: ${newUser.uid}`);
+            logger.log(`Updated Firestore document: ${newUser.uid}`);
         } catch (error: any) {
             console.error('Error updating Firestore:', error);
             // Try to clean up the Auth user if Firestore update fails

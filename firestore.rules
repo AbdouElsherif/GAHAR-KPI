@@ -185,6 +185,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
+
+    // Program Types (نوع البرنامج for dept1)
+    match /program_types/{programId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
+    }
   }
 }
 

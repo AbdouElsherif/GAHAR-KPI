@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
     saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveReviewerEvaluationVisitByGovernorate, getReviewerEvaluationVisitsByGovernorate, updateReviewerEvaluationVisitByGovernorate, deleteReviewerEvaluationVisitByGovernorate, type ReviewerEvaluationVisitByGovernorate, saveReviewerEvaluationVisitByType, getReviewerEvaluationVisitsByType, updateReviewerEvaluationVisitByType, deleteReviewerEvaluationVisitByType, type ReviewerEvaluationVisitByType, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
-    saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity
+    saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity, saveProgramType, getProgramTypes, updateProgramType, deleteProgramType, type ProgramType
 } from '@/lib/firestore';
 
 
@@ -24,6 +24,8 @@ import AdminAuditDashboard from '@/components/AdminAuditDashboard';
 import AccreditationDashboard from '@/components/AccreditationDashboard';
 import MedicalProfessionalsDashboard from '@/components/MedicalProfessionalsDashboard';
 import ReviewersDashboard from '@/components/ReviewersDashboard';
+import { ProgramTypesSection } from '@/components/dept1';
+
 
 const departments: Record<string, string> = {
     'dept1': 'الإدارة العامة للتدريب للغير',
@@ -5038,6 +5040,14 @@ export default function DepartmentPage() {
                         </>
                     )}
                 </div>
+            )}
+
+            {/* Program Types Section - نوع البرنامج (for dept1 only) */}
+            {id === 'dept1' && (
+                <ProgramTypesSection
+                    currentUser={currentUser}
+                    canEdit={canEdit}
+                />
             )}
 
             {/* Facilities Tracking Section - Only for dept6 */}

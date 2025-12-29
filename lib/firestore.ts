@@ -414,6 +414,19 @@ export interface TrainingEntity {
     updatedBy?: string;
 }
 
+// Program Type (نوع البرنامج for dept1)
+export interface ProgramType {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    trainingPrograms: number;  // برامج تدريب
+    awarenessPrograms: number;  // برامج توعية
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -2689,3 +2702,83 @@ export async function deleteTrainingEntity(id: string): Promise<boolean> {
     }
 }
 
+
+// Program Type Functions (نوع البرنامج for dept1)
+export async function saveProgramType(
+    programData: Omit<ProgramType, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const programsRef = collection(db, 'program_types');
+        const docRef = await addDoc(programsRef, {
+            ...programData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving program type:', error);
+        return null;
+    }
+}
+
+export async function getProgramTypes(month?: string): Promise<ProgramType[]> {
+    try {
+        const programsRef = collection(db, 'program_types');
+        let q;
+
+        if (month) {
+            q = query(programsRef, where('month', '==', month));
+        } else {
+            q = query(programsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let programs = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as ProgramType));
+
+        if (month) {
+            programs.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return programs;
+    } catch (error) {
+        console.error('Error getting program types:', error);
+        return [];
+    }
+}
+
+export async function updateProgramType(
+    id: string,
+    updates: Partial<ProgramType> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const programRef = doc(db, 'program_types', id);
+        await setDoc(programRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating program type:', error);
+        return false;
+    }
+}
+
+export async function deleteProgramType(id: string): Promise<boolean> {
+    try {
+        const programRef = doc(db, 'program_types', id);
+        await deleteDoc(programRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting program type:', error);
+        return false;
+    }
+}

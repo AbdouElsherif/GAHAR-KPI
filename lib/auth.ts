@@ -21,6 +21,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db, firebaseConfig } from './firebase'; // Import firebaseConfig
 import { initializeApp, getApp, getApps, deleteApp } from 'firebase/app';
+import { logger } from './logger';
 
 export interface User {
     id: string;
@@ -186,23 +187,15 @@ export async function resetUserPassword(userId: string, newPassword: string = 'G
 // Authentication
 export async function login(email: string, password: string): Promise<User | null> {
     try {
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('Attempting login for:', email);
-        }
+        logger.log('Attempting login for:', email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('Auth successful. UID:', userCredential.user.uid);
-        }
+        logger.log('Auth successful. UID:', userCredential.user.uid);
 
         const userProfile = await getUserProfile(userCredential.user.uid);
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('User profile result:', userProfile);
-        }
+        logger.log('User profile result:', userProfile);
 
         if (!userProfile) {
-            if (process.env.NODE_ENV !== 'production') {
-                console.error('User profile not found for UID:', userCredential.user.uid);
-            }
+            logger.error('User profile not found for UID:', userCredential.user.uid);
             // Emergency recovery: if it's the admin, try to recreate the profile
             if (email === 'admin@gahar.gov.eg') {
 
