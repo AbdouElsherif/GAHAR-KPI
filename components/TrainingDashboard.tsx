@@ -286,11 +286,12 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
         });
     }
 
-    function renderTableRows() {
+    function renderTransposedTableRows() {
+        // الحصول على جميع الفترات
         let periods = Object.keys(currentAggregated).sort();
 
+        // تطبيق الفلاتر حسب نوع المقارنة
         if (comparisonType === 'monthly') {
-            // فلترة حسب الشهر المحدد فقط
             periods = periods.filter(p => {
                 if (p.includes('-')) {
                     const month = parseInt(p.split('-')[1]);
@@ -309,39 +310,69 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
         if (periods.length === 0) {
             return (
                 <tr>
-                    <td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
+                    <td colSpan={100} style={{ padding: '30px', textAlign: 'center', color: '#999' }}>
                         لا توجد بيانات متاحة للسنة المحددة
                     </td>
                 </tr>
             );
         }
 
-        return periods.map((period, index) => {
-            let previousPeriodKey = period;
+        // تعريف صفوف المؤشرات
+        const rows: Array<{
+            label: string;
+            type: 'current' | 'previous';
+            metric: 'trainingPrograms' | 'trainees';
+            color: string;
+        }> = [
+                { label: `برامج تدريبية ${targetYear}`, type: 'current', metric: 'trainingPrograms', color: '#0eacb8' },
+                { label: `برامج تدريبية ${targetYear - 1}`, type: 'previous', metric: 'trainingPrograms', color: '#999' },
+                { label: `متدربين ${targetYear}`, type: 'current', metric: 'trainees', color: '#8884d8' },
+                { label: `متدربين ${targetYear - 1}`, type: 'previous', metric: 'trainees', color: '#999' }
+            ];
 
-            // للنوع الشهري، نحتاج لتحويل التاريخ للسنة السابقة
-            if (comparisonType === 'monthly' && period.includes('-')) {
-                const [year, month] = period.split('-');
-                const currentYear = parseInt(year);
-                const previousYear = currentYear - 1;
-                previousPeriodKey = `${previousYear}-${month}`;
-            }
-
-            const currentPrograms = currentAggregated[period]?.trainingPrograms || 0;
-            const previousPrograms = previousAggregated[previousPeriodKey]?.trainingPrograms || 0;
-            const currentTraineesVal = currentAggregated[period]?.trainees || 0;
-            const previousTraineesVal = previousAggregated[previousPeriodKey]?.trainees || 0;
-
+        return rows.map((row, rowIndex) => {
             return (
-                <tr key={period} style={{
+                <tr key={row.label} style={{
                     borderBottom: '1px solid #eee',
-                    backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                    backgroundColor: rowIndex % 2 === 0 ? 'transparent' : 'var(--background-color)'
                 }}>
-                    <td style={{ padding: '12px', fontWeight: '500' }}>{formatPeriodLabel(period)}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentPrograms}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousPrograms}</td>
-                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentTraineesVal}</td>
-                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousTraineesVal}</td>
+                    <td style={{
+                        padding: '12px',
+                        fontWeight: 'bold',
+                        color: row.color,
+                        position: 'sticky',
+                        right: 0,
+                        backgroundColor: rowIndex % 2 === 0 ? 'var(--card-bg)' : 'var(--background-color)',
+                        borderLeft: '2px solid var(--border-color)'
+                    }}>
+                        {row.label}
+                    </td>
+                    {periods.map(period => {
+                        let previousPeriodKey = period;
+
+                        // للنوع الشهري، نحتاج لتحويل التاريخ للسنة السابقة
+                        if (comparisonType === 'monthly' && period.includes('-')) {
+                            const [year, month] = period.split('-');
+                            const currentYear = parseInt(year);
+                            const previousYear = currentYear - 1;
+                            previousPeriodKey = `${previousYear}-${month}`;
+                        }
+
+                        const value = row.type === 'current'
+                            ? currentAggregated[period]?.[row.metric] || 0
+                            : previousAggregated[previousPeriodKey]?.[row.metric] || 0;
+
+                        return (
+                            <td key={period} style={{
+                                padding: '12px',
+                                textAlign: 'center',
+                                fontWeight: row.type === 'current' ? 'bold' : 'normal',
+                                color: row.type === 'current' ? 'var(--text-color)' : '#999'
+                            }}>
+                                {value}
+                            </td>
+                        );
+                    })}
                 </tr>
             );
         });
@@ -624,15 +655,44 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>برامج {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>برامج {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>متدربين {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>متدربين {targetYear - 1}</th>
+                                <th style={{
+                                    padding: '15px',
+                                    textAlign: 'right',
+                                    fontWeight: 'bold',
+                                    position: 'sticky',
+                                    right: 0,
+                                    backgroundColor: 'var(--primary-color)',
+                                    zIndex: 10
+                                }}>المؤشر</th>
+                                {(() => {
+                                    let periods = Object.keys(currentAggregated).sort();
+
+                                    if (comparisonType === 'monthly') {
+                                        periods = periods.filter(p => {
+                                            if (p.includes('-')) {
+                                                const month = parseInt(p.split('-')[1]);
+                                                return month === selectedMonth;
+                                            }
+                                            return false;
+                                        });
+                                    } else if (comparisonType === 'quarterly') {
+                                        const targetPeriod = `Q${selectedQuarter}`;
+                                        periods = periods.filter(p => p === targetPeriod);
+                                    } else if (comparisonType === 'halfYearly') {
+                                        const targetPeriod = `H${selectedHalf}`;
+                                        periods = periods.filter(p => p === targetPeriod);
+                                    }
+
+                                    return periods.map(period => (
+                                        <th key={period} style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                            {formatPeriodLabel(period)}
+                                        </th>
+                                    ));
+                                })()}
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {renderTransposedTableRows()}
                         </tbody>
                     </table>
                 </div>
