@@ -643,15 +643,70 @@ export default function MedicalProfessionalsDashboard({ submissions }: MedicalPr
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>أعضاء {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>أعضاء {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>المؤشر</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {/* أعضاء مسجلين */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    👨‍⚕️ أعضاء مسجلين
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
+                                    {currentTotalMembers.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalMembers.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: membersChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {membersChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(membersChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* منشآت تم تسجيل وتحديث أعضاء المهن بها */}
+                            <tr>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🏥 منشآت تم تسجيل وتحديث أعضاء المهن بها
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
+                                    {currentTotalFacilities.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalFacilities.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: facilitiesChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {facilitiesChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(facilitiesChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
