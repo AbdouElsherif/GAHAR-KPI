@@ -749,19 +749,128 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عينة مريض {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عينة مريض {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عينة عاملين {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عينة عاملين {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>زيارات {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>زيارات {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>المؤشر</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {/* عينة تجربة المريض */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🩺 عينة تجربة المريض
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
+                                    {currentTotalPatientSample.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalPatientSample.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: patientSampleChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {patientSampleChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(patientSampleChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* عينة رضاء العاملين */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    👨‍⚕️ عينة رضاء العاملين
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
+                                    {currentTotalStaffSample.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalStaffSample.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: staffSampleChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {staffSampleChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(staffSampleChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* الزيارات الميدانية */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🚶 الزيارات الميدانية
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#82ca9d' }}>
+                                    {currentTotalFieldVisits.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalFieldVisits.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: fieldVisitsChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {fieldVisitsChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(fieldVisitsChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* المنشآت المستبانة */}
+                            <tr>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🏥 المنشآت المستبانة
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#ffc658' }}>
+                                    {currentTotalSurveyedFacilities.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalSurveyedFacilities.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: surveyedFacilitiesChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {surveyedFacilitiesChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(surveyedFacilitiesChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
