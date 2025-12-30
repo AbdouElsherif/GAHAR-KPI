@@ -24,6 +24,7 @@ import AdminAuditDashboard from '@/components/AdminAuditDashboard';
 import AccreditationDashboard from '@/components/AccreditationDashboard';
 import MedicalProfessionalsDashboard from '@/components/MedicalProfessionalsDashboard';
 import ReviewersDashboard from '@/components/ReviewersDashboard';
+import StandardsDashboard from '@/components/StandardsDashboard';
 import { ProgramTypesSection } from '@/components/dept1';
 
 
@@ -235,6 +236,7 @@ export default function DepartmentPage() {
     const [isAccreditationDashboardOpen, setIsAccreditationDashboardOpen] = useState(false);
     const [isMedicalProfessionalsDashboardOpen, setIsMedicalProfessionalsDashboardOpen] = useState(false);
     const [isReviewersDashboardOpen, setIsReviewersDashboardOpen] = useState(false);
+    const [isStandardsDashboardOpen, setIsStandardsDashboardOpen] = useState(false);
 
     // Facilities tracking states (for dept6 only)
     const [facilities, setFacilities] = useState<AccreditationFacility[]>([]);
@@ -12096,6 +12098,15 @@ export default function DepartmentPage() {
                                     📊 لوحة البيانات
                                 </button>
                             )}
+                            {id === 'dept8' && (
+                                <button
+                                    onClick={() => setIsStandardsDashboardOpen(true)}
+                                    className="btn"
+                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
+                                >
+                                    📊 لوحة البيانات
+                                </button>
+                            )}
                             {id === 'dept9' && (
                                 <button
                                     onClick={() => setIsReviewersDashboardOpen(true)}
@@ -13149,6 +13160,17 @@ export default function DepartmentPage() {
                     </div>
                 )
             }
+
+            {/* Standards Dashboard Modal for dept8 */}
+            {id === 'dept8' && (
+                <DashboardModal
+                    isOpen={isStandardsDashboardOpen}
+                    onClose={() => setIsStandardsDashboardOpen(false)}
+                    title="لوحة بيانات أبحاث وتطوير المعايير"
+                >
+                    <StandardsDashboard submissions={submissions} />
+                </DashboardModal>
+            )}
         </div >
     );
 }
