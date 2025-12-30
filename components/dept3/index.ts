@@ -1,14 +1,5 @@
 /**
  * dept3 Components - الإدارة العامة لرضاء المتعاملين
- * 
- * ملاحظة: هذا القسم يستخدم نظام submissions العام الموجود في page.tsx
- * ولا يحتاج إلى مكونات خاصة منفصلة.
- * 
- * البيانات تُدار عبر:
- * - نموذج إدخال ديناميكي في page.tsx
- * - جداول بيانات عامة
- * - تصدير Excel
  */
 
-// لا توجد exports خاصة - يستخدم النظام العام
-export { };
+export { default as GovernorateCustomerSurveysSection } from './GovernorateCustomerSurveysSection';

@@ -26,6 +26,7 @@ import MedicalProfessionalsDashboard from '@/components/MedicalProfessionalsDash
 import ReviewersDashboard from '@/components/ReviewersDashboard';
 import StandardsDashboard from '@/components/StandardsDashboard';
 import { ProgramTypesSection } from '@/components/dept1';
+import { GovernorateCustomerSurveysSection } from '@/components/dept3';
 
 
 const departments: Record<string, string> = {
@@ -5048,6 +5049,14 @@ export default function DepartmentPage() {
             {/* Program Types Section - نوع البرنامج (for dept1 only) */}
             {id === 'dept1' && (
                 <ProgramTypesSection
+                    currentUser={currentUser}
+                    canEdit={canEdit}
+                />
+            )}
+
+            {/* Governorate Customer Surveys Section - استبيانات المحافظات (for dept3 only) */}
+            {id === 'dept3' && (
+                <GovernorateCustomerSurveysSection
                     currentUser={currentUser}
                     canEdit={canEdit}
                 />

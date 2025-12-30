@@ -427,6 +427,25 @@ export interface ProgramType {
     updatedBy?: string;
 }
 
+// Governorate Customer Survey (استبيانات رضاء المتعاملين حسب المحافظة for dept3)
+export interface GovernorateCustomerSurvey {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    governorate: string;  // المحافظة
+    visitImplementationRate: number;  // نسبة تنفيذ الزيارات (0-100)
+    targetFacilities: number;  // عدد المنشآت المستهدفة
+    visitedFacilitiesList: string;  // أسماء المنشآت (نص طويل - كل منشأة في سطر)
+    patientSurveysCount: number;  // عدد استبيانات قياس تجربة المريض
+    staffSurveysCount: number;  // عدد استبيانات مقدمي الخدمة والعاملين
+    patientSatisfactionRate: number;  // نسبة قياس رضاء المريض (0-100، مع كسور)
+    staffSatisfactionRate: number;  // نسبة قياس رضاء العاملين (0-100، مع كسور)
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -2779,6 +2798,86 @@ export async function deleteProgramType(id: string): Promise<boolean> {
         return true;
     } catch (error) {
         console.error('Error deleting program type:', error);
+        return false;
+    }
+}
+
+// Governorate Customer Survey Functions (استبيانات رضاء المتعاملين حسب المحافظة)
+export async function saveGovernorateCustomerSurvey(
+    surveyData: Omit<GovernorateCustomerSurvey, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const surveysRef = collection(db, 'governorate_customer_surveys');
+        const docRef = await addDoc(surveysRef, {
+            ...surveyData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving governorate customer survey:', error);
+        return null;
+    }
+}
+
+export async function getGovernorateCustomerSurveys(month?: string): Promise<GovernorateCustomerSurvey[]> {
+    try {
+        const surveysRef = collection(db, 'governorate_customer_surveys');
+        let q;
+
+        if (month) {
+            q = query(surveysRef, where('month', '==', month));
+        } else {
+            q = query(surveysRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let surveys = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as GovernorateCustomerSurvey));
+
+        if (month) {
+            surveys.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return surveys;
+    } catch (error) {
+        console.error('Error getting governorate customer surveys:', error);
+        return [];
+    }
+}
+
+export async function updateGovernorateCustomerSurvey(
+    id: string,
+    updates: Partial<GovernorateCustomerSurvey> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const surveyRef = doc(db, 'governorate_customer_surveys', id);
+        await setDoc(surveyRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating governorate customer survey:', error);
+        return false;
+    }
+}
+
+export async function deleteGovernorateCustomerSurvey(id: string): Promise<boolean> {
+    try {
+        const surveyRef = doc(db, 'governorate_customer_surveys', id);
+        await deleteDoc(surveyRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting governorate customer survey:', error);
         return false;
     }
 }
