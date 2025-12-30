@@ -76,6 +76,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'staffSatisfactionSample', label: 'حجم عينة قياس رضاء العاملين', type: 'number' },
         { name: 'fieldVisits', label: 'عدد الزيارات الميدانية لاستبيان رضاء المتعاملين', type: 'number' },
         { name: 'surveyedFacilities', label: 'عدد المنشآت التي تم إجراء استبيانات بها', type: 'number' },
+        { name: 'visitedGovernorates', label: 'محافظات تمت زيارتها', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },

@@ -59,6 +59,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
             staffSatisfactionSample: number;
             fieldVisits: number;
             surveyedFacilities: number;
+            visitedGovernorates: number;
             count: number;
         }> = {};
 
@@ -89,6 +90,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                     staffSatisfactionSample: 0,
                     fieldVisits: 0,
                     surveyedFacilities: 0,
+                    visitedGovernorates: 0,
                     count: 0
                 };
             }
@@ -97,6 +99,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
             aggregated[periodKey].staffSatisfactionSample += parseFloat(sub.staffSatisfactionSample) || 0;
             aggregated[periodKey].fieldVisits += parseFloat(sub.fieldVisits) || 0;
             aggregated[periodKey].surveyedFacilities += parseFloat(sub.surveyedFacilities) || 0;
+            aggregated[periodKey].visitedGovernorates += parseFloat(sub.visitedGovernorates) || 0;
             aggregated[periodKey].count += 1;
         });
 
@@ -164,6 +167,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
     const previousTotalSurveyedFacilities = calculateFilteredTotal(previousAggregated, 'surveyedFacilities', comparisonType);
     const surveyedFacilitiesChange = calculateChange(currentTotalSurveyedFacilities, previousTotalSurveyedFacilities);
 
+    const currentTotalVisitedGovernorates = calculateFilteredTotal(currentAggregated, 'visitedGovernorates', comparisonType);
+    const previousTotalVisitedGovernorates = calculateFilteredTotal(previousAggregated, 'visitedGovernorates', comparisonType);
+    const visitedGovernoratesChange = calculateChange(currentTotalVisitedGovernorates, previousTotalVisitedGovernorates);
+
     const formatPeriodLabel = (period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
         if (period.startsWith('H')) return `النصف ${period.slice(1)}`;
@@ -222,7 +229,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
-    const preparePieData = (metric: 'patientExperienceSample' | 'staffSatisfactionSample' | 'fieldVisits' | 'surveyedFacilities') => {
+    const preparePieData = (metric: 'patientExperienceSample' | 'staffSatisfactionSample' | 'fieldVisits' | 'surveyedFacilities' | 'visitedGovernorates') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
@@ -243,6 +250,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                 case 'surveyedFacilities':
                     currentVal = currentTotalSurveyedFacilities;
                     previousVal = previousTotalSurveyedFacilities;
+                    break;
+                case 'visitedGovernorates':
+                    currentVal = currentTotalVisitedGovernorates;
+                    previousVal = previousTotalVisitedGovernorates;
                     break;
             }
 
@@ -275,6 +286,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
     const staffSamplePieData = preparePieData('staffSatisfactionSample');
     const fieldVisitsPieData = preparePieData('fieldVisits');
     const surveyedFacilitiesPieData = preparePieData('surveyedFacilities');
+    const visitedGovernoratesPieData = preparePieData('visitedGovernorates');
 
     function prepareChartData() {
         const currentPeriods = Object.keys(currentAggregated);
@@ -334,6 +346,8 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                 [`زيارات ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.fieldVisits || 0,
                 [`منشآت ${targetYear}`]: currentAggregated[period]?.surveyedFacilities || 0,
                 [`منشآت ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.surveyedFacilities || 0,
+                [`محافظات ${targetYear}`]: currentAggregated[period]?.visitedGovernorates || 0,
+                [`محافظات ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.visitedGovernorates || 0,
             };
         });
     }
@@ -570,6 +584,17 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                     previousYear={targetYear - 1}
                     pieData={surveyedFacilitiesPieData}
                     color="#ffc658"
+                />
+                <KPICard
+                    title="محافظات تمت زيارتها"
+                    icon="📍"
+                    currentValue={currentTotalVisitedGovernorates}
+                    previousValue={previousTotalVisitedGovernorates}
+                    changePercentage={visitedGovernoratesChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={visitedGovernoratesPieData}
+                    color="#9b59b6"
                 />
             </div>
 
@@ -844,7 +869,7 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                             </tr>
 
                             {/* المنشآت المستبانة */}
-                            <tr>
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
                                 <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
                                     🏥 المنشآت المستبانة
                                 </td>
@@ -868,6 +893,35 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                                     }}>
                                         {surveyedFacilitiesChange >= 0 ? '⬆' : '⬇'}
                                         {Math.abs(surveyedFacilitiesChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* محافظات تمت زيارتها */}
+                            <tr>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    📍 محافظات تمت زيارتها
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#9b59b6' }}>
+                                    {currentTotalVisitedGovernorates.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalVisitedGovernorates.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: visitedGovernoratesChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {visitedGovernoratesChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(visitedGovernoratesChange).toFixed(1)}%
                                     </span>
                                 </td>
                             </tr>
