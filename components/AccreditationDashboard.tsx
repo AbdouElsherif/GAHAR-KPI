@@ -1037,23 +1037,186 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                     }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>الفترة</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت جديدة {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>منشآت جديدة {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>التماسات {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>التماسات {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>خطط {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>خطط {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>اعتماد {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>اعتماد {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تجديد {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>تجديد {targetYear - 1}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>استكمال {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>استكمال {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>المؤشر</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTableRows()}
+                            {/* منشآت جديدة */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🏥 منشآت جديدة
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
+                                    {currentTotalNewFacilities.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalNewFacilities.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: newFacilitiesChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {newFacilitiesChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(newFacilitiesChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* التماسات مراجعة */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    📝 التماسات مراجعة
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
+                                    {currentTotalAppeals.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalAppeals.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: appealsChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {appealsChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(appealsChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* خطط تصحيحية */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    📋 خطط تصحيحية
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#82ca9d' }}>
+                                    {currentTotalPlans.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalPlans.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: plansChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {plansChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(plansChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* اعتماد/اعتماد مبدئي */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    ✅ اعتماد/اعتماد مبدئي
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#ffc658' }}>
+                                    {currentTotalAccreditation.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalAccreditation.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: accreditationChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {accreditationChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(accreditationChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* تجديد اعتماد */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🔄 تجديد اعتماد
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#ff7c7c' }}>
+                                    {currentTotalRenewal.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalRenewal.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: renewalChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {renewalChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(renewalChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* استكمال اعتماد */}
+                            <tr>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🏁 استكمال اعتماد
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#6c757d' }}>
+                                    {currentTotalCompletion.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalCompletion.toLocaleString('ar-EG')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: completionChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {completionChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(completionChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
