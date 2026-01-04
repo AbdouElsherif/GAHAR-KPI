@@ -2042,34 +2042,26 @@ export interface TechnicalClinicalCorrectionRate {
     visitType: string;  // نوع الزيارة
     month: string;  // الشهر YYYY-MM للفلترة
     year: number;
-    // بيانات كل معيار - عدد الملاحظات الواردة (16 معيار)
-    pccTotal: number;
+    // بيانات كل معيار - عدد الملاحظات الواردة (12 معيار)
     actTotal: number;
     icdTotal: number;
     dasTotal: number;
     mmsTotal: number;
     sipTotal: number;
     ipcTotal: number;
-    wfmTotal: number;
-    imtTotal: number;
-    qpiTotal: number;
     scmTotal: number;
     texTotal: number;
     teqTotal: number;
     tpoTotal: number;
     nsrTotal: number;
     sasTotal: number;
-    // بيانات كل معيار - عدد الملاحظات المصححة (16 معيار)
-    pccCorrected: number;
+    // بيانات كل معيار - عدد الملاحظات المصححة (12 معيار)
     actCorrected: number;
     icdCorrected: number;
     dasCorrected: number;
     mmsCorrected: number;
     sipCorrected: number;
     ipcCorrected: number;
-    wfmCorrected: number;
-    imtCorrected: number;
-    qpiCorrected: number;
     scmCorrected: number;
     texCorrected: number;
     teqCorrected: number;
@@ -2128,32 +2120,24 @@ export async function getTechnicalClinicalCorrectionRates(
                 visitType: data.visitType || 'زيارة متابعة وتدقيق فني وإكلينيكي',
                 month: data.month,
                 year: data.year,
-                pccTotal: data.pccTotal || 0,
                 actTotal: data.actTotal || 0,
                 icdTotal: data.icdTotal || 0,
                 dasTotal: data.dasTotal || 0,
                 mmsTotal: data.mmsTotal || 0,
                 sipTotal: data.sipTotal || 0,
                 ipcTotal: data.ipcTotal || 0,
-                wfmTotal: data.wfmTotal || 0,
-                imtTotal: data.imtTotal || 0,
-                qpiTotal: data.qpiTotal || 0,
                 scmTotal: data.scmTotal || 0,
                 texTotal: data.texTotal || 0,
                 teqTotal: data.teqTotal || 0,
                 tpoTotal: data.tpoTotal || 0,
                 nsrTotal: data.nsrTotal || 0,
                 sasTotal: data.sasTotal || 0,
-                pccCorrected: data.pccCorrected || 0,
                 actCorrected: data.actCorrected || 0,
                 icdCorrected: data.icdCorrected || 0,
                 dasCorrected: data.dasCorrected || 0,
                 mmsCorrected: data.mmsCorrected || 0,
                 sipCorrected: data.sipCorrected || 0,
                 ipcCorrected: data.ipcCorrected || 0,
-                wfmCorrected: data.wfmCorrected || 0,
-                imtCorrected: data.imtCorrected || 0,
-                qpiCorrected: data.qpiCorrected || 0,
                 scmCorrected: data.scmCorrected || 0,
                 texCorrected: data.texCorrected || 0,
                 teqCorrected: data.teqCorrected || 0,

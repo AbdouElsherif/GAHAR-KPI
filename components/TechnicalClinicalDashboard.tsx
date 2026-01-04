@@ -1291,7 +1291,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                         <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
                                             <th style={{ padding: '8px', textAlign: 'right' }}>المنشأة</th>
                                             <th style={{ padding: '8px', textAlign: 'center' }}>المحافظة</th>
-                                            {['PCC', 'ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'WFM', 'IMT', 'QPI', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                            {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
                                                 <th key={c} style={{ padding: '6px', textAlign: 'center', fontSize: '0.7rem' }}>{c}</th>
                                             ))}
                                         </tr>
@@ -1302,11 +1302,10 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                 <td style={{ padding: '8px', fontWeight: '500' }}>{rate.facilityName}</td>
                                                 <td style={{ padding: '8px', textAlign: 'center' }}>{rate.governorate}</td>
                                                 {[
-                                                    { t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.actTotal, c: rate.actCorrected },
+                                                    { t: rate.actTotal, c: rate.actCorrected },
                                                     { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected },
                                                     { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected },
-                                                    { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected },
-                                                    { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected },
+                                                    { t: rate.ipcTotal, c: rate.ipcCorrected },
                                                     { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected },
                                                     { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected },
                                                     { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }
