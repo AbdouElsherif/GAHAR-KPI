@@ -7654,8 +7654,8 @@ export default function DepartmentPage() {
                                                 <select className="form-input" required value={tcCorrectionRateFormData.visitType}
                                                     onChange={(e) => handleTcCorrectionRateInputChange('visitType', e.target.value)}>
                                                     <option value="">اختر نوع الزيارة</option>
-                                                    <option value="زيارة متابعة وتدقيق فني وإكلينيكي">زيارة متابعة وتدقيق فني وإكلينيكي</option>
-                                                    <option value="زيارة متابعة خطة تصحيحية">زيارة متابعة خطة تصحيحية</option>
+                                                    <option value="تقييم فني وإكلينيكي">تقييم فني وإكلينيكي</option>
+                                                    <option value="تدقيق فني وإكلينيكي">تدقيق فني وإكلينيكي</option>
                                                 </select>
                                             </div>
                                             <div className="form-group">
