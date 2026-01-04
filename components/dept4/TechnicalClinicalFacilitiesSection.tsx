@@ -38,6 +38,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
         facilityType: '',
         facilityName: '',
         visitType: '',
+        assessmentType: '',
         governorate: '',
         month: ''
     });
@@ -67,6 +68,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
             alert('يرجى ملء جميع الحقول المطلوبة');
             return;
         }
+        // assessmentType is optional
 
         const [year, month] = formData.month.split('-');
 
@@ -74,6 +76,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
             facilityType: formData.facilityType,
             facilityName: formData.facilityName,
             visitType: formData.visitType,
+            assessmentType: formData.assessmentType || '',
             governorate: formData.governorate,
             month: formData.month,
             year: parseInt(year),
@@ -112,6 +115,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
             facilityType: '',
             facilityName: '',
             visitType: '',
+            assessmentType: '',
             governorate: '',
             month: ''
         });
@@ -123,6 +127,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
             facilityType: item.facilityType,
             facilityName: item.facilityName,
             visitType: item.visitType,
+            assessmentType: item.assessmentType || '',
             governorate: item.governorate,
             month: item.month
         });
@@ -156,6 +161,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
                 'نوع المنشأة': item.facilityType,
                 'اسم المنشأة': item.facilityName,
                 'نوع الزيارة': item.visitType,
+                'نوع التقييم': item.assessmentType || '',
                 'المحافظة': item.governorate,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
             };
@@ -176,12 +182,13 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
             const [year, month] = item.month.split('-');
             return new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: item.facilityType, alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: item.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 25, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: item.visitType, alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: item.governorate, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: item.facilityType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: item.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: item.visitType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: item.assessmentType || '', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: item.governorate, alignment: AlignmentType.CENTER })], width: { size: 12, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
                 ]
             });
         });
@@ -190,12 +197,13 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
             rows: [
                 new TableRow({
                     children: [
-                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                        new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
-                        new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
-                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } })
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع التقييم', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 12, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
                     ]
                 }),
                 ...tableRows
@@ -300,6 +308,16 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
                                     </select>
                                 </div>
                                 <div className="form-group">
+                                    <label className="form-label">نوع التقييم</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={formData.assessmentType}
+                                        onChange={(e) => setFormData({ ...formData, assessmentType: e.target.value })}
+                                        placeholder="نوع التقييم (اختياري)"
+                                    />
+                                </div>
+                                <div className="form-group">
                                     <label className="form-label">المحافظة *</label>
                                     <select
                                         className="form-input"
@@ -364,6 +382,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>نوع المنشأة</th>
                                     <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>نوع الزيارة</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>نوع التقييم</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>المحافظة</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>الشهر</th>
                                     {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>إجراءات</th>}
@@ -372,7 +391,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
                             <tbody>
                                 {filteredData.length === 0 ? (
                                     <tr>
-                                        <td colSpan={userCanEdit ? 7 : 6} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <td colSpan={userCanEdit ? 8 : 7} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
                                             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
                                             لا توجد بيانات
                                         </td>
@@ -384,6 +403,7 @@ export default function TechnicalClinicalFacilitiesSection({ currentUser, canEdi
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{item.facilityType}</td>
                                             <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{item.facilityName}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{item.visitType}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.assessmentType || '-'}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{item.governorate}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{formatMonthYear(item.month)}</td>
                                             {userCanEdit && (

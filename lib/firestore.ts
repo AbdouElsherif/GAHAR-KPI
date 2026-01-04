@@ -236,6 +236,7 @@ export interface TechnicalClinicalFacility {
     facilityType: string;
     facilityName: string;
     visitType: string;
+    assessmentType?: string;  // نوع التقييم - حقل نصي حر
     governorate: string;
     month: string;
     year: number;

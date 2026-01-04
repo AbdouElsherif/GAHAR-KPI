@@ -433,6 +433,7 @@ export default function DepartmentPage() {
         facilityType: '',
         facilityName: '',
         visitType: '',
+        assessmentType: '',
         governorate: '',
         month: ''
     });
@@ -1194,6 +1195,7 @@ export default function DepartmentPage() {
             facilityType: facility.facilityType,
             facilityName: facility.facilityName,
             visitType: facility.visitType || '',
+            assessmentType: facility.assessmentType || '',
             governorate: facility.governorate,
             month: facility.month
         });
@@ -1214,6 +1216,7 @@ export default function DepartmentPage() {
             facilityType: '',
             facilityName: '',
             visitType: '',
+            assessmentType: '',
             governorate: '',
             month: ''
         });
@@ -7071,6 +7074,16 @@ export default function DepartmentPage() {
                                                 </select>
                                             </div>
 
+                                            <div className="form-group">
+                                                <label className="form-label">نوع التقييم</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    value={technicalClinicalFacilityFormData.assessmentType}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('assessmentType', e.target.value)}
+                                                    placeholder="نوع التقييم (اختياري)"
+                                                />
+                                            </div>
 
                                             <div className="form-group">
                                                 <label className="form-label">المحافظة *</label>
@@ -7211,6 +7224,7 @@ export default function DepartmentPage() {
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع التقييم</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                 {userCanEdit && (
@@ -7221,7 +7235,7 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {technicalClinicalFacilities.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                    <td colSpan={userCanEdit ? 7 : 6} style={{
                                                         padding: '40px',
                                                         textAlign: 'center',
                                                         color: '#999'
@@ -7244,6 +7258,9 @@ export default function DepartmentPage() {
                                                         </td>
                                                         <td style={{ padding: '12px', fontWeight: '500' }}>
                                                             {facility.visitType}
+                                                        </td>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.assessmentType || '-'}
                                                         </td>
                                                         <td style={{ padding: '12px', textAlign: 'center' }}>
                                                             {facility.governorate}
