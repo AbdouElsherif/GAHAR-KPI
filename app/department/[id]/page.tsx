@@ -7646,7 +7646,7 @@ export default function DepartmentPage() {
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">تاريخ الزيارة *</label>
-                                                <input type="date" className="form-input" required value={tcCorrectionRateFormData.visitDate}
+                                                <input type="month" className="form-input" required value={tcCorrectionRateFormData.visitDate}
                                                     onChange={(e) => handleTcCorrectionRateInputChange('visitDate', e.target.value)} />
                                             </div>
                                             <div className="form-group">
