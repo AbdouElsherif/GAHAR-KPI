@@ -9274,6 +9274,9 @@ export default function DepartmentPage() {
                                                     <option value="تدقيق إداري وسلامة بيئية">تدقيق إداري وسلامة بيئية</option>
                                                     <option value="متابعة خطة تصحيحية لحدث جسيم">متابعة خطة تصحيحية لحدث جسيم</option>
                                                     <option value="فحص شكوى - إحالة">فحص شكوى - إحالة</option>
+                                                    <option value="تخطيط صحي">تخطيط صحي</option>
+                                                    <option value="تدقيق على السلامة البيئية">تدقيق على السلامة البيئية</option>
+                                                    <option value="فحص حدث جسيم">فحص حدث جسيم</option>
                                                 </select>
                                             </div>
 

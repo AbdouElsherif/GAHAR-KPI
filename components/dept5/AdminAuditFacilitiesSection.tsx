@@ -299,6 +299,9 @@ export default function AdminAuditFacilitiesSection({ currentUser, canEdit }: Ad
                                         <option value="تفتيش إداري">تفتيش إداري</option>
                                         <option value="زيارة متابعة">زيارة متابعة</option>
                                         <option value="فحص / إحالة">فحص / إحالة</option>
+                                        <option value="تخطيط صحي">تخطيط صحي</option>
+                                        <option value="تدقيق على السلامة البيئية">تدقيق على السلامة البيئية</option>
+                                        <option value="فحص حدث جسيم">فحص حدث جسيم</option>
                                     </select>
                                 </div>
                                 <div className="form-group">
