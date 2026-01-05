@@ -1575,26 +1575,26 @@ export default function DepartmentPage() {
                 visitType: correctionRateFormData.visitType,
                 month: correctionRateFormData.month,
                 year: parseInt(year),
-                pccTotal: parseInt(correctionRateFormData.pccTotal) || 0,
-                pccCorrected: parseInt(correctionRateFormData.pccCorrected) || 0,
-                efsTotal: parseInt(correctionRateFormData.efsTotal) || 0,
-                efsCorrected: parseInt(correctionRateFormData.efsCorrected) || 0,
-                ogmTotal: parseInt(correctionRateFormData.ogmTotal) || 0,
-                ogmCorrected: parseInt(correctionRateFormData.ogmCorrected) || 0,
-                imtTotal: parseInt(correctionRateFormData.imtTotal) || 0,
-                imtCorrected: parseInt(correctionRateFormData.imtCorrected) || 0,
-                wfmTotal: parseInt(correctionRateFormData.wfmTotal) || 0,
-                wfmCorrected: parseInt(correctionRateFormData.wfmCorrected) || 0,
-                caiTotal: parseInt(correctionRateFormData.caiTotal) || 0,
-                caiCorrected: parseInt(correctionRateFormData.caiCorrected) || 0,
-                qpiTotal: parseInt(correctionRateFormData.qpiTotal) || 0,
-                qpiCorrected: parseInt(correctionRateFormData.qpiCorrected) || 0,
-                mrsTotal: parseInt(correctionRateFormData.mrsTotal) || 0,
-                mrsCorrected: parseInt(correctionRateFormData.mrsCorrected) || 0,
-                scmTotal: parseInt(correctionRateFormData.scmTotal) || 0,
-                scmCorrected: parseInt(correctionRateFormData.scmCorrected) || 0,
-                emsTotal: parseInt(correctionRateFormData.emsTotal) || 0,
-                emsCorrected: parseInt(correctionRateFormData.emsCorrected) || 0
+                pccTotal: correctionRateFormData.pccTotal === '' ? -1 : parseInt(correctionRateFormData.pccTotal),
+                pccCorrected: correctionRateFormData.pccCorrected === '' ? -1 : parseInt(correctionRateFormData.pccCorrected),
+                efsTotal: correctionRateFormData.efsTotal === '' ? -1 : parseInt(correctionRateFormData.efsTotal),
+                efsCorrected: correctionRateFormData.efsCorrected === '' ? -1 : parseInt(correctionRateFormData.efsCorrected),
+                ogmTotal: correctionRateFormData.ogmTotal === '' ? -1 : parseInt(correctionRateFormData.ogmTotal),
+                ogmCorrected: correctionRateFormData.ogmCorrected === '' ? -1 : parseInt(correctionRateFormData.ogmCorrected),
+                imtTotal: correctionRateFormData.imtTotal === '' ? -1 : parseInt(correctionRateFormData.imtTotal),
+                imtCorrected: correctionRateFormData.imtCorrected === '' ? -1 : parseInt(correctionRateFormData.imtCorrected),
+                wfmTotal: correctionRateFormData.wfmTotal === '' ? -1 : parseInt(correctionRateFormData.wfmTotal),
+                wfmCorrected: correctionRateFormData.wfmCorrected === '' ? -1 : parseInt(correctionRateFormData.wfmCorrected),
+                caiTotal: correctionRateFormData.caiTotal === '' ? -1 : parseInt(correctionRateFormData.caiTotal),
+                caiCorrected: correctionRateFormData.caiCorrected === '' ? -1 : parseInt(correctionRateFormData.caiCorrected),
+                qpiTotal: correctionRateFormData.qpiTotal === '' ? -1 : parseInt(correctionRateFormData.qpiTotal),
+                qpiCorrected: correctionRateFormData.qpiCorrected === '' ? -1 : parseInt(correctionRateFormData.qpiCorrected),
+                mrsTotal: correctionRateFormData.mrsTotal === '' ? -1 : parseInt(correctionRateFormData.mrsTotal),
+                mrsCorrected: correctionRateFormData.mrsCorrected === '' ? -1 : parseInt(correctionRateFormData.mrsCorrected),
+                scmTotal: correctionRateFormData.scmTotal === '' ? -1 : parseInt(correctionRateFormData.scmTotal),
+                scmCorrected: correctionRateFormData.scmCorrected === '' ? -1 : parseInt(correctionRateFormData.scmCorrected),
+                emsTotal: correctionRateFormData.emsTotal === '' ? -1 : parseInt(correctionRateFormData.emsTotal),
+                emsCorrected: correctionRateFormData.emsCorrected === '' ? -1 : parseInt(correctionRateFormData.emsCorrected)
             };
 
             if (editingCorrectionRateId) {
@@ -9956,19 +9956,19 @@ export default function DepartmentPage() {
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? 'N/A' : item.t}</td>
+                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
                                                                                     ))}
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? 'N/A' : item.c}</td>
+                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
                                                                                     ))}
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                        if (item.t < 0 && item.c < 0) {
                                                                                             return (
                                                                                                 <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                     <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
@@ -10044,19 +10044,19 @@ export default function DepartmentPage() {
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? 'N/A' : item.t}</td>
+                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
                                                                                     ))}
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? 'N/A' : item.c}</td>
+                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
                                                                                     ))}
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                        if (item.t < 0 && item.c < 0) {
                                                                                             return (
                                                                                                 <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                     <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
@@ -10132,19 +10132,19 @@ export default function DepartmentPage() {
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? 'N/A' : item.t}</td>
+                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
                                                                                     ))}
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? 'N/A' : item.c}</td>
+                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
                                                                                     ))}
                                                                                 </tr>
                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                     <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                     {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                        if (item.t < 0 && item.c < 0) {
                                                                                             return (
                                                                                                 <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                     <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
