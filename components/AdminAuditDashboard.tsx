@@ -37,12 +37,18 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         followUp: boolean;
         examReferral: boolean;
         facilities: boolean;
+        healthPlanning: boolean;
+        environmentalSafetyAudit: boolean;
+        seriousIncidentExam: boolean;
     }>({
         adminAudit: true,
         adminInspection: true,
         followUp: true,
         examReferral: true,
-        facilities: true
+        facilities: true,
+        healthPlanning: true,
+        environmentalSafetyAudit: true,
+        seriousIncidentExam: true
     });
 
     const getYear = (dateStr: string): number => {
@@ -76,6 +82,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             followUpVisits: number;
             examReferralVisits: number;
             visitedFacilities: number;
+            healthPlanning: number;
+            environmentalSafetyAudit: number;
+            seriousIncidentExam: number;
             count: number;
         }> = {};
 
@@ -108,6 +117,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     followUpVisits: 0,
                     examReferralVisits: 0,
                     visitedFacilities: 0,
+                    healthPlanning: 0,
+                    environmentalSafetyAudit: 0,
+                    seriousIncidentExam: 0,
                     count: 0
                 };
             }
@@ -118,6 +130,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             aggregated[periodKey].followUpVisits += parseFloat(sub.followUpVisits) || 0;
             aggregated[periodKey].examReferralVisits += parseFloat(sub.examReferralVisits) || 0;
             aggregated[periodKey].visitedFacilities += parseFloat(sub.visitedFacilities) || 0;
+            aggregated[periodKey].healthPlanning += parseFloat(sub.healthPlanning) || 0;
+            aggregated[periodKey].environmentalSafetyAudit += parseFloat(sub.environmentalSafetyAudit) || 0;
+            aggregated[periodKey].seriousIncidentExam += parseFloat(sub.seriousIncidentExam) || 0;
             aggregated[periodKey].count += 1;
         });
 
@@ -190,6 +205,18 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
     const previousTotalVisitedFacilities = calculateFilteredTotal(previousAggregated, 'visitedFacilities', comparisonType);
     const visitedFacilitiesChange = calculateChange(currentTotalVisitedFacilities, previousTotalVisitedFacilities);
 
+    const currentTotalHealthPlanning = calculateFilteredTotal(currentAggregated, 'healthPlanning', comparisonType);
+    const previousTotalHealthPlanning = calculateFilteredTotal(previousAggregated, 'healthPlanning', comparisonType);
+    const healthPlanningChange = calculateChange(currentTotalHealthPlanning, previousTotalHealthPlanning);
+
+    const currentTotalEnvironmentalSafetyAudit = calculateFilteredTotal(currentAggregated, 'environmentalSafetyAudit', comparisonType);
+    const previousTotalEnvironmentalSafetyAudit = calculateFilteredTotal(previousAggregated, 'environmentalSafetyAudit', comparisonType);
+    const environmentalSafetyAuditChange = calculateChange(currentTotalEnvironmentalSafetyAudit, previousTotalEnvironmentalSafetyAudit);
+
+    const currentTotalSeriousIncidentExam = calculateFilteredTotal(currentAggregated, 'seriousIncidentExam', comparisonType);
+    const previousTotalSeriousIncidentExam = calculateFilteredTotal(previousAggregated, 'seriousIncidentExam', comparisonType);
+    const seriousIncidentExamChange = calculateChange(currentTotalSeriousIncidentExam, previousTotalSeriousIncidentExam);
+
     const formatPeriodLabel = (period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
         if (period.startsWith('H')) return `النصف ${period.slice(1)}`;
@@ -248,7 +275,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
-    const preparePieData = (metric: 'totalFieldVisits' | 'adminAuditVisits' | 'adminInspectionVisits' | 'followUpVisits' | 'examReferralVisits' | 'visitedFacilities') => {
+    const preparePieData = (metric: 'totalFieldVisits' | 'adminAuditVisits' | 'adminInspectionVisits' | 'followUpVisits' | 'examReferralVisits' | 'visitedFacilities' | 'healthPlanning' | 'environmentalSafetyAudit' | 'seriousIncidentExam') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
@@ -277,6 +304,18 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                 case 'visitedFacilities':
                     currentVal = currentTotalVisitedFacilities;
                     previousVal = previousTotalVisitedFacilities;
+                    break;
+                case 'healthPlanning':
+                    currentVal = currentTotalHealthPlanning;
+                    previousVal = previousTotalHealthPlanning;
+                    break;
+                case 'environmentalSafetyAudit':
+                    currentVal = currentTotalEnvironmentalSafetyAudit;
+                    previousVal = previousTotalEnvironmentalSafetyAudit;
+                    break;
+                case 'seriousIncidentExam':
+                    currentVal = currentTotalSeriousIncidentExam;
+                    previousVal = previousTotalSeriousIncidentExam;
                     break;
             }
 
@@ -312,6 +351,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
     const followUpVisitsPieData = preparePieData('followUpVisits');
     const examReferralVisitsPieData = preparePieData('examReferralVisits');
     const visitedFacilitiesPieData = preparePieData('visitedFacilities');
+    const healthPlanningPieData = preparePieData('healthPlanning');
+    const environmentalSafetyAuditPieData = preparePieData('environmentalSafetyAudit');
+    const seriousIncidentExamPieData = preparePieData('seriousIncidentExam');
 
     function prepareChartData() {
         const currentPeriods = Object.keys(currentAggregated);
@@ -641,6 +683,39 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     previousYear={targetYear - 1}
                     pieData={visitedFacilitiesPieData}
                     color="#a4de6c"
+                />
+                <KPICard
+                    title="تخطيط صحي"
+                    icon="📊"
+                    currentValue={currentTotalHealthPlanning}
+                    previousValue={previousTotalHealthPlanning}
+                    changePercentage={healthPlanningChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={healthPlanningPieData}
+                    color="#e91e63"
+                />
+                <KPICard
+                    title="تدقيق على السلامة البيئية"
+                    icon="🌿"
+                    currentValue={currentTotalEnvironmentalSafetyAudit}
+                    previousValue={previousTotalEnvironmentalSafetyAudit}
+                    changePercentage={environmentalSafetyAuditChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={environmentalSafetyAuditPieData}
+                    color="#4caf50"
+                />
+                <KPICard
+                    title="فحص حدث جسيم"
+                    icon="⚠️"
+                    currentValue={currentTotalSeriousIncidentExam}
+                    previousValue={previousTotalSeriousIncidentExam}
+                    changePercentage={seriousIncidentExamChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={seriousIncidentExamPieData}
+                    color="#f44336"
                 />
             </div>
 
