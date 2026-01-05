@@ -9800,9 +9800,9 @@ export default function DepartmentPage() {
                                                     onChange={(e) => handleCorrectionRateInputChange('facilityCategory', e.target.value)}>
                                                     <option value="">اختر نوع المنشأة</option>
                                                     <option value="مراكز ووحدات الرعاية الأولية">مراكز ووحدات الرعاية الأولية</option>
-                                                    <option value="مستشفى">مستشفى</option>
-                                                    <option value="صيدلية">صيدلية</option>
-                                                    <option value="معمل">معمل</option>
+                                                    <option value="مستشفيات">مستشفيات</option>
+                                                    <option value="صيدليات">صيدليات</option>
+                                                    <option value="معامل">معامل</option>
                                                     <option value="مراكز أشعة">مراكز أشعة</option>
                                                     <option value="مراكز طبية">مراكز طبية</option>
                                                     <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
