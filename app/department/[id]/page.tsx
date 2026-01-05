@@ -9546,14 +9546,14 @@ export default function DepartmentPage() {
                                             </div>
 
                                             <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                                                <label className="form-label">دليل التطابق / الملاحظة *</label>
+                                                <label className="form-label">الملاحظة *</label>
                                                 <textarea
                                                     className="form-input"
                                                     required
                                                     rows={3}
                                                     value={adminAuditObservationFormData.observation}
                                                     onChange={(e) => handleAdminAuditObservationInputChange('observation', e.target.value)}
-                                                    placeholder="أدخل نص الملاحظة أو دليل التطابق"
+                                                    placeholder="أدخل نص الملاحظة"
                                                     style={{ resize: 'vertical' }}
                                                 />
                                             </div>
