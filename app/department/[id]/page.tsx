@@ -9843,8 +9843,27 @@ export default function DepartmentPage() {
 
 
                                         <h4 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>بيانات المعايير (عدد الملاحظات الواردة / عدد المصححة)</h4>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '10px', marginBottom: '20px' }}>
-                                            {['PCC', 'EFS', 'OGM', 'IMT', 'WFM', 'CAI', 'QPI', 'MRS', 'SCM', 'EMS'].map(criterion => (
+
+                                        {/* المجموعة الأولى - 5 معايير */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '15px' }}>
+                                            {['PCC', 'EFS', 'OGM', 'IMT', 'WFM'].map(criterion => (
+                                                <div key={criterion} style={{ textAlign: 'center', backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
+                                                    <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{criterion}</label>
+                                                    <input type="number" min="0" className="form-input" placeholder="الواردة"
+                                                        style={{ marginBottom: '5px', textAlign: 'center' }}
+                                                        value={correctionRateFormData[`${criterion.toLowerCase()}Total` as keyof typeof correctionRateFormData]}
+                                                        onChange={(e) => handleCorrectionRateInputChange(`${criterion.toLowerCase()}Total`, e.target.value)} />
+                                                    <input type="number" min="0" className="form-input" placeholder="المصححة"
+                                                        style={{ textAlign: 'center' }}
+                                                        value={correctionRateFormData[`${criterion.toLowerCase()}Corrected` as keyof typeof correctionRateFormData]}
+                                                        onChange={(e) => handleCorrectionRateInputChange(`${criterion.toLowerCase()}Corrected`, e.target.value)} />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* المجموعة الثانية - 5 معايير */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                                            {['CAI', 'QPI', 'MRS', 'SCM', 'EMS'].map(criterion => (
                                                 <div key={criterion} style={{ textAlign: 'center', backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
                                                     <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{criterion}</label>
                                                     <input type="number" min="0" className="form-input" placeholder="الواردة"
