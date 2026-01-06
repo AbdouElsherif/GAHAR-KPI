@@ -4631,22 +4631,31 @@ export default function DepartmentPage() {
 
 
 
-    // Check if user can edit a specific record based on year
+    // Check if user can edit a specific record based on date
     const canEditRecord = (record: Record<string, any>) => {
         if (!userCanEdit) return false;
 
         // Super admin can edit any record
         if (currentUser?.role === 'super_admin') return true;
 
-        // Extract year from record date (format: YYYY-MM or YYYY-MM-DD)
+        // Extract date from record (format: YYYY-MM or YYYY-MM-DD)
         const recordDate = record.date;
         if (!recordDate) return true; // If no date, allow edit
 
-        const recordYear = parseInt(recordDate.substring(0, 4));
-        const currentYear = new Date().getFullYear();
+        // Parse the record date
+        const [yearStr, monthStr] = recordDate.split('-');
+        const recordYear = parseInt(yearStr);
+        const recordMonth = parseInt(monthStr);
 
-        // Department admins can only edit current year data
-        return recordYear === currentYear;
+        // Create date objects for comparison
+        const recordDateObj = new Date(recordYear, recordMonth - 1, 1); // First day of record month
+        const now = new Date();
+
+        // Calculate the date 3 months ago
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+
+        // Department admins can only edit records from the last 3 months
+        return recordDateObj >= threeMonthsAgo;
     };
 
     return (

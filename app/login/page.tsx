@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login, initializeUsers } from '@/lib/auth';
+import { login } from '@/lib/auth';
 import Image from 'next/image';
 
 export default function LoginPage() {
@@ -12,10 +12,8 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        // Ensure default users exist
-        initializeUsers();
-    }, []);
+    // initializeUsers removed - was causing Firebase permission errors before login
+    // Initial admin setup is no longer needed as the account already exists
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
