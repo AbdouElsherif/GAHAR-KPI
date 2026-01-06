@@ -1007,31 +1007,98 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {facilities.filter(f => {
-                                        const [year, month] = f.month.split('-');
-                                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                        return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                    }).length === 0 ? (
-                                        <tr>
-                                            <td colSpan={3} style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-                                                لا توجد زيارات مسجلة لهذا الشهر
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        facilities.filter(f => {
+                                    {(() => {
+                                        const filteredFacilities = facilities.filter(f => {
                                             const [year, month] = f.month.split('-');
                                             const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
                                             return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                        }).map((facility, index) => (
-                                            <tr key={index} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                <td style={{ padding: '12px' }}>{facility.facilityType}</td>
-                                                <td style={{ padding: '12px', fontWeight: 'bold' }}>{facility.facilityName}</td>
-                                                <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                            </tr>
-                                        ))
-                                    )}
+                                        });
+
+                                        if (filteredFacilities.length === 0) {
+                                            return (
+                                                <tr>
+                                                    <td colSpan={3} style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                                                        لا توجد زيارات مسجلة لهذا الشهر
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
+
+                                        // Group facilities by governorate
+                                        const groupedByGovernorate: { [key: string]: typeof filteredFacilities } = {};
+                                        filteredFacilities.forEach(f => {
+                                            const gov = f.governorate || 'غير محدد';
+                                            if (!groupedByGovernorate[gov]) {
+                                                groupedByGovernorate[gov] = [];
+                                            }
+                                            groupedByGovernorate[gov].push(f);
+                                        });
+
+                                        // Sort governorates alphabetically
+                                        const sortedGovernorates = Object.keys(groupedByGovernorate).sort();
+
+                                        // Alternating colors for governorates (very subtle)
+                                        const governorateColors = [
+                                            'rgba(13, 106, 121, 0.05)',   // Teal very light
+                                            'rgba(255, 255, 255, 1)',     // White
+                                        ];
+
+                                        return sortedGovernorates.map((governorate, govIndex) => {
+                                            const govFacilities = groupedByGovernorate[governorate];
+                                            const bgColor = governorateColors[govIndex % 2];
+
+                                            return govFacilities.map((facility, facilityIndex) => (
+                                                <tr
+                                                    key={`${governorate}-${facilityIndex}`}
+                                                    style={{
+                                                        borderBottom: '1px solid #dee2e6',
+                                                        backgroundColor: bgColor
+                                                    }}
+                                                >
+                                                    <td style={{ padding: '12px' }}>{facility.facilityType}</td>
+                                                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{facility.facilityName}</td>
+                                                    <td style={{
+                                                        padding: '12px',
+                                                        textAlign: 'center',
+                                                        fontWeight: facilityIndex === 0 ? 'bold' : 'normal',
+                                                        color: facilityIndex === 0 ? 'var(--primary-color)' : 'inherit'
+                                                    }}>
+                                                        {governorate}
+                                                    </td>
+                                                </tr>
+                                            ));
+                                        });
+                                    })()}
                                 </tbody>
                             </table>
+                            {/* Total visits row */}
+                            {(() => {
+                                const filteredCount = facilities.filter(f => {
+                                    const [year, month] = f.month.split('-');
+                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                                }).length;
+
+                                if (filteredCount > 0) {
+                                    return (
+                                        <div style={{
+                                            backgroundColor: 'var(--primary-color)',
+                                            color: 'white',
+                                            padding: '12px 15px',
+                                            borderRadius: '0 0 8px 8px',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            fontWeight: 'bold',
+                                            marginTop: '-1px'
+                                        }}>
+                                            <span>إجمالي الزيارات</span>
+                                            <span>{filteredCount}</span>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })()}
                         </div>
                     </div>
                 </div>
