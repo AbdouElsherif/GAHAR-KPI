@@ -972,7 +972,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         return parseInt(key.split('-')[1]) === selectedMonth;
                                     }
                                     return false;
-                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0 };
+                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0, healthPlanning: 0, environmentalSafetyAudit: 0, seriousIncidentExam: 0 };
 
                                 const previousData = Object.values(previousAggregated).find((_, idx) => {
                                     const key = Object.keys(previousAggregated)[idx];
@@ -980,13 +980,16 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         return parseInt(key.split('-')[1]) === selectedMonth;
                                     }
                                     return false;
-                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0 };
+                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0, healthPlanning: 0, environmentalSafetyAudit: 0, seriousIncidentExam: 0 };
 
                                 const indicators = [
                                     { label: 'تدقيق إداري وسلامة بيئية', current: currentData.adminAuditVisits || 0, previous: previousData.adminAuditVisits || 0 },
                                     { label: 'تفتيش إداري', current: currentData.adminInspectionVisits || 0, previous: previousData.adminInspectionVisits || 0 },
                                     { label: 'زيارات متابعة', current: currentData.followUpVisits || 0, previous: previousData.followUpVisits || 0 },
-                                    { label: 'فحص / إحالة', current: currentData.examReferralVisits || 0, previous: previousData.examReferralVisits || 0 },
+                                    { label: 'فحص / إحالة / تكليف', current: currentData.examReferralVisits || 0, previous: previousData.examReferralVisits || 0 },
+                                    { label: 'تخطيط صحي', current: currentData.healthPlanning || 0, previous: previousData.healthPlanning || 0 },
+                                    { label: 'تدقيق على السلامة البيئية', current: currentData.environmentalSafetyAudit || 0, previous: previousData.environmentalSafetyAudit || 0 },
+                                    { label: 'فحص حدث جسيم', current: currentData.seriousIncidentExam || 0, previous: previousData.seriousIncidentExam || 0 },
                                 ];
 
                                 const totalCurrent = indicators.reduce((sum, ind) => sum + ind.current, 0);
