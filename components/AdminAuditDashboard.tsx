@@ -1219,38 +1219,81 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 fontSize: '0.9rem'
                             }}>
                                 <thead>
-                                    <tr style={{ backgroundColor: '#f8f9fa', color: '#495057' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #dee2e6' }}>نوع المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #dee2e6' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #dee2e6' }}>نوع الزيارة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #dee2e6' }}>المحافظة</th>
+                                    <tr style={{ backgroundColor: '#0D6A79', color: 'white' }}>
+                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>نوع المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>اسم المنشأة</th>
+                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>نوع الزيارة</th>
+                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>المحافظة</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {facilities.filter(f => {
-                                        const [year, month] = f.month.split('-');
-                                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                        return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                    }).length === 0 ? (
-                                        <tr>
-                                            <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-                                                لا توجد زيارات مسجلة لهذا الشهر
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        facilities.filter(f => {
+                                    {(() => {
+                                        const filteredFacilities = facilities.filter(f => {
                                             const [year, month] = f.month.split('-');
                                             const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
                                             return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                        }).map((facility, index) => (
-                                            <tr key={index} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                <td style={{ padding: '12px' }}>{facility.facilityType}</td>
-                                                <td style={{ padding: '12px', fontWeight: 'bold' }}>{facility.facilityName}</td>
-                                                <td style={{ padding: '12px' }}>{facility.visitType}</td>
-                                                <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                            </tr>
-                                        ))
-                                    )}
+                                        });
+
+                                        if (filteredFacilities.length === 0) {
+                                            return (
+                                                <tr>
+                                                    <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                                                        لا توجد زيارات مسجلة لهذا الشهر
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
+
+                                        // تجميع المنشآت حسب المحافظة
+                                        const groupedByGovernorate: Record<string, typeof filteredFacilities> = {};
+                                        filteredFacilities.forEach(facility => {
+                                            const gov = facility.governorate || 'غير محدد';
+                                            if (!groupedByGovernorate[gov]) {
+                                                groupedByGovernorate[gov] = [];
+                                            }
+                                            groupedByGovernorate[gov].push(facility);
+                                        });
+
+                                        // ترتيب المحافظات أبجدياً
+                                        const sortedGovernorates = Object.keys(groupedByGovernorate).sort((a, b) => a.localeCompare(b, 'ar'));
+
+                                        // ألوان خلفية خفيفة متناوبة للمحافظات
+                                        const governorateColors = [
+                                            'rgba(13, 106, 121, 0.05)',  // لون أساسي خفيف جداً
+                                            'rgba(13, 106, 121, 0.12)', // لون أساسي خفيف
+                                        ];
+
+                                        let rowIndex = 0;
+                                        return sortedGovernorates.map((governorate, govIndex) => {
+                                            const bgColor = governorateColors[govIndex % 2];
+                                            const facilitiesInGov = groupedByGovernorate[governorate];
+
+                                            return facilitiesInGov.map((facility, facilityIndex) => {
+                                                const currentRowIndex = rowIndex++;
+                                                return (
+                                                    <tr
+                                                        key={`${governorate}-${facilityIndex}`}
+                                                        style={{
+                                                            borderBottom: '1px solid #dee2e6',
+                                                            backgroundColor: bgColor
+                                                        }}
+                                                    >
+                                                        <td style={{ padding: '12px' }}>{facility.facilityType}</td>
+                                                        <td style={{ padding: '12px', fontWeight: 'bold' }}>{facility.facilityName}</td>
+                                                        <td style={{ padding: '12px' }}>{facility.visitType}</td>
+                                                        <td style={{
+                                                            padding: '12px',
+                                                            textAlign: 'center',
+                                                            fontWeight: facilityIndex === 0 ? '600' : 'normal',
+                                                            color: facilityIndex === 0 ? '#0D6A79' : 'inherit'
+                                                        }}>
+                                                            {facility.governorate}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            });
+                                        });
+                                    })()}
                                 </tbody>
                             </table>
                         </div>
