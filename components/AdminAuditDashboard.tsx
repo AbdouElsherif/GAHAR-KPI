@@ -539,7 +539,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                         style={{ width: '100%' }}
                     >
                         {[2026, 2025, 2024].map(year => (
-                            <option key={year} value={year}>{year - 1} - {year}</option>
+                            <option key={year} value={year}>العام المالي {year - 1} - {year}</option>
                         ))}
                     </select>
                 </div>
