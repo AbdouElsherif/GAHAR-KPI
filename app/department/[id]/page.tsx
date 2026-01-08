@@ -12523,7 +12523,7 @@ export default function DepartmentPage() {
                         onClick={() => setIsMedProfByCategorySectionExpanded(!isMedProfByCategorySectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            👥 أعضاء المهن الطبية حسب الفئة
+                            👥 أعضاء المهن الطبية المسجلين خلال الشهر (طبقا للفئة)
                         </h2>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                             <span style={{ fontSize: '0.9rem' }}>
@@ -12784,7 +12784,7 @@ export default function DepartmentPage() {
                         onClick={() => setIsMedProfByGovernorateSectionExpanded(!isMedProfByGovernorateSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات
+                            🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات (خلال الشهر)
                         </h2>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                             <span style={{ fontSize: '0.9rem' }}>{isMedProfByGovernorateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
