@@ -475,6 +475,28 @@ export interface TotalMedicalProfessionalByCategory {
     updatedBy?: string;
 }
 
+// Total Medical Professionals By Governorate (الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات)
+export interface TotalMedicalProfessionalByGovernorate {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    governorate: string;  // المحافظة
+    doctors: number;  // أطباء بشريين
+    dentists: number;  // أطباء أسنان
+    pharmacists: number;  // صيادلة
+    physiotherapy: number;  // علاج طبيعي
+    veterinarians: number;  // بيطريين
+    seniorNursing: number;  // تمريض عالي
+    technicalNursing: number;  // فني تمريض
+    healthTechnician: number;  // فني صحي
+    scientists: number;  // علميين
+    total: number;  // الإجمالي (محسوب)
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {
@@ -2977,6 +2999,86 @@ export async function deleteTotalMedProfByCategory(id: string): Promise<boolean>
         return true;
     } catch (error) {
         console.error('Error deleting total medical professional by category:', error);
+        return false;
+    }
+}
+
+// Total Medical Professionals By Governorate Functions (الإجمالي الكلي لأعضاء المهن الطبية بالمحافظات)
+export async function saveTotalMedProfByGovernorate(
+    data: Omit<TotalMedicalProfessionalByGovernorate, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const collectionRef = collection(db, 'total_med_profs_by_governorate');
+        const docRef = await addDoc(collectionRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving total medical professional by governorate:', error);
+        return null;
+    }
+}
+
+export async function getTotalMedProfsByGovernorate(month?: string): Promise<TotalMedicalProfessionalByGovernorate[]> {
+    try {
+        const collectionRef = collection(db, 'total_med_profs_by_governorate');
+        let q;
+
+        if (month) {
+            q = query(collectionRef, where('month', '==', month));
+        } else {
+            q = query(collectionRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as TotalMedicalProfessionalByGovernorate));
+
+        if (month) {
+            items.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return items;
+    } catch (error) {
+        console.error('Error getting total medical professionals by governorate:', error);
+        return [];
+    }
+}
+
+export async function updateTotalMedProfByGovernorate(
+    id: string,
+    updates: Partial<TotalMedicalProfessionalByGovernorate> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'total_med_profs_by_governorate', id);
+        await setDoc(docRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating total medical professional by governorate:', error);
+        return false;
+    }
+}
+
+export async function deleteTotalMedProfByGovernorate(id: string): Promise<boolean> {
+    try {
+        const docRef = doc(db, 'total_med_profs_by_governorate', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting total medical professional by governorate:', error);
         return false;
     }
 }

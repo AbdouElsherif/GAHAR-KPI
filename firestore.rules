@@ -203,6 +203,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
+
+    // Total Medical Professionals By Governorate (الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات for dept7)
+    match /total_med_profs_by_governorate/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
+    }
   }
 }
 
