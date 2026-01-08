@@ -12709,18 +12709,14 @@ export default function DepartmentPage() {
                                                             {userCanEdit && (
                                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                     <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        {branchData.map(item => (
-                                                                            <div key={item.id} style={{ display: 'flex', gap: '5px' }}>
-                                                                                <button onClick={() => handleEditMedProfByCategory(item)}
-                                                                                    style={{ padding: '6px 12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                                                                                    تعديل
-                                                                                </button>
-                                                                                <button onClick={() => handleDeleteMedProfByCategory(item.id!)}
-                                                                                    style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                                                                                    حذف
-                                                                                </button>
-                                                                            </div>
-                                                                        ))}
+                                                                        <button onClick={() => handleEditMedProfByCategory(branchData[0])}
+                                                                            style={{ padding: '6px 12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                                                                            تعديل
+                                                                        </button>
+                                                                        <button onClick={() => handleDeleteMedProfByCategory(branchData[0].id!)}
+                                                                            style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                                                                            حذف
+                                                                        </button>
                                                                     </div>
                                                                 </td>
                                                             )}
