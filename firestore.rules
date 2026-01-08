@@ -197,6 +197,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept3');
     }
+
+    // Total Medical Professionals By Category (الإجمالي الكلي لأعضاء المهن الطبية المسجلين طبقا للفئة for dept7)
+    match /total_med_profs_by_category/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
+    }
   }
 }
 

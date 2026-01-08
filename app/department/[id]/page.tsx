@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
     saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveReviewerEvaluationVisitByGovernorate, getReviewerEvaluationVisitsByGovernorate, updateReviewerEvaluationVisitByGovernorate, deleteReviewerEvaluationVisitByGovernorate, type ReviewerEvaluationVisitByGovernorate, saveReviewerEvaluationVisitByType, getReviewerEvaluationVisitsByType, updateReviewerEvaluationVisitByType, deleteReviewerEvaluationVisitByType, type ReviewerEvaluationVisitByType, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
-    saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity, saveProgramType, getProgramTypes, updateProgramType, deleteProgramType, type ProgramType
+    saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity, saveProgramType, getProgramTypes, updateProgramType, deleteProgramType, type ProgramType,
+    saveTotalMedProfByCategory, getTotalMedProfsByCategory, updateTotalMedProfByCategory, deleteTotalMedProfByCategory, type TotalMedicalProfessionalByCategory
 } from '@/lib/firestore';
 
 
@@ -619,6 +620,26 @@ export default function DepartmentPage() {
     const [medProfByGovernorateSubmitted, setMedProfByGovernorateSubmitted] = useState(false);
     const [isMedProfByGovernorateSectionExpanded, setIsMedProfByGovernorateSectionExpanded] = useState(false);
 
+    // Total Medical Professionals By Category State (الإجمالي الكلي لأعضاء المهن الطبية طبقا للفئة for dept7)
+    const [totalMedProfsByCategory, setTotalMedProfsByCategory] = useState<TotalMedicalProfessionalByCategory[]>([]);
+    const [totalMedProfByCategoryFormData, setTotalMedProfByCategoryFormData] = useState({
+        month: '',
+        branch: '',
+        doctors: '',
+        dentists: '',
+        pharmacists: '',
+        physiotherapy: '',
+        veterinarians: '',
+        seniorNursing: '',
+        technicalNursing: '',
+        healthTechnician: '',
+        scientists: ''
+    });
+    const [editingTotalMedProfByCategoryId, setEditingTotalMedProfByCategoryId] = useState<string | null>(null);
+    const [totalMedProfByCategoryFilterMonth, setTotalMedProfByCategoryFilterMonth] = useState('');
+    const [totalMedProfByCategorySubmitted, setTotalMedProfByCategorySubmitted] = useState(false);
+    const [isTotalMedProfByCategorySectionExpanded, setIsTotalMedProfByCategorySectionExpanded] = useState(false);
+
     // Training Entities State (الجهات الحاصلة على التدريب for dept1)
     const [trainingEntities, setTrainingEntities] = useState<TrainingEntity[]>([]);
     const [trainingEntityFormData, setTrainingEntityFormData] = useState({
@@ -860,6 +881,13 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, medProfByGovernorateFilterMonth]);
 
+    // Load Total Medical Professionals By Category for dept7
+    useEffect(() => {
+        if (id === 'dept7' && currentUser) {
+            loadTotalMedProfsByCategory();
+        }
+    }, [id, currentUser, totalMedProfByCategoryFilterMonth]);
+
     // Load Training Entities for dept1
     useEffect(() => {
         if (id === 'dept1' && currentUser) {
@@ -953,6 +981,11 @@ export default function DepartmentPage() {
     const loadMedicalProfessionalsByGovernorate = async () => {
         const data = await getMedicalProfessionalsByGovernorate(medProfByGovernorateFilterMonth || undefined);
         setMedProfsByGovernorate(data);
+    };
+
+    const loadTotalMedProfsByCategory = async () => {
+        const data = await getTotalMedProfsByCategory(totalMedProfByCategoryFilterMonth || undefined);
+        setTotalMedProfsByCategory(data);
     };
 
     const loadTrainingEntities = async () => {
@@ -4120,6 +4153,111 @@ export default function DepartmentPage() {
 
         link.download = `الجهات_الحاصلة_على_التدريب${filterMonthText}.docx`;
         link.click();
+    };
+
+    // Total Medical Professionals By Category Handlers (الإجمالي الكلي لأعضاء المهن الطبية طبقا للفئة)
+    const handleTotalMedProfByCategoryInputChange = (field: string, value: string) => {
+        setTotalMedProfByCategoryFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleTotalMedProfByCategorySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year] = totalMedProfByCategoryFormData.month.split('-');
+            const total = parseInt(totalMedProfByCategoryFormData.doctors || '0') +
+                parseInt(totalMedProfByCategoryFormData.dentists || '0') +
+                parseInt(totalMedProfByCategoryFormData.pharmacists || '0') +
+                parseInt(totalMedProfByCategoryFormData.physiotherapy || '0') +
+                parseInt(totalMedProfByCategoryFormData.veterinarians || '0') +
+                parseInt(totalMedProfByCategoryFormData.seniorNursing || '0') +
+                parseInt(totalMedProfByCategoryFormData.technicalNursing || '0') +
+                parseInt(totalMedProfByCategoryFormData.healthTechnician || '0') +
+                parseInt(totalMedProfByCategoryFormData.scientists || '0');
+
+            const dataToSave = {
+                month: totalMedProfByCategoryFormData.month,
+                branch: totalMedProfByCategoryFormData.branch,
+                doctors: parseInt(totalMedProfByCategoryFormData.doctors || '0'),
+                dentists: parseInt(totalMedProfByCategoryFormData.dentists || '0'),
+                pharmacists: parseInt(totalMedProfByCategoryFormData.pharmacists || '0'),
+                physiotherapy: parseInt(totalMedProfByCategoryFormData.physiotherapy || '0'),
+                veterinarians: parseInt(totalMedProfByCategoryFormData.veterinarians || '0'),
+                seniorNursing: parseInt(totalMedProfByCategoryFormData.seniorNursing || '0'),
+                technicalNursing: parseInt(totalMedProfByCategoryFormData.technicalNursing || '0'),
+                healthTechnician: parseInt(totalMedProfByCategoryFormData.healthTechnician || '0'),
+                scientists: parseInt(totalMedProfByCategoryFormData.scientists || '0'),
+                total,
+                year: parseInt(year),
+                createdBy: currentUser.id,
+                updatedBy: currentUser.id
+            };
+
+            if (editingTotalMedProfByCategoryId) {
+                await updateTotalMedProfByCategory(editingTotalMedProfByCategoryId, {
+                    ...dataToSave,
+                    updatedBy: currentUser.id
+                });
+                setTotalMedProfByCategorySubmitted(true);
+                setTimeout(() => setTotalMedProfByCategorySubmitted(false), 3000);
+                resetTotalMedProfByCategoryForm();
+                await loadTotalMedProfsByCategory();
+            } else {
+                const docId = await saveTotalMedProfByCategory(dataToSave);
+                if (docId) {
+                    setTotalMedProfByCategorySubmitted(true);
+                    setTimeout(() => setTotalMedProfByCategorySubmitted(false), 3000);
+                    resetTotalMedProfByCategoryForm();
+                    await loadTotalMedProfsByCategory();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting total medical professional by category:', error);
+        }
+    };
+
+    const handleEditTotalMedProfByCategory = (item: TotalMedicalProfessionalByCategory) => {
+        setTotalMedProfByCategoryFormData({
+            month: item.month,
+            branch: item.branch,
+            doctors: item.doctors.toString(),
+            dentists: item.dentists.toString(),
+            pharmacists: item.pharmacists.toString(),
+            physiotherapy: item.physiotherapy.toString(),
+            veterinarians: item.veterinarians.toString(),
+            seniorNursing: item.seniorNursing.toString(),
+            technicalNursing: item.technicalNursing.toString(),
+            healthTechnician: item.healthTechnician.toString(),
+            scientists: item.scientists.toString()
+        });
+        setEditingTotalMedProfByCategoryId(item.id || null);
+    };
+
+    const handleDeleteTotalMedProfByCategory = async (itemId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            const success = await deleteTotalMedProfByCategory(itemId);
+            if (success) {
+                await loadTotalMedProfsByCategory();
+            }
+        }
+    };
+
+    const resetTotalMedProfByCategoryForm = () => {
+        setTotalMedProfByCategoryFormData({
+            month: '',
+            branch: '',
+            doctors: '',
+            dentists: '',
+            pharmacists: '',
+            physiotherapy: '',
+            veterinarians: '',
+            seniorNursing: '',
+            technicalNursing: '',
+            healthTechnician: '',
+            scientists: ''
+        });
+        setEditingTotalMedProfByCategoryId(null);
     };
 
 
@@ -12992,6 +13130,228 @@ export default function DepartmentPage() {
                                                     </td>
                                                     <td style={{ padding: '12px', textAlign: 'center' }}>
                                                         {medProfsByGovernorate.reduce((sum, item) => sum + item.total, 0)}
+                                                    </td>
+                                                    {userCanEdit && <td></td>}
+                                                </tr>
+                                            </>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* Total Medical Professionals By Category Section for dept7 */}
+            {id === 'dept7' && (
+                <div className="card" style={{ marginTop: '30px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                    <div
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isTotalMedProfByCategorySectionExpanded ? '20px' : '0', padding: '15px 20px', backgroundColor: '#f8f9fa', borderRadius: '8px 8px 0 0', cursor: 'pointer' }}
+                        onClick={() => setIsTotalMedProfByCategorySectionExpanded(!isTotalMedProfByCategorySectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)
+                        </h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                            <span style={{ fontSize: '0.9rem' }}>{isTotalMedProfByCategorySectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isTotalMedProfByCategorySectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {isTotalMedProfByCategorySectionExpanded && (
+                        <>
+                            {userCanEdit && (
+                                <form onSubmit={handleTotalMedProfByCategorySubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                    <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                        {editingTotalMedProfByCategoryId ? 'تعديل بيانات' : 'إضافة بيانات جديدة'}
+                                    </h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                                        <div className="form-group">
+                                            <label className="form-label">الشهر *</label>
+                                            <input type="month" className="form-input" required value={totalMedProfByCategoryFormData.month}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('month', e.target.value)}
+                                                max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">الفرع *</label>
+                                            <select className="form-input" required value={totalMedProfByCategoryFormData.branch}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('branch', e.target.value)}>
+                                                <option value="">اختر الفرع</option>
+                                                <option value="رئاسة الهيئة">رئاسة الهيئة</option>
+                                                <option value="بورسعيد">بورسعيد</option>
+                                                <option value="الأقصر">الأقصر</option>
+                                                <option value="الإسماعيلية">الإسماعيلية</option>
+                                                <option value="السويس">السويس</option>
+                                                <option value="أسوان">أسوان</option>
+                                                <option value="جنوب سيناء">جنوب سيناء</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">أطباء بشريين *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.doctors}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('doctors', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">أطباء أسنان *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.dentists}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('dentists', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">صيادلة *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.pharmacists}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('pharmacists', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">علاج طبيعي *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.physiotherapy}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('physiotherapy', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">بيطريين *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.veterinarians}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('veterinarians', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">تمريض عالي *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.seniorNursing}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('seniorNursing', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">فني تمريض *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.technicalNursing}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('technicalNursing', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">فني صحي *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.healthTechnician}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('healthTechnician', e.target.value)} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">علميين *</label>
+                                            <input type="number" className="form-input" required min="0" placeholder="0"
+                                                value={totalMedProfByCategoryFormData.scientists}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('scientists', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+                                        <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            {editingTotalMedProfByCategoryId ? 'تحديث البيانات' : 'حفظ البيانات'}
+                                        </button>
+                                        {editingTotalMedProfByCategoryId && (
+                                            <button type="button" className="btn" style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                onClick={resetTotalMedProfByCategoryForm}>إلغاء التعديل</button>
+                                        )}
+                                    </div>
+                                    {totalMedProfByCategorySubmitted && (
+                                        <div style={{ padding: '12px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginTop: '15px', border: '1px solid #c3e6cb' }}>
+                                            ✓ تم {editingTotalMedProfByCategoryId ? 'تحديث' : 'إضافة'} البيانات بنجاح
+                                        </div>
+                                    )}
+                                </form>
+                            )}
+
+                            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                    <label className="form-label">فلترة حسب الشهر</label>
+                                    <input type="month" className="form-input" value={totalMedProfByCategoryFilterMonth}
+                                        onChange={(e) => setTotalMedProfByCategoryFilterMonth(e.target.value)}
+                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                </div>
+                            </div>
+
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الفرع</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>أطباء بشريين</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>أطباء أسنان</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>صيادلة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>علاج طبيعي</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>بيطريين</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>تمريض عالي</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>فني تمريض</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>فني صحي</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>علميين</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الإجمالي</th>
+                                            {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الإجراءات</th>}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {totalMedProfsByCategory.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={userCanEdit ? 12 : 11} style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                                                    لا توجد بيانات لعرضها
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            <>
+                                                {totalMedProfsByCategory.map((item, index) => (
+                                                    <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.branch}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button onClick={() => handleEditTotalMedProfByCategory(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
+                                                                    <button onClick={() => handleDeleteTotalMedProfByCategory(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))}
+                                                <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.doctors, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.dentists, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.pharmacists, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.physiotherapy, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.veterinarians, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.seniorNursing, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.technicalNursing, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.healthTechnician, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.scientists, 0)}
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                        {totalMedProfsByCategory.reduce((sum, item) => sum + item.total, 0)}
                                                     </td>
                                                     {userCanEdit && <td></td>}
                                                 </tr>
