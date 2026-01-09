@@ -21,12 +21,72 @@ interface MedicalProfessionalByCategory {
     year: number;
 }
 
+interface MedicalProfessionalByGovernorate {
+    id?: string;
+    month: string;
+    governorate: string;
+    doctors: number;
+    dentists: number;
+    pharmacists: number;
+    physiotherapy: number;
+    veterinarians: number;
+    seniorNursing: number;
+    technicalNursing: number;
+    healthTechnician: number;
+    scientists: number;
+    total: number;
+    year: number;
+}
+
+interface TotalMedicalProfessionalByCategory {
+    id?: string;
+    month: string;
+    branch: string;
+    doctors: number;
+    dentists: number;
+    pharmacists: number;
+    physiotherapy: number;
+    veterinarians: number;
+    seniorNursing: number;
+    technicalNursing: number;
+    healthTechnician: number;
+    scientists: number;
+    total: number;
+    year: number;
+}
+
+interface TotalMedicalProfessionalByGovernorate {
+    id?: string;
+    month: string;
+    governorate: string;
+    doctors: number;
+    dentists: number;
+    pharmacists: number;
+    physiotherapy: number;
+    veterinarians: number;
+    seniorNursing: number;
+    technicalNursing: number;
+    healthTechnician: number;
+    scientists: number;
+    total: number;
+    year: number;
+}
+
 interface MedicalProfessionalsDashboardProps {
     submissions: Array<Record<string, any>>;
     medProfsByCategory?: MedicalProfessionalByCategory[];
+    medProfsByGovernorate?: MedicalProfessionalByGovernorate[];
+    totalMedProfsByCategory?: TotalMedicalProfessionalByCategory[];
+    totalMedProfsByGovernorate?: TotalMedicalProfessionalByGovernorate[];
 }
 
-export default function MedicalProfessionalsDashboard({ submissions, medProfsByCategory = [] }: MedicalProfessionalsDashboardProps) {
+export default function MedicalProfessionalsDashboard({
+    submissions,
+    medProfsByCategory = [],
+    medProfsByGovernorate = [],
+    totalMedProfsByCategory = [],
+    totalMedProfsByGovernorate = []
+}: MedicalProfessionalsDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedMonth, setSelectedMonth] = useState<number>(10);
@@ -674,10 +734,10 @@ export default function MedicalProfessionalsDashboard({ submissions, medProfsByC
                                     👨‍⚕️ أعضاء مسجلين
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
-                                    {currentTotalMembers.toLocaleString('ar-EG')}
+                                    {currentTotalMembers.toLocaleString('en-US')}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalMembers.toLocaleString('ar-EG')}
+                                    {previousTotalMembers.toLocaleString('en-US')}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -703,10 +763,10 @@ export default function MedicalProfessionalsDashboard({ submissions, medProfsByC
                                     🏥 منشآت تم تسجيل وتحديث أعضاء المهن بها
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
-                                    {currentTotalFacilities.toLocaleString('ar-EG')}
+                                    {currentTotalFacilities.toLocaleString('en-US')}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalFacilities.toLocaleString('ar-EG')}
+                                    {previousTotalFacilities.toLocaleString('en-US')}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -956,10 +1016,10 @@ export default function MedicalProfessionalsDashboard({ submissions, medProfsByC
                                                     {cat.label}
                                                 </td>
                                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
-                                                    {currentSum.toLocaleString('ar-EG')}
+                                                    {currentSum.toLocaleString('en-US')}
                                                 </td>
                                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                                    {previousSum.toLocaleString('ar-EG')}
+                                                    {previousSum.toLocaleString('en-US')}
                                                 </td>
                                                 <td style={{
                                                     padding: '15px',
@@ -993,10 +1053,10 @@ export default function MedicalProfessionalsDashboard({ submissions, medProfsByC
                                                 الإجمالي الكلي
                                             </td>
                                             <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.2rem' }}>
-                                                {totalCurrent.toLocaleString('ar-EG')}
+                                                {totalCurrent.toLocaleString('en-US')}
                                             </td>
                                             <td style={{ padding: '15px', textAlign: 'center' }}>
-                                                {totalPrevious.toLocaleString('ar-EG')}
+                                                {totalPrevious.toLocaleString('en-US')}
                                             </td>
                                             <td style={{ padding: '15px', textAlign: 'center' }}>
                                                 <span style={{
@@ -1007,6 +1067,379 @@ export default function MedicalProfessionalsDashboard({ submissions, medProfsByC
                                                 }}>
                                                     {totalChange >= 0 ? '⬆' : '⬇'}
                                                     {Math.abs(totalChange).toFixed(1)}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+
+                                    return rows;
+                                })()}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم إجمالي أعضاء المهن الطبية المسجلين بالمحافظات (خلال الشهر) */}
+            {medProfsByGovernorate && medProfsByGovernorate.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <h3 style={{ marginBottom: '20px', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>🗺️</span>
+                        إجمالي أعضاء المهن الطبية المسجلين بالمحافظات (خلال الشهر)
+                    </h3>
+
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{
+                            width: '100%',
+                            borderCollapse: 'collapse',
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            overflow: 'hidden'
+                        }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#8E44AD', color: 'white' }}>
+                                    <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '20%' }}>المحافظة</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(() => {
+                                    const currentYearData = medProfsByGovernorate.filter(item => {
+                                        if (!item.month) return false;
+                                        const month = parseInt(item.month.split('-')[1]);
+                                        const year = parseInt(item.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        if (comparisonType === 'monthly') {
+                                            return fiscalYear === targetYear && month === selectedMonth;
+                                        } else if (comparisonType === 'quarterly') {
+                                            const quarter = month >= 7 && month <= 9 ? 1 : month >= 10 && month <= 12 ? 2 : month >= 1 && month <= 3 ? 3 : 4;
+                                            return fiscalYear === targetYear && quarter === selectedQuarter;
+                                        } else if (comparisonType === 'halfYearly') {
+                                            const half = month >= 7 ? 1 : 2;
+                                            return fiscalYear === targetYear && half === selectedHalf;
+                                        }
+                                        return fiscalYear === targetYear;
+                                    });
+
+                                    const previousYearData = medProfsByGovernorate.filter(item => {
+                                        if (!item.month) return false;
+                                        const month = parseInt(item.month.split('-')[1]);
+                                        const year = parseInt(item.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        if (comparisonType === 'monthly') {
+                                            return fiscalYear === targetYear - 1 && month === selectedMonth;
+                                        } else if (comparisonType === 'quarterly') {
+                                            const quarter = month >= 7 && month <= 9 ? 1 : month >= 10 && month <= 12 ? 2 : month >= 1 && month <= 3 ? 3 : 4;
+                                            return fiscalYear === targetYear - 1 && quarter === selectedQuarter;
+                                        } else if (comparisonType === 'halfYearly') {
+                                            const half = month >= 7 ? 1 : 2;
+                                            return fiscalYear === targetYear - 1 && half === selectedHalf;
+                                        }
+                                        return fiscalYear === targetYear - 1;
+                                    });
+
+                                    // تجميع البيانات حسب المحافظة
+                                    const governorateMap = new Map<string, { current: number; previous: number }>();
+
+                                    currentYearData.forEach(item => {
+                                        const existing = governorateMap.get(item.governorate) || { current: 0, previous: 0 };
+                                        existing.current += item.total || 0;
+                                        governorateMap.set(item.governorate, existing);
+                                    });
+
+                                    previousYearData.forEach(item => {
+                                        const existing = governorateMap.get(item.governorate) || { current: 0, previous: 0 };
+                                        existing.previous += item.total || 0;
+                                        governorateMap.set(item.governorate, existing);
+                                    });
+
+                                    const rows = Array.from(governorateMap.entries()).map(([governorate, data], index) => {
+                                        const change = data.previous === 0 ? (data.current > 0 ? 100 : 0) : ((data.current - data.previous) / data.previous) * 100;
+                                        return (
+                                            <tr key={governorate} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)' }}>
+                                                <td style={{ padding: '15px', fontWeight: 'bold' }}>
+                                                    {governorate}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8E44AD' }}>
+                                                    {data.current.toLocaleString('en-US')}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                                    {data.previous.toLocaleString('en-US')}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                                                    <span style={{ color: change >= 0 ? '#28a745' : '#dc3545', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                        {change >= 0 ? '⬆' : '⬇'}
+                                                        {Math.abs(change).toFixed(1)}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    });
+
+                                    // صف الإجمالي
+                                    const totalCurrent = Array.from(governorateMap.values()).reduce((sum, d) => sum + d.current, 0);
+                                    const totalPrevious = Array.from(governorateMap.values()).reduce((sum, d) => sum + d.previous, 0);
+                                    const totalChange = totalPrevious === 0 ? (totalCurrent > 0 ? 100 : 0) : ((totalCurrent - totalPrevious) / totalPrevious) * 100;
+
+                                    rows.push(
+                                        <tr key="total" style={{ backgroundColor: '#8E44AD', color: 'white', fontWeight: 'bold' }}>
+                                            <td style={{ padding: '15px', fontWeight: 'bold' }}>📊 الإجمالي الكلي</td>
+                                            <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.2rem' }}>{totalCurrent.toLocaleString('en-US')}</td>
+                                            <td style={{ padding: '15px', textAlign: 'center' }}>{totalPrevious.toLocaleString('en-US')}</td>
+                                            <td style={{ padding: '15px', textAlign: 'center' }}>
+                                                <span style={{ color: totalChange >= 0 ? '#98FB98' : '#FFB6C1', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                    {totalChange >= 0 ? '⬆' : '⬇'} {Math.abs(totalChange).toFixed(1)}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+
+                                    return rows;
+                                })()}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة) */}
+            {totalMedProfsByCategory && totalMedProfsByCategory.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <h3 style={{ marginBottom: '20px', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>📈</span>
+                        الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)
+                    </h3>
+
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{
+                            width: '100%',
+                            borderCollapse: 'collapse',
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            overflow: 'hidden'
+                        }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#E67E22', color: 'white' }}>
+                                    <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>الفئة</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(() => {
+                                    const currentYearData = totalMedProfsByCategory.filter(item => {
+                                        if (!item.month) return false;
+                                        const month = parseInt(item.month.split('-')[1]);
+                                        const year = parseInt(item.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        if (comparisonType === 'monthly') {
+                                            return fiscalYear === targetYear && month === selectedMonth;
+                                        } else if (comparisonType === 'quarterly') {
+                                            const quarter = month >= 7 && month <= 9 ? 1 : month >= 10 && month <= 12 ? 2 : month >= 1 && month <= 3 ? 3 : 4;
+                                            return fiscalYear === targetYear && quarter === selectedQuarter;
+                                        } else if (comparisonType === 'halfYearly') {
+                                            const half = month >= 7 ? 1 : 2;
+                                            return fiscalYear === targetYear && half === selectedHalf;
+                                        }
+                                        return fiscalYear === targetYear;
+                                    });
+
+                                    const previousYearData = totalMedProfsByCategory.filter(item => {
+                                        if (!item.month) return false;
+                                        const month = parseInt(item.month.split('-')[1]);
+                                        const year = parseInt(item.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        if (comparisonType === 'monthly') {
+                                            return fiscalYear === targetYear - 1 && month === selectedMonth;
+                                        } else if (comparisonType === 'quarterly') {
+                                            const quarter = month >= 7 && month <= 9 ? 1 : month >= 10 && month <= 12 ? 2 : month >= 1 && month <= 3 ? 3 : 4;
+                                            return fiscalYear === targetYear - 1 && quarter === selectedQuarter;
+                                        } else if (comparisonType === 'halfYearly') {
+                                            const half = month >= 7 ? 1 : 2;
+                                            return fiscalYear === targetYear - 1 && half === selectedHalf;
+                                        }
+                                        return fiscalYear === targetYear - 1;
+                                    });
+
+                                    const categories = [
+                                        { key: 'doctors', label: 'أطباء بشريين', icon: '👨‍⚕️' },
+                                        { key: 'dentists', label: 'أطباء أسنان', icon: '🦷' },
+                                        { key: 'pharmacists', label: 'صيادلة', icon: '💊' },
+                                        { key: 'physiotherapy', label: 'علاج طبيعي', icon: '🏃' },
+                                        { key: 'veterinarians', label: 'بيطريين', icon: '🐾' },
+                                        { key: 'seniorNursing', label: 'تمريض عالي', icon: '👩‍⚕️' },
+                                        { key: 'technicalNursing', label: 'فني تمريض', icon: '🩺' },
+                                        { key: 'healthTechnician', label: 'فني صحي', icon: '🔬' },
+                                        { key: 'scientists', label: 'علميين', icon: '🧪' }
+                                    ];
+
+                                    const rows = categories.map((cat, index) => {
+                                        const currentSum = currentYearData.reduce((sum, item) => sum + (item[cat.key as keyof TotalMedicalProfessionalByCategory] as number || 0), 0);
+                                        const previousSum = previousYearData.reduce((sum, item) => sum + (item[cat.key as keyof TotalMedicalProfessionalByCategory] as number || 0), 0);
+                                        const change = previousSum === 0 ? (currentSum > 0 ? 100 : 0) : ((currentSum - previousSum) / previousSum) * 100;
+
+                                        return (
+                                            <tr key={cat.key} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)' }}>
+                                                <td style={{ padding: '15px', fontWeight: 'bold' }}>
+                                                    <span style={{ marginLeft: '8px' }}>{cat.icon}</span>
+                                                    {cat.label}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#E67E22' }}>
+                                                    {currentSum.toLocaleString('en-US')}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                                    {previousSum.toLocaleString('en-US')}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                                                    <span style={{ color: change >= 0 ? '#28a745' : '#dc3545', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                        {change >= 0 ? '⬆' : '⬇'}
+                                                        {Math.abs(change).toFixed(1)}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    });
+
+                                    // صف الإجمالي
+                                    const totalCurrent = currentYearData.reduce((sum, item) => sum + (item.total || 0), 0);
+                                    const totalPrevious = previousYearData.reduce((sum, item) => sum + (item.total || 0), 0);
+                                    const totalChange = totalPrevious === 0 ? (totalCurrent > 0 ? 100 : 0) : ((totalCurrent - totalPrevious) / totalPrevious) * 100;
+
+                                    rows.push(
+                                        <tr key="total" style={{ backgroundColor: '#E67E22', color: 'white', fontWeight: 'bold' }}>
+                                            <td style={{ padding: '15px', fontWeight: 'bold' }}>📊 الإجمالي الكلي</td>
+                                            <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.2rem' }}>{totalCurrent.toLocaleString('en-US')}</td>
+                                            <td style={{ padding: '15px', textAlign: 'center' }}>{totalPrevious.toLocaleString('en-US')}</td>
+                                            <td style={{ padding: '15px', textAlign: 'center' }}>
+                                                <span style={{ color: totalChange >= 0 ? '#98FB98' : '#FFB6C1', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                    {totalChange >= 0 ? '⬆' : '⬇'} {Math.abs(totalChange).toFixed(1)}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+
+                                    return rows;
+                                })()}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات */}
+            {totalMedProfsByGovernorate && totalMedProfsByGovernorate.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <h3 style={{ marginBottom: '20px', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>🌍</span>
+                        الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات
+                    </h3>
+
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{
+                            width: '100%',
+                            borderCollapse: 'collapse',
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            overflow: 'hidden'
+                        }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#27AE60', color: 'white' }}>
+                                    <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '20%' }}>المحافظة</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(() => {
+                                    const currentYearData = totalMedProfsByGovernorate.filter(item => {
+                                        if (!item.month) return false;
+                                        const month = parseInt(item.month.split('-')[1]);
+                                        const year = parseInt(item.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        if (comparisonType === 'monthly') {
+                                            return fiscalYear === targetYear && month === selectedMonth;
+                                        } else if (comparisonType === 'quarterly') {
+                                            const quarter = month >= 7 && month <= 9 ? 1 : month >= 10 && month <= 12 ? 2 : month >= 1 && month <= 3 ? 3 : 4;
+                                            return fiscalYear === targetYear && quarter === selectedQuarter;
+                                        } else if (comparisonType === 'halfYearly') {
+                                            const half = month >= 7 ? 1 : 2;
+                                            return fiscalYear === targetYear && half === selectedHalf;
+                                        }
+                                        return fiscalYear === targetYear;
+                                    });
+
+                                    const previousYearData = totalMedProfsByGovernorate.filter(item => {
+                                        if (!item.month) return false;
+                                        const month = parseInt(item.month.split('-')[1]);
+                                        const year = parseInt(item.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        if (comparisonType === 'monthly') {
+                                            return fiscalYear === targetYear - 1 && month === selectedMonth;
+                                        } else if (comparisonType === 'quarterly') {
+                                            const quarter = month >= 7 && month <= 9 ? 1 : month >= 10 && month <= 12 ? 2 : month >= 1 && month <= 3 ? 3 : 4;
+                                            return fiscalYear === targetYear - 1 && quarter === selectedQuarter;
+                                        } else if (comparisonType === 'halfYearly') {
+                                            const half = month >= 7 ? 1 : 2;
+                                            return fiscalYear === targetYear - 1 && half === selectedHalf;
+                                        }
+                                        return fiscalYear === targetYear - 1;
+                                    });
+
+                                    // تجميع البيانات حسب المحافظة
+                                    const governorateMap = new Map<string, { current: number; previous: number }>();
+
+                                    currentYearData.forEach(item => {
+                                        const existing = governorateMap.get(item.governorate) || { current: 0, previous: 0 };
+                                        existing.current += item.total || 0;
+                                        governorateMap.set(item.governorate, existing);
+                                    });
+
+                                    previousYearData.forEach(item => {
+                                        const existing = governorateMap.get(item.governorate) || { current: 0, previous: 0 };
+                                        existing.previous += item.total || 0;
+                                        governorateMap.set(item.governorate, existing);
+                                    });
+
+                                    const rows = Array.from(governorateMap.entries()).map(([governorate, data], index) => {
+                                        const change = data.previous === 0 ? (data.current > 0 ? 100 : 0) : ((data.current - data.previous) / data.previous) * 100;
+                                        return (
+                                            <tr key={governorate} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)' }}>
+                                                <td style={{ padding: '15px', fontWeight: 'bold' }}>
+                                                    {governorate}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#27AE60' }}>
+                                                    {data.current.toLocaleString('en-US')}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                                    {data.previous.toLocaleString('en-US')}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                                                    <span style={{ color: change >= 0 ? '#28a745' : '#dc3545', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                        {change >= 0 ? '⬆' : '⬇'}
+                                                        {Math.abs(change).toFixed(1)}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    });
+
+                                    // صف الإجمالي
+                                    const totalCurrent = Array.from(governorateMap.values()).reduce((sum, d) => sum + d.current, 0);
+                                    const totalPrevious = Array.from(governorateMap.values()).reduce((sum, d) => sum + d.previous, 0);
+                                    const totalChange = totalPrevious === 0 ? (totalCurrent > 0 ? 100 : 0) : ((totalCurrent - totalPrevious) / totalPrevious) * 100;
+
+                                    rows.push(
+                                        <tr key="total" style={{ backgroundColor: '#27AE60', color: 'white', fontWeight: 'bold' }}>
+                                            <td style={{ padding: '15px', fontWeight: 'bold' }}>📊 الإجمالي الكلي</td>
+                                            <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.2rem' }}>{totalCurrent.toLocaleString('en-US')}</td>
+                                            <td style={{ padding: '15px', textAlign: 'center' }}>{totalPrevious.toLocaleString('en-US')}</td>
+                                            <td style={{ padding: '15px', textAlign: 'center' }}>
+                                                <span style={{ color: totalChange >= 0 ? '#98FB98' : '#FFB6C1', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                                    {totalChange >= 0 ? '⬆' : '⬇'} {Math.abs(totalChange).toFixed(1)}%
                                                 </span>
                                             </td>
                                         </tr>

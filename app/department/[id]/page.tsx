@@ -12760,7 +12760,13 @@ export default function DepartmentPage() {
                         onClose={() => setIsMedicalProfessionalsDashboardOpen(false)}
                         title="لوحة بيانات الإدارة العامة لتسجيل أعضاء المهن الطبية"
                     >
-                        <MedicalProfessionalsDashboard submissions={submissions} medProfsByCategory={medProfsByCategory} />
+                        <MedicalProfessionalsDashboard
+                            submissions={submissions}
+                            medProfsByCategory={medProfsByCategory}
+                            medProfsByGovernorate={medProfsByGovernorate}
+                            totalMedProfsByCategory={totalMedProfsByCategory}
+                            totalMedProfsByGovernorate={totalMedProfsByGovernorate}
+                        />
                     </DashboardModal>
                 )
             }
