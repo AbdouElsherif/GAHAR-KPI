@@ -205,7 +205,8 @@ const techSupportFacilityTypes = [
     'صيدليات',
     'مراكز جراحات اليوم الواحد',
     'مراكز علاج طبيعي',
-    'مراكز أشعة'
+    'مراكز أشعة',
+    'مراكز ووحدات الرعاية الأولية'
 ];
 
 export const dynamicParams = true;
