@@ -66,6 +66,8 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'fieldSupportVisits', label: 'زيارات دعم فني ميداني', type: 'number' },
         { name: 'remoteSupportVisits', label: 'زيارات دعم فني عن بعد', type: 'number' },
         { name: 'supportedFacilities', label: 'منشآت حصلت على الدعم الفني', type: 'number' },
+        { name: 'queuedFieldVisits', label: 'عدد الزيارات الميدانية بقائمة الانتظار', type: 'number' },
+        { name: 'governoratesWithFieldVisits', label: 'عدد المحافظات المنفذ بها زيارات ميدانية', type: 'number' },
         { name: 'toolReleasesUpdates', label: 'عدد الإصدارات والتحديثات المنفذة لأدوات التقييم الذاتي', type: 'number' },
         { name: 'reportsComplianceRate', label: 'نسبة استيفاء تقارير الدعم الفني وإرسالها للمنشآت خلال 15 يوما (%)', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
