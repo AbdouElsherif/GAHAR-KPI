@@ -203,7 +203,8 @@ const techSupportFacilityTypes = [
     'عيادات خاصة',
     'معامل',
     'صيدليات',
-    'مراكز جراحات اليوم الواحد'
+    'مراكز جراحات اليوم الواحد',
+    'مراكز علاج طبيعي'
 ];
 
 export const dynamicParams = true;
