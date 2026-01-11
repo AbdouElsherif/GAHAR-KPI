@@ -9301,7 +9301,7 @@ export default function DepartmentPage() {
                                         </div>
                                         <div>
                                             <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                المحافظة <span style={{ color: 'red' }}>*</span>
+                                                المحافظة
                                             </label>
                                             <select
                                                 value={queuedSupportVisitFormData.governorate}
@@ -9310,7 +9310,6 @@ export default function DepartmentPage() {
                                                     governorate: e.target.value
                                                 })}
                                                 className="form-input"
-                                                required
                                             >
                                                 <option value="">اختر المحافظة</option>
                                                 {egyptGovernorates.map(gov => (
