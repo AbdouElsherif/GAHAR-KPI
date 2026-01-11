@@ -1533,6 +1533,16 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
             {/* Correction Rates Section */}
             {comparisonType === 'monthly' && correctionRates.length > 0 && (() => {
+                // Normalize category names - convert old names to new standard names
+                const normalizeCategory = (category: string): string => {
+                    const categoryMap: { [key: string]: string } = {
+                        'مستشفى': 'مستشفيات',
+                        'صيدلية': 'صيدليات',
+                        'معمل': 'معامل'
+                    };
+                    return categoryMap[category] || category;
+                };
+
                 const filteredRates = correctionRates.filter(r => {
                     const [rateYear, rateMonth] = r.month.split('-').map(Number);
                     // حساب السنة المتوقعة بناءً على السنة المالية المختارة
@@ -1540,7 +1550,10 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     // إذا كان الشهر أقل من 7 (يناير - يونيو)، تكون السنة هي نفس سنة النهاية
                     const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
                     return rateYear === expectedYear && rateMonth === selectedMonth;
-                });
+                }).map(r => ({
+                    ...r,
+                    facilityCategory: normalizeCategory(r.facilityCategory)
+                }));
 
                 if (filteredRates.length === 0) return null;
 
@@ -1558,7 +1571,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         🏛️ المنشآت الصحية التابعة لهيئة الرعاية
                                     </h3>
                                     <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية'].map(category => {
+                                        {['مراكز ووحدات الرعاية الأولية', 'مستشفيات', 'مستشفى صحة نفسية'].map(category => {
                                             const categoryRates = filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
                                             if (categoryRates.length === 0) return null;
                                             return (
@@ -1636,7 +1649,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         🏥 المنشآت الصحية التابعة لوزارة الصحة
                                     </h3>
                                     <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية', 'صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
+                                        {['مراكز ووحدات الرعاية الأولية', 'مستشفيات', 'مستشفى صحة نفسية', 'صيدليات', 'معامل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
                                             const categoryRates = filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
                                             if (categoryRates.length === 0) return null;
                                             return (
@@ -1714,7 +1727,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         🏢 منشآت صحية أخرى
                                     </h3>
                                     <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
+                                        {['صيدليات', 'معامل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
                                             const categoryRates = filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
                                             if (categoryRates.length === 0) return null;
                                             return (
