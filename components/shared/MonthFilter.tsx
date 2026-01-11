@@ -27,6 +27,8 @@ export default function MonthFilter({
 
     // Default max date is current month
     const defaultMaxDate = maxDate || new Date().toISOString().split('T')[0].slice(0, 7);
+    // Minimum date is January 2019
+    const defaultMinDate = '2019-01';
 
     return (
         <div className="form-group" style={{ margin: 0, minWidth }}>
@@ -37,6 +39,7 @@ export default function MonthFilter({
                 value={value}
                 onChange={handleChange}
                 placeholder={label}
+                min={defaultMinDate}
                 max={defaultMaxDate}
                 style={{
                     width: '100%',

@@ -209,6 +209,12 @@ const techSupportFacilityTypes = [
     'مراكز ووحدات الرعاية الأولية'
 ];
 
+// Date constraints - minimum is January 2019, maximum is current month
+const MIN_MONTH = '2019-01';
+const MIN_DATE = '2019-01-01';
+const MAX_MONTH = new Date().toISOString().slice(0, 7); // Current month (YYYY-MM)
+const MAX_DATE = new Date().toISOString().slice(0, 10); // Current date (YYYY-MM-DD)
+
 export const dynamicParams = true;
 
 export default function DepartmentPage() {
@@ -5138,6 +5144,8 @@ export default function DepartmentPage() {
                                                 </label>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     value={trainingEntityFormData.month}
                                                     onChange={(e) => setTrainingEntityFormData({ ...trainingEntityFormData, month: e.target.value })}
                                                     required
@@ -5218,6 +5226,8 @@ export default function DepartmentPage() {
                                             </label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 value={trainingEntityFilterMonth}
                                                 onChange={(e) => setTrainingEntityFilterMonth(e.target.value)}
                                                 style={{
@@ -5453,11 +5463,12 @@ export default function DepartmentPage() {
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
                                                         className="form-input"
                                                         required
                                                         value={facilityFormData.month}
                                                         onChange={(e) => handleFacilityInputChange('month', e.target.value)}
-                                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                     />
                                                 </div>
                                             </div>
@@ -5529,6 +5540,8 @@ export default function DepartmentPage() {
                                             <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     value={facilityFilterMonth}
                                                     onChange={(e) => setFacilityFilterMonth(e.target.value)}
@@ -5673,7 +5686,7 @@ export default function DepartmentPage() {
                                 <form onSubmit={handleMedProfByCategorySubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
                                     <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>{editingMedProfByCategoryId ? 'تعديل بيانات' : 'إضافة بيانات جديدة'}</h3>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
-                                        <div className="form-group"><label className="form-label">الشهر *</label><input type="month" className="form-input" required value={medProfByCategoryFormData.month} onChange={(e) => handleMedProfByCategoryInputChange('month', e.target.value)} max={new Date().toISOString().split('T')[0].slice(0, 7)} /></div>
+                                        <div className="form-group"><label className="form-label">الشهر *</label><input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={medProfByCategoryFormData.month} onChange={(e) => handleMedProfByCategoryInputChange('month', e.target.value)} /></div>
                                         <div className="form-group"><label className="form-label">الفرع *</label><select className="form-input" required value={medProfByCategoryFormData.branch} onChange={(e) => handleMedProfByCategoryInputChange('branch', e.target.value)}><option value="">اختر الفرع</option><option value="رئاسة الهيئة">رئاسة الهيئة</option><option value="بورسعيد">بورسعيد</option><option value="الأقصر">الأقصر</option><option value="الإسماعيلية">الإسماعيلية</option><option value="السويس">السويس</option></select></div>
                                         <div className="form-group"><label className="form-label">أطباء بشريين *</label><input type="number" className="form-input" required min="0" placeholder="0" value={medProfByCategoryFormData.doctors} onChange={(e) => handleMedProfByCategoryInputChange('doctors', e.target.value)} /></div>
                                         <div className="form-group"><label className="form-label">أطباء أسنان *</label><input type="number" className="form-input" required min="0" placeholder="0" value={medProfByCategoryFormData.dentists} onChange={(e) => handleMedProfByCategoryInputChange('dentists', e.target.value)} /></div>
@@ -5693,7 +5706,7 @@ export default function DepartmentPage() {
                                 </form>
                             )}
                             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}><label className="form-label">فلترة حسب الشهر</label><input type="month" className="form-input" value={medProfByCategoryFilterMonth} onChange={(e) => setMedProfByCategoryFilterMonth(e.target.value)} /></div>
+                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}><label className="form-label">فلترة حسب الشهر</label><input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={medProfByCategoryFilterMonth} onChange={(e) => setMedProfByCategoryFilterMonth(e.target.value)} /></div>
                             </div>
                             <div style={{ overflowX: 'auto' }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
@@ -5848,11 +5861,12 @@ export default function DepartmentPage() {
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
                                                         className="form-input"
                                                         required
                                                         value={completionFacilityFormData.month}
                                                         onChange={(e) => handleCompletionFacilityInputChange('month', e.target.value)}
-                                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                     />
                                                 </div>
                                             </div>
@@ -5924,6 +5938,8 @@ export default function DepartmentPage() {
                                             <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     value={completionFacilityFilterMonth}
                                                     onChange={(e) => setCompletionFacilityFilterMonth(e.target.value)}
@@ -6142,11 +6158,12 @@ export default function DepartmentPage() {
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
                                                         className="form-input"
                                                         required
                                                         value={paymentFacilityFormData.month}
                                                         onChange={(e) => handlePaymentFacilityInputChange('month', e.target.value)}
-                                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                     />
                                                 </div>
                                             </div>
@@ -6218,6 +6235,8 @@ export default function DepartmentPage() {
                                             <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     value={paymentFacilityFilterMonth}
                                                     onChange={(e) => setPaymentFacilityFilterMonth(e.target.value)}
@@ -6454,11 +6473,12 @@ export default function DepartmentPage() {
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
                                                         className="form-input"
                                                         required
                                                         value={paidFacilityFormData.month}
                                                         onChange={(e) => handlePaidFacilityInputChange('month', e.target.value)}
-                                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                     />
                                                 </div>
                                             </div>
@@ -6530,6 +6550,8 @@ export default function DepartmentPage() {
                                             <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     value={paidFacilityFilterMonth}
                                                     onChange={(e) => setPaidFacilityFilterMonth(e.target.value)}
@@ -6770,11 +6792,12 @@ export default function DepartmentPage() {
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
                                                         className="form-input"
                                                         required
                                                         value={medicalProfessionalFormData.month}
                                                         onChange={(e) => handleMedicalProfessionalInputChange('month', e.target.value)}
-                                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                     />
                                                 </div>
                                             </div>
@@ -6846,6 +6869,8 @@ export default function DepartmentPage() {
                                             <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     value={medicalProfessionalFilterMonth}
                                                     onChange={(e) => setMedicalProfessionalFilterMonth(e.target.value)}
@@ -7072,11 +7097,12 @@ export default function DepartmentPage() {
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
                                                         className="form-input"
                                                         required
                                                         value={correctivePlanFacilityFormData.month}
                                                         onChange={(e) => handleCorrectivePlanFacilityInputChange('month', e.target.value)}
-                                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                     />
                                                 </div>
                                             </div>
@@ -7148,6 +7174,8 @@ export default function DepartmentPage() {
                                             <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     value={correctivePlanFacilityFilterMonth}
                                                     onChange={(e) => setCorrectivePlanFacilityFilterMonth(e.target.value)}
@@ -7415,11 +7443,12 @@ export default function DepartmentPage() {
                                                 <label className="form-label">الشهر *</label>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     required
                                                     value={technicalClinicalFacilityFormData.month}
                                                     onChange={(e) => handleTechnicalClinicalFacilityInputChange('month', e.target.value)}
-                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                 />
                                             </div>
                                         </div>
@@ -7490,6 +7519,8 @@ export default function DepartmentPage() {
                                         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={technicalClinicalFacilityFilterMonth}
                                                 onChange={(e) => setTechnicalClinicalFacilityFilterMonth(e.target.value)}
@@ -7730,6 +7761,8 @@ export default function DepartmentPage() {
                                                 <label className="form-label">الشهر *</label>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     required
                                                     value={technicalClinicalObservationFormData.month}
@@ -7759,6 +7792,8 @@ export default function DepartmentPage() {
                                         <label className="form-label">فلترة حسب الشهر</label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             className="form-input"
                                             value={technicalClinicalObservationFilterMonth}
                                             onChange={(e) => setTechnicalClinicalObservationFilterMonth(e.target.value)}
@@ -7957,7 +7992,7 @@ export default function DepartmentPage() {
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">تاريخ الزيارة *</label>
-                                                <input type="month" className="form-input" required value={tcCorrectionRateFormData.visitDate}
+                                                <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={tcCorrectionRateFormData.visitDate}
                                                     onChange={(e) => handleTcCorrectionRateInputChange('visitDate', e.target.value)} />
                                             </div>
                                             <div className="form-group">
@@ -7971,7 +8006,7 @@ export default function DepartmentPage() {
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">الشهر (للفلترة) *</label>
-                                                <input type="month" className="form-input" required value={tcCorrectionRateFormData.month}
+                                                <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={tcCorrectionRateFormData.month}
                                                     onChange={(e) => handleTcCorrectionRateInputChange('month', e.target.value)} />
                                             </div>
                                         </div>
@@ -8014,7 +8049,7 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px' }}>
                                 <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" className="form-input" value={tcCorrectionRateFilterMonth}
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={tcCorrectionRateFilterMonth}
                                         onChange={(e) => setTcCorrectionRateFilterMonth(e.target.value)} />
                                 </div>
                             </div>
@@ -8408,6 +8443,8 @@ export default function DepartmentPage() {
                                             </label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 value={techSupportVisitFormData.month}
                                                 onChange={(e) => setTechSupportVisitFormData({
                                                     ...techSupportVisitFormData,
@@ -8471,6 +8508,8 @@ export default function DepartmentPage() {
                                         </label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             value={techSupportVisitsFilter}
                                             onChange={(e) => setTechSupportVisitsFilter(e.target.value)}
                                             className="form-input"
@@ -8702,6 +8741,8 @@ export default function DepartmentPage() {
                                             </label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 value={remoteTechSupportFormData.month}
                                                 onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, month: e.target.value }))}
                                                 className="form-input"
@@ -8765,6 +8806,8 @@ export default function DepartmentPage() {
                                             <label style={{ color: 'var(--text-secondary)' }}>فلترة حسب الشهر:</label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 value={remoteTechSupportFilter}
                                                 onChange={(e) => setRemoteTechSupportFilter(e.target.value)}
                                                 style={{
@@ -9035,6 +9078,8 @@ export default function DepartmentPage() {
                                             </label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 value={introSupportVisitFormData.month}
                                                 onChange={(e) => setIntroSupportVisitFormData({
                                                     ...introSupportVisitFormData,
@@ -9098,6 +9143,8 @@ export default function DepartmentPage() {
                                         </label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             value={introSupportVisitsFilter}
                                             onChange={(e) => setIntroSupportVisitsFilter(e.target.value)}
                                             className="form-input"
@@ -9323,6 +9370,8 @@ export default function DepartmentPage() {
                                             </label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 value={queuedSupportVisitFormData.month}
                                                 onChange={(e) => setQueuedSupportVisitFormData({
                                                     ...queuedSupportVisitFormData,
@@ -9383,6 +9432,8 @@ export default function DepartmentPage() {
                                         </label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             value={queuedSupportVisitsFilter}
                                             onChange={(e) => setQueuedSupportVisitsFilter(e.target.value)}
                                             className="form-input"
@@ -9630,6 +9681,8 @@ export default function DepartmentPage() {
                                                 <label className="form-label">الشهر *</label>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     required
                                                     value={adminAuditFacilityFormData.month}
@@ -9659,6 +9712,8 @@ export default function DepartmentPage() {
                                         <label className="form-label">فلترة حسب الشهر</label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             className="form-input"
                                             value={adminAuditFacilityFilterMonth}
                                             onChange={(e) => setAdminAuditFacilityFilterMonth(e.target.value)}
@@ -9884,6 +9939,8 @@ export default function DepartmentPage() {
                                                 <label className="form-label">الشهر *</label>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     required
                                                     value={adminAuditObservationFormData.month}
@@ -9913,6 +9970,8 @@ export default function DepartmentPage() {
                                         <label className="form-label">فلترة حسب الشهر</label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             className="form-input"
                                             value={adminAuditObservationFilterMonth}
                                             onChange={(e) => setAdminAuditObservationFilterMonth(e.target.value)}
@@ -10111,7 +10170,7 @@ export default function DepartmentPage() {
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">تاريخ الزيارة *</label>
-                                                <input type="date" className="form-input" required value={correctionRateFormData.visitDate}
+                                                <input type="date" min={MIN_DATE} max={MAX_DATE} className="form-input" required value={correctionRateFormData.visitDate}
                                                     onChange={(e) => handleCorrectionRateInputChange('visitDate', e.target.value)} />
                                             </div>
                                             <div className="form-group">
@@ -10125,7 +10184,7 @@ export default function DepartmentPage() {
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">الشهر (للفلترة) *</label>
-                                                <input type="month" className="form-input" required value={correctionRateFormData.month}
+                                                <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={correctionRateFormData.month}
                                                     onChange={(e) => handleCorrectionRateInputChange('month', e.target.value)} />
                                             </div>
                                         </div>
@@ -10185,285 +10244,313 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px' }}>
                                 <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" className="form-input" value={correctionRateFilterMonth}
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={correctionRateFilterMonth}
                                         onChange={(e) => setCorrectionRateFilterMonth(e.target.value)} />
                                 </div>
                             </div>
 
                             {/* Data Table */}
                             <div style={{ overflowX: 'auto' }}>
-                                {correctionRates.length === 0 ? (
-                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
-                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
-                                        لا توجد سجلات
-                                    </div>
-                                ) : (
-                                    <div>
-                                        {/* أولاً: المنشآت الصحية التابعة لهيئة الرعاية */}
-                                        {correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length > 0 && (
-                                            <div style={{ marginBottom: '40px' }}>
-                                                <h2 style={{ backgroundColor: '#17a2b8', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                                    🏛️ أولاً: المنشآت الصحية التابعة لهيئة الرعاية ({correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length} زيارات)
-                                                </h2>
-                                                <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
-                                                    {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية'].map(category => {
-                                                        const categoryRates = correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
-                                                        if (categoryRates.length === 0) return null;
-                                                        return (
-                                                            <div key={category} style={{ marginBottom: '25px' }}>
-                                                                <h3 style={{ marginBottom: '15px', color: '#17a2b8', borderBottom: '2px solid #17a2b8', paddingBottom: '10px' }}>
-                                                                    🏥 {category} ({categoryRates.length} زيارات)
-                                                                </h3>
-                                                                {categoryRates.map((rate) => (
-                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
-                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
-                                                                            {userCanEdit && (
-                                                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                                                    <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
-                                                                                    <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                                                                            <thead>
-                                                                                <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
-                                                                                    <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>MRS</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>SCM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EMS</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                <tr style={{ backgroundColor: 'white' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                                <tr style={{ backgroundColor: 'white' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                                        if (item.t < 0 && item.c < 0) {
-                                                                                            return (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
-                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
-                                                                                                </td>
-                                                                                            );
-                                                                                        }
-                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                                        return (
-                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
-                                                                                                <span style={{
-                                                                                                    padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
-                                                                                                    backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
-                                                                                                    color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
-                                                                                                }}>{pct}%</span>
-                                                                                            </td>
-                                                                                        );
-                                                                                    })}
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
+                                {(() => {
+                                    // Normalize category names - convert old names to new standard names
+                                    const normalizeCategory = (category: string): string => {
+                                        const categoryMap: { [key: string]: string } = {
+                                            'مستشفى': 'مستشفيات',
+                                            'صيدلية': 'صيدليات',
+                                            'معمل': 'معامل'
+                                        };
+                                        return categoryMap[category] || category;
+                                    };
 
-                                        {/* ثانياً: المنشآت الصحية التابعة لوزارة الصحة */}
-                                        {correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length > 0 && (
-                                            <div style={{ marginBottom: '40px' }}>
-                                                <h2 style={{ backgroundColor: '#ff9800', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                                    🏥 ثانياً: المنشآت الصحية التابعة لوزارة الصحة ({correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length} زيارات)
-                                                </h2>
-                                                <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
-                                                    {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية', 'صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
-                                                        const categoryRates = correctionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
-                                                        if (categoryRates.length === 0) return null;
-                                                        return (
-                                                            <div key={category} style={{ marginBottom: '25px' }}>
-                                                                <h3 style={{ marginBottom: '15px', color: '#ff9800', borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>
-                                                                    🏥 {category} ({categoryRates.length} زيارات)
-                                                                </h3>
-                                                                {categoryRates.map((rate) => (
-                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
-                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
-                                                                            {userCanEdit && (
-                                                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                                                    <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
-                                                                                    <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                                                                            <thead>
-                                                                                <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
-                                                                                    <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>MRS</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>SCM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EMS</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                <tr style={{ backgroundColor: 'white' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                                <tr style={{ backgroundColor: 'white' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                                        if (item.t < 0 && item.c < 0) {
-                                                                                            return (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
-                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
-                                                                                                </td>
-                                                                                            );
-                                                                                        }
-                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                                        return (
-                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
-                                                                                                <span style={{
-                                                                                                    padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
-                                                                                                    backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
-                                                                                                    color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
-                                                                                                }}>{pct}%</span>
-                                                                                            </td>
-                                                                                        );
-                                                                                    })}
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
+                                    // Filter correction rates based on selected month and normalize categories
+                                    const filteredCorrectionRates = (correctionRateFilterMonth
+                                        ? correctionRates.filter(r => r.month === correctionRateFilterMonth)
+                                        : correctionRates
+                                    ).map(r => ({
+                                        ...r,
+                                        facilityCategory: normalizeCategory(r.facilityCategory)
+                                    }));
 
-                                        {/* ثالثاً: منشآت صحية أخرى */}
-                                        {correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
-                                            <div style={{ marginBottom: '40px' }}>
-                                                <h2 style={{ backgroundColor: '#28a745', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                                    🏢 ثالثاً: منشآت صحية أخرى ({correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
-                                                </h2>
-                                                <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
-                                                    {['صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
-                                                        const categoryRates = correctionRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
-                                                        if (categoryRates.length === 0) return null;
-                                                        return (
-                                                            <div key={category} style={{ marginBottom: '25px' }}>
-                                                                <h3 style={{ marginBottom: '15px', color: '#28a745', borderBottom: '2px solid #28a745', paddingBottom: '10px' }}>
-                                                                    🏥 {category} ({categoryRates.length} زيارات)
-                                                                </h3>
-                                                                {categoryRates.map((rate) => (
-                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
-                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
-                                                                            {userCanEdit && (
-                                                                                <div style={{ display: 'flex', gap: '5px' }}>
-                                                                                    <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
-                                                                                    <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                                                                            <thead>
-                                                                                <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
-                                                                                    <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>MRS</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>SCM</th>
-                                                                                    <th style={{ padding: '8px', textAlign: 'center' }}>EMS</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                <tr style={{ backgroundColor: 'white' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                                        <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                                <tr style={{ backgroundColor: 'white' }}>
-                                                                                    <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
-                                                                                    {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                                        if (item.t < 0 && item.c < 0) {
+                                    if (filteredCorrectionRates.length === 0) {
+                                        return (
+                                            <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                                <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                                لا توجد سجلات
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <div>
+                                            {/* أولاً: المنشآت الصحية التابعة لهيئة الرعاية */}
+                                            {filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length > 0 && (
+                                                <div style={{ marginBottom: '40px' }}>
+                                                    <h2 style={{ backgroundColor: '#17a2b8', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                        🏛️ أولاً: المنشآت الصحية التابعة لهيئة الرعاية ({filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length} زيارات)
+                                                    </h2>
+                                                    <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                        {/* Get unique categories dynamically from data */}
+                                                        {Array.from(new Set(filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').map(r => r.facilityCategory))).map(category => {
+                                                            const categoryRates = filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
+                                                            if (categoryRates.length === 0) return null;
+                                                            return (
+                                                                <div key={category} style={{ marginBottom: '25px' }}>
+                                                                    <h3 style={{ marginBottom: '15px', color: '#17a2b8', borderBottom: '2px solid #17a2b8', paddingBottom: '10px' }}>
+                                                                        🏥 {category} ({categoryRates.length} زيارات)
+                                                                    </h3>
+                                                                    {categoryRates.map((rate) => (
+                                                                        <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                                <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                                {userCanEdit && (
+                                                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                        <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                        <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                                <thead>
+                                                                                    <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
+                                                                                        <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>MRS</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>SCM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>EMS</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
+                                                                                            if (item.t < 0 && item.c < 0) {
+                                                                                                return (
+                                                                                                    <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                        <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                    </td>
+                                                                                                );
+                                                                                            }
+                                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
                                                                                             return (
                                                                                                 <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
-                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                    <span style={{
+                                                                                                        padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                                                                        backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                                                        color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                                                                    }}>{pct}%</span>
                                                                                                 </td>
                                                                                             );
-                                                                                        }
-                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                                        return (
-                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
-                                                                                                <span style={{
-                                                                                                    padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
-                                                                                                    backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
-                                                                                                    color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
-                                                                                                }}>{pct}%</span>
-                                                                                            </td>
-                                                                                        );
-                                                                                    })}
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        );
-                                                    })}
+                                                                                        })}
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                            )}
+
+                                            {/* ثانياً: المنشآت الصحية التابعة لوزارة الصحة */}
+                                            {filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length > 0 && (
+                                                <div style={{ marginBottom: '40px' }}>
+                                                    <h2 style={{ backgroundColor: '#ff9800', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                        🏥 ثانياً: المنشآت الصحية التابعة لوزارة الصحة ({filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length} زيارات)
+                                                    </h2>
+                                                    <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                        {/* Get unique categories dynamically from data */}
+                                                        {Array.from(new Set(filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').map(r => r.facilityCategory))).map(category => {
+                                                            const categoryRates = filteredCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
+                                                            if (categoryRates.length === 0) return null;
+                                                            return (
+                                                                <div key={category} style={{ marginBottom: '25px' }}>
+                                                                    <h3 style={{ marginBottom: '15px', color: '#ff9800', borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>
+                                                                        🏥 {category} ({categoryRates.length} زيارات)
+                                                                    </h3>
+                                                                    {categoryRates.map((rate) => (
+                                                                        <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                                <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                                {userCanEdit && (
+                                                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                        <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                        <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                                <thead>
+                                                                                    <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
+                                                                                        <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>MRS</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>SCM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>EMS</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
+                                                                                            if (item.t < 0 && item.c < 0) {
+                                                                                                return (
+                                                                                                    <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                        <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                    </td>
+                                                                                                );
+                                                                                            }
+                                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                            return (
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                    <span style={{
+                                                                                                        padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                                                                        backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                                                        color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                                                                    }}>{pct}%</span>
+                                                                                                </td>
+                                                                                            );
+                                                                                        })}
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* ثالثاً: منشآت صحية أخرى */}
+                                            {filteredCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
+                                                <div style={{ marginBottom: '40px' }}>
+                                                    <h2 style={{ backgroundColor: '#28a745', color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                                        🏢 ثالثاً: منشآت صحية أخرى ({filteredCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
+                                                    </h2>
+                                                    <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
+                                                        {/* Get unique categories dynamically from data */}
+                                                        {Array.from(new Set(filteredCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').map(r => r.facilityCategory))).map(category => {
+                                                            const categoryRates = filteredCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
+                                                            if (categoryRates.length === 0) return null;
+                                                            return (
+                                                                <div key={category} style={{ marginBottom: '25px' }}>
+                                                                    <h3 style={{ marginBottom: '15px', color: '#28a745', borderBottom: '2px solid #28a745', paddingBottom: '10px' }}>
+                                                                        🏥 {category} ({categoryRates.length} زيارات)
+                                                                    </h3>
+                                                                    {categoryRates.map((rate) => (
+                                                                        <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                                <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                                {userCanEdit && (
+                                                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                        <button onClick={() => handleEditCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                        <button onClick={() => handleDeleteCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                                                                <thead>
+                                                                                    <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
+                                                                                        <th style={{ padding: '8px', textAlign: 'right' }}>البيان</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>PCC</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>EFS</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>OGM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>IMT</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>WFM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>CAI</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>QPI</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>MRS</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>SCM</th>
+                                                                                        <th style={{ padding: '8px', textAlign: 'center' }}>EMS</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
+                                                                                            <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
+                                                                                        ))}
+                                                                                    </tr>
+                                                                                    <tr style={{ backgroundColor: 'white' }}>
+                                                                                        <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
+                                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
+                                                                                            if (item.t < 0 && item.c < 0) {
+                                                                                                return (
+                                                                                                    <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                        <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
+                                                                                                    </td>
+                                                                                                );
+                                                                                            }
+                                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                            return (
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
+                                                                                                    <span style={{
+                                                                                                        padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold',
+                                                                                                        backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da',
+                                                                                                        color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24'
+                                                                                                    }}>{pct}%</span>
+                                                                                                </td>
+                                                                                            );
+                                                                                        })}
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </>
                     )}
@@ -10576,11 +10663,12 @@ export default function DepartmentPage() {
                                                 <label className="form-label">الشهر *</label>
                                                 <input
                                                     type="month"
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
                                                     className="form-input"
                                                     required
                                                     value={basicRequirementsFacilityFormData.month}
                                                     onChange={(e) => handleBasicRequirementsFacilityInputChange('month', e.target.value)}
-                                                    max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                 />
                                             </div>
                                         </div>
@@ -10652,6 +10740,8 @@ export default function DepartmentPage() {
                                         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={basicRequirementsFacilityFilterMonth}
                                                 onChange={(e) => setBasicRequirementsFacilityFilterMonth(e.target.value)}
@@ -10855,11 +10945,12 @@ export default function DepartmentPage() {
                                         <label className="form-label">الشهر *</label>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             className="form-input"
                                             required
                                             value={appealsFacilityFormData.month}
                                             onChange={(e) => handleAppealsFacilityInputChange('month', e.target.value)}
-                                            max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                         />
                                     </div>
                                 </div>
@@ -10944,6 +11035,8 @@ export default function DepartmentPage() {
                                     <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                         <input
                                             type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
                                             className="form-input"
                                             value={appealsFacilityFilterMonth}
                                             onChange={(e) => setAppealsFacilityFilterMonth(e.target.value)}
@@ -11144,6 +11237,8 @@ export default function DepartmentPage() {
                                             <label className="form-label">الشهر *</label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={scheduledSupportVisitFormData.month}
                                                 onChange={(e) => setScheduledSupportVisitFormData({ ...scheduledSupportVisitFormData, month: e.target.value })}
@@ -11183,6 +11278,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">فلترة حسب الشهر</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={scheduledSupportVisitsFilter}
                                         onChange={(e) => setScheduledSupportVisitsFilter(e.target.value)}
@@ -11371,6 +11468,8 @@ export default function DepartmentPage() {
                                             <label className="form-label">تاريخ القرار *</label>
                                             <input
                                                 type="date"
+                                                min={MIN_DATE}
+                                                max={MAX_DATE}
                                                 className="form-input"
                                                 value={accreditedSupportedFacilityFormData.decisionDate}
                                                 onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, decisionDate: e.target.value })}
@@ -11403,6 +11502,8 @@ export default function DepartmentPage() {
                                             <label className="form-label">الشهر *</label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={accreditedSupportedFacilityFormData.month}
                                                 onChange={(e) => setAccreditedSupportedFacilityFormData({ ...accreditedSupportedFacilityFormData, month: e.target.value })}
@@ -11445,6 +11546,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">فلترة حسب الشهر</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={accreditedSupportedFacilitiesFilter}
                                         onChange={(e) => setAccreditedSupportedFacilitiesFilter(e.target.value)}
@@ -11594,10 +11697,11 @@ export default function DepartmentPage() {
                                             <label className="form-label">الشهر *</label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={reviewerEvaluationVisitFormData.month}
                                                 onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, month: e.target.value })}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                 required
                                             />
                                         </div>
@@ -11661,6 +11765,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">فلترة حسب الشهر</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={reviewerEvaluationVisitFilterMonth}
                                         onChange={(e) => setReviewerEvaluationVisitFilterMonth(e.target.value)}
@@ -11842,10 +11948,11 @@ export default function DepartmentPage() {
                                             <label className="form-label">الشهر *</label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={reviewerEvaluationVisitByGovernorateFormData.month}
                                                 onChange={(e) => setReviewerEvaluationVisitByGovernorateFormData({ ...reviewerEvaluationVisitByGovernorateFormData, month: e.target.value })}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                 required
                                             />
                                         </div>
@@ -11936,6 +12043,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">فلترة حسب الشهر</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={reviewerEvaluationVisitByGovernorateFilterMonth}
                                         onChange={(e) => setReviewerEvaluationVisitByGovernorateFilterMonth(e.target.value)}
@@ -12117,10 +12226,11 @@ export default function DepartmentPage() {
                                             <label className="form-label">الشهر *</label>
                                             <input
                                                 type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
                                                 className="form-input"
                                                 value={reviewerEvaluationVisitByTypeFormData.month}
                                                 onChange={(e) => setReviewerEvaluationVisitByTypeFormData({ ...reviewerEvaluationVisitByTypeFormData, month: e.target.value })}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                                 required
                                             />
                                         </div>
@@ -12200,6 +12310,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">فلترة حسب الشهر</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={reviewerEvaluationVisitByTypeFilterMonth}
                                         onChange={(e) => setReviewerEvaluationVisitByTypeFilterMonth(e.target.value)}
@@ -12340,6 +12452,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">من تاريخ</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={dateFrom}
                                         onChange={(e) => setDateFrom(e.target.value)}
@@ -12351,6 +12465,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">إلى تاريخ</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={dateTo}
                                         onChange={(e) => setDateTo(e.target.value)}
@@ -12832,9 +12948,8 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
                                         <div className="form-group">
                                             <label className="form-label">الشهر *</label>
-                                            <input type="month" className="form-input" required value={medProfByCategoryFormData.month}
-                                                onChange={(e) => handleMedProfByCategoryInputChange('month', e.target.value)}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                            <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={medProfByCategoryFormData.month}
+                                                onChange={(e) => handleMedProfByCategoryInputChange('month', e.target.value)} />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">الفرع *</label>
@@ -12925,9 +13040,8 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" className="form-input" value={medProfByCategoryFilterMonth}
-                                        onChange={(e) => setMedProfByCategoryFilterMonth(e.target.value)}
-                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={medProfByCategoryFilterMonth}
+                                        onChange={(e) => setMedProfByCategoryFilterMonth(e.target.value)} />
                                 </div>
                             </div>
 
@@ -13091,9 +13205,8 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
                                         <div className="form-group">
                                             <label className="form-label">الشهر *</label>
-                                            <input type="month" className="form-input" required value={medProfByGovernorateFormData.month}
-                                                onChange={(e) => handleMedProfByGovernorateInputChange('month', e.target.value)}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                            <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={medProfByGovernorateFormData.month}
+                                                onChange={(e) => handleMedProfByGovernorateInputChange('month', e.target.value)} />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">المحافظة *</label>
@@ -13180,9 +13293,8 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" className="form-input" value={medProfByGovernorateFilterMonth}
-                                        onChange={(e) => setMedProfByGovernorateFilterMonth(e.target.value)}
-                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={medProfByGovernorateFilterMonth}
+                                        onChange={(e) => setMedProfByGovernorateFilterMonth(e.target.value)} />
                                 </div>
                                 {medProfByGovernorateFilterMonth && (
                                     <button
@@ -13320,9 +13432,8 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
                                         <div className="form-group">
                                             <label className="form-label">الشهر *</label>
-                                            <input type="month" className="form-input" required value={totalMedProfByCategoryFormData.month}
-                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('month', e.target.value)}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                            <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={totalMedProfByCategoryFormData.month}
+                                                onChange={(e) => handleTotalMedProfByCategoryInputChange('month', e.target.value)} />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">الفرع *</label>
@@ -13413,9 +13524,8 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" className="form-input" value={totalMedProfByCategoryFilterMonth}
-                                        onChange={(e) => setTotalMedProfByCategoryFilterMonth(e.target.value)}
-                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={totalMedProfByCategoryFilterMonth}
+                                        onChange={(e) => setTotalMedProfByCategoryFilterMonth(e.target.value)} />
                                 </div>
                             </div>
 
@@ -13542,9 +13652,8 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
                                         <div className="form-group">
                                             <label className="form-label">الشهر *</label>
-                                            <input type="month" className="form-input" required value={totalMedProfByGovernorateFormData.month}
-                                                onChange={(e) => handleTotalMedProfByGovernorateInputChange('month', e.target.value)}
-                                                max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                            <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" required value={totalMedProfByGovernorateFormData.month}
+                                                onChange={(e) => handleTotalMedProfByGovernorateInputChange('month', e.target.value)} />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">المحافظة *</label>
@@ -13655,9 +13764,8 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" className="form-input" value={totalMedProfByGovernorateFilterMonth}
-                                        onChange={(e) => setTotalMedProfByGovernorateFilterMonth(e.target.value)}
-                                        max={new Date().toISOString().split('T')[0].slice(0, 7)} />
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={totalMedProfByGovernorateFilterMonth}
+                                        onChange={(e) => setTotalMedProfByGovernorateFilterMonth(e.target.value)} />
                                 </div>
                             </div>
 
@@ -13781,6 +13889,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">من تاريخ</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={dateFrom}
                                         onChange={(e) => setDateFrom(e.target.value)}
@@ -13792,6 +13902,8 @@ export default function DepartmentPage() {
                                     <label className="form-label">إلى تاريخ</label>
                                     <input
                                         type="month"
+                                        min={MIN_MONTH}
+                                        max={MAX_MONTH}
                                         className="form-input"
                                         value={dateTo}
                                         onChange={(e) => setDateTo(e.target.value)}

@@ -303,6 +303,7 @@ export default function TrainingEntitiesSection({ currentUser, canEdit }: Traini
                                         required
                                         value={trainingEntityFormData.month}
                                         onChange={(e) => setTrainingEntityFormData({ ...trainingEntityFormData, month: e.target.value })}
+                                        min="2019-01"
                                         max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                     />
                                 </div>

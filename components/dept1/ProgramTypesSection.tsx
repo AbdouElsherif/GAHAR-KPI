@@ -280,6 +280,7 @@ export default function ProgramTypesSection({ currentUser, canEdit }: ProgramTyp
                                         required
                                         value={programTypeFormData.month}
                                         onChange={(e) => setProgramTypeFormData({ ...programTypeFormData, month: e.target.value })}
+                                        min="2019-01"
                                         max={new Date().toISOString().split('T')[0].slice(0, 7)}
                                     />
                                 </div>
