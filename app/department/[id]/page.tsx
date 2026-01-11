@@ -10180,6 +10180,8 @@ export default function DepartmentPage() {
                                                     <option value="">اختر نوع الزيارة</option>
                                                     <option value="زيارة متابعة تدقيق إداري">زيارة متابعة تدقيق إداري</option>
                                                     <option value="زيارة متابعة خطة تصحيحية">زيارة متابعة خطة تصحيحية</option>
+                                                    <option value="زيارة متابعة تدقيق إداري وسلامة بيئية">زيارة متابعة تدقيق إداري وسلامة بيئية</option>
+                                                    <option value="زيارة متابعة تدقيق سلامة بيئية">زيارة متابعة تدقيق سلامة بيئية</option>
                                                 </select>
                                             </div>
                                             <div className="form-group">
