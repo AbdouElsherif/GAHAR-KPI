@@ -1310,7 +1310,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                 // Group by entityType
                 const hcaObservations = filteredObservations.filter(o => o.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية');
                 const mohObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لوزارة الصحة');
-                const otherObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لمنشآت أخرى');
+                const otherObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لجهات أخرى');
 
                 if (filteredObservations.length === 0) return null;
 
@@ -1500,7 +1500,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                             justifyContent: 'space-between',
                                             alignItems: 'center'
                                         }}>
-                                            <span>منشآت تابعة لمنشآت أخرى</span>
+                                            <span>منشآت تابعة لجهات أخرى</span>
                                             <span style={{
                                                 backgroundColor: '#2e7d32',
                                                 color: 'white',
