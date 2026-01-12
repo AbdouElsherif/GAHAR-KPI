@@ -106,8 +106,6 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'followUpVisits', label: 'زيارات متابعة', type: 'number' },
         { name: 'examReferralVisits', label: 'فحص / إحالة / تكليف', type: 'number' },
         { name: 'visitedFacilities', label: 'عدد المنشآت التي تم زيارتها', type: 'number' },
-        { name: 'healthPlanning', label: 'تخطيط صحي', type: 'number' },
-        { name: 'environmentalSafetyAudit', label: 'تدقيق على السلامة البيئية', type: 'number' },
         { name: 'seriousIncidentExam', label: 'فحص حدث جسيم', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },

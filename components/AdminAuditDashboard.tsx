@@ -37,8 +37,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         followUp: boolean;
         examReferral: boolean;
         facilities: boolean;
-        healthPlanning: boolean;
-        environmentalSafetyAudit: boolean;
+
         seriousIncidentExam: boolean;
     }>({
         adminAudit: true,
@@ -46,8 +45,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         followUp: true,
         examReferral: true,
         facilities: true,
-        healthPlanning: true,
-        environmentalSafetyAudit: true,
+
         seriousIncidentExam: true
     });
 
@@ -82,8 +80,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             followUpVisits: number;
             examReferralVisits: number;
             visitedFacilities: number;
-            healthPlanning: number;
-            environmentalSafetyAudit: number;
+
             seriousIncidentExam: number;
             count: number;
         }> = {};
@@ -117,8 +114,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     followUpVisits: 0,
                     examReferralVisits: 0,
                     visitedFacilities: 0,
-                    healthPlanning: 0,
-                    environmentalSafetyAudit: 0,
+
                     seriousIncidentExam: 0,
                     count: 0
                 };
@@ -130,8 +126,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             aggregated[periodKey].followUpVisits += parseFloat(sub.followUpVisits) || 0;
             aggregated[periodKey].examReferralVisits += parseFloat(sub.examReferralVisits) || 0;
             aggregated[periodKey].visitedFacilities += parseFloat(sub.visitedFacilities) || 0;
-            aggregated[periodKey].healthPlanning += parseFloat(sub.healthPlanning) || 0;
-            aggregated[periodKey].environmentalSafetyAudit += parseFloat(sub.environmentalSafetyAudit) || 0;
+
             aggregated[periodKey].seriousIncidentExam += parseFloat(sub.seriousIncidentExam) || 0;
             aggregated[periodKey].count += 1;
         });
@@ -205,13 +200,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
     const previousTotalVisitedFacilities = calculateFilteredTotal(previousAggregated, 'visitedFacilities', comparisonType);
     const visitedFacilitiesChange = calculateChange(currentTotalVisitedFacilities, previousTotalVisitedFacilities);
 
-    const currentTotalHealthPlanning = calculateFilteredTotal(currentAggregated, 'healthPlanning', comparisonType);
-    const previousTotalHealthPlanning = calculateFilteredTotal(previousAggregated, 'healthPlanning', comparisonType);
-    const healthPlanningChange = calculateChange(currentTotalHealthPlanning, previousTotalHealthPlanning);
 
-    const currentTotalEnvironmentalSafetyAudit = calculateFilteredTotal(currentAggregated, 'environmentalSafetyAudit', comparisonType);
-    const previousTotalEnvironmentalSafetyAudit = calculateFilteredTotal(previousAggregated, 'environmentalSafetyAudit', comparisonType);
-    const environmentalSafetyAuditChange = calculateChange(currentTotalEnvironmentalSafetyAudit, previousTotalEnvironmentalSafetyAudit);
 
     const currentTotalSeriousIncidentExam = calculateFilteredTotal(currentAggregated, 'seriousIncidentExam', comparisonType);
     const previousTotalSeriousIncidentExam = calculateFilteredTotal(previousAggregated, 'seriousIncidentExam', comparisonType);
@@ -275,7 +264,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
-    const preparePieData = (metric: 'totalFieldVisits' | 'adminAuditVisits' | 'adminInspectionVisits' | 'followUpVisits' | 'examReferralVisits' | 'visitedFacilities' | 'healthPlanning' | 'environmentalSafetyAudit' | 'seriousIncidentExam') => {
+    const preparePieData = (metric: 'totalFieldVisits' | 'adminAuditVisits' | 'adminInspectionVisits' | 'followUpVisits' | 'examReferralVisits' | 'visitedFacilities' | 'seriousIncidentExam') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
@@ -305,14 +294,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     currentVal = currentTotalVisitedFacilities;
                     previousVal = previousTotalVisitedFacilities;
                     break;
-                case 'healthPlanning':
-                    currentVal = currentTotalHealthPlanning;
-                    previousVal = previousTotalHealthPlanning;
-                    break;
-                case 'environmentalSafetyAudit':
-                    currentVal = currentTotalEnvironmentalSafetyAudit;
-                    previousVal = previousTotalEnvironmentalSafetyAudit;
-                    break;
+
                 case 'seriousIncidentExam':
                     currentVal = currentTotalSeriousIncidentExam;
                     previousVal = previousTotalSeriousIncidentExam;
@@ -351,8 +333,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
     const followUpVisitsPieData = preparePieData('followUpVisits');
     const examReferralVisitsPieData = preparePieData('examReferralVisits');
     const visitedFacilitiesPieData = preparePieData('visitedFacilities');
-    const healthPlanningPieData = preparePieData('healthPlanning');
-    const environmentalSafetyAuditPieData = preparePieData('environmentalSafetyAudit');
+
     const seriousIncidentExamPieData = preparePieData('seriousIncidentExam');
 
     function prepareChartData() {
@@ -685,28 +666,6 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     color="#a4de6c"
                 />
                 <KPICard
-                    title="تخطيط صحي"
-                    icon="📊"
-                    currentValue={currentTotalHealthPlanning}
-                    previousValue={previousTotalHealthPlanning}
-                    changePercentage={healthPlanningChange}
-                    currentYear={targetYear}
-                    previousYear={targetYear - 1}
-                    pieData={healthPlanningPieData}
-                    color="#e91e63"
-                />
-                <KPICard
-                    title="تدقيق على السلامة البيئية"
-                    icon="🌿"
-                    currentValue={currentTotalEnvironmentalSafetyAudit}
-                    previousValue={previousTotalEnvironmentalSafetyAudit}
-                    changePercentage={environmentalSafetyAuditChange}
-                    currentYear={targetYear}
-                    previousYear={targetYear - 1}
-                    pieData={environmentalSafetyAuditPieData}
-                    color="#4caf50"
-                />
-                <KPICard
                     title="فحص حدث جسيم"
                     icon="⚠️"
                     currentValue={currentTotalSeriousIncidentExam}
@@ -980,15 +939,13 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         return parseInt(key.split('-')[1]) === selectedMonth;
                                     }
                                     return false;
-                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0, healthPlanning: 0, environmentalSafetyAudit: 0, seriousIncidentExam: 0 };
+                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0, seriousIncidentExam: 0 };
 
                                 const indicators = [
                                     { label: 'تدقيق إداري وسلامة بيئية', current: currentData.adminAuditVisits || 0, previous: previousData.adminAuditVisits || 0 },
                                     { label: 'تفتيش إداري', current: currentData.adminInspectionVisits || 0, previous: previousData.adminInspectionVisits || 0 },
                                     { label: 'زيارات متابعة', current: currentData.followUpVisits || 0, previous: previousData.followUpVisits || 0 },
                                     { label: 'فحص / إحالة / تكليف', current: currentData.examReferralVisits || 0, previous: previousData.examReferralVisits || 0 },
-                                    { label: 'تخطيط صحي', current: currentData.healthPlanning || 0, previous: previousData.healthPlanning || 0 },
-                                    { label: 'تدقيق على السلامة البيئية', current: currentData.environmentalSafetyAudit || 0, previous: previousData.environmentalSafetyAudit || 0 },
                                     { label: 'فحص حدث جسيم', current: currentData.seriousIncidentExam || 0, previous: previousData.seriousIncidentExam || 0 },
                                 ];
 
