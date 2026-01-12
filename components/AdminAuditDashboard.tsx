@@ -1338,6 +1338,23 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 })()} {targetYear}
                             </h3>
 
+                            {/* ملاحظة حول احتساب نسب التطابق */}
+                            <div style={{
+                                padding: '12px 16px',
+                                backgroundColor: '#fff3cd',
+                                borderRadius: '8px',
+                                marginBottom: '20px',
+                                border: '1px solid #ffc107',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                <span style={{ color: '#856404', fontWeight: '500' }}>
+                                    نسب التطابق يتم احتسابها بصورة ربع سنوية فقط
+                                </span>
+                            </div>
+
                             {/* HCA Observations Accordion */}
                             {hcaObservations.length > 0 && (
                                 <div style={{ marginBottom: '20px' }}>

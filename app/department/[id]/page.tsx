@@ -9980,6 +9980,23 @@ export default function DepartmentPage() {
                                 </div>
                             </div>
 
+                            {/* ملاحظة حول احتساب نسب التطابق */}
+                            <div style={{
+                                padding: '12px 16px',
+                                backgroundColor: '#fff3cd',
+                                borderRadius: '8px',
+                                marginBottom: '15px',
+                                border: '1px solid #ffc107',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                <span style={{ color: '#856404', fontWeight: '500' }}>
+                                    نسب التطابق يتم احتسابها بصورة ربع سنوية فقط
+                                </span>
+                            </div>
+
                             <div style={{ overflowX: 'auto' }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                     <thead>
