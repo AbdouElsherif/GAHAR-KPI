@@ -11245,6 +11245,7 @@ export default function DepartmentPage() {
                                             >
                                                 <option value="">اختر نوع الزيارة</option>
                                                 <option value="زيارة ميدانية أساسية">زيارة ميدانية أساسية</option>
+                                                <option value="زيارة ميدانية أساسية (اعتماد)">زيارة ميدانية أساسية (اعتماد)</option>
                                                 <option value="زيارة ميدانية متابعة">زيارة ميدانية متابعة</option>
                                                 <option value="زيارة ميدانية (ورشة عمل)">زيارة ميدانية (ورشة عمل)</option>
                                                 <option value="زيارة ميدانية (مراجعة وثائق)">زيارة ميدانية (مراجعة وثائق)</option>
