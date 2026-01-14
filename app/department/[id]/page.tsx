@@ -228,6 +228,9 @@ export default function DepartmentPage() {
     // Main data entry section expand/collapse state
     const [isDataEntrySectionExpanded, setIsDataEntrySectionExpanded] = useState(false);
 
+    // Unlocked standards state (for dept8 - allows editing completed standards)
+    const [unlockedStandards, setUnlockedStandards] = useState<Set<string>>(new Set());
+
     const [submitted, setSubmitted] = useState(false);
     const [submissions, setSubmissions] = useState<Array<Record<string, any>>>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -5037,31 +5040,85 @@ export default function DepartmentPage() {
 
                                 <form onSubmit={handleSubmit}>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                        {fields.map((field) => (
-                                            <div key={field.name} className="form-group" style={field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' ? { gridColumn: '1 / -1' } : {}}>
-                                                <label className="form-label">{field.label}</label>
-                                                {field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' ? (
-                                                    <textarea className="form-input" rows={4} placeholder="ملاحظات إضافية..." value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)}></textarea>
-                                                ) : (
-                                                    <input
-                                                        type={field.type}
-                                                        className="form-input"
-                                                        required={field.type === 'month' || field.type === 'date' || field.name !== 'notes'}
-                                                        value={formData[field.name] || ''}
-                                                        onChange={(e) => handleChange(field.name, e.target.value)}
-                                                        max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : (field.type === 'number' && id === 'dept8') ? '100' : undefined}
-                                                        min={field.type === 'number' ? '0' : undefined}
-                                                        step={field.type === 'number' ? '1' : undefined}
-                                                        onKeyDown={(e) => {
-                                                            if (field.type === 'number' && (e.key === '.' || e.key === ',' || e.key === '-' || e.key === 'e' || e.key === 'E')) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
-                                                        title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' && id === 'dept8' ? 'أدخل نسبة مئوية من 0 إلى 100' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
-                                                    />
-                                                )}
-                                            </div>
-                                        ))}
+                                        {fields.map((field) => {
+                                            // Check if this is a standard field at 100% (completed)
+                                            const isStandardField = id === 'dept8' && field.type === 'number' && field.name.startsWith('standard');
+                                            const fieldValue = Number(formData[field.name] || 0);
+                                            const isCompleted = isStandardField && fieldValue >= 100;
+                                            const isLocked = isCompleted && !unlockedStandards.has(field.name);
+
+                                            return (
+                                                <div
+                                                    key={field.name}
+                                                    className="form-group"
+                                                    style={{
+                                                        ...(field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' ? { gridColumn: '1 / -1' } : {}),
+                                                        ...(isLocked ? { opacity: 0.6 } : {})
+                                                    }}
+                                                >
+                                                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {isCompleted && <span style={{ color: '#28a745', fontSize: '1.1rem' }}>✓</span>}
+                                                        {field.label}
+                                                        {isLocked && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const newUnlocked = new Set(unlockedStandards);
+                                                                    newUnlocked.add(field.name);
+                                                                    setUnlockedStandards(newUnlocked);
+                                                                }}
+                                                                style={{
+                                                                    marginRight: 'auto',
+                                                                    padding: '2px 8px',
+                                                                    fontSize: '0.75rem',
+                                                                    backgroundColor: '#ffc107',
+                                                                    color: '#000',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}
+                                                                title="إلغاء القفل للتعديل"
+                                                            >
+                                                                🔓 إلغاء القفل
+                                                            </button>
+                                                        )}
+                                                    </label>
+                                                    {field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' ? (
+                                                        <textarea className="form-input" rows={4} placeholder="ملاحظات إضافية..." value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)}></textarea>
+                                                    ) : (
+                                                        <input
+                                                            type={field.type}
+                                                            className="form-input"
+                                                            required={field.type === 'month' || field.type === 'date' || field.name !== 'notes'}
+                                                            value={formData[field.name] || ''}
+                                                            disabled={isLocked}
+                                                            onChange={(e) => {
+                                                                let value = e.target.value;
+                                                                // Clamp value to max 100 for dept8 standards
+                                                                if (isStandardField && value !== '') {
+                                                                    const numVal = Number(value);
+                                                                    if (numVal > 100) value = '100';
+                                                                }
+                                                                handleChange(field.name, value);
+                                                            }}
+                                                            max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : (field.type === 'number' && id === 'dept8') ? '100' : undefined}
+                                                            min={field.type === 'number' ? '0' : undefined}
+                                                            step={field.type === 'number' ? '1' : undefined}
+                                                            onKeyDown={(e) => {
+                                                                if (field.type === 'number' && (e.key === '.' || e.key === ',' || e.key === '-' || e.key === 'e' || e.key === 'E')) {
+                                                                    e.preventDefault();
+                                                                }
+                                                            }}
+                                                            style={isLocked ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : undefined}
+                                                            title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' && id === 'dept8' ? 'أدخل نسبة مئوية من 0 إلى 100' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
+                                                        />
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                     <div style={{ marginTop: '10px' }}>
                                         <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px' }}>
