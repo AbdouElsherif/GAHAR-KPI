@@ -4254,6 +4254,102 @@ export default function DepartmentPage() {
         link.click();
     };
 
+    // Export functions for Accredited Supported Facilities (المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم)
+    const exportAccreditedSupportedFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = accreditedSupportedFacilities.filter(f => !accreditedSupportedFacilitiesFilter || f.month === accreditedSupportedFacilitiesFilter);
+
+        const data = filteredData.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'رقم القرار': facility.decisionNumber,
+                'تاريخ القرار': facility.decisionDate,
+                'نوع الدعم': facility.supportType,
+                'موقف الاعتماد': facility.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'المنشآت المعتمدة');
+
+        const filterMonthText = accreditedSupportedFacilitiesFilter
+            ? `_${accreditedSupportedFacilitiesFilter.replace('-', '_')}`
+            : '_جميع';
+
+        XLSX.writeFile(wb, `المنشآت_المعتمدة_للدعم_الفني${filterMonthText}.xlsx`);
+    };
+
+    const exportAccreditedSupportedFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = accreditedSupportedFacilities.filter(f => !accreditedSupportedFacilitiesFilter || f.month === accreditedSupportedFacilitiesFilter);
+
+        const tableRows = filteredData.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: facility.decisionNumber, alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: facility.decisionDate, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: facility.supportType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } })
+                ]
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'رقم القرار', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'تاريخ القرار', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع الدعم', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'موقف الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } })
+                    ]
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE }
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    table
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const filterMonthText = accreditedSupportedFacilitiesFilter
+            ? `_${accreditedSupportedFacilitiesFilter.replace('-', '_')}`
+            : '_جميع';
+
+        link.download = `المنشآت_المعتمدة_للدعم_الفني${filterMonthText}.docx`;
+        link.click();
+    };
+
     // Scheduled Support Visit handlers (زيارات الدعم الفني المجدولة في شهر ....)
 
     const handleScheduledSupportVisitSubmit = async (e: React.FormEvent) => {
@@ -12258,19 +12354,70 @@ export default function DepartmentPage() {
                                 </form>
                             )}
 
-                            {/* Filter */}
-                            <div style={{ marginBottom: '20px' }}>
-                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
-                                    <label className="form-label">فلترة حسب الشهر</label>
+                            {/* Filter and Export */}
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-end',
+                                marginBottom: '15px',
+                                flexWrap: 'wrap',
+                                gap: '15px'
+                            }}>
+                                {/* Filter on the right */}
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                        فلترة حسب الشهر:
+                                    </label>
                                     <input
                                         type="month"
                                         min={MIN_MONTH}
                                         max={MAX_MONTH}
-                                        className="form-input"
                                         value={accreditedSupportedFacilitiesFilter}
                                         onChange={(e) => setAccreditedSupportedFacilitiesFilter(e.target.value)}
+                                        className="form-input"
+                                        style={{ maxWidth: '300px' }}
                                     />
                                 </div>
+
+                                {/* Export buttons on the left */}
+                                {accreditedSupportedFacilities.filter(f => !accreditedSupportedFacilitiesFilter || f.month === accreditedSupportedFacilitiesFilter).length > 0 && (
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportAccreditedSupportedFacilitiesToExcel}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#28a745',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '5px'
+                                            }}
+                                        >
+                                            📊 تصدير Excel
+                                        </button>
+                                        <button
+                                            onClick={exportAccreditedSupportedFacilitiesToWord}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#007bff',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.9rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '5px'
+                                            }}
+                                        >
+                                            📄 تصدير Word
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Table */}
