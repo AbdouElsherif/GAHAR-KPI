@@ -3574,6 +3574,99 @@ export default function DepartmentPage() {
         }
     };
 
+    // Export functions for Tech Support Visits (الزيارات الميدانية للمنشآت)
+    const exportTechSupportVisitsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter);
+
+        const data = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': visit.facilityName,
+                'المحافظة': visit.governorate,
+                'نوع الزيارة': visit.visitType,
+                'الجهة التابعة': visit.affiliatedEntity,
+                'نوع المنشأة': visit.facilityType,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الزيارات الميدانية');
+
+        const filterMonthText = techSupportVisitsFilter
+            ? `_${techSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        XLSX.writeFile(wb, `الزيارات_الميدانية_للمنشآت${filterMonthText}.xlsx`);
+    };
+
+    const exportTechSupportVisitsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter);
+
+        const tableRows = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.governorate, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.visitType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.affiliatedEntity, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.facilityType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                ]
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الجهة التابعة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                    ]
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE }
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'الزيارات الميدانية للمنشآت',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    table
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const filterMonthText = techSupportVisitsFilter
+            ? `_${techSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        link.download = `الزيارات_الميدانية_للمنشآت${filterMonthText}.docx`;
+        link.click();
+    };
+
     // Remote Technical Support handlers (الدعم الفني عن بعد)
     const handleRemoteTechSupportSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -3689,6 +3782,99 @@ export default function DepartmentPage() {
         }
     };
 
+    // Export functions for Remote Technical Support (الدعم الفني عن بعد)
+    const exportRemoteTechSupportToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter);
+
+        const data = filteredData.map((support, index) => {
+            const [year, month] = support.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': support.facilityName,
+                'المحافظة': support.governorate,
+                'نوع الزيارة': support.visitType,
+                'الجهة التابعة': support.affiliatedEntity,
+                'نوع المنشأة': support.facilityType,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الدعم الفني عن بعد');
+
+        const filterMonthText = remoteTechSupportFilter
+            ? `_${remoteTechSupportFilter.replace('-', '_')}`
+            : '_جميع';
+
+        XLSX.writeFile(wb, `الدعم_الفني_عن_بعد${filterMonthText}.xlsx`);
+    };
+
+    const exportRemoteTechSupportToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter);
+
+        const tableRows = filteredData.map((support, index) => {
+            const [year, month] = support.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: support.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: support.governorate, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: support.visitType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: support.affiliatedEntity, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: support.facilityType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                ]
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الجهة التابعة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                    ]
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE }
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'الدعم الفني عن بعد',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    table
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const filterMonthText = remoteTechSupportFilter
+            ? `_${remoteTechSupportFilter.replace('-', '_')}`
+            : '_جميع';
+
+        link.download = `الدعم_الفني_عن_بعد${filterMonthText}.docx`;
+        link.click();
+    };
+
     // Introductory Support Visit handlers (زيارات الدعم الفني التمهيدية)
     const handleIntroSupportVisitSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -3802,6 +3988,270 @@ export default function DepartmentPage() {
                 alert('حدث خطأ أثناء حذف الزيارة');
             }
         }
+    };
+
+    // Export functions for Introductory Support Visits (زيارات الدعم الفني التمهيدية)
+    const exportIntroSupportVisitsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter);
+
+        const data = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': visit.facilityName,
+                'المحافظة': visit.governorate,
+                'نوع الزيارة': visit.visitType,
+                'الجهة التابعة': visit.affiliatedEntity,
+                'نوع المنشأة': visit.facilityType,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'زيارات الدعم التمهيدية');
+
+        const filterMonthText = introSupportVisitsFilter
+            ? `_${introSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        XLSX.writeFile(wb, `زيارات_الدعم_الفني_التمهيدية${filterMonthText}.xlsx`);
+    };
+
+    const exportIntroSupportVisitsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter);
+
+        const tableRows = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.governorate, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.visitType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.affiliatedEntity, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.facilityType, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                ]
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الجهة التابعة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                    ]
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE }
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'زيارات الدعم الفني التمهيدية',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    table
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const filterMonthText = introSupportVisitsFilter
+            ? `_${introSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        link.download = `زيارات_الدعم_الفني_التمهيدية${filterMonthText}.docx`;
+        link.click();
+    };
+
+    // Export functions for Queue Support Visits (زيارات الدعم الفني بقائمة الانتظار)
+    const exportQueuedSupportVisitsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter);
+
+        const data = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': visit.facilityName,
+                'المحافظة': visit.governorate,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'زيارات قائمة الانتظار');
+
+        const filterMonthText = queuedSupportVisitsFilter
+            ? `_${queuedSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        XLSX.writeFile(wb, `زيارات_الدعم_الفني_قائمة_الانتظار${filterMonthText}.xlsx`);
+    };
+
+    const exportQueuedSupportVisitsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter);
+
+        const tableRows = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 40, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.governorate, alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } })
+                ]
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 40, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } })
+                    ]
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE }
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'زيارات الدعم الفني بقائمة الانتظار',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    table
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const filterMonthText = queuedSupportVisitsFilter
+            ? `_${queuedSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        link.download = `زيارات_الدعم_الفني_قائمة_الانتظار${filterMonthText}.docx`;
+        link.click();
+    };
+
+    // Export functions for Scheduled Support Visits (زيارات الدعم الفني المجدولة)
+    const exportScheduledSupportVisitsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter);
+
+        const data = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': visit.facilityName,
+                'المحافظة': visit.governorate,
+                'نوع الزيارة': visit.visitType,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'زيارات الدعم المجدولة');
+
+        const filterMonthText = scheduledSupportVisitsFilter
+            ? `_${scheduledSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        XLSX.writeFile(wb, `زيارات_الدعم_الفني_المجدولة${filterMonthText}.xlsx`);
+    };
+
+    const exportScheduledSupportVisitsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter);
+
+        const tableRows = filteredData.map((visit, index) => {
+            const [year, month] = visit.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.facilityName, alignment: AlignmentType.RIGHT })], width: { size: 32, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.governorate, alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: visit.visitType, alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                ]
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 32, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                        new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                    ]
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE }
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: 'زيارات الدعم الفني المجدولة',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    table
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        const filterMonthText = scheduledSupportVisitsFilter
+            ? `_${scheduledSupportVisitsFilter.replace('-', '_')}`
+            : '_جميع';
+
+        link.download = `زيارات_الدعم_الفني_المجدولة${filterMonthText}.docx`;
+        link.click();
     };
 
     // Scheduled Support Visit handlers (زيارات الدعم الفني المجدولة في شهر ....)
@@ -8557,19 +9007,59 @@ export default function DepartmentPage() {
                                 </form>
                                 {/* Filter and Table */}
                                 <div>
-                                    <div style={{ marginBottom: '20px' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                            فلترة حسب الشهر:
-                                        </label>
-                                        <input
-                                            type="month"
-                                            min={MIN_MONTH}
-                                            max={MAX_MONTH}
-                                            value={techSupportVisitsFilter}
-                                            onChange={(e) => setTechSupportVisitsFilter(e.target.value)}
-                                            className="form-input"
-                                            style={{ maxWidth: '300px' }}
-                                        />
+                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                فلترة حسب الشهر:
+                                            </label>
+                                            <input
+                                                type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
+                                                value={techSupportVisitsFilter}
+                                                onChange={(e) => setTechSupportVisitsFilter(e.target.value)}
+                                                className="form-input"
+                                                style={{ maxWidth: '300px' }}
+                                            />
+                                        </div>
+                                        {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportTechSupportVisitsToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportTechSupportVisitsToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                     <div style={{ overflowX: 'auto' }}>
                                         <table style={{
@@ -8853,42 +9343,66 @@ export default function DepartmentPage() {
                                 <div>
                                     <div style={{
                                         display: 'flex',
-                                        justifyContent: 'flex-end',
-                                        alignItems: 'center',
-                                        marginBottom: '15px'
+                                        justifyContent: 'space-between',
+                                        alignItems: 'flex-end',
+                                        marginBottom: '15px',
+                                        flexWrap: 'wrap',
+                                        gap: '15px'
                                     }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <label style={{ color: 'var(--text-secondary)' }}>فلترة حسب الشهر:</label>
+                                        {/* Filter on the left */}
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                فلترة حسب الشهر:
+                                            </label>
                                             <input
                                                 type="month"
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
                                                 value={remoteTechSupportFilter}
                                                 onChange={(e) => setRemoteTechSupportFilter(e.target.value)}
-                                                style={{
-                                                    padding: '8px',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid var(--border-color)',
-                                                    backgroundColor: 'var(--input-bg)',
-                                                    color: 'var(--text-primary)'
-                                                }}
+                                                className="form-input"
+                                                style={{ maxWidth: '300px' }}
                                             />
-                                            {remoteTechSupportFilter && (
+                                        </div>
+                                        {/* Export buttons on the right */}
+                                        {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
                                                 <button
-                                                    onClick={() => setRemoteTechSupportFilter('')}
+                                                    onClick={exportRemoteTechSupportToExcel}
                                                     style={{
-                                                        padding: '8px 12px',
-                                                        backgroundColor: '#6c757d',
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
                                                         color: 'white',
                                                         border: 'none',
                                                         borderRadius: '6px',
-                                                        cursor: 'pointer'
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
                                                     }}
                                                 >
-                                                    إظهار الكل
+                                                    📊 تصدير Excel
                                                 </button>
-                                            )}
-                                        </div>
+                                                <button
+                                                    onClick={exportRemoteTechSupportToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                     <div style={{ overflowX: 'auto' }}>
                                         <table style={{
@@ -8900,12 +9414,12 @@ export default function DepartmentPage() {
                                         }}>
                                             <thead>
                                                 <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right', width: '15%' }}>نوع الزيارة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
                                                     <th style={{ padding: '12px', textAlign: 'center', width: '15%' }}>الإجراءات</th>
                                                 </tr>
                                             </thead>
@@ -8917,12 +9431,12 @@ export default function DepartmentPage() {
                                                             borderBottom: '1px solid #eee',
                                                             backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
                                                         }}>
-                                                            <td style={{ padding: '12px' }}>{support.month}</td>
                                                             <td style={{ padding: '12px' }}>{support.facilityName}</td>
                                                             <td style={{ padding: '12px' }}>{support.governorate}</td>
                                                             <td style={{ padding: '12px' }}>{support.visitType}</td>
                                                             <td style={{ padding: '12px' }}>{support.affiliatedEntity}</td>
                                                             <td style={{ padding: '12px' }}>{support.facilityType}</td>
+                                                            <td style={{ padding: '12px' }}>{support.month}</td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 <button
                                                                     onClick={() => handleEditRemoteTechSupport(support)}
@@ -9192,19 +9706,61 @@ export default function DepartmentPage() {
                                 </form>
                                 {/* Filter and Table */}
                                 <div>
-                                    <div style={{ marginBottom: '20px' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                            فلترة حسب الشهر:
-                                        </label>
-                                        <input
-                                            type="month"
-                                            min={MIN_MONTH}
-                                            max={MAX_MONTH}
-                                            value={introSupportVisitsFilter}
-                                            onChange={(e) => setIntroSupportVisitsFilter(e.target.value)}
-                                            className="form-input"
-                                            style={{ maxWidth: '300px' }}
-                                        />
+                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                        {/* Filter on the left */}
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                فلترة حسب الشهر:
+                                            </label>
+                                            <input
+                                                type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
+                                                value={introSupportVisitsFilter}
+                                                onChange={(e) => setIntroSupportVisitsFilter(e.target.value)}
+                                                className="form-input"
+                                                style={{ maxWidth: '300px' }}
+                                            />
+                                        </div>
+                                        {/* Export buttons on the right */}
+                                        {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportIntroSupportVisitsToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportIntroSupportVisitsToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                     <div style={{ overflowX: 'auto' }}>
                                         <table style={{
@@ -9481,19 +10037,61 @@ export default function DepartmentPage() {
                                 </form>
                                 {/* Filter and Table */}
                                 <div>
-                                    <div style={{ marginBottom: '20px' }}>
-                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                            فلترة حسب الشهر:
-                                        </label>
-                                        <input
-                                            type="month"
-                                            min={MIN_MONTH}
-                                            max={MAX_MONTH}
-                                            value={queuedSupportVisitsFilter}
-                                            onChange={(e) => setQueuedSupportVisitsFilter(e.target.value)}
-                                            className="form-input"
-                                            style={{ maxWidth: '300px' }}
-                                        />
+                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                        {/* Filter on the left */}
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                فلترة حسب الشهر:
+                                            </label>
+                                            <input
+                                                type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
+                                                value={queuedSupportVisitsFilter}
+                                                onChange={(e) => setQueuedSupportVisitsFilter(e.target.value)}
+                                                className="form-input"
+                                                style={{ maxWidth: '300px' }}
+                                            />
+                                        </div>
+                                        {/* Export buttons on the right */}
+                                        {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportQueuedSupportVisitsToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportQueuedSupportVisitsToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                     <div style={{ overflowX: 'auto' }}>
                                         <table style={{
@@ -11347,18 +11945,63 @@ export default function DepartmentPage() {
                                 </form>
                             )}
 
-                            {/* Filter */}
-                            <div style={{ marginBottom: '20px' }}>
-                                <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
-                                    <label className="form-label">فلترة حسب الشهر</label>
-                                    <input
-                                        type="month"
-                                        min={MIN_MONTH}
-                                        max={MAX_MONTH}
-                                        className="form-input"
-                                        value={scheduledSupportVisitsFilter}
-                                        onChange={(e) => setScheduledSupportVisitsFilter(e.target.value)}
-                                    />
+                            {/* Filter and Table */}
+                            <div>
+                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                    {/* Filter on the left */}
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={scheduledSupportVisitsFilter}
+                                            onChange={(e) => setScheduledSupportVisitsFilter(e.target.value)}
+                                            className="form-input"
+                                            style={{ maxWidth: '300px' }}
+                                        />
+                                    </div>
+                                    {/* Export buttons on the right */}
+                                    {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportScheduledSupportVisitsToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportScheduledSupportVisitsToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#007bff',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
