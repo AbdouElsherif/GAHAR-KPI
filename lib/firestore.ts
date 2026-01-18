@@ -440,7 +440,6 @@ export interface GovernorateCustomerSurvey {
     month: string;  // الشهر YYYY-MM
     governorate: string;  // المحافظة
     visitImplementationRate: number;  // نسبة تنفيذ الزيارات (0-100)
-    targetFacilities: number;  // عدد المنشآت المستهدفة
     visitedFacilitiesList: string;  // أسماء المنشآت (نص طويل - كل منشأة في سطر)
     patientSurveysCount: number;  // عدد استبيانات قياس تجربة المريض
     staffSurveysCount: number;  // عدد استبيانات مقدمي الخدمة والعاملين
