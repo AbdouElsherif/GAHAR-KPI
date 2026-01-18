@@ -39,6 +39,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
         month: '',
         governorate: '',
         visitImplementationRate: '',
+        facilitiesCount: '',
         visitedFacilitiesList: '',
         patientSurveysCount: '',
         staffSurveysCount: '',
@@ -109,6 +110,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
             month: formData.month,
             governorate: formData.governorate,
             visitImplementationRate: parseFloat(formData.visitImplementationRate) || 0,
+            facilitiesCount: parseInt(formData.facilitiesCount) || 0,
             visitedFacilitiesList: formData.visitedFacilitiesList,
             patientSurveysCount: parseInt(formData.patientSurveysCount) || 0,
             staffSurveysCount: parseInt(formData.staffSurveysCount) || 0,
@@ -154,6 +156,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
             month: '',
             governorate: '',
             visitImplementationRate: '',
+            facilitiesCount: '',
             visitedFacilitiesList: '',
             patientSurveysCount: '',
             staffSurveysCount: '',
@@ -168,6 +171,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
             month: survey.month,
             governorate: survey.governorate,
             visitImplementationRate: survey.visitImplementationRate.toString(),
+            facilitiesCount: (survey.facilitiesCount || 0).toString(),
             visitedFacilitiesList: survey.visitedFacilitiesList,
             patientSurveysCount: survey.patientSurveysCount.toString(),
             staffSurveysCount: survey.staffSurveysCount.toString(),
@@ -207,6 +211,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
                 'المحافظة': survey.governorate,
                 'نسبة تنفيذ الزيارات %': survey.visitImplementationRate,
+                'عدد المنشآت': survey.facilitiesCount || 0,
                 'استبيانات المرضى': survey.patientSurveysCount,
                 'استبيانات العاملين': survey.staffSurveysCount,
                 'نسبة رضاء المرضى %': survey.patientSatisfactionRate,
@@ -234,6 +239,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                     new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: survey.governorate, alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: survey.visitImplementationRate + '%', alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (survey.facilitiesCount || 0).toString(), alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: survey.patientSurveysCount.toString(), alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: survey.staffSurveysCount.toString(), alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: survey.patientSatisfactionRate + '%', alignment: AlignmentType.CENTER })] }),
@@ -250,6 +256,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                         new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: 'نسبة التنفيذ %', alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: 'عدد المنشآت', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: 'استبيانات المرضى', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: 'استبيانات العاملين', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: 'رضاء المرضى %', alignment: AlignmentType.CENTER })] }),
@@ -354,7 +361,19 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px', marginBottom: '15px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '15px' }}>
+                                <div className="form-group">
+                                    <label className="form-label">عدد المنشآت *</label>
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        required
+                                        min="0"
+                                        value={formData.facilitiesCount}
+                                        onChange={(e) => setFormData({ ...formData, facilitiesCount: e.target.value })}
+                                        placeholder="0"
+                                    />
+                                </div>
                                 <div className="form-group">
                                     <label className="form-label">عدد استبيانات المرضى *</label>
                                     <input
@@ -479,6 +498,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                                     <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', width: '50px' }}></th>
                                     <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>المحافظة</th>
                                     <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>نسبة التنفيذ</th>
+                                    <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>عدد المنشآت</th>
                                     <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>استبيانات المرضى</th>
                                     <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>استبيانات العاملين</th>
                                     <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>رضاء المرضى %</th>
@@ -489,7 +509,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                             <tbody>
                                 {filteredSurveys.length === 0 ? (
                                     <tr>
-                                        <td colSpan={userCanEdit ? 9 : 8} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <td colSpan={userCanEdit ? 10 : 9} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
                                             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📍</div>
                                             لا توجد بيانات
                                         </td>
@@ -524,6 +544,9 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
                                                     {survey.visitImplementationRate >= 100 ? <span style={{ marginLeft: '5px' }}>✅</span> : ''}
                                                     {survey.visitImplementationRate}%
+                                                </td>
+                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#0D6A79' }}>
+                                                    {(survey.facilitiesCount || 0).toLocaleString()}
                                                 </td>
                                                 <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#0D6A79' }}>
                                                     {survey.patientSurveysCount.toLocaleString()}
@@ -570,7 +593,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                                             {/* Expanded Facilities Row */}
                                             {expandedRows.has(survey.id!) && survey.visitedFacilitiesList && (
                                                 <tr style={{ backgroundColor: '#e3f5f7', borderBottom: '1px solid #0eacb8' }}>
-                                                    <td colSpan={userCanEdit ? 9 : 8} style={{ padding: '20px 40px' }}>
+                                                    <td colSpan={userCanEdit ? 10 : 9} style={{ padding: '20px 40px' }}>
                                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                                             <span style={{ fontSize: '1.3rem', marginTop: '2px' }}>🏥</span>
                                                             <div style={{ flex: 1 }}>
