@@ -539,7 +539,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                                                     </button>
                                                 </td>
                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                    <span style={{ fontSize: '1rem' }}>📍</span> {survey.governorate}
+                                                    {survey.governorate}
                                                 </td>
                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
                                                     {survey.visitImplementationRate >= 100 ? <span style={{ marginLeft: '5px' }}>✅</span> : ''}
