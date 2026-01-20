@@ -77,7 +77,6 @@ export interface PaymentFacility {
 
 export interface CorrectivePlanFacility {
     id?: string;
-    facilityType: string;
     facilityName: string;
     governorate: string;
     month: string;
