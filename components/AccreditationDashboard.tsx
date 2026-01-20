@@ -57,7 +57,6 @@ interface AccreditationDashboardProps {
     }>;
     basicRequirementsFacilities?: Array<{
         id?: string;
-        facilityType: string;
         facilityName: string;
         governorate: string;
         month: string;
@@ -444,7 +443,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
         });
 
         return filtered.sort((a, b) => {
-            return a.facilityType.localeCompare(b.facilityType, 'ar');
+            return a.facilityName.localeCompare(b.facilityName, 'ar');
         });
     };
 
@@ -1925,7 +1924,6 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 <thead>
                                     <tr style={{ backgroundColor: '#20c997', color: 'white' }}>
                                         <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                         <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                         <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
                                     </tr>
@@ -1937,7 +1935,6 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                             backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
                                         }}>
                                             <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityType}</td>
                                             <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
                                         </tr>

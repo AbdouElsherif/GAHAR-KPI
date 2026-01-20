@@ -311,7 +311,6 @@ export default function DepartmentPage() {
     // Basic Requirements Facilities tracking states (for dept6 only)
     const [basicRequirementsFacilities, setBasicRequirementsFacilities] = useState<BasicRequirementsFacility[]>([]);
     const [basicRequirementsFacilityFormData, setBasicRequirementsFacilityFormData] = useState({
-        facilityType: '',
         facilityName: '',
         governorate: '',
         month: ''
@@ -3116,7 +3115,6 @@ export default function DepartmentPage() {
 
     const handleEditBasicRequirementsFacility = (facility: BasicRequirementsFacility) => {
         setBasicRequirementsFacilityFormData({
-            facilityType: facility.facilityType,
             facilityName: facility.facilityName,
             governorate: facility.governorate,
             month: facility.month
@@ -3135,7 +3133,6 @@ export default function DepartmentPage() {
 
     const resetBasicRequirementsFacilityForm = () => {
         setBasicRequirementsFacilityFormData({
-            facilityType: '',
             facilityName: '',
             governorate: '',
             month: ''
@@ -3150,7 +3147,6 @@ export default function DepartmentPage() {
             const [year, month] = facility.month.split('-');
             return {
                 '#': index + 1,
-                'نوع المنشأة': facility.facilityType,
                 'اسم المنشأة': facility.facilityName,
                 'المحافظة': facility.governorate,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
@@ -3174,11 +3170,10 @@ export default function DepartmentPage() {
         const tableRows = [
             new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 40, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
                 ]
             }),
             ...basicRequirementsFacilities.map((facility, index) => {
@@ -3186,7 +3181,6 @@ export default function DepartmentPage() {
                 return new TableRow({
                     children: [
                         new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
-                        new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.RIGHT })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
@@ -11356,25 +11350,7 @@ export default function DepartmentPage() {
                                     )}
 
                                     <form onSubmit={handleBasicRequirementsFacilitySubmit} style={{ marginBottom: '30px' }}>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                            <div className="form-group">
-                                                <label className="form-label">نوع المنشأة *</label>
-                                                <select
-                                                    className="form-input"
-                                                    required
-                                                    value={basicRequirementsFacilityFormData.facilityType}
-                                                    onChange={(e) => handleBasicRequirementsFacilityInputChange('facilityType', e.target.value)}
-                                                >
-                                                    <option value="">اختر نوع المنشأة</option>
-                                                    <option value="صيدلية">صيدلية</option>
-                                                    <option value="مستشفى">مستشفى</option>
-                                                    <option value="عيادة">عيادة</option>
-                                                    <option value="وحدة طب أسرة">وحدة طب أسرة</option>
-                                                    <option value="مركز طب أسرة">مركز طب أسرة</option>
-                                                    <option value="أخرى">أخرى</option>
-                                                </select>
-                                            </div>
-
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
                                             <div className="form-group">
                                                 <label className="form-label">اسم المنشأة *</label>
                                                 <input
@@ -11500,7 +11476,6 @@ export default function DepartmentPage() {
                                     }}>
                                         <thead>
                                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
@@ -11512,7 +11487,7 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {basicRequirementsFacilities.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                    <td colSpan={userCanEdit ? 4 : 3} style={{
                                                         padding: '40px',
                                                         textAlign: 'center',
                                                         color: '#999'
@@ -11527,9 +11502,6 @@ export default function DepartmentPage() {
                                                         borderBottom: '1px solid #eee',
                                                         backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
                                                     }}>
-                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                            {facility.facilityType}
-                                                        </td>
                                                         <td style={{ padding: '12px', fontWeight: '500' }}>
                                                             {facility.facilityName}
                                                         </td>

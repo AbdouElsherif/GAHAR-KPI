@@ -89,7 +89,6 @@ export interface CorrectivePlanFacility {
 
 export interface BasicRequirementsFacility {
     id?: string;
-    facilityType: string;
     facilityName: string;
     governorate: string;
     month: string;
