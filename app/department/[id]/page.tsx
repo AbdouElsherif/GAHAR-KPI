@@ -7332,7 +7332,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedicalProfessionalSectionExpanded(!isMedicalProfessionalSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                👨‍⚕️ مرحلة تسجيل عضو مهن على المنصة - عدد {medicalProfessionalRegistrations.length} عضو مهن طبية
+                                👨‍⚕️ التحويل إلى مرحلة تسجيل عضو مهن - عدد {medicalProfessionalRegistrations.length} عضو مهن طبية
                             </h2>
                             <div style={{
                                 display: 'flex',
