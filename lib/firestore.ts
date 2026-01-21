@@ -219,7 +219,6 @@ export interface MedicalProfessionalRegistration {
     facilityName: string;
     governorate: string;
     accreditationStatus: string;
-    facilityType: string;
     month: string;
     year: number;
     createdAt?: Date;

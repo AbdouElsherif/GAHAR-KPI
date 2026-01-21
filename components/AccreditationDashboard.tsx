@@ -44,7 +44,6 @@ interface AccreditationDashboardProps {
         facilityName: string;
         governorate: string;
         accreditationStatus: string;
-        facilityType: string;
         month: string;
         year: number;
     }>;
@@ -402,7 +401,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
         });
 
         return filtered.sort((a, b) => {
-            return a.facilityType.localeCompare(b.facilityType, 'ar');
+            return a.facilityName.localeCompare(b.facilityName, 'ar');
         });
     };
 
@@ -1781,7 +1780,6 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 <thead>
                                     <tr style={{ backgroundColor: '#fd7e14', color: 'white' }}>
                                         <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                         <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                         <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
                                         <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
@@ -1794,7 +1792,6 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                             backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
                                         }}>
                                             <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{registration.facilityType}</td>
                                             <td style={{ padding: '12px', fontWeight: '500' }}>{registration.facilityName}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{registration.governorate}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>

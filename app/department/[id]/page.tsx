@@ -433,7 +433,6 @@ export default function DepartmentPage() {
         facilityName: '',
         governorate: '',
         accreditationStatus: '',
-        facilityType: '',
         month: ''
     });
     const [editingMedicalProfessionalId, setEditingMedicalProfessionalId] = useState<string | null>(null);
@@ -5073,7 +5072,6 @@ export default function DepartmentPage() {
             facilityName: registration.facilityName,
             governorate: registration.governorate,
             accreditationStatus: registration.accreditationStatus,
-            facilityType: registration.facilityType,
             month: registration.month
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5093,7 +5091,6 @@ export default function DepartmentPage() {
             facilityName: '',
             governorate: '',
             accreditationStatus: '',
-            facilityType: '',
             month: ''
         });
         setEditingMedicalProfessionalId(null);
@@ -5107,7 +5104,6 @@ export default function DepartmentPage() {
             const [year, month] = registration.month.split('-');
             return {
                 '#': index + 1,
-                'نوع المنشأة': registration.facilityType,
                 'اسم المنشأة': registration.facilityName,
                 'المحافظة': registration.governorate,
                 'حالة الاعتماد': registration.accreditationStatus,
@@ -5132,12 +5128,11 @@ export default function DepartmentPage() {
         const tableRows = [
             new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 24, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 16, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
                 ]
             }),
             ...medicalProfessionalRegistrations.map((registration, index) => {
@@ -5145,7 +5140,6 @@ export default function DepartmentPage() {
                 return new TableRow({
                     children: [
                         new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
-                        new TableCell({ children: [new Paragraph({ text: registration.facilityType, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: registration.facilityName, alignment: AlignmentType.RIGHT })] }),
                         new TableCell({ children: [new Paragraph({ text: registration.governorate, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: registration.accreditationStatus, alignment: AlignmentType.CENTER })] }),
@@ -7316,24 +7310,6 @@ export default function DepartmentPage() {
                                         <form onSubmit={handleMedicalProfessionalSubmit} style={{ marginBottom: '30px' }}>
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                                                 <div className="form-group">
-                                                    <label className="form-label">نوع المنشأة *</label>
-                                                    <select
-                                                        className="form-input"
-                                                        required
-                                                        value={medicalProfessionalFormData.facilityType}
-                                                        onChange={(e) => handleMedicalProfessionalInputChange('facilityType', e.target.value)}
-                                                    >
-                                                        <option value="">اختر نوع المنشأة</option>
-                                                        <option value="صيدلية">صيدلية</option>
-                                                        <option value="مستشفى">مستشفى</option>
-                                                        <option value="عيادة">عيادة</option>
-                                                        <option value="وحدة طب أسرة">وحدة طب أسرة</option>
-                                                        <option value="مركز طب أسرة">مركز طب أسرة</option>
-                                                        <option value="أخرى">أخرى</option>
-                                                    </select>
-                                                </div>
-
-                                                <div className="form-group">
                                                     <label className="form-label">اسم المنشأة *</label>
                                                     <input
                                                         type="text"
@@ -7475,7 +7451,6 @@ export default function DepartmentPage() {
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>نوع المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                     {userCanEdit && (
                                                         <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
@@ -7485,7 +7460,7 @@ export default function DepartmentPage() {
                                             <tbody>
                                                 {medicalProfessionalRegistrations.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                        <td colSpan={userCanEdit ? 5 : 4} style={{
                                                             padding: '40px',
                                                             textAlign: 'center',
                                                             color: '#999'
@@ -7517,9 +7492,6 @@ export default function DepartmentPage() {
                                                                 }}>
                                                                     {registration.accreditationStatus}
                                                                 </span>
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#dc3545' }}>
-                                                                {registration.facilityType}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
                                                                 {(() => {
