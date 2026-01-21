@@ -189,7 +189,6 @@ export interface AccreditedSupportedFacility {
 
 export interface AppealsFacility {
     id?: string;
-    facilityType: string;
     facilityName: string;
     governorate: string;
     month: string;
