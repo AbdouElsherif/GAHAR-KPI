@@ -6419,7 +6419,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsCompletionFacilitiesSectionExpanded(!isCompletionFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 مرحلة استكمال الطلب (طرف المنشأة) عدد {completionFacilities.length} منشأة
+                                📋 مرحلة استكمال الطلب (طرف المنشأة)
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -6716,7 +6716,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsPaymentFacilitiesSectionExpanded(!isPaymentFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                💰 مرحلة جاري سداد رسوم الزيارة التقييمية (طرف المنشأة) عدد {paymentFacilities.length} منشأة
+                                💰 مرحلة جاري سداد رسوم الزيارة التقييمية (طرف المنشأة)
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -7014,7 +7014,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsPaidFacilitiesSectionExpanded(!isPaidFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                ✅ المنشآت التي قامت بسداد رسوم الزيارة التقييمية - عدد {paidFacilities.length} منشأة
+                                ✅ المنشآت التي قامت بسداد رسوم الزيارة التقييمية
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -7332,7 +7332,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedicalProfessionalSectionExpanded(!isMedicalProfessionalSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                👨‍⚕️ التحويل إلى مرحلة تسجيل عضو مهن - عدد {medicalProfessionalRegistrations.length} عضو مهن طبية
+                                👨‍⚕️ التحويل إلى مرحلة تسجيل عضو مهن طبية
                             </h2>
                             <div style={{
                                 display: 'flex',

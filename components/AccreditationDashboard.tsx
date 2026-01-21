@@ -1904,7 +1904,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                متابعة استكمال المتطلبات الأساسية - {filteredBasicRequirementsFacilities.length} منشأة - {(() => {
+                                متابعة استكمال المتطلبات الأساسية - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
                                 })()} {targetYear}
