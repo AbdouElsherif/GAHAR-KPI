@@ -262,6 +262,7 @@ export default function DepartmentPage() {
     const [facilityFormData, setFacilityFormData] = useState({
         facilityName: '',
         governorate: '',
+        affiliation: '',
         accreditationStatus: '',
         month: ''
     });
@@ -2500,6 +2501,7 @@ export default function DepartmentPage() {
         setFacilityFormData({
             facilityName: facility.facilityName,
             governorate: facility.governorate,
+            affiliation: facility.affiliation || '',
             accreditationStatus: facility.accreditationStatus,
             month: facility.month
         });
@@ -2519,6 +2521,7 @@ export default function DepartmentPage() {
         setFacilityFormData({
             facilityName: '',
             governorate: '',
+            affiliation: '',
             accreditationStatus: '',
             month: ''
         });
@@ -2535,6 +2538,7 @@ export default function DepartmentPage() {
                 '#': index + 1,
                 'اسم المنشأة': facility.facilityName,
                 'المحافظة': facility.governorate,
+                'التبعية': facility.affiliation || '-',
                 'حالة الاعتماد': facility.accreditationStatus,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
             };
@@ -2557,11 +2561,12 @@ export default function DepartmentPage() {
         const tableRows = [
             new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 24, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'التبعية', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } })
                 ]
             }),
             ...facilities.map((facility, index) => {
@@ -2571,6 +2576,7 @@ export default function DepartmentPage() {
                         new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.affiliation || '-', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
                     ]
@@ -6012,14 +6018,68 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">المحافظة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={facilityFormData.governorate}
                                                         onChange={(e) => handleFacilityInputChange('governorate', e.target.value)}
-                                                        placeholder="أدخل المحافظة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        <option value="القاهرة">القاهرة</option>
+                                                        <option value="الجيزة">الجيزة</option>
+                                                        <option value="الإسكندرية">الإسكندرية</option>
+                                                        <option value="الدقهلية">الدقهلية</option>
+                                                        <option value="البحر الأحمر">البحر الأحمر</option>
+                                                        <option value="البحيرة">البحيرة</option>
+                                                        <option value="الفيوم">الفيوم</option>
+                                                        <option value="الغربية">الغربية</option>
+                                                        <option value="الإسماعيلية">الإسماعيلية</option>
+                                                        <option value="المنوفية">المنوفية</option>
+                                                        <option value="المنيا">المنيا</option>
+                                                        <option value="القليوبية">القليوبية</option>
+                                                        <option value="الوادي الجديد">الوادي الجديد</option>
+                                                        <option value="السويس">السويس</option>
+                                                        <option value="الشرقية">الشرقية</option>
+                                                        <option value="جنوب سيناء">جنوب سيناء</option>
+                                                        <option value="كفر الشيخ">كفر الشيخ</option>
+                                                        <option value="مطروح">مطروح</option>
+                                                        <option value="الأقصر">الأقصر</option>
+                                                        <option value="قنا">قنا</option>
+                                                        <option value="شمال سيناء">شمال سيناء</option>
+                                                        <option value="سوهاج">سوهاج</option>
+                                                        <option value="أسوان">أسوان</option>
+                                                        <option value="أسيوط">أسيوط</option>
+                                                        <option value="بني سويف">بني سويف</option>
+                                                        <option value="بورسعيد">بورسعيد</option>
+                                                        <option value="دمياط">دمياط</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">التبعية *</label>
+                                                    <select
+                                                        className="form-input"
+                                                        required
+                                                        value={facilityFormData.affiliation}
+                                                        onChange={(e) => handleFacilityInputChange('affiliation', e.target.value)}
+                                                    >
+                                                        <option value="">اختر التبعية</option>
+                                                        <option value="هيئة الرعاية الصحية">هيئة الرعاية الصحية</option>
+                                                        <option value="وزارة الصحة">وزارة الصحة</option>
+                                                        <option value="قطاع خاص">قطاع خاص</option>
+                                                        <option value="القوات المسلحة">القوات المسلحة</option>
+                                                        <option value="جمعيات أهلية">جمعيات أهلية</option>
+                                                        <option value="هيئة قناة السويس">هيئة قناة السويس</option>
+                                                        <option value="جامعي">جامعي</option>
+                                                        <option value="وزارة الداخلية قطاع الخدمات الطبية">وزارة الداخلية قطاع الخدمات الطبية</option>
+                                                        <option value="قطاع أعمال">قطاع أعمال</option>
+                                                        <option value="حكومي">حكومي</option>
+                                                        <option value="الهيئة العامة للمستشفيات والمعاهد التعليمية">الهيئة العامة للمستشفيات والمعاهد التعليمية</option>
+                                                        <option value="الهيئة القومية لسكك حديد مصر">الهيئة القومية لسكك حديد مصر</option>
+                                                        <option value="الهيئة العامة للتأمين الصحي">الهيئة العامة للتأمين الصحي</option>
+                                                        <option value="أمانة المراكز الطبية المتخصصة">أمانة المراكز الطبية المتخصصة</option>
+                                                        <option value="جهات سيادية">جهات سيادية</option>
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
@@ -6139,6 +6199,7 @@ export default function DepartmentPage() {
                                                 <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>التبعية</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                     {userCanEdit && (
@@ -6149,7 +6210,7 @@ export default function DepartmentPage() {
                                             <tbody>
                                                 {facilities.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={userCanEdit ? 5 : 4} style={{
+                                                        <td colSpan={userCanEdit ? 6 : 5} style={{
                                                             padding: '40px',
                                                             textAlign: 'center',
                                                             color: '#999'
@@ -6169,6 +6230,9 @@ export default function DepartmentPage() {
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 {facility.governorate}
+                                                            </td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                {facility.affiliation || '-'}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 <span style={{

@@ -40,6 +40,7 @@ export interface AccreditationFacility {
     id?: string;
     facilityName: string;
     governorate: string;
+    affiliation: string;
     accreditationStatus: string;
     month: string;
     year: number;
