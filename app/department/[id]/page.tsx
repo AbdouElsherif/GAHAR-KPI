@@ -6474,14 +6474,17 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">المحافظة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={completionFacilityFormData.governorate}
                                                         onChange={(e) => handleCompletionFacilityInputChange('governorate', e.target.value)}
-                                                        placeholder="أدخل المحافظة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
