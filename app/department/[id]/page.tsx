@@ -7629,7 +7629,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsCorrectivePlanFacilitiesSectionExpanded(!isCorrectivePlanFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 متابعة الخطط التصحيحية - عدد {correctivePlanFacilities.length} منشأة
+                                📋 متابعة الخطط التصحيحية
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -11340,7 +11340,7 @@ export default function DepartmentPage() {
                         onClick={() => setIsBasicRequirementsFacilitiesSectionExpanded(!isBasicRequirementsFacilitiesSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            📝 متابعة استكمال المتطلبات الأساسية - عدد {basicRequirementsFacilities.length} منشأة
+                            📝 متابعة استكمال المتطلبات الأساسية
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -11608,7 +11608,7 @@ export default function DepartmentPage() {
                         onClick={() => setIsAppealsFacilitiesSectionExpanded(!isAppealsFacilitiesSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            📋 دراسة الالتماسات - عدد {appealsFacilities.length} التماس
+                            📋 دراسة الالتماسات
                         </h2>
                         <div style={{
                             display: 'flex',
