@@ -6774,14 +6774,17 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">المحافظة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={paymentFacilityFormData.governorate}
                                                         onChange={(e) => handlePaymentFacilityInputChange('governorate', e.target.value)}
-                                                        placeholder="أدخل المحافظة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
@@ -7072,14 +7075,17 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">المحافظة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={paidFacilityFormData.governorate}
                                                         onChange={(e) => handlePaidFacilityInputChange('governorate', e.target.value)}
-                                                        placeholder="أدخل المحافظة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
@@ -7390,14 +7396,17 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">المحافظة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={medicalProfessionalFormData.governorate}
                                                         onChange={(e) => handleMedicalProfessionalInputChange('governorate', e.target.value)}
-                                                        placeholder="أدخل المحافظة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
@@ -7687,14 +7696,17 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">المحافظة *</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         className="form-input"
                                                         required
                                                         value={correctivePlanFacilityFormData.governorate}
                                                         onChange={(e) => handleCorrectivePlanFacilityInputChange('governorate', e.target.value)}
-                                                        placeholder="أدخل المحافظة"
-                                                    />
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
 
                                                 <div className="form-group">
@@ -11398,14 +11410,17 @@ export default function DepartmentPage() {
 
                                             <div className="form-group">
                                                 <label className="form-label">المحافظة *</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     className="form-input"
                                                     required
                                                     value={basicRequirementsFacilityFormData.governorate}
                                                     onChange={(e) => handleBasicRequirementsFacilityInputChange('governorate', e.target.value)}
-                                                    placeholder="أدخل المحافظة"
-                                                />
+                                                >
+                                                    <option value="">اختر المحافظة</option>
+                                                    {egyptGovernorates.map((gov) => (
+                                                        <option key={gov} value={gov}>{gov}</option>
+                                                    ))}
+                                                </select>
                                             </div>
 
                                             <div className="form-group">
@@ -11658,14 +11673,17 @@ export default function DepartmentPage() {
 
                                     <div className="form-group">
                                         <label className="form-label">المحافظة *</label>
-                                        <input
-                                            type="text"
+                                        <select
                                             className="form-input"
                                             required
                                             value={appealsFacilityFormData.governorate}
                                             onChange={(e) => handleAppealsFacilityInputChange('governorate', e.target.value)}
-                                            placeholder="أدخل المحافظة"
-                                        />
+                                        >
+                                            <option value="">اختر المحافظة</option>
+                                            {egyptGovernorates.map((gov) => (
+                                                <option key={gov} value={gov}>{gov}</option>
+                                            ))}
+                                        </select>
                                     </div>
 
                                     <div className="form-group">
