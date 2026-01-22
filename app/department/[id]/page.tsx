@@ -445,6 +445,7 @@ export default function DepartmentPage() {
     const [medicalProfessionalFilterMonth, setMedicalProfessionalFilterMonth] = useState('');
     const [medicalProfessionalSubmitted, setMedicalProfessionalSubmitted] = useState(false);
     const [isMedicalProfessionalSectionExpanded, setIsMedicalProfessionalSectionExpanded] = useState(false);
+    const [medicalProfessionalRegistrationsCurrentPage, setMedicalProfessionalRegistrationsCurrentPage] = useState(1);
 
     // Technical Clinical Facilities tracking states (for dept4)
     const [technicalClinicalFacilities, setTechnicalClinicalFacilities] = useState<TechnicalClinicalFacility[]>([]);
@@ -7669,76 +7670,101 @@ export default function DepartmentPage() {
                                                         </td>
                                                     </tr>
                                                 ) : (
-                                                    medicalProfessionalRegistrations.map((registration, index) => (
-                                                        <tr key={registration.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                                        }}>
-                                                            <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                                {registration.facilityName}
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                {registration.governorate}
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.85rem',
-                                                                    backgroundColor: 'var(--background-color)',
-                                                                    color: 'var(--primary-color)',
-                                                                    fontWeight: '500'
+                                                    (() => {
+                                                        // ترتيب المنشآت الجديدة في الأول
+                                                        const sortedMedicalProfessionalRegistrations = [...medicalProfessionalRegistrations].sort((a, b) => {
+                                                            if (a.accreditationStatus === 'منشأة جديدة' && b.accreditationStatus !== 'منشأة جديدة') return -1;
+                                                            if (a.accreditationStatus !== 'منشأة جديدة' && b.accreditationStatus === 'منشأة جديدة') return 1;
+                                                            return 0;
+                                                        });
+                                                        // تطبيق التصفح
+                                                        const startIndex = (medicalProfessionalRegistrationsCurrentPage - 1) * FACILITIES_PER_PAGE;
+                                                        const paginatedMedicalProfessionalRegistrations = sortedMedicalProfessionalRegistrations.slice(startIndex, startIndex + FACILITIES_PER_PAGE);
+                                                        return paginatedMedicalProfessionalRegistrations.map((registration, index) => {
+                                                            const isNewFacility = registration.accreditationStatus === 'منشأة جديدة';
+                                                            return (
+                                                                <tr key={registration.id} style={{
+                                                                    borderBottom: '1px solid #eee',
+                                                                    backgroundColor: isNewFacility ? '#f1f8e9' : (index % 2 === 0 ? 'white' : '#f9fafb')
                                                                 }}>
-                                                                    {registration.accreditationStatus}
-                                                                </span>
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
-                                                                {(() => {
-                                                                    const [year, month] = registration.month.split('-');
-                                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                                                })()}
-                                                            </td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button
-                                                                            onClick={() => handleEditMedicalProfessional(registration)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: 'var(--primary-color)',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            تعديل
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeleteMedicalProfessional(registration.id!)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: '#dc3545',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            حذف
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    ))
+                                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                        {registration.facilityName}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {registration.governorate}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        <span style={{
+                                                                            padding: '4px 12px',
+                                                                            borderRadius: '12px',
+                                                                            fontSize: '0.85rem',
+                                                                            backgroundColor: isNewFacility ? '#4caf50' : 'var(--background-color)',
+                                                                            color: isNewFacility ? 'white' : 'var(--primary-color)',
+                                                                            fontWeight: '500'
+                                                                        }}>
+                                                                            {registration.accreditationStatus}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                                        {(() => {
+                                                                            const [year, month] = registration.month.split('-');
+                                                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                                        })()}
+                                                                    </td>
+                                                                    {userCanEdit && (
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                <button
+                                                                                    onClick={() => handleEditMedicalProfessional(registration)}
+                                                                                    style={{
+                                                                                        padding: '6px 12px',
+                                                                                        backgroundColor: 'var(--primary-color)',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        cursor: 'pointer',
+                                                                                        fontSize: '0.85rem'
+                                                                                    }}
+                                                                                >
+                                                                                    تعديل
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDeleteMedicalProfessional(registration.id!)}
+                                                                                    style={{
+                                                                                        padding: '6px 12px',
+                                                                                        backgroundColor: '#dc3545',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        cursor: 'pointer',
+                                                                                        fontSize: '0.85rem'
+                                                                                    }}
+                                                                                >
+                                                                                    حذف
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    )}
+                                                                </tr>
+                                                            );
+                                                        });
+                                                    })()
                                                 )}
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    {/* Pagination Controls */}
+                                    {medicalProfessionalRegistrations.length > 0 && (
+                                        <Pagination
+                                            currentPage={medicalProfessionalRegistrationsCurrentPage}
+                                            totalItems={medicalProfessionalRegistrations.length}
+                                            itemsPerPage={FACILITIES_PER_PAGE}
+                                            onPageChange={setMedicalProfessionalRegistrationsCurrentPage}
+                                            onItemsPerPageChange={() => { }}
+                                        />
+                                    )}
                                 </div>
                             </>
                         )}
