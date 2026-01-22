@@ -242,6 +242,9 @@ export default function DepartmentPage() {
     const [sortColumn, setSortColumn] = useState<string>('date');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
+    // Global filter state (for filtering all sections by month)
+    const [globalFilterMonth, setGlobalFilterMonth] = useState('');
+
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(25);
@@ -775,42 +778,42 @@ export default function DepartmentPage() {
         if (id === 'dept6' && currentUser) {
             loadFacilities();
         }
-    }, [id, currentUser, facilityFilterMonth]);
+    }, [id, currentUser, facilityFilterMonth, globalFilterMonth]);
 
     // Load completion facilities for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
             loadCompletionFacilities();
         }
-    }, [id, currentUser, completionFacilityFilterMonth]);
+    }, [id, currentUser, completionFacilityFilterMonth, globalFilterMonth]);
 
     // Load payment facilities for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
             loadPaymentFacilities();
         }
-    }, [id, currentUser, paymentFacilityFilterMonth]);
+    }, [id, currentUser, paymentFacilityFilterMonth, globalFilterMonth]);
 
     // Load corrective plan facilities for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
             loadCorrectivePlanFacilities();
         }
-    }, [id, currentUser, correctivePlanFacilityFilterMonth]);
+    }, [id, currentUser, correctivePlanFacilityFilterMonth, globalFilterMonth]);
 
     // Load basic requirements facilities for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
             loadBasicRequirementsFacilities();
         }
-    }, [id, currentUser, basicRequirementsFacilityFilterMonth]);
+    }, [id, currentUser, basicRequirementsFacilityFilterMonth, globalFilterMonth]);
 
     // Load appeals facilities for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
             loadAppealsFacilities();
         }
-    }, [id, currentUser, appealsFacilityFilterMonth]);
+    }, [id, currentUser, appealsFacilityFilterMonth, globalFilterMonth]);
 
 
     // Load paid facilities for dept6
@@ -818,14 +821,14 @@ export default function DepartmentPage() {
         if (id === 'dept6' && currentUser) {
             loadPaidFacilities();
         }
-    }, [id, currentUser, paidFacilityFilterMonth]);
+    }, [id, currentUser, paidFacilityFilterMonth, globalFilterMonth]);
 
     // Load medical professional registrations for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
             loadMedicalProfessionalRegistrations();
         }
-    }, [id, currentUser, medicalProfessionalFilterMonth]);
+    }, [id, currentUser, medicalProfessionalFilterMonth, globalFilterMonth]);
 
     // Load Technical Clinical facilities for dept4
     useEffect(() => {
@@ -940,44 +943,43 @@ export default function DepartmentPage() {
 
 
     const loadFacilities = async () => {
-
-        const data = await getAccreditationFacilities(facilityFilterMonth || undefined);
+        const data = await getAccreditationFacilities(globalFilterMonth || facilityFilterMonth || undefined);
         setFacilities(data);
     };
 
     const loadCompletionFacilities = async () => {
-        const data = await getCompletionFacilities(completionFacilityFilterMonth || undefined);
+        const data = await getCompletionFacilities(globalFilterMonth || completionFacilityFilterMonth || undefined);
         setCompletionFacilities(data);
     };
 
     const loadPaymentFacilities = async () => {
-        const data = await getPaymentFacilities(paymentFacilityFilterMonth || undefined);
+        const data = await getPaymentFacilities(globalFilterMonth || paymentFacilityFilterMonth || undefined);
         setPaymentFacilities(data);
     };
 
     const loadPaidFacilities = async () => {
-        const data = await getPaidFacilities(paidFacilityFilterMonth || undefined);
+        const data = await getPaidFacilities(globalFilterMonth || paidFacilityFilterMonth || undefined);
         setPaidFacilities(data);
     };
 
     const loadCorrectivePlanFacilities = async () => {
-        const data = await getCorrectivePlanFacilities(correctivePlanFacilityFilterMonth || undefined);
+        const data = await getCorrectivePlanFacilities(globalFilterMonth || correctivePlanFacilityFilterMonth || undefined);
         setCorrectivePlanFacilities(data);
     };
 
     const loadBasicRequirementsFacilities = async () => {
-        const data = await getBasicRequirementsFacilities(id as string, basicRequirementsFacilityFilterMonth || undefined);
+        const data = await getBasicRequirementsFacilities(id as string, globalFilterMonth || basicRequirementsFacilityFilterMonth || undefined);
         setBasicRequirementsFacilities(data);
     };
 
     const loadAppealsFacilities = async () => {
-        const data = await getAppealsFacilities(id as string, appealsFacilityFilterMonth || undefined);
+        const data = await getAppealsFacilities(id as string, globalFilterMonth || appealsFacilityFilterMonth || undefined);
         setAppealsFacilities(data);
     };
 
 
     const loadMedicalProfessionalRegistrations = async () => {
-        const data = await getMedicalProfessionalRegistrations(medicalProfessionalFilterMonth || undefined);
+        const data = await getMedicalProfessionalRegistrations(globalFilterMonth || medicalProfessionalFilterMonth || undefined);
         setMedicalProfessionalRegistrations(data);
     };
 
@@ -5493,22 +5495,127 @@ export default function DepartmentPage() {
             </div>
 
             <div className="card card-hover">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px', paddingBottom: '25px', borderBottom: '1px solid #eee' }}>
-                    <div style={{ width: '60px', height: '60px', backgroundColor: 'rgba(14, 172, 184, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M3 3v18h18" />
-                            <path d="M18 17V9" />
-                            <path d="M13 17V5" />
-                            <path d="M8 17v-3" />
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '20px',
+                    marginBottom: '30px',
+                    paddingBottom: '25px',
+                    borderBottom: '1px solid #eee',
+                    background: 'linear-gradient(135deg, rgba(14, 172, 184, 0.08) 0%, rgba(14, 172, 184, 0.02) 100%)',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(14, 172, 184, 0.15)'
+                }}>
+                    <div style={{
+                        width: '50px',
+                        height: '50px',
+                        background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 12px rgba(14, 172, 184, 0.3)'
+                    }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                            <path d="M3 4h18v2H3zM3 10h18v2H3zM3 16h12v2H3z" />
+                            <circle cx="19" cy="17" r="3" />
+                            <path d="M19 14v6M22 17h-6" />
                         </svg>
                     </div>
-                    <div>
-                        <h3 style={{ margin: '0 0 5px 0', color: 'var(--secondary-color)' }}>لوحة Power BI</h3>
-                        <p style={{ fontSize: '0.95rem', color: '#666', margin: 0 }}>عرض التحليلات التفصيلية والرسوم البيانية</p>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: '0 0 8px 0', color: 'var(--secondary-color)', fontSize: '1.1rem', fontWeight: '600' }}>
+                            🔍 فلتر البيانات الأساسي
+                        </h3>
+                        <p style={{ fontSize: '0.85rem', color: '#666', margin: 0 }}>
+                            اختر الشهر لتصفية جميع بيانات الأقسام
+                        </p>
                     </div>
-                    <a href="#" className="btn btn-primary" style={{ marginRight: 'auto', marginLeft: '0' }} onClick={(e) => { e.preventDefault(); alert('سيتم فتح تقرير Power BI الخاص بـ ' + departmentName); }}>
-                        فتح اللوحة
-                    </a>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        background: 'white',
+                        padding: '10px 16px',
+                        borderRadius: '10px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        border: '1px solid #eee'
+                    }}>
+                        <label style={{
+                            fontSize: '0.9rem',
+                            fontWeight: '500',
+                            color: 'var(--secondary-color)',
+                            whiteSpace: 'nowrap'
+                        }}>
+                            الشهر:
+                        </label>
+                        <input
+                            type="month"
+                            min={MIN_MONTH}
+                            max={MAX_MONTH}
+                            value={globalFilterMonth}
+                            onChange={(e) => setGlobalFilterMonth(e.target.value)}
+                            style={{
+                                padding: '8px 12px',
+                                border: '2px solid #e0e0e0',
+                                borderRadius: '8px',
+                                fontSize: '0.95rem',
+                                outline: 'none',
+                                transition: 'all 0.3s ease',
+                                minWidth: '160px',
+                                cursor: 'pointer'
+                            }}
+                            onFocus={(e) => e.target.style.borderColor = 'var(--primary-color)'}
+                            onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                        />
+                        {globalFilterMonth && (
+                            <button
+                                onClick={() => setGlobalFilterMonth('')}
+                                style={{
+                                    padding: '8px 14px',
+                                    background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '500',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 2px 6px rgba(238, 90, 90, 0.3)'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                ✕ مسح
+                            </button>
+                        )}
+                    </div>
+                    {globalFilterMonth && (
+                        <div style={{
+                            background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                            color: 'white',
+                            padding: '8px 14px',
+                            borderRadius: '20px',
+                            fontSize: '0.85rem',
+                            fontWeight: '500',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            boxShadow: '0 2px 6px rgba(40, 167, 69, 0.3)'
+                        }}>
+                            <span>✓</span>
+                            <span>
+                                {(() => {
+                                    const [year, month] = globalFilterMonth.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                })()}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {userCanEdit ? (
@@ -6174,7 +6281,7 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                             المنشآت المسجلة خلال الشهر
-                                            {facilityFilterMonth && (
+                                            {(globalFilterMonth || facilityFilterMonth) && (
                                                 <span style={{ fontWeight: 'normal' }}>
                                                     {' '}- عدد {facilities.length} منشأة
                                                 </span>
@@ -6225,9 +6332,12 @@ export default function DepartmentPage() {
                                                     min={MIN_MONTH}
                                                     max={MAX_MONTH}
                                                     className="form-input"
-                                                    value={facilityFilterMonth}
-                                                    onChange={(e) => setFacilityFilterMonth(e.target.value)}
+                                                    value={globalFilterMonth || facilityFilterMonth}
+                                                    onChange={(e) => !globalFilterMonth && setFacilityFilterMonth(e.target.value)}
                                                     placeholder="فلترة حسب الشهر"
+                                                    disabled={!!globalFilterMonth}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                    title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 />
                                             </div>
                                         </div>
@@ -6613,6 +6723,11 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                             المنشآت المسجلة
+                                            {(globalFilterMonth || completionFacilityFilterMonth) && (
+                                                <span style={{ fontWeight: 'normal' }}>
+                                                    {' '}- عدد {completionFacilities.length} منشأة
+                                                </span>
+                                            )}
                                         </h3>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                             {completionFacilities.length > 0 && (
@@ -6659,8 +6774,11 @@ export default function DepartmentPage() {
                                                     min={MIN_MONTH}
                                                     max={MAX_MONTH}
                                                     className="form-input"
-                                                    value={completionFacilityFilterMonth}
-                                                    onChange={(e) => setCompletionFacilityFilterMonth(e.target.value)}
+                                                    value={globalFilterMonth || completionFacilityFilterMonth}
+                                                    onChange={(e) => !globalFilterMonth && setCompletionFacilityFilterMonth(e.target.value)}
+                                                    disabled={!!globalFilterMonth}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                    title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
                                             </div>
@@ -6938,6 +7056,11 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                             المنشآت المسجلة
+                                            {(globalFilterMonth || paymentFacilityFilterMonth) && (
+                                                <span style={{ fontWeight: 'normal' }}>
+                                                    {' '}- عدد {paymentFacilities.length} منشأة
+                                                </span>
+                                            )}
                                         </h3>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                             {paymentFacilities.length > 0 && (
@@ -6984,8 +7107,11 @@ export default function DepartmentPage() {
                                                     min={MIN_MONTH}
                                                     max={MAX_MONTH}
                                                     className="form-input"
-                                                    value={paymentFacilityFilterMonth}
-                                                    onChange={(e) => setPaymentFacilityFilterMonth(e.target.value)}
+                                                    value={globalFilterMonth || paymentFacilityFilterMonth}
+                                                    onChange={(e) => !globalFilterMonth && setPaymentFacilityFilterMonth(e.target.value)}
+                                                    disabled={!!globalFilterMonth}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                    title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
                                             </div>
@@ -7281,6 +7407,11 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                             المنشآت المسجلة
+                                            {(globalFilterMonth || paidFacilityFilterMonth) && (
+                                                <span style={{ fontWeight: 'normal' }}>
+                                                    {' '}- عدد {paidFacilities.length} منشأة
+                                                </span>
+                                            )}
                                         </h3>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                             {paidFacilities.length > 0 && (
@@ -7327,8 +7458,11 @@ export default function DepartmentPage() {
                                                     min={MIN_MONTH}
                                                     max={MAX_MONTH}
                                                     className="form-input"
-                                                    value={paidFacilityFilterMonth}
-                                                    onChange={(e) => setPaidFacilityFilterMonth(e.target.value)}
+                                                    value={globalFilterMonth || paidFacilityFilterMonth}
+                                                    onChange={(e) => !globalFilterMonth && setPaidFacilityFilterMonth(e.target.value)}
+                                                    disabled={!!globalFilterMonth}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                    title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
                                             </div>
@@ -7585,6 +7719,11 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                             التسجيلات المسجلة
+                                            {(globalFilterMonth || medicalProfessionalFilterMonth) && (
+                                                <span style={{ fontWeight: 'normal' }}>
+                                                    {' '}- عدد {medicalProfessionalRegistrations.length} تسجيل
+                                                </span>
+                                            )}
                                         </h3>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                             {medicalProfessionalRegistrations.length > 0 && (
@@ -7631,8 +7770,11 @@ export default function DepartmentPage() {
                                                     min={MIN_MONTH}
                                                     max={MAX_MONTH}
                                                     className="form-input"
-                                                    value={medicalProfessionalFilterMonth}
-                                                    onChange={(e) => setMedicalProfessionalFilterMonth(e.target.value)}
+                                                    value={globalFilterMonth || medicalProfessionalFilterMonth}
+                                                    onChange={(e) => !globalFilterMonth && setMedicalProfessionalFilterMonth(e.target.value)}
+                                                    disabled={!!globalFilterMonth}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                    title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
                                             </div>
@@ -7896,6 +8038,11 @@ export default function DepartmentPage() {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                             المنشآت المسجلة
+                                            {(globalFilterMonth || correctivePlanFacilityFilterMonth) && (
+                                                <span style={{ fontWeight: 'normal' }}>
+                                                    {' '}- عدد {correctivePlanFacilities.length} منشأة
+                                                </span>
+                                            )}
                                         </h3>
                                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                             {correctivePlanFacilities.length > 0 && (
@@ -7942,8 +8089,11 @@ export default function DepartmentPage() {
                                                     min={MIN_MONTH}
                                                     max={MAX_MONTH}
                                                     className="form-input"
-                                                    value={correctivePlanFacilityFilterMonth}
-                                                    onChange={(e) => setCorrectivePlanFacilityFilterMonth(e.target.value)}
+                                                    value={globalFilterMonth || correctivePlanFacilityFilterMonth}
+                                                    onChange={(e) => !globalFilterMonth && setCorrectivePlanFacilityFilterMonth(e.target.value)}
+                                                    disabled={!!globalFilterMonth}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                    title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
                                             </div>
@@ -8237,6 +8387,11 @@ export default function DepartmentPage() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         سجل الزيارات
+                                        {(globalFilterMonth || technicalClinicalFacilityFilterMonth) && (
+                                            <span style={{ fontWeight: 'normal' }}>
+                                                {' '}- عدد {technicalClinicalFacilities.length} زيارة
+                                            </span>
+                                        )}
                                     </h3>
                                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                         {technicalClinicalFacilities.length > 0 && (
@@ -8278,14 +8433,18 @@ export default function DepartmentPage() {
                                             </>
                                         )}
                                         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+
                                             <input
                                                 type="month"
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
                                                 className="form-input"
-                                                value={technicalClinicalFacilityFilterMonth}
-                                                onChange={(e) => setTechnicalClinicalFacilityFilterMonth(e.target.value)}
-                                                placeholder="فلترة حسب الشهر"
+                                                value={globalFilterMonth || technicalClinicalFacilityFilterMonth}
+                                                onChange={(e) => !globalFilterMonth && setTechnicalClinicalFacilityFilterMonth(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                                placeholder="فلتر"
                                             />
                                         </div>
                                     </div>
@@ -8414,7 +8573,12 @@ export default function DepartmentPage() {
                         onClick={() => setIsTechnicalClinicalObservationsSectionExpanded(!isTechnicalClinicalObservationsSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            📋 الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية - عدد {technicalClinicalObservations.length} ملاحظة
+                            📋 الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية
+                            {(globalFilterMonth || technicalClinicalObservationFilterMonth) && (
+                                <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
+                                    {' '}- عدد {technicalClinicalObservations.length} ملاحظة
+                                </span>
+                            )}
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -8556,8 +8720,11 @@ export default function DepartmentPage() {
                                             min={MIN_MONTH}
                                             max={MAX_MONTH}
                                             className="form-input"
-                                            value={technicalClinicalObservationFilterMonth}
-                                            onChange={(e) => setTechnicalClinicalObservationFilterMonth(e.target.value)}
+                                            value={globalFilterMonth || technicalClinicalObservationFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setTechnicalClinicalObservationFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                         />
                                     </div>
                                 </div>
@@ -8681,7 +8848,12 @@ export default function DepartmentPage() {
                         onClick={() => setIsTcCorrectionRateSectionExpanded(!isTcCorrectionRateSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات - عدد {tcCorrectionRates.length} سجل
+                            📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات
+                            {(globalFilterMonth || tcCorrectionRateFilterMonth) && (
+                                <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
+                                    {' '}- عدد {tcCorrectionRates.length} سجل
+                                </span>
+                            )}
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -8810,8 +8982,12 @@ export default function DepartmentPage() {
                             <div style={{ marginBottom: '20px' }}>
                                 <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
                                     <label className="form-label">فلترة حسب الشهر</label>
-                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={tcCorrectionRateFilterMonth}
-                                        onChange={(e) => setTcCorrectionRateFilterMonth(e.target.value)} />
+                                    <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input"
+                                        value={globalFilterMonth || tcCorrectionRateFilterMonth}
+                                        onChange={(e) => !globalFilterMonth && setTcCorrectionRateFilterMonth(e.target.value)}
+                                        disabled={!!globalFilterMonth}
+                                        style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                        title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"} />
                                 </div>
                             </div>
 
@@ -9064,11 +9240,16 @@ export default function DepartmentPage() {
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                🏥 الزيارات الميدانية للمنشآت خلال شهر {techSupportVisitsFilter ? (() => {
-                                    const [year, month] = techSupportVisitsFilter.split('-');
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[parseInt(month) - 1];
-                                })() : '...'} - عدد {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length} زيارة
+                                🏥 الزيارات الميدانية للمنشآت
+                                {(globalFilterMonth || techSupportVisitsFilter) && (
+                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
+                                        {' '}- {techSupportVisitsFilter ? (() => {
+                                            const [year, month] = techSupportVisitsFilter.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return monthNames[parseInt(month) - 1];
+                                        })() : ''} - عدد {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length} زيارة
+                                    </span>
+                                )}
                             </h3>
                             <button
                                 onClick={() => setIsTechSupportVisitsSectionExpanded(!isTechSupportVisitsSectionExpanded)}
@@ -9272,10 +9453,15 @@ export default function DepartmentPage() {
                                                 type="month"
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
-                                                value={techSupportVisitsFilter}
-                                                onChange={(e) => setTechSupportVisitsFilter(e.target.value)}
+                                                value={globalFilterMonth || techSupportVisitsFilter}
+                                                onChange={(e) => !globalFilterMonth && setTechSupportVisitsFilter(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={{
+                                                    maxWidth: '300px',
+                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                                }}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 className="form-input"
-                                                style={{ maxWidth: '300px' }}
                                             />
                                         </div>
                                         {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length > 0 && (
@@ -9338,7 +9524,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {techSupportVisits
-                                                    .filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter)
+                                                    .filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
                                                     .map((visit, index) => (
                                                         <tr key={visit.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -9418,11 +9604,16 @@ export default function DepartmentPage() {
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                💻 الدعم الفني عن بعد خلال شهر {remoteTechSupportFilter ? (() => {
-                                    const [year, month] = remoteTechSupportFilter.split('-');
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[parseInt(month) - 1];
-                                })() : '...'} - عدد {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length} زيارة
+                                💻 الدعم الفني عن بعد
+                                {(globalFilterMonth || remoteTechSupportFilter) && (
+                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
+                                        {' '}- {remoteTechSupportFilter ? (() => {
+                                            const [year, month] = remoteTechSupportFilter.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return monthNames[parseInt(month) - 1];
+                                        })() : ''} - عدد {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length} زيارة
+                                    </span>
+                                )}
                             </h3>
                             <button
                                 onClick={() => setIsRemoteTechSupportSectionExpanded(!isRemoteTechSupportSectionExpanded)}
@@ -9614,10 +9805,15 @@ export default function DepartmentPage() {
                                                 type="month"
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
-                                                value={remoteTechSupportFilter}
-                                                onChange={(e) => setRemoteTechSupportFilter(e.target.value)}
+                                                value={globalFilterMonth || remoteTechSupportFilter}
+                                                onChange={(e) => !globalFilterMonth && setRemoteTechSupportFilter(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={{
+                                                    maxWidth: '300px',
+                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                                }}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 className="form-input"
-                                                style={{ maxWidth: '300px' }}
                                             />
                                         </div>
                                         {/* Export buttons on the right */}
@@ -9681,7 +9877,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {remoteTechnicalSupports
-                                                    .filter(support => !remoteTechSupportFilter || support.month === remoteTechSupportFilter)
+                                                    .filter(support => !remoteTechSupportFilter || support.month === remoteTechSupportFilter || (globalFilterMonth && support.month === globalFilterMonth))
                                                     .map((support, index) => (
                                                         <tr key={support.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -9763,11 +9959,16 @@ export default function DepartmentPage() {
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                🎯 زيارات الدعم الفني التمهيدية خلال شهر {introSupportVisitsFilter ? (() => {
-                                    const [year, month] = introSupportVisitsFilter.split('-');
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[parseInt(month) - 1];
-                                })() : '...'} - عدد {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length} زيارة
+                                🎯 زيارات الدعم الفني التمهيدية
+                                {(globalFilterMonth || introSupportVisitsFilter) && (
+                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
+                                        {' '}- {introSupportVisitsFilter ? (() => {
+                                            const [year, month] = introSupportVisitsFilter.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return monthNames[parseInt(month) - 1];
+                                        })() : ''} - عدد {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length} زيارة
+                                    </span>
+                                )}
                             </h3>
                             <button
                                 onClick={() => setIsIntroSupportVisitsSectionExpanded(!isIntroSupportVisitsSectionExpanded)}
@@ -9972,10 +10173,15 @@ export default function DepartmentPage() {
                                                 type="month"
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
-                                                value={introSupportVisitsFilter}
-                                                onChange={(e) => setIntroSupportVisitsFilter(e.target.value)}
+                                                value={globalFilterMonth || introSupportVisitsFilter}
+                                                onChange={(e) => !globalFilterMonth && setIntroSupportVisitsFilter(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={{
+                                                    maxWidth: '300px',
+                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                                }}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 className="form-input"
-                                                style={{ maxWidth: '300px' }}
                                             />
                                         </div>
                                         {/* Export buttons on the right */}
@@ -10039,7 +10245,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {introSupportVisits
-                                                    .filter(visit => !introSupportVisitsFilter || visit.month === introSupportVisitsFilter)
+                                                    .filter(visit => !introSupportVisitsFilter || visit.month === introSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
                                                     .map((visit, index) => (
                                                         <tr key={visit.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -10121,11 +10327,16 @@ export default function DepartmentPage() {
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                ⏳ زيارات الدعم الفني بقائمة الانتظار خلال شهر {queuedSupportVisitsFilter ? (() => {
-                                    const [year, month] = queuedSupportVisitsFilter.split('-');
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[parseInt(month) - 1];
-                                })() : '...'} - عدد {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length} زيارة
+                                ⏳ زيارات الدعم الفني بقائمة الانتظار
+                                {(globalFilterMonth || queuedSupportVisitsFilter) && (
+                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
+                                        {' '}- {queuedSupportVisitsFilter ? (() => {
+                                            const [year, month] = queuedSupportVisitsFilter.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return monthNames[parseInt(month) - 1];
+                                        })() : ''} - عدد {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length} زيارة
+                                    </span>
+                                )}
                             </h3>
                             <button
                                 onClick={() => setIsQueuedSupportVisitsSectionExpanded(!isQueuedSupportVisitsSectionExpanded)}
@@ -10303,10 +10514,15 @@ export default function DepartmentPage() {
                                                 type="month"
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
-                                                value={queuedSupportVisitsFilter}
-                                                onChange={(e) => setQueuedSupportVisitsFilter(e.target.value)}
+                                                value={globalFilterMonth || queuedSupportVisitsFilter}
+                                                onChange={(e) => !globalFilterMonth && setQueuedSupportVisitsFilter(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={{
+                                                    maxWidth: '300px',
+                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                                }}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 className="form-input"
-                                                style={{ maxWidth: '300px' }}
                                             />
                                         </div>
                                         {/* Export buttons on the right */}
@@ -10367,7 +10583,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {queuedSupportVisits
-                                                    .filter(visit => !queuedSupportVisitsFilter || visit.month === queuedSupportVisitsFilter)
+                                                    .filter(visit => !queuedSupportVisitsFilter || visit.month === queuedSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
                                                     .map((visit, index) => (
                                                         <tr key={visit.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -10437,6 +10653,338 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* Scheduled Support Visits Section - Dept2 Only */}
+            {id === 'dept2' && (
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--primary-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                📅 زيارات الدعم الفني المجدولة
+                                {(globalFilterMonth || scheduledSupportVisitsFilter) && (
+                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
+                                        {' '}- {scheduledSupportVisitsFilter ? (() => {
+                                            const [year, month] = scheduledSupportVisitsFilter.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return monthNames[parseInt(month) - 1];
+                                        })() : ''} - عدد {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length} زيارة
+                                    </span>
+                                )}
+                            </h3>
+                            <button
+                                onClick={() => setIsScheduledSupportVisitsSectionExpanded(!isScheduledSupportVisitsSectionExpanded)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--primary-color)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    padding: '0',
+                                    fontFamily: 'inherit',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px'
+                                }}
+                            >
+                                {isScheduledSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isScheduledSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                        {isScheduledSupportVisitsSectionExpanded && (
+                            <>
+                                {/* Form */}
+                                <form onSubmit={handleScheduledSupportVisitSubmit} style={{ marginBottom: '30px' }}>
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                        gap: '15px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={scheduledSupportVisitFormData.facilityName}
+                                                onChange={(e) => setScheduledSupportVisitFormData({
+                                                    ...scheduledSupportVisitFormData,
+                                                    facilityName: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                المحافظة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={scheduledSupportVisitFormData.governorate}
+                                                onChange={(e) => setScheduledSupportVisitFormData({
+                                                    ...scheduledSupportVisitFormData,
+                                                    governorate: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر المحافظة</option>
+                                                {egyptGovernorates.map(gov => (
+                                                    <option key={gov} value={gov}>{gov}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <select
+                                                value={scheduledSupportVisitFormData.visitType}
+                                                onChange={(e) => setScheduledSupportVisitFormData({
+                                                    ...scheduledSupportVisitFormData,
+                                                    visitType: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            >
+                                                <option value="">اختر نوع الزيارة</option>
+                                                <option value="زيارة ميدانية">زيارة ميدانية</option>
+                                                <option value="اجتماع (Offline)">اجتماع (Offline)</option>
+                                                <option value="اجتماع (Online)">اجتماع (Online)</option>
+                                                <option value="دعم فني عن بعد (On desk review)">دعم فني عن بعد (On desk review)</option>
+                                                <option value="مراجعة وثائق (On desk review)">مراجعة وثائق (On desk review)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                الشهر <span style={{ color: 'red' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
+                                                value={scheduledSupportVisitFormData.month}
+                                                onChange={(e) => setScheduledSupportVisitFormData({
+                                                    ...scheduledSupportVisitFormData,
+                                                    month: e.target.value
+                                                })}
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            padding: '12px 30px',
+                                            backgroundColor: 'var(--primary-color)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontSize: '1rem',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {editingScheduledSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                    </button>
+                                    {editingScheduledSupportVisitId && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingScheduledSupportVisitId(null);
+                                                setScheduledSupportVisitFormData({
+                                                    facilityName: '',
+                                                    governorate: '',
+                                                    visitType: '',
+                                                    month: ''
+                                                });
+                                            }}
+                                            style={{
+                                                padding: '12px 30px',
+                                                backgroundColor: '#6c757d',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '1rem',
+                                                fontWeight: 'bold',
+                                                cursor: 'pointer',
+                                                marginLeft: '10px'
+                                            }}
+                                        >
+                                            إلغاء التعديل
+                                        </button>
+                                    )}
+                                </form>
+                                {/* Filter and Table */}
+                                <div>
+                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                        {/* Filter on the left */}
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                                فلترة حسب الشهر:
+                                            </label>
+                                            <input
+                                                type="month"
+                                                min={MIN_MONTH}
+                                                max={MAX_MONTH}
+                                                value={globalFilterMonth || scheduledSupportVisitsFilter}
+                                                onChange={(e) => !globalFilterMonth && setScheduledSupportVisitsFilter(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={{
+                                                    maxWidth: '300px',
+                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                                }}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                                className="form-input"
+                                            />
+                                        </div>
+                                        {/* Export buttons on the right */}
+                                        {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportScheduledSupportVisitsToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportScheduledSupportVisitsToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div style={{ overflowX: 'auto' }}>
+                                        <table style={{
+                                            width: '100%',
+                                            borderCollapse: 'collapse',
+                                            backgroundColor: 'white',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {scheduledSupportVisits
+                                                    .filter(visit => !scheduledSupportVisitsFilter || visit.month === scheduledSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                    .map((visit, index) => (
+                                                        <tr key={visit.id} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                        }}>
+                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.visitType}</td>
+                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <button
+                                                                    onClick={() => handleEditScheduledSupportVisit(visit)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#ffc107',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        marginRight: '5px'
+                                                                    }}
+                                                                >
+                                                                    تعديل
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteScheduledSupportVisit(visit.id!)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer'
+                                                                    }}
+                                                                >
+                                                                    حذف
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                            لا يوجد زيارات مجدولة مسجلة
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {id === 'dept5' && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <div
@@ -10453,7 +11001,12 @@ export default function DepartmentPage() {
                         onClick={() => setIsAdminAuditFacilitiesSectionExpanded(!isAdminAuditFacilitiesSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            🏥 المنشآت التي تم زيارتها خلال الشهر - عدد {adminAuditFacilities.length} زيارة
+                            🏥 المنشآت التي تم زيارتها خلال الشهر
+                            {(globalFilterMonth || adminAuditFacilityFilterMonth) && (
+                                <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
+                                    {' '}- عدد {adminAuditFacilities.length} زيارة
+                                </span>
+                            )}
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -10619,13 +11172,17 @@ export default function DepartmentPage() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                                     <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                         <label className="form-label">فلترة حسب الشهر</label>
+
                                         <input
                                             type="month"
                                             min={MIN_MONTH}
                                             max={MAX_MONTH}
                                             className="form-input"
-                                            value={adminAuditFacilityFilterMonth}
-                                            onChange={(e) => setAdminAuditFacilityFilterMonth(e.target.value)}
+                                            value={globalFilterMonth || adminAuditFacilityFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setAdminAuditFacilityFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                         />
                                     </div>
                                 </div>
@@ -10658,62 +11215,64 @@ export default function DepartmentPage() {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            adminAuditFacilities.map((facility, index) => (
-                                                <tr key={facility.id} style={{
-                                                    borderBottom: '1px solid #eee',
-                                                    backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                                }}>
-                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                        {facility.facilityType}
-                                                    </td>
-                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                        {facility.facilityName}
-                                                    </td>
-                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                        {facility.visitType}
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                        {facility.governorate}
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                        {facility.month}
-                                                    </td>
-                                                    {userCanEdit && (
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditAdminAuditFacility(facility)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: 'var(--primary-color)',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '0.85rem'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteAdminAuditFacility(facility.id!)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '0.85rem'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </div>
+                                            adminAuditFacilities
+                                                .filter(facility => !adminAuditFacilityFilterMonth || facility.month === adminAuditFacilityFilterMonth || (globalFilterMonth && facility.month === globalFilterMonth))
+                                                .map((facility, index) => (
+                                                    <tr key={facility.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityType}
                                                         </td>
-                                                    )}
-                                                </tr>
-                                            ))
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.facilityName}
+                                                        </td>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {facility.visitType}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {facility.governorate}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {facility.month}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditAdminAuditFacility(facility)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteAdminAuditFacility(facility.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
                                         )}
                                     </tbody>
                                 </table>
@@ -10740,7 +11299,12 @@ export default function DepartmentPage() {
                         onClick={() => setIsAdminAuditObservationsSectionExpanded(!isAdminAuditObservationsSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية - عدد {adminAuditObservations.length} ملاحظة
+                            📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية
+                            {(globalFilterMonth || adminAuditObservationFilterMonth) && (
+                                <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
+                                    {' '}- عدد {adminAuditObservations.length} ملاحظة
+                                </span>
+                            )}
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -10877,13 +11441,17 @@ export default function DepartmentPage() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                                     <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                         <label className="form-label">فلترة حسب الشهر</label>
+
                                         <input
                                             type="month"
                                             min={MIN_MONTH}
                                             max={MAX_MONTH}
                                             className="form-input"
-                                            value={adminAuditObservationFilterMonth}
-                                            onChange={(e) => setAdminAuditObservationFilterMonth(e.target.value)}
+                                            value={globalFilterMonth || adminAuditObservationFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setAdminAuditObservationFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                         />
                                     </div>
                                 </div>
@@ -10933,71 +11501,73 @@ export default function DepartmentPage() {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            adminAuditObservations.map((observation, index) => (
-                                                <tr key={observation.id} style={{
-                                                    borderBottom: '1px solid #eee',
-                                                    backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                                }}>
-                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                        {observation.entityType}
-                                                    </td>
-                                                    <td style={{ padding: '12px' }}>
-                                                        {observation.facilityType}
-                                                    </td>
-                                                    <td style={{ padding: '12px', maxWidth: '400px' }}>
-                                                        {observation.observation}
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                        <span style={{
-                                                            padding: '4px 12px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '0.9rem',
-                                                            fontWeight: 'bold',
-                                                            backgroundColor: observation.percentage > 30 ? '#f8d7da' : observation.percentage >= 20 ? '#fff3cd' : '#d4edda',
-                                                            color: observation.percentage > 30 ? '#721c24' : observation.percentage >= 20 ? '#856404' : '#155724'
-                                                        }}>
-                                                            {observation.percentage}%
-                                                        </span>
-                                                    </td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                        {observation.month}
-                                                    </td>
-                                                    {userCanEdit && (
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditAdminAuditObservation(observation)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: 'var(--primary-color)',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '0.85rem'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteAdminAuditObservation(observation.id!)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '0.85rem'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </div>
+                                            adminAuditObservations
+                                                .filter(obs => !adminAuditObservationFilterMonth || obs.month === adminAuditObservationFilterMonth || (globalFilterMonth && obs.month === globalFilterMonth))
+                                                .map((observation, index) => (
+                                                    <tr key={observation.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
+                                                    }}>
+                                                        <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                            {observation.entityType}
                                                         </td>
-                                                    )}
-                                                </tr>
-                                            ))
+                                                        <td style={{ padding: '12px' }}>
+                                                            {observation.facilityType}
+                                                        </td>
+                                                        <td style={{ padding: '12px', maxWidth: '400px' }}>
+                                                            {observation.observation}
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <span style={{
+                                                                padding: '4px 12px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '0.9rem',
+                                                                fontWeight: 'bold',
+                                                                backgroundColor: observation.percentage > 30 ? '#f8d7da' : observation.percentage >= 20 ? '#fff3cd' : '#d4edda',
+                                                                color: observation.percentage > 30 ? '#721c24' : observation.percentage >= 20 ? '#856404' : '#155724'
+                                                            }}>
+                                                                {observation.percentage}%
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            {observation.month}
+                                                        </td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditAdminAuditObservation(observation)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteAdminAuditObservation(observation.id!)}
+                                                                        style={{
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
                                         )}
                                     </tbody>
                                 </table>
