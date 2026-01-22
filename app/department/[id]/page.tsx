@@ -286,6 +286,7 @@ export default function DepartmentPage() {
     const [completionFacilityFilterMonth, setCompletionFacilityFilterMonth] = useState('');
     const [completionFacilitySubmitted, setCompletionFacilitySubmitted] = useState(false);
     const [isCompletionFacilitiesSectionExpanded, setIsCompletionFacilitiesSectionExpanded] = useState(false);
+    const [completionFacilitiesCurrentPage, setCompletionFacilitiesCurrentPage] = useState(1);
 
     // Payment Facilities tracking states (for dept6 only)
     const [paymentFacilities, setPaymentFacilities] = useState<PaymentFacility[]>([]);
@@ -299,6 +300,7 @@ export default function DepartmentPage() {
     const [paymentFacilityFilterMonth, setPaymentFacilityFilterMonth] = useState('');
     const [paymentFacilitySubmitted, setPaymentFacilitySubmitted] = useState(false);
     const [isPaymentFacilitiesSectionExpanded, setIsPaymentFacilitiesSectionExpanded] = useState(false);
+    const [paymentFacilitiesCurrentPage, setPaymentFacilitiesCurrentPage] = useState(1);
 
     // Corrective Plan Facilities tracking states (for dept6 only)
     const [correctivePlanFacilities, setCorrectivePlanFacilities] = useState<CorrectivePlanFacility[]>([]);
@@ -6695,76 +6697,101 @@ export default function DepartmentPage() {
                                                         </td>
                                                     </tr>
                                                 ) : (
-                                                    completionFacilities.map((facility, index) => (
-                                                        <tr key={facility.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                                        }}>
-                                                            <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                                {facility.facilityName}
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                {facility.governorate}
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.85rem',
-                                                                    backgroundColor: 'var(--background-color)',
-                                                                    color: 'var(--primary-color)',
-                                                                    fontWeight: '500'
+                                                    (() => {
+                                                        // ترتيب المنشآت الجديدة في الأول
+                                                        const sortedCompletionFacilities = [...completionFacilities].sort((a, b) => {
+                                                            if (a.accreditationStatus === 'منشأة جديدة' && b.accreditationStatus !== 'منشأة جديدة') return -1;
+                                                            if (a.accreditationStatus !== 'منشأة جديدة' && b.accreditationStatus === 'منشأة جديدة') return 1;
+                                                            return 0;
+                                                        });
+                                                        // تطبيق التصفح
+                                                        const startIndex = (completionFacilitiesCurrentPage - 1) * FACILITIES_PER_PAGE;
+                                                        const paginatedCompletionFacilities = sortedCompletionFacilities.slice(startIndex, startIndex + FACILITIES_PER_PAGE);
+                                                        return paginatedCompletionFacilities.map((facility, index) => {
+                                                            const isNewFacility = facility.accreditationStatus === 'منشأة جديدة';
+                                                            return (
+                                                                <tr key={facility.id} style={{
+                                                                    borderBottom: '1px solid #eee',
+                                                                    backgroundColor: isNewFacility ? '#f1f8e9' : (index % 2 === 0 ? 'white' : '#f9fafb')
                                                                 }}>
-                                                                    {facility.accreditationStatus}
-                                                                </span>
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
-                                                                {(() => {
-                                                                    const [year, month] = facility.month.split('-');
-                                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                                                })()}
-                                                            </td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button
-                                                                            onClick={() => handleEditCompletionFacility(facility)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: 'var(--primary-color)',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            تعديل
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeleteCompletionFacility(facility.id!)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: '#dc3545',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            حذف
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    ))
+                                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                        {facility.facilityName}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {facility.governorate}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        <span style={{
+                                                                            padding: '4px 12px',
+                                                                            borderRadius: '12px',
+                                                                            fontSize: '0.85rem',
+                                                                            backgroundColor: isNewFacility ? '#4caf50' : 'var(--background-color)',
+                                                                            color: isNewFacility ? 'white' : 'var(--primary-color)',
+                                                                            fontWeight: '500'
+                                                                        }}>
+                                                                            {facility.accreditationStatus}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                                        {(() => {
+                                                                            const [year, month] = facility.month.split('-');
+                                                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                                        })()}
+                                                                    </td>
+                                                                    {userCanEdit && (
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                <button
+                                                                                    onClick={() => handleEditCompletionFacility(facility)}
+                                                                                    style={{
+                                                                                        padding: '6px 12px',
+                                                                                        backgroundColor: 'var(--primary-color)',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        cursor: 'pointer',
+                                                                                        fontSize: '0.85rem'
+                                                                                    }}
+                                                                                >
+                                                                                    تعديل
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDeleteCompletionFacility(facility.id!)}
+                                                                                    style={{
+                                                                                        padding: '6px 12px',
+                                                                                        backgroundColor: '#dc3545',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        cursor: 'pointer',
+                                                                                        fontSize: '0.85rem'
+                                                                                    }}
+                                                                                >
+                                                                                    حذف
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    )}
+                                                                </tr>
+                                                            );
+                                                        });
+                                                    })()
                                                 )}
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    {/* Pagination Controls */}
+                                    {completionFacilities.length > 0 && (
+                                        <Pagination
+                                            currentPage={completionFacilitiesCurrentPage}
+                                            totalItems={completionFacilities.length}
+                                            itemsPerPage={FACILITIES_PER_PAGE}
+                                            onPageChange={setCompletionFacilitiesCurrentPage}
+                                            onItemsPerPageChange={() => { }}
+                                        />
+                                    )}
                                 </div>
                             </>
                         )}
@@ -6995,76 +7022,101 @@ export default function DepartmentPage() {
                                                         </td>
                                                     </tr>
                                                 ) : (
-                                                    paymentFacilities.map((facility, index) => (
-                                                        <tr key={facility.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
-                                                        }}>
-                                                            <td style={{ padding: '12px', fontWeight: '500' }}>
-                                                                {facility.facilityName}
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                {facility.governorate}
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.85rem',
-                                                                    backgroundColor: 'var(--background-color)',
-                                                                    color: 'var(--primary-color)',
-                                                                    fontWeight: '500'
+                                                    (() => {
+                                                        // ترتيب المنشآت الجديدة في الأول
+                                                        const sortedPaymentFacilities = [...paymentFacilities].sort((a, b) => {
+                                                            if (a.accreditationStatus === 'منشأة جديدة' && b.accreditationStatus !== 'منشأة جديدة') return -1;
+                                                            if (a.accreditationStatus !== 'منشأة جديدة' && b.accreditationStatus === 'منشأة جديدة') return 1;
+                                                            return 0;
+                                                        });
+                                                        // تطبيق التصفح
+                                                        const startIndex = (paymentFacilitiesCurrentPage - 1) * FACILITIES_PER_PAGE;
+                                                        const paginatedPaymentFacilities = sortedPaymentFacilities.slice(startIndex, startIndex + FACILITIES_PER_PAGE);
+                                                        return paginatedPaymentFacilities.map((facility, index) => {
+                                                            const isNewFacility = facility.accreditationStatus === 'منشأة جديدة';
+                                                            return (
+                                                                <tr key={facility.id} style={{
+                                                                    borderBottom: '1px solid #eee',
+                                                                    backgroundColor: isNewFacility ? '#f1f8e9' : (index % 2 === 0 ? 'white' : '#f9fafb')
                                                                 }}>
-                                                                    {facility.accreditationStatus}
-                                                                </span>
-                                                            </td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
-                                                                {(() => {
-                                                                    const [year, month] = facility.month.split('-');
-                                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                                                })()}
-                                                            </td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button
-                                                                            onClick={() => handleEditPaymentFacility(facility)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: 'var(--primary-color)',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            تعديل
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeletePaymentFacility(facility.id!)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: '#dc3545',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            حذف
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    ))
+                                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                        {facility.facilityName}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {facility.governorate}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        <span style={{
+                                                                            padding: '4px 12px',
+                                                                            borderRadius: '12px',
+                                                                            fontSize: '0.85rem',
+                                                                            backgroundColor: isNewFacility ? '#4caf50' : 'var(--background-color)',
+                                                                            color: isNewFacility ? 'white' : 'var(--primary-color)',
+                                                                            fontWeight: '500'
+                                                                        }}>
+                                                                            {facility.accreditationStatus}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                                        {(() => {
+                                                                            const [year, month] = facility.month.split('-');
+                                                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                                                        })()}
+                                                                    </td>
+                                                                    {userCanEdit && (
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                <button
+                                                                                    onClick={() => handleEditPaymentFacility(facility)}
+                                                                                    style={{
+                                                                                        padding: '6px 12px',
+                                                                                        backgroundColor: 'var(--primary-color)',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        cursor: 'pointer',
+                                                                                        fontSize: '0.85rem'
+                                                                                    }}
+                                                                                >
+                                                                                    تعديل
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => handleDeletePaymentFacility(facility.id!)}
+                                                                                    style={{
+                                                                                        padding: '6px 12px',
+                                                                                        backgroundColor: '#dc3545',
+                                                                                        color: 'white',
+                                                                                        border: 'none',
+                                                                                        borderRadius: '4px',
+                                                                                        cursor: 'pointer',
+                                                                                        fontSize: '0.85rem'
+                                                                                    }}
+                                                                                >
+                                                                                    حذف
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    )}
+                                                                </tr>
+                                                            );
+                                                        });
+                                                    })()
                                                 )}
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    {/* Pagination Controls */}
+                                    {paymentFacilities.length > 0 && (
+                                        <Pagination
+                                            currentPage={paymentFacilitiesCurrentPage}
+                                            totalItems={paymentFacilities.length}
+                                            itemsPerPage={FACILITIES_PER_PAGE}
+                                            onPageChange={setPaymentFacilitiesCurrentPage}
+                                            onItemsPerPageChange={() => { }}
+                                        />
+                                    )}
                                 </div>
                             </>
                         )}
