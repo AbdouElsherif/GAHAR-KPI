@@ -264,6 +264,7 @@ export default function DepartmentPage() {
         governorate: '',
         affiliation: '',
         accreditationStatus: '',
+        standards: '',
         month: ''
     });
     const [editingFacilityId, setEditingFacilityId] = useState<string | null>(null);
@@ -2505,6 +2506,7 @@ export default function DepartmentPage() {
             governorate: facility.governorate,
             affiliation: facility.affiliation || '',
             accreditationStatus: facility.accreditationStatus,
+            standards: facility.standards || '',
             month: facility.month
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2525,6 +2527,7 @@ export default function DepartmentPage() {
             governorate: '',
             affiliation: '',
             accreditationStatus: '',
+            standards: '',
             month: ''
         });
         setEditingFacilityId(null);
@@ -2542,6 +2545,7 @@ export default function DepartmentPage() {
                 'المحافظة': facility.governorate,
                 'التبعية': facility.affiliation || '-',
                 'حالة الاعتماد': facility.accreditationStatus,
+                'المعايير': facility.standards || '-',
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
             };
         });
@@ -2563,12 +2567,13 @@ export default function DepartmentPage() {
         const tableRows = [
             new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 24, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'التبعية', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'التبعية', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المعايير', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
                 ]
             }),
             ...facilities.map((facility, index) => {
@@ -2580,6 +2585,7 @@ export default function DepartmentPage() {
                         new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.affiliation || '-', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.standards || '-', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
                     ]
                 });
@@ -6099,6 +6105,35 @@ export default function DepartmentPage() {
                                                 </div>
 
                                                 <div className="form-group">
+                                                    <label className="form-label">المعايير</label>
+                                                    <select
+                                                        className="form-input"
+                                                        value={facilityFormData.standards}
+                                                        onChange={(e) => handleFacilityInputChange('standards', e.target.value)}
+                                                    >
+                                                        <option value="">اختر المعايير</option>
+                                                        <option value="معايير اعتماد المستشفيات">معايير اعتماد المستشفيات</option>
+                                                        <option value="الاعتماد المبدئي للمستشفيات">الاعتماد المبدئي للمستشفيات</option>
+                                                        <option value="معايير اعتماد مراكز ووحدات الرعاية الأولية">معايير اعتماد مراكز ووحدات الرعاية الأولية</option>
+                                                        <option value="الاعتماد المبدئي لمراكز ووحدات الرعاية الأولية">الاعتماد المبدئي لمراكز ووحدات الرعاية الأولية</option>
+                                                        <option value="معايير اعتماد معامل التحاليل الطبية">معايير اعتماد معامل التحاليل الطبية</option>
+                                                        <option value="معايير اعتماد مستشفيات الصحة النفسية">معايير اعتماد مستشفيات الصحة النفسية</option>
+                                                        <option value="معايير اعتماد مراكز الاشعة التشخيصية والعلاجية">معايير اعتماد مراكز الاشعة التشخيصية والعلاجية</option>
+                                                        <option value="معايير اعتماد مراكز جراحات اليوم الواحد">معايير اعتماد مراكز جراحات اليوم الواحد</option>
+                                                        <option value="معايير اعتماد العيادات المجمعة">معايير اعتماد العيادات المجمعة</option>
+                                                        <option value="معايير اعتماد مراكز الغسيل الكلوي">معايير اعتماد مراكز الغسيل الكلوي</option>
+                                                        <option value="معايير اعتماد مركز الاسنان">معايير اعتماد مركز الاسنان</option>
+                                                        <option value="معايير اعتماد العيادات الخاصة/ الأسنان">معايير اعتماد العيادات الخاصة/ الأسنان</option>
+                                                        <option value="معايير اعتماد الصيدليات العامة">معايير اعتماد الصيدليات العامة</option>
+                                                        <option value="معايير اعتماد التميز الأخضر">معايير اعتماد التميز الأخضر</option>
+                                                        <option value="معايير اعتماد العلاج الطبيعي">معايير اعتماد العلاج الطبيعي</option>
+                                                        <option value="معايير دور النقاهة ومنشآت الرعاية الصحية الممتدة">معايير دور النقاهة ومنشآت الرعاية الصحية الممتدة</option>
+                                                        <option value="معايير منشآت الاستشفاء الطبي">معايير منشآت الاستشفاء الطبي</option>
+                                                        <option value="لم يتم التحديد">لم يتم التحديد</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
                                                     <label className="form-label">الشهر *</label>
                                                     <input
                                                         type="month"
@@ -6208,6 +6243,7 @@ export default function DepartmentPage() {
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>التبعية</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>المعايير</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                     {userCanEdit && (
                                                         <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
@@ -6217,7 +6253,7 @@ export default function DepartmentPage() {
                                             <tbody>
                                                 {facilities.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                        <td colSpan={userCanEdit ? 7 : 6} style={{
                                                             padding: '40px',
                                                             textAlign: 'center',
                                                             color: '#999'
@@ -6264,6 +6300,9 @@ export default function DepartmentPage() {
                                                                         }}>
                                                                             {facility.accreditationStatus}
                                                                         </span>
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {facility.standards || '-'}
                                                                     </td>
                                                                     <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
                                                                         {(() => {

@@ -42,6 +42,7 @@ export interface AccreditationFacility {
     governorate: string;
     affiliation: string;
     accreditationStatus: string;
+    standards: string;
     month: string;
     year: number;
     createdAt?: Date;
