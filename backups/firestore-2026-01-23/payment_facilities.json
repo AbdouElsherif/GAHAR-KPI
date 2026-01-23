@@ -1,0 +1,665 @@
+{
+  "0V7ecEhgxkmSSSrsvJzA": {
+    "facilityName": "وحده طب اسره الغربانيات ",
+    "governorate": "الإسكندرية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214605,
+      "_nanoseconds": 842000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214605,
+      "_nanoseconds": 842000000
+    }
+  },
+  "2vexyJOaRDf0fG016cWr": {
+    "facilityName": "وحدة طب أسرة شنو",
+    "governorate": "كفر الشيخ",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214855,
+      "_nanoseconds": 240000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214855,
+      "_nanoseconds": 240000000
+    }
+  },
+  "3ezVGMDlDa3Y00HeCGdW": {
+    "facilityName": "عيادة د/احمد سالم حسن سالم الأقرع ",
+    "governorate": "الإسماعيلية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215038,
+      "_nanoseconds": 632000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215038,
+      "_nanoseconds": 632000000
+    }
+  },
+  "5QSyj9z8097GDzQUwEDs": {
+    "facilityName": "وحدة طب أسرة كفر سعد البلد ",
+    "governorate": "دمياط",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214786,
+      "_nanoseconds": 720000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214786,
+      "_nanoseconds": 720000000
+    }
+  },
+  "5lvUQUCjRKDQpkO8RxqD": {
+    "facilityName": "مركز طب أسرة المساعيد",
+    "governorate": "شمال سيناء",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214888,
+      "_nanoseconds": 271000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214888,
+      "_nanoseconds": 271000000
+    }
+  },
+  "6AjNsdGl6tq9tmnsnyHS": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام بطنطا ",
+    "governorate": "الغربية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215495,
+      "_nanoseconds": 257000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215495,
+      "_nanoseconds": 257000000
+    }
+  },
+  "6y69hHRKwASwH42Wi47R": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام ",
+    "governorate": "كفر الشيخ",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215543,
+      "_nanoseconds": 347000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215543,
+      "_nanoseconds": 347000000
+    }
+  },
+  "8KlJrIfMGPnv4NPdIZae": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام ",
+    "governorate": "المنيا",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215415,
+      "_nanoseconds": 839000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215415,
+      "_nanoseconds": 839000000
+    }
+  },
+  "8omeI8Ii2iofwEqEZTz1": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام ",
+    "governorate": "أسيوط",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215323,
+      "_nanoseconds": 386000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215323,
+      "_nanoseconds": 386000000
+    }
+  },
+  "E505lDZkaq1KuBkdICnW": {
+    "facilityName": "مركز الفؤاد للعناية المركزة والقسطرة القلبية ",
+    "governorate": "قنا",
+    "accreditationStatus": "تجديد اعتماد / اعتماد مبدئي",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768290726,
+      "_nanoseconds": 228000000
+    },
+    "updatedAt": {
+      "_seconds": 1768290726,
+      "_nanoseconds": 228000000
+    }
+  },
+  "ELNmHcWg31fAiiEVzg4O": {
+    "facilityName": "مستشفى الكبد والجهاز الهضمي بملوي",
+    "governorate": "المنيا",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214680,
+      "_nanoseconds": 9000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214680,
+      "_nanoseconds": 10000000
+    }
+  },
+  "FNNX75qtXtjV2KWiV9EC": {
+    "facilityName": "وحدة طب أسرة المساعيد ",
+    "governorate": "الشرقية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214507,
+      "_nanoseconds": 456000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214507,
+      "_nanoseconds": 456000000
+    }
+  },
+  "FtkokMg2dmWkJ87XR0mL": {
+    "facilityName": "وحدة صحة دنا القديمة ",
+    "governorate": "الإسكندرية",
+    "accreditationStatus": "تجديد اعتماد / اعتماد مبدئي",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768290691,
+      "_nanoseconds": 160000000
+    },
+    "updatedAt": {
+      "_seconds": 1768290691,
+      "_nanoseconds": 160000000
+    }
+  },
+  "GODQWnmaRYmbFPpFksH2": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام ",
+    "governorate": "سوهاج",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215289,
+      "_nanoseconds": 283000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215289,
+      "_nanoseconds": 283000000
+    }
+  },
+  "Hl4VUDQ76XHhRYO8IHT6": {
+    "facilityName": "مركز طيبة النيل للأشعة",
+    "governorate": " المنيا",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214926,
+      "_nanoseconds": 341000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214926,
+      "_nanoseconds": 341000000
+    }
+  },
+  "KytHCSgpB8F4mRoDXLI3": {
+    "facilityName": "معمل إيه إس للتحاليل الطبية (الفرع الرئيسي بميدان لبنان) ",
+    "governorate": "الجيزة",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215197,
+      "_nanoseconds": 152000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215197,
+      "_nanoseconds": 152000000
+    }
+  },
+  "LwR72S5XLPf527HHsfl0": {
+    "facilityName": "شركة معامل كيور لاب للتحاليل الطبية وأمراض الدم ",
+    "governorate": "السويس",
+    "accreditationStatus": "تجديد اعتماد / اعتماد مبدئي",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768290758,
+      "_nanoseconds": 763000000
+    },
+    "updatedAt": {
+      "_seconds": 1768290758,
+      "_nanoseconds": 763000000
+    }
+  },
+  "PTCniqE2K9yT4iOQ3stE": {
+    "facilityName": "مركز الرضوانية للرنين المغناطيسي ",
+    "governorate": "الأقصر",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214141,
+      "_nanoseconds": 807000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214141,
+      "_nanoseconds": 807000000
+    }
+  },
+  "SdRGyzQh4IKsyO8PIOGM": {
+    "facilityName": "عيادة خاصة (رمد) عمرو عبد الفتاح على ",
+    "governorate": "الإسماعيلية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215124,
+      "_nanoseconds": 732000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215124,
+      "_nanoseconds": 732000000
+    }
+  },
+  "StNshRwyX44rbhh32VPF": {
+    "facilityName": "وحدة طب أسرة عرب الاطاولة ",
+    "governorate": "أسيوط",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214819,
+      "_nanoseconds": 428000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214819,
+      "_nanoseconds": 428000000
+    }
+  },
+  "TjZk7fAYLYwNaaYW4C9a": {
+    "facilityName": "وحدة طب أسرة حي القرية",
+    "governorate": "الأقصر",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214025,
+      "_nanoseconds": 728000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214025,
+      "_nanoseconds": 728000000
+    }
+  },
+  "VfPDga7GxfauqqmUNrwj": {
+    "facilityName": "مركز طيبة النيل للأشعة ",
+    "governorate": "المنيا",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215231,
+      "_nanoseconds": 263000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215231,
+      "_nanoseconds": 263000000
+    }
+  },
+  "WzrYQS6U6AMefedKsUNT": {
+    "facilityName": "مركز الرضوانية للأشعة 2 ",
+    "governorate": "الأقصر",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214101,
+      "_nanoseconds": 134000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214101,
+      "_nanoseconds": 134000000
+    }
+  },
+  "bcc4kLlI6tHsSqNnaqai": {
+    "facilityName": "طب أسرة ابو جلال",
+    "governorate": "الدقهلية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214710,
+      "_nanoseconds": 722000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214710,
+      "_nanoseconds": 722000000
+    }
+  },
+  "c7rnSh4HHDQc1lHZvhRS": {
+    "facilityName": "عيادة د/احمد محمود عبد الرؤوف (اسنان) ",
+    "governorate": "السويس",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214446,
+      "_nanoseconds": 714000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214446,
+      "_nanoseconds": 714000000
+    }
+  },
+  "eEkwheqALGiTlwRleB3I": {
+    "facilityName": "معمل ألفا ",
+    "governorate": "بورسعيد",
+    "accreditationStatus": "تجديد اعتماد / اعتماد مبدئي",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768290793,
+      "_nanoseconds": 991000000
+    },
+    "updatedAt": {
+      "_seconds": 1768290793,
+      "_nanoseconds": 991000000
+    }
+  },
+  "hg7Ln3XrIHH24X0QgRVx": {
+    "facilityName": "مركز طب أسرة الشهيد الدكتور محمد بغدادي ",
+    "governorate": "الأقصر",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768213893,
+      "_nanoseconds": 548000000
+    },
+    "updatedAt": {
+      "_seconds": 1768213893,
+      "_nanoseconds": 548000000
+    }
+  },
+  "iWPqp6R0Q4QF8qebOTvH": {
+    "facilityName": "وحدة طب أسرة الرياينة ",
+    "governorate": "الأقصر",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768213985,
+      "_nanoseconds": 513000000
+    },
+    "updatedAt": {
+      "_seconds": 1768213985,
+      "_nanoseconds": 513000000
+    }
+  },
+  "jxpPa4K9wLOB4YAJW6gA": {
+    "facilityName": "وحدة طب أسرة الناصرية ",
+    "governorate": "دمياط",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214567,
+      "_nanoseconds": 367000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214567,
+      "_nanoseconds": 367000000
+    }
+  },
+  "ksLfdDCX8tl38vWHlNdV": {
+    "facilityName": "وحدة طب أسرة العجمي البحرية ",
+    "governorate": "الإسكندرية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214536,
+      "_nanoseconds": 181000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214536,
+      "_nanoseconds": 181000000
+    }
+  },
+  "mhkcMAzCryhJlYEQ8qhf": {
+    "facilityName": "صيدلية د همسة محمد عبد المنعم الجديدة ",
+    "governorate": "الدقهلية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214970,
+      "_nanoseconds": 81000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214970,
+      "_nanoseconds": 81000000
+    }
+  },
+  "mz2pgFOdrDaVqynknS5E": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام ",
+    "governorate": "السويس",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215579,
+      "_nanoseconds": 512000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215579,
+      "_nanoseconds": 512000000
+    }
+  },
+  "oAWlZB8ipQDDqZ1AgItX": {
+    "facilityName": "وحدة طب أسرة السناقرة ",
+    "governorate": "الإسكندرية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214639,
+      "_nanoseconds": 704000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214639,
+      "_nanoseconds": 704000000
+    }
+  },
+  "oMRrzun6Sd3Lw4JZRdWd": {
+    "facilityName": "مركز احمد فريد الطبية للأشعة ",
+    "governorate": "القليوبية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215162,
+      "_nanoseconds": 330000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215162,
+      "_nanoseconds": 330000000
+    }
+  },
+  "pmHcv58zhwzXigWG3FKM": {
+    "facilityName": "وحدة طب أسرة شرمساح ",
+    "governorate": "دمياط",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768214746,
+      "_nanoseconds": 101000000
+    },
+    "updatedAt": {
+      "_seconds": 1768214746,
+      "_nanoseconds": 101000000
+    }
+  },
+  "q3e6PwxbAX1NJrBN2jnj": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام ",
+    "governorate": "بني سويف",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215371,
+      "_nanoseconds": 611000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215371,
+      "_nanoseconds": 611000000
+    }
+  },
+  "r7byb4zjwgpXnMc6BqxP": {
+    "facilityName": "مركز القوات المسلحة لعلاج الاورام بالزقازيق ",
+    "governorate": "الشرقية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215459,
+      "_nanoseconds": 182000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215459,
+      "_nanoseconds": 182000000
+    }
+  },
+  "rk3kKjuXDrSuI1saRBEc": {
+    "facilityName": "عيادة د/محمود احمد علي غنيم",
+    "governorate": "الإسماعيلية",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215007,
+      "_nanoseconds": 814000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215007,
+      "_nanoseconds": 814000000
+    }
+  },
+  "xpxmdVq2oVdtPAzCfffu": {
+    "facilityName": "عيادة نوركلينك ",
+    "governorate": "السويس",
+    "accreditationStatus": "منشأة جديدة",
+    "month": "2025-12",
+    "year": 2025,
+    "createdBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "updatedBy": "NMuHRgsA5laCweQNdlXWWmKkbBp2",
+    "createdAt": {
+      "_seconds": 1768215079,
+      "_nanoseconds": 132000000
+    },
+    "updatedAt": {
+      "_seconds": 1768215079,
+      "_nanoseconds": 132000000
+    }
+  }
+}

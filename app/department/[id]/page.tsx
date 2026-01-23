@@ -9220,1768 +9220,1340 @@ export default function DepartmentPage() {
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
             {/* Technical Support Visits Section - Dept2 Only */}
             {id === 'dept2' && (
-                <div style={{ marginBottom: '40px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: '20px'
+                            cursor: 'pointer',
+                            marginBottom: isTechSupportVisitsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isTechSupportVisitsSectionExpanded ? '15px' : '0',
+                            borderBottom: isTechSupportVisitsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsTechSupportVisitsSectionExpanded(!isTechSupportVisitsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            🏥 الزيارات الميدانية للمنشآت خلال شهر {(() => {
+                                if (globalFilterMonth || techSupportVisitsFilter) {
+                                    const filterMonth = globalFilterMonth || techSupportVisitsFilter;
+                                    const [year, month] = filterMonth.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....';
+                            })()} - عدد {techSupportVisits.filter(v => !(globalFilterMonth || techSupportVisitsFilter) || v.month === (globalFilterMonth || techSupportVisitsFilter)).length} زيارة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
                         }}>
-                            <h3 style={{
-                                margin: 0,
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                🏥 الزيارات الميدانية للمنشآت
-                                {(globalFilterMonth || techSupportVisitsFilter) && (
-                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
-                                        {' '}- {techSupportVisitsFilter ? (() => {
-                                            const [year, month] = techSupportVisitsFilter.split('-');
-                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                            return monthNames[parseInt(month) - 1];
-                                        })() : ''} - عدد {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length} زيارة
-                                    </span>
-                                )}
-                            </h3>
-                            <button
-                                onClick={() => setIsTechSupportVisitsSectionExpanded(!isTechSupportVisitsSectionExpanded)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary-color)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    padding: '0',
-                                    fontFamily: 'inherit',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px'
-                                }}
-                            >
+                            <span style={{ fontSize: '0.9rem' }}>
                                 {isTechSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isTechSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    {isTechSupportVisitsSectionExpanded && (
+                        <>
+                            {/* Form */}
+                            <form onSubmit={handleTechSupportVisitSubmit} style={{ marginBottom: '30px' }}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '15px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={techSupportVisitFormData.facilityName}
+                                            onChange={(e) => setTechSupportVisitFormData({
+                                                ...techSupportVisitFormData,
+                                                facilityName: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            المحافظة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={techSupportVisitFormData.governorate}
+                                            onChange={(e) => setTechSupportVisitFormData({
+                                                ...techSupportVisitFormData,
+                                                governorate: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        >
+                                            <option value="">اختر المحافظة</option>
+                                            {egyptGovernorates.map(gov => (
+                                                <option key={gov} value={gov}>{gov}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            نوع الزيارة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={techSupportVisitFormData.visitType}
+                                            onChange={(e) => setTechSupportVisitFormData({
+                                                ...techSupportVisitFormData,
+                                                visitType: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                            placeholder="مثال: دعم فني ميداني"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={techSupportVisitFormData.affiliatedEntity}
+                                            onChange={(e) => setTechSupportVisitFormData({
+                                                ...techSupportVisitFormData,
+                                                affiliatedEntity: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                            placeholder="مثال: وزارة الصحة"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            نوع المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={techSupportVisitFormData.facilityType}
+                                            onChange={(e) => setTechSupportVisitFormData({
+                                                ...techSupportVisitFormData,
+                                                facilityType: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        >
+                                            <option value="">اختر نوع المنشأة</option>
+                                            {techSupportFacilityTypes.map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الشهر <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={techSupportVisitFormData.month}
+                                            onChange={(e) => setTechSupportVisitFormData({
+                                                ...techSupportVisitFormData,
+                                                month: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
                                     style={{
-                                        transform: isTechSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s'
+                                        padding: '12px 30px',
+                                        backgroundColor: 'var(--primary-color)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer'
                                     }}
                                 >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                        {isTechSupportVisitsSectionExpanded && (
-                            <>
-                                {/* Form */}
-                                <form onSubmit={handleTechSupportVisitSubmit} style={{ marginBottom: '30px' }}>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                        gap: '15px',
-                                        marginBottom: '20px'
-                                    }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={techSupportVisitFormData.facilityName}
-                                                onChange={(e) => setTechSupportVisitFormData({
-                                                    ...techSupportVisitFormData,
-                                                    facilityName: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                المحافظة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={techSupportVisitFormData.governorate}
-                                                onChange={(e) => setTechSupportVisitFormData({
-                                                    ...techSupportVisitFormData,
-                                                    governorate: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر المحافظة</option>
-                                                {egyptGovernorates.map(gov => (
-                                                    <option key={gov} value={gov}>{gov}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={techSupportVisitFormData.visitType}
-                                                onChange={(e) => setTechSupportVisitFormData({
-                                                    ...techSupportVisitFormData,
-                                                    visitType: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                                placeholder="مثال: دعم فني ميداني"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={techSupportVisitFormData.affiliatedEntity}
-                                                onChange={(e) => setTechSupportVisitFormData({
-                                                    ...techSupportVisitFormData,
-                                                    affiliatedEntity: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                                placeholder="مثال: وزارة الصحة"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={techSupportVisitFormData.facilityType}
-                                                onChange={(e) => setTechSupportVisitFormData({
-                                                    ...techSupportVisitFormData,
-                                                    facilityType: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر نوع المنشأة</option>
-                                                {techSupportFacilityTypes.map(type => (
-                                                    <option key={type} value={type}>{type}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الشهر <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={techSupportVisitFormData.month}
-                                                onChange={(e) => setTechSupportVisitFormData({
-                                                    ...techSupportVisitFormData,
-                                                    month: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
+                                    {editingTechSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                </button>
+                                {editingTechSupportVisitId && (
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingTechSupportVisitId(null);
+                                            setTechSupportVisitFormData({
+                                                facilityName: '',
+                                                governorate: '',
+                                                visitType: '',
+                                                affiliatedEntity: '',
+                                                facilityType: '',
+                                                month: ''
+                                            });
+                                        }}
                                         style={{
                                             padding: '12px 30px',
-                                            backgroundColor: 'var(--primary-color)',
+                                            backgroundColor: '#6c757d',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '8px',
                                             fontSize: '1rem',
                                             fontWeight: 'bold',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            marginLeft: '10px'
                                         }}
                                     >
-                                        {editingTechSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                        إلغاء التعديل
                                     </button>
-                                    {editingTechSupportVisitId && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setEditingTechSupportVisitId(null);
-                                                setTechSupportVisitFormData({
-                                                    facilityName: '',
-                                                    governorate: '',
-                                                    visitType: '',
-                                                    affiliatedEntity: '',
-                                                    facilityType: '',
-                                                    month: ''
-                                                });
-                                            }}
+                                )}
+                            </form>
+                            {/* Filter and Table */}
+                            <div>
+                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={globalFilterMonth || techSupportVisitsFilter}
+                                            onChange={(e) => !globalFilterMonth && setTechSupportVisitsFilter(e.target.value)}
+                                            disabled={!!globalFilterMonth}
                                             style={{
-                                                padding: '12px 30px',
-                                                backgroundColor: '#6c757d',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '1rem',
-                                                fontWeight: 'bold',
-                                                cursor: 'pointer',
-                                                marginLeft: '10px'
+                                                maxWidth: '300px',
+                                                ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
                                             }}
-                                        >
-                                            إلغاء التعديل
-                                        </button>
-                                    )}
-                                </form>
-                                {/* Filter and Table */}
-                                <div>
-                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                فلترة حسب الشهر:
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={globalFilterMonth || techSupportVisitsFilter}
-                                                onChange={(e) => !globalFilterMonth && setTechSupportVisitsFilter(e.target.value)}
-                                                disabled={!!globalFilterMonth}
-                                                style={{
-                                                    maxWidth: '300px',
-                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
-                                                }}
-                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
-                                                className="form-input"
-                                            />
-                                        </div>
-                                        {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length > 0 && (
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button
-                                                    onClick={exportTechSupportVisitsToExcel}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#28a745',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📊 تصدير Excel
-                                                </button>
-                                                <button
-                                                    onClick={exportTechSupportVisitsToWord}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#007bff',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📄 تصدير Word
-                                                </button>
-                                            </div>
-                                        )}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                            className="form-input"
+                                        />
                                     </div>
-                                    <div style={{ overflowX: 'auto' }}>
-                                        <table style={{
-                                            width: '100%',
-                                            borderCollapse: 'collapse',
-                                            backgroundColor: 'white',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {techSupportVisits
-                                                    .filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
-                                                    .map((visit, index) => (
-                                                        <tr key={visit.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                                        }}>
-                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.visitType}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.affiliatedEntity}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditTechSupportVisit(visit)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#ffc107',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        marginRight: '5px'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteTechSupportVisit(visit.id!)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                {techSupportVisits.filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter).length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                                                            لا توجد زيارات مسجلة
+                                    {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportTechSupportVisitsToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportTechSupportVisitsToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#007bff',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        backgroundColor: 'white',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {techSupportVisits
+                                                .filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                .map((visit, index) => (
+                                                    <tr key={visit.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                    }}>
+                                                        <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.visitType}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.affiliatedEntity}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.facilityType}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <button
+                                                                onClick={() => handleEditTechSupportVisit(visit)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#ffc107',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    marginRight: '5px'
+                                                                }}
+                                                            >
+                                                                تعديل
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteTechSupportVisit(visit.id!)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#dc3545',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                حذف
+                                                            </button>
                                                         </td>
                                                     </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                ))}
+                                            {techSupportVisits.filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter).length === 0 && (
+                                                <tr>
+                                                    <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                        لا توجد زيارات مسجلة
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
             {id === 'dept2' && (
-                <div style={{ marginBottom: '40px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: '20px'
+                            cursor: 'pointer',
+                            marginBottom: isRemoteTechSupportSectionExpanded ? '20px' : '0',
+                            paddingBottom: isRemoteTechSupportSectionExpanded ? '15px' : '0',
+                            borderBottom: isRemoteTechSupportSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsRemoteTechSupportSectionExpanded(!isRemoteTechSupportSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            💻 الدعم الفني عن بعد خلال شهر {(() => {
+                                if (globalFilterMonth || remoteTechSupportFilter) {
+                                    const filterMonth = globalFilterMonth || remoteTechSupportFilter;
+                                    const [year, month] = filterMonth.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....';
+                            })()} - عدد {remoteTechnicalSupports.filter(s => !(globalFilterMonth || remoteTechSupportFilter) || s.month === (globalFilterMonth || remoteTechSupportFilter)).length} زيارة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
                         }}>
-                            <h3 style={{
-                                margin: 0,
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                💻 الدعم الفني عن بعد
-                                {(globalFilterMonth || remoteTechSupportFilter) && (
-                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
-                                        {' '}- {remoteTechSupportFilter ? (() => {
-                                            const [year, month] = remoteTechSupportFilter.split('-');
-                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                            return monthNames[parseInt(month) - 1];
-                                        })() : ''} - عدد {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length} زيارة
-                                    </span>
-                                )}
-                            </h3>
-                            <button
-                                onClick={() => setIsRemoteTechSupportSectionExpanded(!isRemoteTechSupportSectionExpanded)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary-color)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    padding: '0',
-                                    fontFamily: 'inherit',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px'
-                                }}
-                            >
+                            <span style={{ fontSize: '0.9rem' }}>
                                 {isRemoteTechSupportSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isRemoteTechSupportSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    {isRemoteTechSupportSectionExpanded && (
+                        <>
+                            <form onSubmit={handleRemoteTechSupportSubmit} style={{ marginBottom: '30px', marginTop: '20px' }}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '15px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={remoteTechSupportFormData.facilityName}
+                                            onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityName: e.target.value }))}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            المحافظة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={remoteTechSupportFormData.governorate}
+                                            onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, governorate: e.target.value }))}
+                                            className="form-input"
+                                            required
+                                        >
+                                            <option value="">اختر المحافظة</option>
+                                            {egyptGovernorates.map(gov => (
+                                                <option key={gov} value={gov}>{gov}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            نوع الزيارة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={remoteTechSupportFormData.visitType}
+                                            onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, visitType: e.target.value }))}
+                                            className="form-input"
+                                            required
+                                            placeholder="مثال: دعم فني عن بعد"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={remoteTechSupportFormData.affiliatedEntity}
+                                            onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, affiliatedEntity: e.target.value }))}
+                                            className="form-input"
+                                            required
+                                            placeholder="مثال: وزارة الصحة"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            نوع المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={remoteTechSupportFormData.facilityType}
+                                            onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityType: e.target.value }))}
+                                            className="form-input"
+                                            required
+                                        >
+                                            <option value="">اختر نوع المنشأة</option>
+                                            {techSupportFacilityTypes.map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الشهر <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={remoteTechSupportFormData.month}
+                                            onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, month: e.target.value }))}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
                                     style={{
-                                        transform: isRemoteTechSupportSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s'
+                                        padding: '12px 30px',
+                                        backgroundColor: 'var(--primary-color)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer'
                                     }}
                                 >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                        {isRemoteTechSupportSectionExpanded && (
-                            <>
-                                <form onSubmit={handleRemoteTechSupportSubmit} style={{ marginBottom: '30px', marginTop: '20px' }}>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                        gap: '15px',
-                                        marginBottom: '20px'
-                                    }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={remoteTechSupportFormData.facilityName}
-                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityName: e.target.value }))}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                المحافظة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={remoteTechSupportFormData.governorate}
-                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, governorate: e.target.value }))}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر المحافظة</option>
-                                                {egyptGovernorates.map(gov => (
-                                                    <option key={gov} value={gov}>{gov}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={remoteTechSupportFormData.visitType}
-                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, visitType: e.target.value }))}
-                                                className="form-input"
-                                                required
-                                                placeholder="مثال: دعم فني عن بعد"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={remoteTechSupportFormData.affiliatedEntity}
-                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, affiliatedEntity: e.target.value }))}
-                                                className="form-input"
-                                                required
-                                                placeholder="مثال: وزارة الصحة"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={remoteTechSupportFormData.facilityType}
-                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, facilityType: e.target.value }))}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر نوع المنشأة</option>
-                                                {techSupportFacilityTypes.map(type => (
-                                                    <option key={type} value={type}>{type}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الشهر <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={remoteTechSupportFormData.month}
-                                                onChange={(e) => setRemoteTechSupportFormData(prev => ({ ...prev, month: e.target.value }))}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
+                                    {editingRemoteTechSupportId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                </button>
+                                {editingRemoteTechSupportId && (
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingRemoteTechSupportId(null);
+                                            setRemoteTechSupportFormData({
+                                                facilityName: '',
+                                                governorate: '',
+                                                visitType: '',
+                                                affiliatedEntity: '',
+                                                facilityType: '',
+                                                month: ''
+                                            });
+                                        }}
                                         style={{
                                             padding: '12px 30px',
-                                            backgroundColor: 'var(--primary-color)',
+                                            backgroundColor: '#6c757d',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '8px',
                                             fontSize: '1rem',
                                             fontWeight: 'bold',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            marginLeft: '10px'
                                         }}
                                     >
-                                        {editingRemoteTechSupportId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                        إلغاء التعديل
                                     </button>
-                                    {editingRemoteTechSupportId && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setEditingRemoteTechSupportId(null);
-                                                setRemoteTechSupportFormData({
-                                                    facilityName: '',
-                                                    governorate: '',
-                                                    visitType: '',
-                                                    affiliatedEntity: '',
-                                                    facilityType: '',
-                                                    month: ''
-                                                });
-                                            }}
+                                )}
+                            </form>
+                            <div>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'flex-end',
+                                    marginBottom: '15px',
+                                    flexWrap: 'wrap',
+                                    gap: '15px'
+                                }}>
+                                    {/* Filter on the left */}
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={globalFilterMonth || remoteTechSupportFilter}
+                                            onChange={(e) => !globalFilterMonth && setRemoteTechSupportFilter(e.target.value)}
+                                            disabled={!!globalFilterMonth}
                                             style={{
-                                                padding: '12px 30px',
-                                                backgroundColor: '#6c757d',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '1rem',
-                                                fontWeight: 'bold',
-                                                cursor: 'pointer',
-                                                marginLeft: '10px'
+                                                maxWidth: '300px',
+                                                ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
                                             }}
-                                        >
-                                            إلغاء التعديل
-                                        </button>
-                                    )}
-                                </form>
-                                <div>
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'flex-end',
-                                        marginBottom: '15px',
-                                        flexWrap: 'wrap',
-                                        gap: '15px'
-                                    }}>
-                                        {/* Filter on the left */}
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                فلترة حسب الشهر:
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={globalFilterMonth || remoteTechSupportFilter}
-                                                onChange={(e) => !globalFilterMonth && setRemoteTechSupportFilter(e.target.value)}
-                                                disabled={!!globalFilterMonth}
-                                                style={{
-                                                    maxWidth: '300px',
-                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
-                                                }}
-                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
-                                                className="form-input"
-                                            />
-                                        </div>
-                                        {/* Export buttons on the right */}
-                                        {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length > 0 && (
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button
-                                                    onClick={exportRemoteTechSupportToExcel}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#28a745',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📊 تصدير Excel
-                                                </button>
-                                                <button
-                                                    onClick={exportRemoteTechSupportToWord}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#007bff',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📄 تصدير Word
-                                                </button>
-                                            </div>
-                                        )}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                            className="form-input"
+                                        />
                                     </div>
-                                    <div style={{ overflowX: 'auto' }}>
-                                        <table style={{
-                                            width: '100%',
-                                            borderCollapse: 'collapse',
-                                            backgroundColor: 'white',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right', width: '15%' }}>نوع الزيارة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center', width: '15%' }}>الإجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {remoteTechnicalSupports
-                                                    .filter(support => !remoteTechSupportFilter || support.month === remoteTechSupportFilter || (globalFilterMonth && support.month === globalFilterMonth))
-                                                    .map((support, index) => (
-                                                        <tr key={support.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                                        }}>
-                                                            <td style={{ padding: '12px' }}>{support.facilityName}</td>
-                                                            <td style={{ padding: '12px' }}>{support.governorate}</td>
-                                                            <td style={{ padding: '12px' }}>{support.visitType}</td>
-                                                            <td style={{ padding: '12px' }}>{support.affiliatedEntity}</td>
-                                                            <td style={{ padding: '12px' }}>{support.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{support.month}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditRemoteTechSupport(support)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#ffc107',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        marginRight: '5px'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteRemoteTechSupport(support.id!)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                                                            لا يوجد دعم فني مسجل
+                                    {/* Export buttons on the right */}
+                                    {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportRemoteTechSupportToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportRemoteTechSupportToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#007bff',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        backgroundColor: 'white',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right', width: '15%' }}>نوع الزيارة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', width: '15%' }}>الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {remoteTechnicalSupports
+                                                .filter(support => !remoteTechSupportFilter || support.month === remoteTechSupportFilter || (globalFilterMonth && support.month === globalFilterMonth))
+                                                .map((support, index) => (
+                                                    <tr key={support.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                    }}>
+                                                        <td style={{ padding: '12px' }}>{support.facilityName}</td>
+                                                        <td style={{ padding: '12px' }}>{support.governorate}</td>
+                                                        <td style={{ padding: '12px' }}>{support.visitType}</td>
+                                                        <td style={{ padding: '12px' }}>{support.affiliatedEntity}</td>
+                                                        <td style={{ padding: '12px' }}>{support.facilityType}</td>
+                                                        <td style={{ padding: '12px' }}>{support.month}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <button
+                                                                onClick={() => handleEditRemoteTechSupport(support)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#ffc107',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    marginRight: '5px'
+                                                                }}
+                                                            >
+                                                                تعديل
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteRemoteTechSupport(support.id!)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#dc3545',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                حذف
+                                                            </button>
                                                         </td>
                                                     </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                ))}
+                                            {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length === 0 && (
+                                                <tr>
+                                                    <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                        لا يوجد دعم فني مسجل
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
             {/* Introductory Support Visits Section - Dept2 Only */}
             {id === 'dept2' && (
-                <div style={{ marginBottom: '40px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: '20px'
+                            cursor: 'pointer',
+                            marginBottom: isIntroSupportVisitsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isIntroSupportVisitsSectionExpanded ? '15px' : '0',
+                            borderBottom: isIntroSupportVisitsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsIntroSupportVisitsSectionExpanded(!isIntroSupportVisitsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            🎯 زيارات الدعم الفني التمهيدية خلال شهر {(() => {
+                                if (globalFilterMonth || introSupportVisitsFilter) {
+                                    const filterMonth = globalFilterMonth || introSupportVisitsFilter;
+                                    const [year, month] = filterMonth.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....';
+                            })()} - عدد {introSupportVisits.filter(v => !(globalFilterMonth || introSupportVisitsFilter) || v.month === (globalFilterMonth || introSupportVisitsFilter)).length} زيارة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
                         }}>
-                            <h3 style={{
-                                margin: 0,
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                🎯 زيارات الدعم الفني التمهيدية
-                                {(globalFilterMonth || introSupportVisitsFilter) && (
-                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
-                                        {' '}- {introSupportVisitsFilter ? (() => {
-                                            const [year, month] = introSupportVisitsFilter.split('-');
-                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                            return monthNames[parseInt(month) - 1];
-                                        })() : ''} - عدد {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length} زيارة
-                                    </span>
-                                )}
-                            </h3>
-                            <button
-                                onClick={() => setIsIntroSupportVisitsSectionExpanded(!isIntroSupportVisitsSectionExpanded)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary-color)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    padding: '0',
-                                    fontFamily: 'inherit',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px'
-                                }}
-                            >
+                            <span style={{ fontSize: '0.9rem' }}>
                                 {isIntroSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isIntroSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    {isIntroSupportVisitsSectionExpanded && (
+                        <>
+                            {/* Form */}
+                            <form onSubmit={handleIntroSupportVisitSubmit} style={{ marginBottom: '30px' }}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '15px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={introSupportVisitFormData.facilityName}
+                                            onChange={(e) => setIntroSupportVisitFormData({
+                                                ...introSupportVisitFormData,
+                                                facilityName: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            المحافظة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={introSupportVisitFormData.governorate}
+                                            onChange={(e) => setIntroSupportVisitFormData({
+                                                ...introSupportVisitFormData,
+                                                governorate: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        >
+                                            <option value="">اختر المحافظة</option>
+                                            {egyptGovernorates.map(gov => (
+                                                <option key={gov} value={gov}>{gov}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            نوع الزيارة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={introSupportVisitFormData.visitType}
+                                            onChange={(e) => setIntroSupportVisitFormData({
+                                                ...introSupportVisitFormData,
+                                                visitType: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                            placeholder="مثال: دعم فني تمهيدي"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={introSupportVisitFormData.affiliatedEntity}
+                                            onChange={(e) => setIntroSupportVisitFormData({
+                                                ...introSupportVisitFormData,
+                                                affiliatedEntity: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                            placeholder="مثال: وزارة الصحة"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            نوع المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <select
+                                            value={introSupportVisitFormData.facilityType}
+                                            onChange={(e) => setIntroSupportVisitFormData({
+                                                ...introSupportVisitFormData,
+                                                facilityType: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        >
+                                            <option value="">اختر نوع المنشأة</option>
+                                            {techSupportFacilityTypes.map(type => (
+                                                <option key={type} value={type}>{type}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الشهر <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={introSupportVisitFormData.month}
+                                            onChange={(e) => setIntroSupportVisitFormData({
+                                                ...introSupportVisitFormData,
+                                                month: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
                                     style={{
-                                        transform: isIntroSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s'
+                                        padding: '12px 30px',
+                                        backgroundColor: 'var(--primary-color)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer'
                                     }}
                                 >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                        {isIntroSupportVisitsSectionExpanded && (
-                            <>
-                                {/* Form */}
-                                <form onSubmit={handleIntroSupportVisitSubmit} style={{ marginBottom: '30px' }}>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                        gap: '15px',
-                                        marginBottom: '20px'
-                                    }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={introSupportVisitFormData.facilityName}
-                                                onChange={(e) => setIntroSupportVisitFormData({
-                                                    ...introSupportVisitFormData,
-                                                    facilityName: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                المحافظة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={introSupportVisitFormData.governorate}
-                                                onChange={(e) => setIntroSupportVisitFormData({
-                                                    ...introSupportVisitFormData,
-                                                    governorate: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر المحافظة</option>
-                                                {egyptGovernorates.map(gov => (
-                                                    <option key={gov} value={gov}>{gov}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={introSupportVisitFormData.visitType}
-                                                onChange={(e) => setIntroSupportVisitFormData({
-                                                    ...introSupportVisitFormData,
-                                                    visitType: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                                placeholder="مثال: دعم فني تمهيدي"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الجهة التابعة لها المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={introSupportVisitFormData.affiliatedEntity}
-                                                onChange={(e) => setIntroSupportVisitFormData({
-                                                    ...introSupportVisitFormData,
-                                                    affiliatedEntity: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                                placeholder="مثال: وزارة الصحة"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={introSupportVisitFormData.facilityType}
-                                                onChange={(e) => setIntroSupportVisitFormData({
-                                                    ...introSupportVisitFormData,
-                                                    facilityType: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر نوع المنشأة</option>
-                                                {techSupportFacilityTypes.map(type => (
-                                                    <option key={type} value={type}>{type}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الشهر <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={introSupportVisitFormData.month}
-                                                onChange={(e) => setIntroSupportVisitFormData({
-                                                    ...introSupportVisitFormData,
-                                                    month: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
+                                    {editingIntroSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                </button>
+                                {editingIntroSupportVisitId && (
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingIntroSupportVisitId(null);
+                                            setIntroSupportVisitFormData({
+                                                facilityName: '',
+                                                governorate: '',
+                                                visitType: '',
+                                                affiliatedEntity: '',
+                                                facilityType: '',
+                                                month: ''
+                                            });
+                                        }}
                                         style={{
                                             padding: '12px 30px',
-                                            backgroundColor: 'var(--primary-color)',
+                                            backgroundColor: '#6c757d',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '8px',
                                             fontSize: '1rem',
                                             fontWeight: 'bold',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            marginLeft: '10px'
                                         }}
                                     >
-                                        {editingIntroSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                        إلغاء التعديل
                                     </button>
-                                    {editingIntroSupportVisitId && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setEditingIntroSupportVisitId(null);
-                                                setIntroSupportVisitFormData({
-                                                    facilityName: '',
-                                                    governorate: '',
-                                                    visitType: '',
-                                                    affiliatedEntity: '',
-                                                    facilityType: '',
-                                                    month: ''
-                                                });
-                                            }}
+                                )}
+                            </form>
+                            {/* Filter and Table */}
+                            <div>
+                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                    {/* Filter on the left */}
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={globalFilterMonth || introSupportVisitsFilter}
+                                            onChange={(e) => !globalFilterMonth && setIntroSupportVisitsFilter(e.target.value)}
+                                            disabled={!!globalFilterMonth}
                                             style={{
-                                                padding: '12px 30px',
-                                                backgroundColor: '#6c757d',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '1rem',
-                                                fontWeight: 'bold',
-                                                cursor: 'pointer',
-                                                marginLeft: '10px'
+                                                maxWidth: '300px',
+                                                ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
                                             }}
-                                        >
-                                            إلغاء التعديل
-                                        </button>
-                                    )}
-                                </form>
-                                {/* Filter and Table */}
-                                <div>
-                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
-                                        {/* Filter on the left */}
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                فلترة حسب الشهر:
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={globalFilterMonth || introSupportVisitsFilter}
-                                                onChange={(e) => !globalFilterMonth && setIntroSupportVisitsFilter(e.target.value)}
-                                                disabled={!!globalFilterMonth}
-                                                style={{
-                                                    maxWidth: '300px',
-                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
-                                                }}
-                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
-                                                className="form-input"
-                                            />
-                                        </div>
-                                        {/* Export buttons on the right */}
-                                        {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length > 0 && (
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button
-                                                    onClick={exportIntroSupportVisitsToExcel}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#28a745',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📊 تصدير Excel
-                                                </button>
-                                                <button
-                                                    onClick={exportIntroSupportVisitsToWord}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#007bff',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📄 تصدير Word
-                                                </button>
-                                            </div>
-                                        )}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                            className="form-input"
+                                        />
                                     </div>
-                                    <div style={{ overflowX: 'auto' }}>
-                                        <table style={{
-                                            width: '100%',
-                                            borderCollapse: 'collapse',
-                                            backgroundColor: 'white',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {introSupportVisits
-                                                    .filter(visit => !introSupportVisitsFilter || visit.month === introSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
-                                                    .map((visit, index) => (
-                                                        <tr key={visit.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                                        }}>
-                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.visitType}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.affiliatedEntity}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditIntroSupportVisit(visit)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#ffc107',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        marginRight: '5px'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteIntroSupportVisit(visit.id!)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                                                            لا يوجد زيارات مسجلة
+                                    {/* Export buttons on the right */}
+                                    {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportIntroSupportVisitsToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportIntroSupportVisitsToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#007bff',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        backgroundColor: 'white',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الجهة التابعة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {introSupportVisits
+                                                .filter(visit => !introSupportVisitsFilter || visit.month === introSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                .map((visit, index) => (
+                                                    <tr key={visit.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                    }}>
+                                                        <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.visitType}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.affiliatedEntity}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.facilityType}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <button
+                                                                onClick={() => handleEditIntroSupportVisit(visit)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#ffc107',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    marginRight: '5px'
+                                                                }}
+                                                            >
+                                                                تعديل
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteIntroSupportVisit(visit.id!)}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#dc3545',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                حذف
+                                                            </button>
                                                         </td>
                                                     </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                ))}
+                                            {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length === 0 && (
+                                                <tr>
+                                                    <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                        لا يوجد زيارات مسجلة
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
             {/* Queued Support Visits Section - Dept2 Only */}
             {id === 'dept2' && (
-                <div style={{ marginBottom: '40px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
+                <div className="card" style={{ marginTop: '30px' }}>
+                    <div
+                        style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: '20px'
+                            cursor: 'pointer',
+                            marginBottom: isQueuedSupportVisitsSectionExpanded ? '20px' : '0',
+                            paddingBottom: isQueuedSupportVisitsSectionExpanded ? '15px' : '0',
+                            borderBottom: isQueuedSupportVisitsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => setIsQueuedSupportVisitsSectionExpanded(!isQueuedSupportVisitsSectionExpanded)}
+                    >
+                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                            ⏳ زيارات الدعم الفني بقائمة الانتظار خلال شهر {(() => {
+                                if (globalFilterMonth || queuedSupportVisitsFilter) {
+                                    const filterMonth = globalFilterMonth || queuedSupportVisitsFilter;
+                                    const [year, month] = filterMonth.split('-');
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                }
+                                return '....';
+                            })()} - عدد {queuedSupportVisits.filter(v => !(globalFilterMonth || queuedSupportVisitsFilter) || v.month === (globalFilterMonth || queuedSupportVisitsFilter)).length} زيارة
+                        </h2>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            color: 'var(--primary-color)',
+                            fontWeight: 'bold'
                         }}>
-                            <h3 style={{
-                                margin: 0,
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                ⏳ زيارات الدعم الفني بقائمة الانتظار
-                                {(globalFilterMonth || queuedSupportVisitsFilter) && (
-                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
-                                        {' '}- {queuedSupportVisitsFilter ? (() => {
-                                            const [year, month] = queuedSupportVisitsFilter.split('-');
-                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                            return monthNames[parseInt(month) - 1];
-                                        })() : ''} - عدد {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length} زيارة
-                                    </span>
-                                )}
-                            </h3>
-                            <button
-                                onClick={() => setIsQueuedSupportVisitsSectionExpanded(!isQueuedSupportVisitsSectionExpanded)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary-color)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    padding: '0',
-                                    fontFamily: 'inherit',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px'
-                                }}
-                            >
+                            <span style={{ fontSize: '0.9rem' }}>
                                 {isQueuedSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
+                            </span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                                style={{ transform: isQueuedSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    {isQueuedSupportVisitsSectionExpanded && (
+                        <>
+                            {/* Form */}
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                if (!currentUser) return;
+
+                                const [year, month] = queuedSupportVisitFormData.month.split('-');
+
+                                if (editingQueuedSupportVisitId) {
+                                    await updateQueuedSupportVisit(editingQueuedSupportVisitId, {
+                                        facilityName: queuedSupportVisitFormData.facilityName,
+                                        governorate: queuedSupportVisitFormData.governorate,
+                                        month: queuedSupportVisitFormData.month,
+                                        year: parseInt(year),
+                                        updatedBy: currentUser.id
+                                    });
+                                } else {
+                                    await saveQueuedSupportVisit({
+                                        facilityName: queuedSupportVisitFormData.facilityName,
+                                        governorate: queuedSupportVisitFormData.governorate,
+                                        month: queuedSupportVisitFormData.month,
+                                        year: parseInt(year),
+                                        createdBy: currentUser.id,
+                                        updatedBy: currentUser.id
+                                    });
+                                }
+
+                                setQueuedSupportVisitFormData({ facilityName: '', governorate: '', month: '' });
+                                setEditingQueuedSupportVisitId(null);
+                                await loadQueuedSupportVisits();
+                            }} style={{ marginBottom: '30px' }}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                    gap: '15px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            اسم المنشأة <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={queuedSupportVisitFormData.facilityName}
+                                            onChange={(e) => setQueuedSupportVisitFormData({
+                                                ...queuedSupportVisitFormData,
+                                                facilityName: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            المحافظة
+                                        </label>
+                                        <select
+                                            value={queuedSupportVisitFormData.governorate}
+                                            onChange={(e) => setQueuedSupportVisitFormData({
+                                                ...queuedSupportVisitFormData,
+                                                governorate: e.target.value
+                                            })}
+                                            className="form-input"
+                                        >
+                                            <option value="">اختر المحافظة</option>
+                                            {egyptGovernorates.map(gov => (
+                                                <option key={gov} value={gov}>{gov}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            الشهر <span style={{ color: 'red' }}>*</span>
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={queuedSupportVisitFormData.month}
+                                            onChange={(e) => setQueuedSupportVisitFormData({
+                                                ...queuedSupportVisitFormData,
+                                                month: e.target.value
+                                            })}
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
                                     style={{
-                                        transform: isQueuedSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s'
+                                        padding: '12px 30px',
+                                        backgroundColor: 'var(--primary-color)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer'
                                     }}
                                 >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                        {isQueuedSupportVisitsSectionExpanded && (
-                            <>
-                                {/* Form */}
-                                <form onSubmit={async (e) => {
-                                    e.preventDefault();
-                                    if (!currentUser) return;
-
-                                    const [year, month] = queuedSupportVisitFormData.month.split('-');
-
-                                    if (editingQueuedSupportVisitId) {
-                                        await updateQueuedSupportVisit(editingQueuedSupportVisitId, {
-                                            facilityName: queuedSupportVisitFormData.facilityName,
-                                            governorate: queuedSupportVisitFormData.governorate,
-                                            month: queuedSupportVisitFormData.month,
-                                            year: parseInt(year),
-                                            updatedBy: currentUser.id
-                                        });
-                                    } else {
-                                        await saveQueuedSupportVisit({
-                                            facilityName: queuedSupportVisitFormData.facilityName,
-                                            governorate: queuedSupportVisitFormData.governorate,
-                                            month: queuedSupportVisitFormData.month,
-                                            year: parseInt(year),
-                                            createdBy: currentUser.id,
-                                            updatedBy: currentUser.id
-                                        });
-                                    }
-
-                                    setQueuedSupportVisitFormData({ facilityName: '', governorate: '', month: '' });
-                                    setEditingQueuedSupportVisitId(null);
-                                    await loadQueuedSupportVisits();
-                                }} style={{ marginBottom: '30px' }}>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                        gap: '15px',
-                                        marginBottom: '20px'
-                                    }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={queuedSupportVisitFormData.facilityName}
-                                                onChange={(e) => setQueuedSupportVisitFormData({
-                                                    ...queuedSupportVisitFormData,
-                                                    facilityName: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                المحافظة
-                                            </label>
-                                            <select
-                                                value={queuedSupportVisitFormData.governorate}
-                                                onChange={(e) => setQueuedSupportVisitFormData({
-                                                    ...queuedSupportVisitFormData,
-                                                    governorate: e.target.value
-                                                })}
-                                                className="form-input"
-                                            >
-                                                <option value="">اختر المحافظة</option>
-                                                {egyptGovernorates.map(gov => (
-                                                    <option key={gov} value={gov}>{gov}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الشهر <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={queuedSupportVisitFormData.month}
-                                                onChange={(e) => setQueuedSupportVisitFormData({
-                                                    ...queuedSupportVisitFormData,
-                                                    month: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
+                                    {editingQueuedSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                </button>
+                                {editingQueuedSupportVisitId && (
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingQueuedSupportVisitId(null);
+                                            setQueuedSupportVisitFormData({
+                                                facilityName: '',
+                                                governorate: '',
+                                                month: ''
+                                            });
+                                        }}
                                         style={{
                                             padding: '12px 30px',
-                                            backgroundColor: 'var(--primary-color)',
+                                            backgroundColor: '#6c757d',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '8px',
                                             fontSize: '1rem',
                                             fontWeight: 'bold',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            marginLeft: '10px'
                                         }}
                                     >
-                                        {editingQueuedSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
+                                        إلغاء التعديل
                                     </button>
-                                    {editingQueuedSupportVisitId && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setEditingQueuedSupportVisitId(null);
-                                                setQueuedSupportVisitFormData({
-                                                    facilityName: '',
-                                                    governorate: '',
-                                                    month: ''
-                                                });
-                                            }}
-                                            style={{
-                                                padding: '12px 30px',
-                                                backgroundColor: '#6c757d',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '1rem',
-                                                fontWeight: 'bold',
-                                                cursor: 'pointer',
-                                                marginLeft: '10px'
-                                            }}
-                                        >
-                                            إلغاء التعديل
-                                        </button>
-                                    )}
-                                </form>
-                                {/* Filter and Table */}
-                                <div>
-                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
-                                        {/* Filter on the left */}
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                فلترة حسب الشهر:
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={globalFilterMonth || queuedSupportVisitsFilter}
-                                                onChange={(e) => !globalFilterMonth && setQueuedSupportVisitsFilter(e.target.value)}
-                                                disabled={!!globalFilterMonth}
-                                                style={{
-                                                    maxWidth: '300px',
-                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
-                                                }}
-                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
-                                                className="form-input"
-                                            />
-                                        </div>
-                                        {/* Export buttons on the right */}
-                                        {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length > 0 && (
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button
-                                                    onClick={exportQueuedSupportVisitsToExcel}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#28a745',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📊 تصدير Excel
-                                                </button>
-                                                <button
-                                                    onClick={exportQueuedSupportVisitsToWord}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#007bff',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📄 تصدير Word
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div style={{ overflowX: 'auto' }}>
-                                        <table style={{
-                                            width: '100%',
-                                            borderCollapse: 'collapse',
-                                            backgroundColor: 'white',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {queuedSupportVisits
-                                                    .filter(visit => !queuedSupportVisitsFilter || visit.month === queuedSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
-                                                    .map((visit, index) => (
-                                                        <tr key={visit.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                                        }}>
-                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setEditingQueuedSupportVisitId(visit.id!);
-                                                                        setQueuedSupportVisitFormData({
-                                                                            facilityName: visit.facilityName,
-                                                                            governorate: visit.governorate,
-                                                                            month: visit.month
-                                                                        });
-                                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                                    }}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#ffc107',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        marginRight: '5px'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
-                                                                            await deleteQueuedSupportVisit(visit.id!);
-                                                                            await loadQueuedSupportVisits();
-                                                                        }
-                                                                    }}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                                                            لا يوجد زيارات مسجلة
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Scheduled Support Visits Section - Dept2 Only */}
-            {id === 'dept2' && (
-                <div style={{ marginBottom: '40px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '1px solid var(--border-color)',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '20px'
-                        }}>
-                            <h3 style={{
-                                margin: 0,
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                📅 زيارات الدعم الفني المجدولة
-                                {(globalFilterMonth || scheduledSupportVisitsFilter) && (
-                                    <span style={{ fontSize: '1rem', fontWeight: 'normal' }}>
-                                        {' '}- {scheduledSupportVisitsFilter ? (() => {
-                                            const [year, month] = scheduledSupportVisitsFilter.split('-');
-                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                            return monthNames[parseInt(month) - 1];
-                                        })() : ''} - عدد {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length} زيارة
-                                    </span>
                                 )}
-                            </h3>
-                            <button
-                                onClick={() => setIsScheduledSupportVisitsSectionExpanded(!isScheduledSupportVisitsSectionExpanded)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary-color)',
-                                    cursor: 'pointer',
-                                    fontSize: '0.9rem',
-                                    padding: '0',
-                                    fontFamily: 'inherit',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px'
-                                }}
-                            >
-                                {isScheduledSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    style={{
-                                        transform: isScheduledSupportVisitsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s'
-                                    }}
-                                >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                        {isScheduledSupportVisitsSectionExpanded && (
-                            <>
-                                {/* Form */}
-                                <form onSubmit={handleScheduledSupportVisitSubmit} style={{ marginBottom: '30px' }}>
-                                    <div style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                                        gap: '15px',
-                                        marginBottom: '20px'
-                                    }}>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                اسم المنشأة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={scheduledSupportVisitFormData.facilityName}
-                                                onChange={(e) => setScheduledSupportVisitFormData({
-                                                    ...scheduledSupportVisitFormData,
-                                                    facilityName: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                المحافظة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={scheduledSupportVisitFormData.governorate}
-                                                onChange={(e) => setScheduledSupportVisitFormData({
-                                                    ...scheduledSupportVisitFormData,
-                                                    governorate: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر المحافظة</option>
-                                                {egyptGovernorates.map(gov => (
-                                                    <option key={gov} value={gov}>{gov}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                نوع الزيارة <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <select
-                                                value={scheduledSupportVisitFormData.visitType}
-                                                onChange={(e) => setScheduledSupportVisitFormData({
-                                                    ...scheduledSupportVisitFormData,
-                                                    visitType: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            >
-                                                <option value="">اختر نوع الزيارة</option>
-                                                <option value="زيارة ميدانية">زيارة ميدانية</option>
-                                                <option value="اجتماع (Offline)">اجتماع (Offline)</option>
-                                                <option value="اجتماع (Online)">اجتماع (Online)</option>
-                                                <option value="دعم فني عن بعد (On desk review)">دعم فني عن بعد (On desk review)</option>
-                                                <option value="مراجعة وثائق (On desk review)">مراجعة وثائق (On desk review)</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                الشهر <span style={{ color: 'red' }}>*</span>
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={scheduledSupportVisitFormData.month}
-                                                onChange={(e) => setScheduledSupportVisitFormData({
-                                                    ...scheduledSupportVisitFormData,
-                                                    month: e.target.value
-                                                })}
-                                                className="form-input"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        style={{
-                                            padding: '12px 30px',
-                                            backgroundColor: 'var(--primary-color)',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            fontSize: '1rem',
-                                            fontWeight: 'bold',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        {editingScheduledSupportVisitId ? '📝 تحديث الزيارة' : '➕ إضافة زيارة'}
-                                    </button>
-                                    {editingScheduledSupportVisitId && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setEditingScheduledSupportVisitId(null);
-                                                setScheduledSupportVisitFormData({
-                                                    facilityName: '',
-                                                    governorate: '',
-                                                    visitType: '',
-                                                    month: ''
-                                                });
-                                            }}
+                            </form>
+                            {/* Filter and Table */}
+                            <div>
+                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                    {/* Filter on the left */}
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+                                            فلترة حسب الشهر:
+                                        </label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            value={globalFilterMonth || queuedSupportVisitsFilter}
+                                            onChange={(e) => !globalFilterMonth && setQueuedSupportVisitsFilter(e.target.value)}
+                                            disabled={!!globalFilterMonth}
                                             style={{
-                                                padding: '12px 30px',
-                                                backgroundColor: '#6c757d',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '1rem',
-                                                fontWeight: 'bold',
-                                                cursor: 'pointer',
-                                                marginLeft: '10px'
+                                                maxWidth: '300px',
+                                                ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
                                             }}
-                                        >
-                                            إلغاء التعديل
-                                        </button>
-                                    )}
-                                </form>
-                                {/* Filter and Table */}
-                                <div>
-                                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
-                                        {/* Filter on the left */}
-                                        <div>
-                                            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                                                فلترة حسب الشهر:
-                                            </label>
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                value={globalFilterMonth || scheduledSupportVisitsFilter}
-                                                onChange={(e) => !globalFilterMonth && setScheduledSupportVisitsFilter(e.target.value)}
-                                                disabled={!!globalFilterMonth}
-                                                style={{
-                                                    maxWidth: '300px',
-                                                    ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
-                                                }}
-                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
-                                                className="form-input"
-                                            />
-                                        </div>
-                                        {/* Export buttons on the right */}
-                                        {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length > 0 && (
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button
-                                                    onClick={exportScheduledSupportVisitsToExcel}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#28a745',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📊 تصدير Excel
-                                                </button>
-                                                <button
-                                                    onClick={exportScheduledSupportVisitsToWord}
-                                                    style={{
-                                                        padding: '8px 16px',
-                                                        backgroundColor: '#007bff',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.9rem',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px'
-                                                    }}
-                                                >
-                                                    📄 تصدير Word
-                                                </button>
-                                            </div>
-                                        )}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                            className="form-input"
+                                        />
                                     </div>
-                                    <div style={{ overflowX: 'auto' }}>
-                                        <table style={{
-                                            width: '100%',
-                                            borderCollapse: 'collapse',
-                                            backgroundColor: 'white',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {scheduledSupportVisits
-                                                    .filter(visit => !scheduledSupportVisitsFilter || visit.month === scheduledSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
-                                                    .map((visit, index) => (
-                                                        <tr key={visit.id} style={{
-                                                            borderBottom: '1px solid #eee',
-                                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                                        }}>
-                                                            <td style={{ padding: '12px' }}>{visit.facilityName}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.governorate}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.visitType}</td>
-                                                            <td style={{ padding: '12px' }}>{visit.month}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditScheduledSupportVisit(visit)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#ffc107',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        marginRight: '5px'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteScheduledSupportVisit(visit.id!)}
-                                                                    style={{
-                                                                        padding: '6px 12px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                                                            لا يوجد زيارات مجدولة مسجلة
+                                    {/* Export buttons on the right */}
+                                    {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportQueuedSupportVisitsToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportQueuedSupportVisitsToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#007bff',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        backgroundColor: 'white',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الشهر</th>
+                                                <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {queuedSupportVisits
+                                                .filter(visit => !queuedSupportVisitsFilter || visit.month === queuedSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                .map((visit, index) => (
+                                                    <tr key={visit.id} style={{
+                                                        borderBottom: '1px solid #eee',
+                                                        backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
+                                                    }}>
+                                                        <td style={{ padding: '12px' }}>{visit.facilityName}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.governorate}</td>
+                                                        <td style={{ padding: '12px' }}>{visit.month}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditingQueuedSupportVisitId(visit.id!);
+                                                                    setQueuedSupportVisitFormData({
+                                                                        facilityName: visit.facilityName,
+                                                                        governorate: visit.governorate,
+                                                                        month: visit.month
+                                                                    });
+                                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                                }}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#ffc107',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer',
+                                                                    marginRight: '5px'
+                                                                }}
+                                                            >
+                                                                تعديل
+                                                            </button>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    if (confirm('هل أنت متأكد من حذف هذه الزيارة؟')) {
+                                                                        await deleteQueuedSupportVisit(visit.id!);
+                                                                        await loadQueuedSupportVisits();
+                                                                    }
+                                                                }}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    backgroundColor: '#dc3545',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '4px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                حذف
+                                                            </button>
                                                         </td>
                                                     </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                ))}
+                                            {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length === 0 && (
+                                                <tr>
+                                                    <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                                                        لا يوجد زيارات مسجلة
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
