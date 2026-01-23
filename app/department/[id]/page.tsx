@@ -12180,6 +12180,11 @@ export default function DepartmentPage() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                     <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                         المنشآت المسجلة
+                                        {(globalFilterMonth || basicRequirementsFacilityFilterMonth) && (
+                                            <span style={{ fontWeight: 'normal' }}>
+                                                {' '}- عدد {basicRequirementsFacilities.length} منشأة
+                                            </span>
+                                        )}
                                     </h3>
                                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                         {basicRequirementsFacilities.length > 0 && (
@@ -12226,8 +12231,11 @@ export default function DepartmentPage() {
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
                                                 className="form-input"
-                                                value={basicRequirementsFacilityFilterMonth}
-                                                onChange={(e) => setBasicRequirementsFacilityFilterMonth(e.target.value)}
+                                                value={globalFilterMonth || basicRequirementsFacilityFilterMonth}
+                                                onChange={(e) => !globalFilterMonth && setBasicRequirementsFacilityFilterMonth(e.target.value)}
+                                                disabled={!!globalFilterMonth}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 placeholder="فلترة حسب الشهر"
                                             />
                                         </div>
@@ -12456,6 +12464,11 @@ export default function DepartmentPage() {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                 <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
                                     الالتماسات المسجلة
+                                    {(globalFilterMonth || appealsFacilityFilterMonth) && (
+                                        <span style={{ fontWeight: 'normal' }}>
+                                            {' '}- عدد {appealsFacilities.length} التماس
+                                        </span>
+                                    )}
                                 </h3>
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                     {appealsFacilities.length > 0 && (
@@ -12502,8 +12515,11 @@ export default function DepartmentPage() {
                                             min={MIN_MONTH}
                                             max={MAX_MONTH}
                                             className="form-input"
-                                            value={appealsFacilityFilterMonth}
-                                            onChange={(e) => setAppealsFacilityFilterMonth(e.target.value)}
+                                            value={globalFilterMonth || appealsFacilityFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setAppealsFacilityFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             placeholder="فلترة حسب الشهر"
                                         />
                                     </div>
