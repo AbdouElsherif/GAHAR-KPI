@@ -4170,7 +4170,7 @@ export default function DepartmentPage() {
     // Export functions for Scheduled Support Visits (زيارات الدعم الفني المجدولة)
     const exportScheduledSupportVisitsToExcel = () => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-        const filteredData = scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter);
+        const filteredData = scheduledSupportVisits.filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter));
 
         const data = filteredData.map((visit, index) => {
             const [year, month] = visit.month.split('-');
@@ -4187,8 +4187,8 @@ export default function DepartmentPage() {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'زيارات الدعم المجدولة');
 
-        const filterMonthText = scheduledSupportVisitsFilter
-            ? `_${scheduledSupportVisitsFilter.replace('-', '_')}`
+        const filterMonthText = (globalFilterMonth || scheduledSupportVisitsFilter)
+            ? `_${(globalFilterMonth || scheduledSupportVisitsFilter).replace('-', '_')}`
             : '_جميع';
 
         XLSX.writeFile(wb, `زيارات_الدعم_الفني_المجدولة${filterMonthText}.xlsx`);
@@ -4196,7 +4196,7 @@ export default function DepartmentPage() {
 
     const exportScheduledSupportVisitsToWord = async () => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-        const filteredData = scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter);
+        const filteredData = scheduledSupportVisits.filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter));
 
         const tableRows = filteredData.map((visit, index) => {
             const [year, month] = visit.month.split('-');
@@ -4246,8 +4246,8 @@ export default function DepartmentPage() {
         const link = document.createElement('a');
         link.href = url;
 
-        const filterMonthText = scheduledSupportVisitsFilter
-            ? `_${scheduledSupportVisitsFilter.replace('-', '_')}`
+        const filterMonthText = (globalFilterMonth || scheduledSupportVisitsFilter)
+            ? `_${(globalFilterMonth || scheduledSupportVisitsFilter).replace('-', '_')}`
             : '_جميع';
 
         link.download = `زيارات_الدعم_الفني_المجدولة${filterMonthText}.docx`;
@@ -4257,7 +4257,7 @@ export default function DepartmentPage() {
     // Export functions for Accredited Supported Facilities (المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم)
     const exportAccreditedSupportedFacilitiesToExcel = () => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-        const filteredData = accreditedSupportedFacilities.filter(f => !accreditedSupportedFacilitiesFilter || f.month === accreditedSupportedFacilitiesFilter);
+        const filteredData = accreditedSupportedFacilities.filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter));
 
         const data = filteredData.map((facility, index) => {
             const [year, month] = facility.month.split('-');
@@ -4277,8 +4277,8 @@ export default function DepartmentPage() {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'المنشآت المعتمدة');
 
-        const filterMonthText = accreditedSupportedFacilitiesFilter
-            ? `_${accreditedSupportedFacilitiesFilter.replace('-', '_')}`
+        const filterMonthText = (globalFilterMonth || accreditedSupportedFacilitiesFilter)
+            ? `_${(globalFilterMonth || accreditedSupportedFacilitiesFilter).replace('-', '_')}`
             : '_جميع';
 
         XLSX.writeFile(wb, `المنشآت_المعتمدة_للدعم_الفني${filterMonthText}.xlsx`);
@@ -4286,7 +4286,7 @@ export default function DepartmentPage() {
 
     const exportAccreditedSupportedFacilitiesToWord = async () => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-        const filteredData = accreditedSupportedFacilities.filter(f => !accreditedSupportedFacilitiesFilter || f.month === accreditedSupportedFacilitiesFilter);
+        const filteredData = accreditedSupportedFacilities.filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter));
 
         const tableRows = filteredData.map((facility, index) => {
             const [year, month] = facility.month.split('-');
@@ -4342,8 +4342,8 @@ export default function DepartmentPage() {
         const link = document.createElement('a');
         link.href = url;
 
-        const filterMonthText = accreditedSupportedFacilitiesFilter
-            ? `_${accreditedSupportedFacilitiesFilter.replace('-', '_')}`
+        const filterMonthText = (globalFilterMonth || accreditedSupportedFacilitiesFilter)
+            ? `_${(globalFilterMonth || accreditedSupportedFacilitiesFilter).replace('-', '_')}`
             : '_جميع';
 
         link.download = `المنشآت_المعتمدة_للدعم_الفني${filterMonthText}.docx`;
@@ -12207,13 +12207,14 @@ export default function DepartmentPage() {
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                             📅 زيارات الدعم الفني المجدولة في شهر {(() => {
-                                if (scheduledSupportVisitsFilter) {
-                                    const [year, month] = scheduledSupportVisitsFilter.split('-');
+                                if (globalFilterMonth || scheduledSupportVisitsFilter) {
+                                    const filterMonth = globalFilterMonth || scheduledSupportVisitsFilter;
+                                    const [year, month] = filterMonth.split('-');
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return `${monthNames[parseInt(month) - 1]} ${year}`;
                                 }
                                 return '....';
-                            })()} - عدد {scheduledSupportVisits.length} زيارة
+                            })()} - عدد {scheduledSupportVisits.filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter)).length} زيارة
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -12333,14 +12334,19 @@ export default function DepartmentPage() {
                                             type="month"
                                             min={MIN_MONTH}
                                             max={MAX_MONTH}
-                                            value={scheduledSupportVisitsFilter}
-                                            onChange={(e) => setScheduledSupportVisitsFilter(e.target.value)}
+                                            value={globalFilterMonth || scheduledSupportVisitsFilter}
+                                            onChange={(e) => !globalFilterMonth && setScheduledSupportVisitsFilter(e.target.value)}
                                             className="form-input"
-                                            style={{ maxWidth: '300px' }}
+                                            disabled={!!globalFilterMonth}
+                                            style={{
+                                                maxWidth: '300px',
+                                                ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                            }}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                         />
                                     </div>
                                     {/* Export buttons on the right */}
-                                    {scheduledSupportVisits.filter(v => !scheduledSupportVisitsFilter || v.month === scheduledSupportVisitsFilter).length > 0 && (
+                                    {scheduledSupportVisits.filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter)).length > 0 && (
                                         <div style={{ display: 'flex', gap: '10px' }}>
                                             <button
                                                 onClick={exportScheduledSupportVisitsToExcel}
@@ -12383,7 +12389,7 @@ export default function DepartmentPage() {
 
                             {/* Table */}
                             <div style={{ overflowX: 'auto' }}>
-                                {scheduledSupportVisits.length === 0 ? (
+                                {scheduledSupportVisits.filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter)).length === 0 ? (
                                     <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
                                         <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📅</div>
                                         لا توجد زيارات مجدولة
@@ -12401,66 +12407,68 @@ export default function DepartmentPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {scheduledSupportVisits.map((visit, index) => {
-                                                const [year, month] = visit.month.split('-');
-                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                const monthName = monthNames[parseInt(month) - 1];
+                                            {scheduledSupportVisits
+                                                .filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter))
+                                                .map((visit, index) => {
+                                                    const [year, month] = visit.month.split('-');
+                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                    const monthName = monthNames[parseInt(month) - 1];
 
-                                                return (
-                                                    <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
-                                                        <td style={{ padding: '12px', textAlign: 'right' }}>{visit.facilityName}</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{visit.governorate}</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            <span style={{
-                                                                padding: '4px 12px',
-                                                                borderRadius: '12px',
-                                                                backgroundColor: '#e3f2fd',
-                                                                color: '#1976d2',
-                                                                fontSize: '0.85rem',
-                                                                fontWeight: '500'
-                                                            }}>
-                                                                {visit.visitType}
-                                                            </span>
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{monthName} {year}</td>
-                                                        {userCanEdit && (
+                                                    return (
+                                                        <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.facilityName}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{visit.governorate}</td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                    <button
-                                                                        onClick={() => handleEditScheduledSupportVisit(visit)}
-                                                                        style={{
-                                                                            padding: '5px 10px',
-                                                                            backgroundColor: 'var(--primary-color)',
-                                                                            color: 'white',
-                                                                            border: 'none',
-                                                                            borderRadius: '4px',
-                                                                            cursor: 'pointer',
-                                                                            fontSize: '0.85rem'
-                                                                        }}
-                                                                    >
-                                                                        تعديل
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleDeleteScheduledSupportVisit(visit.id!)}
-                                                                        style={{
-                                                                            padding: '5px 10px',
-                                                                            backgroundColor: '#dc3545',
-                                                                            color: 'white',
-                                                                            border: 'none',
-                                                                            borderRadius: '4px',
-                                                                            cursor: 'pointer',
-                                                                            fontSize: '0.85rem'
-                                                                        }}
-                                                                    >
-                                                                        حذف
-                                                                    </button>
-                                                                </div>
+                                                                <span style={{
+                                                                    padding: '4px 12px',
+                                                                    borderRadius: '12px',
+                                                                    backgroundColor: '#e3f2fd',
+                                                                    color: '#1976d2',
+                                                                    fontSize: '0.85rem',
+                                                                    fontWeight: '500'
+                                                                }}>
+                                                                    {visit.visitType}
+                                                                </span>
                                                             </td>
-                                                        )}
-                                                    </tr>
-                                                );
-                                            })}
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{monthName} {year}</td>
+                                                            {userCanEdit && (
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                        <button
+                                                                            onClick={() => handleEditScheduledSupportVisit(visit)}
+                                                                            style={{
+                                                                                padding: '5px 10px',
+                                                                                backgroundColor: 'var(--primary-color)',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            تعديل
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDeleteScheduledSupportVisit(visit.id!)}
+                                                                            style={{
+                                                                                padding: '5px 10px',
+                                                                                backgroundColor: '#dc3545',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            حذف
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    );
+                                                })}
                                         </tbody>
                                     </table>
                                 )}
@@ -12488,13 +12496,14 @@ export default function DepartmentPage() {
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                             🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم خلال شهر {(() => {
-                                if (accreditedSupportedFacilitiesFilter) {
-                                    const [year, month] = accreditedSupportedFacilitiesFilter.split('-');
+                                if (globalFilterMonth || accreditedSupportedFacilitiesFilter) {
+                                    const filterMonth = globalFilterMonth || accreditedSupportedFacilitiesFilter;
+                                    const [year, month] = filterMonth.split('-');
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return `${monthNames[parseInt(month) - 1]} ${year}`;
                                 }
                                 return '....';
-                            })()} - عدد {accreditedSupportedFacilities.length} منشأة
+                            })()} - عدد {accreditedSupportedFacilities.filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter)).length} منشأة
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -12652,15 +12661,20 @@ export default function DepartmentPage() {
                                         type="month"
                                         min={MIN_MONTH}
                                         max={MAX_MONTH}
-                                        value={accreditedSupportedFacilitiesFilter}
-                                        onChange={(e) => setAccreditedSupportedFacilitiesFilter(e.target.value)}
+                                        value={globalFilterMonth || accreditedSupportedFacilitiesFilter}
+                                        onChange={(e) => !globalFilterMonth && setAccreditedSupportedFacilitiesFilter(e.target.value)}
                                         className="form-input"
-                                        style={{ maxWidth: '300px' }}
+                                        disabled={!!globalFilterMonth}
+                                        style={{
+                                            maxWidth: '300px',
+                                            ...(globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {})
+                                        }}
+                                        title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                     />
                                 </div>
 
                                 {/* Export buttons on the left */}
-                                {accreditedSupportedFacilities.filter(f => !accreditedSupportedFacilitiesFilter || f.month === accreditedSupportedFacilitiesFilter).length > 0 && (
+                                {accreditedSupportedFacilities.filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter)).length > 0 && (
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button
                                             onClick={exportAccreditedSupportedFacilitiesToExcel}
@@ -12702,7 +12716,7 @@ export default function DepartmentPage() {
 
                             {/* Table */}
                             <div style={{ overflowX: 'auto' }}>
-                                {accreditedSupportedFacilities.length === 0 ? (
+                                {accreditedSupportedFacilities.filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter)).length === 0 ? (
                                     <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
                                         <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🏥</div>
                                         لا توجد منشآت معتمدة
@@ -12722,51 +12736,53 @@ export default function DepartmentPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {accreditedSupportedFacilities.map((facility, index) => (
-                                                <tr key={facility.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'right' }}>{facility.facilityName}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.decisionNumber}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.decisionDate}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.supportType}</td>
-                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{facility.accreditationStatus}</td>
-                                                    {userCanEdit && (
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                <button
-                                                                    onClick={() => handleEditAccreditedSupportedFacility(facility)}
-                                                                    style={{
-                                                                        padding: '5px 10px',
-                                                                        backgroundColor: 'var(--primary-color)',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '0.85rem'
-                                                                    }}
-                                                                >
-                                                                    تعديل
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteAccreditedSupportedFacility(facility.id!)}
-                                                                    style={{
-                                                                        padding: '5px 10px',
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        borderRadius: '4px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '0.85rem'
-                                                                    }}
-                                                                >
-                                                                    حذف
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    )}
-                                                </tr>
-                                            ))}
+                                            {accreditedSupportedFacilities
+                                                .filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter))
+                                                .map((facility, index) => (
+                                                    <tr key={facility.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'right' }}>{facility.facilityName}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.decisionNumber}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.decisionDate}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.supportType}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.accreditationStatus}</td>
+                                                        {userCanEdit && (
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                    <button
+                                                                        onClick={() => handleEditAccreditedSupportedFacility(facility)}
+                                                                        style={{
+                                                                            padding: '5px 10px',
+                                                                            backgroundColor: 'var(--primary-color)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        تعديل
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteAccreditedSupportedFacility(facility.id!)}
+                                                                        style={{
+                                                                            padding: '5px 10px',
+                                                                            backgroundColor: '#dc3545',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '4px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '0.85rem'
+                                                                        }}
+                                                                    >
+                                                                        حذف
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))}
                                         </tbody>
                                     </table>
                                 )}
