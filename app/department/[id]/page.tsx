@@ -7172,7 +7172,8 @@ export default function DepartmentPage() {
                                                 ) : (
                                                     (() => {
                                                         // ترتيب المنشآت الجديدة في الأول
-                                                        const sortedPaymentFacilities = [...paymentFacilities].sort((a, b) => {
+                                                        const filteredPaymentFacilities = paymentFacilities.filter(f => !(globalFilterMonth || paymentFacilityFilterMonth) || f.month === (globalFilterMonth || paymentFacilityFilterMonth));
+                                                        const sortedPaymentFacilities = [...filteredPaymentFacilities].sort((a, b) => {
                                                             if (a.accreditationStatus === 'منشأة جديدة' && b.accreditationStatus !== 'منشأة جديدة') return -1;
                                                             if (a.accreditationStatus !== 'منشأة جديدة' && b.accreditationStatus === 'منشأة جديدة') return 1;
                                                             return 0;
