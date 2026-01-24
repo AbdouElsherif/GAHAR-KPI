@@ -15,7 +15,7 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType, BorderStyle } from 'docx';
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType, BorderStyle, HeadingLevel } from 'docx';
 import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
 import TrainingDashboard from '@/components/TrainingDashboard';
@@ -1389,6 +1389,94 @@ export default function DepartmentPage() {
         setEditingTechnicalClinicalObservationId(null);
     };
 
+    const exportTechnicalClinicalObservationsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = technicalClinicalObservations.filter(f => !(globalFilterMonth || technicalClinicalObservationFilterMonth) || f.month === (globalFilterMonth || technicalClinicalObservationFilterMonth));
+
+        const data = filteredData.map((observation, index) => {
+            const [year, month] = observation.month.split('-');
+            return {
+                'م': index + 1,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
+                'الجهة التابعة': observation.entityType,
+                'نوع المنشأة': observation.facilityType,
+                'دليل التطابق / الملاحظة': observation.observation,
+                'النسبة': `${observation.percentage}%`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "الملاحظات المتكررة");
+        const filterMonthText = (globalFilterMonth || technicalClinicalObservationFilterMonth)
+            ? (globalFilterMonth || technicalClinicalObservationFilterMonth)
+            : 'جميع_الأشهر';
+        XLSX.writeFile(wb, `الملاحظات_المتكررة_${filterMonthText}.xlsx`);
+    };
+
+    const exportTechnicalClinicalObservationsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = technicalClinicalObservations.filter(f => !(globalFilterMonth || technicalClinicalObservationFilterMonth) || f.month === (globalFilterMonth || technicalClinicalObservationFilterMonth));
+
+        const tableRows = filteredData.map((observation, index) => {
+            const [year, month] = observation.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: `${observation.percentage}%`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: observation.observation, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: observation.facilityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: observation.entityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                ],
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: "النسبة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "دليل التطابق / الملاحظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الجهة التابعة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الشهر", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "م", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                    ],
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: "تقرير الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية",
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    table
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filterMonthText = (globalFilterMonth || technicalClinicalObservationFilterMonth)
+            ? (globalFilterMonth || technicalClinicalObservationFilterMonth)
+            : 'جميع_الأشهر';
+        link.download = `الملاحظات_المتكررة_${filterMonthText}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     // Medical Professionals By Category handlers (for dept7)
     const handleMedProfByCategoryInputChange = (field: string, value: string) => {
         setMedProfByCategoryFormData({ ...medProfByCategoryFormData, [field]: value });
@@ -1918,6 +2006,121 @@ export default function DepartmentPage() {
             sasTotal: '', sasCorrected: ''
         });
         setEditingTcCorrectionRateId(null);
+    };
+
+    const exportTcCorrectionRatesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = tcCorrectionRates.filter(f => !(globalFilterMonth || tcCorrectionRateFilterMonth) || f.month === (globalFilterMonth || tcCorrectionRateFilterMonth));
+
+        const data = filteredData.map((rate, index) => {
+            const [year, month] = rate.month.split('-');
+            return {
+                'م': index + 1,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
+                'الجهة التابعة': rate.entityType,
+                'نوع المنشأة': rate.facilityCategory,
+                'اسم المنشأة': rate.facilityName,
+                'المحافظة': rate.governorate,
+                'تاريخ الزيارة': rate.visitDate,
+                'نوع الزيارة': rate.visitType,
+                'ACT (واردة)': rate.actTotal, 'ACT (مصححة)': rate.actCorrected,
+                'ICD (واردة)': rate.icdTotal, 'ICD (مصححة)': rate.icdCorrected,
+                'DAS (واردة)': rate.dasTotal, 'DAS (مصححة)': rate.dasCorrected,
+                'MMS (واردة)': rate.mmsTotal, 'MMS (مصححة)': rate.mmsCorrected,
+                'SIP (واردة)': rate.sipTotal, 'SIP (مصححة)': rate.sipCorrected,
+                'IPC (واردة)': rate.ipcTotal, 'IPC (مصححة)': rate.ipcCorrected,
+                'SCM (واردة)': rate.scmTotal, 'SCM (مصححة)': rate.scmCorrected,
+                'TEX (واردة)': rate.texTotal, 'TEX (مصححة)': rate.texCorrected,
+                'TEQ (واردة)': rate.teqTotal, 'TEQ (مصححة)': rate.teqCorrected,
+                'TPO (واردة)': rate.tpoTotal, 'TPO (مصححة)': rate.tpoCorrected,
+                'NSR (واردة)': rate.nsrTotal, 'NSR (مصححة)': rate.nsrCorrected,
+                'SAS (واردة)': rate.sasTotal, 'SAS (مصححة)': rate.sasCorrected
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "نسب تصحيح الملاحظات");
+        const filterMonthText = (globalFilterMonth || tcCorrectionRateFilterMonth)
+            ? (globalFilterMonth || tcCorrectionRateFilterMonth)
+            : 'جميع_الأشهر';
+        XLSX.writeFile(wb, `نسب_تصحيح_الملاحظات_${filterMonthText}.xlsx`);
+    };
+
+    const exportTcCorrectionRatesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = tcCorrectionRates.filter(f => !(globalFilterMonth || tcCorrectionRateFilterMonth) || f.month === (globalFilterMonth || tcCorrectionRateFilterMonth));
+
+        const tableRows = filteredData.map((rate, index) => {
+            const [year, month] = rate.month.split('-');
+            const criteriaText = ['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS']
+                .map(c => {
+                    const total = rate[`${c.toLowerCase()}Total` as keyof typeof rate];
+                    const corrected = rate[`${c.toLowerCase()}Corrected` as keyof typeof rate];
+                    return `${c}: ${corrected}/${total}`;
+                }).join('\n');
+
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: criteriaText, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.visitType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.visitDate, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.governorate, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.facilityName, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.facilityCategory, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.entityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                ],
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: "المعايير (مصححة/واردة)", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "تاريخ الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "المحافظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "اسم المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الجهة التابعة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الشهر", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "م", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                    ],
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: "تقرير نسب تصحيح الملاحظات للرقابة الفنية والإكلينيكية",
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    table
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filterMonthText = (globalFilterMonth || tcCorrectionRateFilterMonth)
+            ? (globalFilterMonth || tcCorrectionRateFilterMonth)
+            : 'جميع_الأشهر';
+        link.download = `نسب_تصحيح_الملاحظات_${filterMonthText}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     // Reviewer Evaluation Visit handlers (for dept9)
@@ -8445,15 +8648,53 @@ export default function DepartmentPage() {
                             ) : null}
 
                             <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
-                                        سجل الزيارات
-                                        {(globalFilterMonth || technicalClinicalFacilityFilterMonth) && (
-                                            <span style={{ fontWeight: 'normal' }}>
-                                                {' '}- عدد {technicalClinicalFacilities.filter(f => !(globalFilterMonth || technicalClinicalFacilityFilterMonth) || f.month === (globalFilterMonth || technicalClinicalFacilityFilterMonth)).length} زيارة
-                                            </span>
-                                        )}
-                                    </h3>
+                                {/* 1. Header with Count and Month */}
+                                <h3 style={{
+                                    margin: '0 0 20px 0',
+                                    fontSize: '1.3rem',
+                                    color: 'var(--secondary-color)',
+                                    textAlign: 'right', // Or 'center' if preferred, but usually headers are right-aligned in Arabic
+                                    fontWeight: 'bold'
+                                }}>
+                                    إجمالي الزيارات: <span style={{ color: 'var(--primary-color)' }}>{technicalClinicalFacilities.filter(f => !(globalFilterMonth || technicalClinicalFacilityFilterMonth) || f.month === (globalFilterMonth || technicalClinicalFacilityFilterMonth)).length}</span>
+                                    {' - '}
+                                    شهر: <span style={{ color: 'var(--primary-color)' }}>{(() => {
+                                        const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
+                                        if (filterMonth) {
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        }
+                                        return 'الكل';
+                                    })()}</span>
+                                </h3>
+
+                                {/* 2. Toolbar (Exports & Filter) */}
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '15px',
+                                    flexWrap: 'wrap',
+                                    gap: '10px'
+                                }}>
+                                    {/* Filters Logic for Toolbar */}
+                                    <div className="form-group" style={{ margin: 0, minWidth: '250px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <label style={{ fontWeight: 'bold', color: 'var(--secondary-color)', whiteSpace: 'nowrap' }}>فلترة حسب الشهر:</label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            className="form-input"
+                                            value={globalFilterMonth || technicalClinicalFacilityFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setTechnicalClinicalFacilityFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                            title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                            placeholder="فلترة حسب الشهر"
+                                        />
+                                    </div>
+
                                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                                         {technicalClinicalFacilities.length > 0 && (
                                             <>
@@ -8493,21 +8734,6 @@ export default function DepartmentPage() {
                                                 </button>
                                             </>
                                         )}
-                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-
-                                            <input
-                                                type="month"
-                                                min={MIN_MONTH}
-                                                max={MAX_MONTH}
-                                                className="form-input"
-                                                value={globalFilterMonth || technicalClinicalFacilityFilterMonth}
-                                                onChange={(e) => !globalFilterMonth && setTechnicalClinicalFacilityFilterMonth(e.target.value)}
-                                                disabled={!!globalFilterMonth}
-                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                                title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
-                                                placeholder="فلترة حسب الشهر"
-                                            />
-                                        </div>
                                     </div>
                                 </div>
 
@@ -8784,11 +9010,32 @@ export default function DepartmentPage() {
                                     </>
                                 ) : null}
 
-                                {/* Filter */}
+                                {/* 1. Header with Count and Month */}
+                                <h3 style={{
+                                    margin: '0 0 20px 0',
+                                    fontSize: '1.3rem',
+                                    color: 'var(--secondary-color)',
+                                    textAlign: 'right',
+                                    fontWeight: 'bold'
+                                }}>
+                                    إجمالي الملاحظات: <span style={{ color: 'var(--primary-color)' }}>{technicalClinicalObservations.filter(f => !(globalFilterMonth || technicalClinicalObservationFilterMonth) || f.month === (globalFilterMonth || technicalClinicalObservationFilterMonth)).length}</span>
+                                    {' - '}
+                                    شهر: <span style={{ color: 'var(--primary-color)' }}>{(() => {
+                                        const filterMonth = globalFilterMonth || technicalClinicalObservationFilterMonth;
+                                        if (filterMonth) {
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        }
+                                        return 'الكل';
+                                    })()}</span>
+                                </h3>
+
+                                {/* 2. Toolbar (Filter) */}
                                 <div style={{ marginBottom: '20px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
-                                            <label className="form-label">فلترة حسب الشهر</label>
+                                        <div className="form-group" style={{ margin: 0, minWidth: '250px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <label style={{ fontWeight: 'bold', color: 'var(--secondary-color)', whiteSpace: 'nowrap' }}>فلترة حسب الشهر:</label>
                                             <input
                                                 type="month"
                                                 min={MIN_MONTH}
@@ -8797,9 +9044,50 @@ export default function DepartmentPage() {
                                                 value={globalFilterMonth || technicalClinicalObservationFilterMonth}
                                                 onChange={(e) => !globalFilterMonth && setTechnicalClinicalObservationFilterMonth(e.target.value)}
                                                 disabled={!!globalFilterMonth}
-                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
+                                                placeholder="فلترة حسب الشهر"
                                             />
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                            {technicalClinicalObservations.length > 0 && (
+                                                <>
+                                                    <button
+                                                        onClick={exportTechnicalClinicalObservationsToExcel}
+                                                        style={{
+                                                            padding: '8px 16px',
+                                                            backgroundColor: '#28a745',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                            fontSize: '0.9rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '5px'
+                                                        }}
+                                                    >
+                                                        📊 تصدير Excel
+                                                    </button>
+                                                    <button
+                                                        onClick={exportTechnicalClinicalObservationsToWord}
+                                                        style={{
+                                                            padding: '8px 16px',
+                                                            backgroundColor: '#007bff',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            cursor: 'pointer',
+                                                            fontSize: '0.9rem',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '5px'
+                                                        }}
+                                                    >
+                                                        📄 تصدير Word
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -8927,20 +9215,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsTcCorrectionRateSectionExpanded(!isTcCorrectionRateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات خلال الشهر {(() => {
-                                    if (globalFilterMonth || tcCorrectionRateFilterMonth) {
-                                        const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()}
-                                {(globalFilterMonth || tcCorrectionRateFilterMonth) && (
-                                    <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
-                                        {' '}- عدد {tcCorrectionRates.filter(f => !(globalFilterMonth || tcCorrectionRateFilterMonth) || f.month === (globalFilterMonth || tcCorrectionRateFilterMonth)).length} سجل
-                                    </span>
-                                )}
+                                📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات خلال الشهر
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -9065,16 +9340,79 @@ export default function DepartmentPage() {
                                     </>
                                 ) : null}
 
+                                {/* Statistics Header */}
+                                <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem', color: 'var(--primary-color)' }}>
+                                    إجمالي الملاحظات التي تم تصحيحها: <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{tcCorrectionRates.filter(f => !(globalFilterMonth || tcCorrectionRateFilterMonth) || f.month === (globalFilterMonth || tcCorrectionRateFilterMonth)).length}</span>
+                                    {' - '}
+                                    شهر: <span style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>{(() => {
+                                        const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
+                                        if (filterMonth) {
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        }
+                                        return 'الكل';
+                                    })()}</span>
+                                </h3>
+
                                 {/* Filter */}
-                                <div style={{ marginBottom: '20px' }}>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
-                                        <label className="form-label">فلترة حسب الشهر</label>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '15px',
+                                    flexWrap: 'wrap',
+                                    gap: '10px'
+                                }}>
+                                    <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <label className="form-label" style={{ whiteSpace: 'nowrap', marginBottom: 0 }}>فلترة حسب الشهر:</label>
                                         <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input"
                                             value={globalFilterMonth || tcCorrectionRateFilterMonth}
                                             onChange={(e) => !globalFilterMonth && setTcCorrectionRateFilterMonth(e.target.value)}
                                             disabled={!!globalFilterMonth}
                                             style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
                                             title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"} />
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {tcCorrectionRates.length > 0 && (
+                                            <>
+                                                <button
+                                                    onClick={exportTcCorrectionRatesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportTcCorrectionRatesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#007bff',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
@@ -9167,65 +9505,67 @@ export default function DepartmentPage() {
                                                                 🏥 ثانياً: المنشآت الصحية التابعة لوزارة الصحة ({filteredTcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length} زيارات)
                                                             </h2>
                                                             <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
-                                                                {['مستشفى', 'مستشفى صحة نفسية', 'مراكز ووحدات الرعاية الأولية', 'صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
-                                                                    const categoryRates = filteredTcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
-                                                                    if (categoryRates.length === 0) return null;
-                                                                    return (
-                                                                        <div key={category} style={{ marginBottom: '25px' }}>
-                                                                            <h3 style={{ marginBottom: '15px', color: '#ff9800', borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>
-                                                                                🏥 {category} ({categoryRates.length} زيارات)
-                                                                            </h3>
-                                                                            {categoryRates.map((rate) => (
-                                                                                <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                                                        <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
-                                                                                        {userCanEdit && (
-                                                                                            <div style={{ display: 'flex', gap: '5px' }}>
-                                                                                                <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
-                                                                                                <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
-                                                                                        <thead>
-                                                                                            <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
-                                                                                                <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                                                {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
-                                                                                                    <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            <tr style={{ backgroundColor: 'white' }}>
-                                                                                                <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
-                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                            <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                                                <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
-                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                            <tr style={{ backgroundColor: 'white' }}>
-                                                                                                <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
-                                                                                                    if (item.t === 0 && item.c === 0) {
-                                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
-                                                                                                    }
-                                                                                                    const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                                                    return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
-                                                                                                })}
-                                                                                            </tr>
-                                                                                        </tbody>
-                                                                                    </table>
+                                                                {Array.from(new Set(filteredTcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').map(r => r.facilityCategory)))
+                                                                    .sort()
+                                                                    .map(category => {
+                                                                        const categoryRates = filteredTcCorrectionRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
+                                                                        if (categoryRates.length === 0) return null;
+                                                                        return (
+                                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                                <h3 style={{ marginBottom: '15px', color: '#ff9800', borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>
+                                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                                </h3>
+                                                                                {categoryRates.map((rate) => (
+                                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                                            {userCanEdit && (
+                                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                                    <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                                    <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                                                                                            <thead>
+                                                                                                <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
+                                                                                                    <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                                                    {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                                        <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
+                                                                                                    {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
+                                                                                                    {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                                    <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                                                    {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
+                                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
+                                                                                                        }
+                                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
+                                                                                                    })}
+                                                                                                </tr>
+                                                                                            </tbody>
+                                                                                        </table>
 
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    );
-                                                                })}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        );
+                                                                    })}
                                                             </div>
                                                         </div>
                                                     )}
@@ -9237,65 +9577,67 @@ export default function DepartmentPage() {
                                                                 🏢 ثالثاً: منشآت صحية أخرى ({filteredTcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').length} زيارات)
                                                             </h2>
                                                             <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px' }}>
-                                                                {['صيدلية', 'معمل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
-                                                                    const categoryRates = filteredTcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
-                                                                    if (categoryRates.length === 0) return null;
-                                                                    return (
-                                                                        <div key={category} style={{ marginBottom: '25px' }}>
-                                                                            <h3 style={{ marginBottom: '15px', color: '#28a745', borderBottom: '2px solid #28a745', paddingBottom: '10px' }}>
-                                                                                🏥 {category} ({categoryRates.length} زيارات)
-                                                                            </h3>
-                                                                            {categoryRates.map((rate) => (
-                                                                                <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
-                                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                                                                        <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
-                                                                                        {userCanEdit && (
-                                                                                            <div style={{ display: 'flex', gap: '5px' }}>
-                                                                                                <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
-                                                                                                <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
-                                                                                        <thead>
-                                                                                            <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
-                                                                                                <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                                                {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
-                                                                                                    <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            <tr style={{ backgroundColor: 'white' }}>
-                                                                                                <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
-                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                            <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                                                <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
-                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                            <tr style={{ backgroundColor: 'white' }}>
-                                                                                                <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
-                                                                                                    if (item.t === 0 && item.c === 0) {
-                                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
-                                                                                                    }
-                                                                                                    const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                                                    return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
-                                                                                                })}
-                                                                                            </tr>
-                                                                                        </tbody>
-                                                                                    </table>
+                                                                {Array.from(new Set(filteredTcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى').map(r => r.facilityCategory)))
+                                                                    .sort() // Optional: sort alphabetically
+                                                                    .map(category => {
+                                                                        const categoryRates = filteredTcCorrectionRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
+                                                                        if (categoryRates.length === 0) return null;
+                                                                        return (
+                                                                            <div key={category} style={{ marginBottom: '25px' }}>
+                                                                                <h3 style={{ marginBottom: '15px', color: '#28a745', borderBottom: '2px solid #28a745', paddingBottom: '10px' }}>
+                                                                                    🏥 {category} ({categoryRates.length} زيارات)
+                                                                                </h3>
+                                                                                {categoryRates.map((rate) => (
+                                                                                    <div key={rate.id} style={{ marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '15px' }}>
+                                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                                                            <span style={{ fontWeight: 'bold' }}>● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}</span>
+                                                                                            {userCanEdit && (
+                                                                                                <div style={{ display: 'flex', gap: '5px' }}>
+                                                                                                    <button onClick={() => handleEditTcCorrectionRate(rate)} style={{ padding: '4px 10px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>تعديل</button>
+                                                                                                    <button onClick={() => handleDeleteTcCorrectionRate(rate.id!)} style={{ padding: '4px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>حذف</button>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                                                                                            <thead>
+                                                                                                <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
+                                                                                                    <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
+                                                                                                    {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                                        <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
+                                                                                                    {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                                <tr style={{ backgroundColor: '#f1f1f1' }}>
+                                                                                                    <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
+                                                                                                    {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                                <tr style={{ backgroundColor: 'white' }}>
+                                                                                                    <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
+                                                                                                    {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
+                                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
+                                                                                                        }
+                                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
+                                                                                                    })}
+                                                                                                </tr>
+                                                                                            </tbody>
+                                                                                        </table>
 
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    );
-                                                                })}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        );
+                                                                    })}
                                                             </div>
                                                         </div>
                                                     )}
