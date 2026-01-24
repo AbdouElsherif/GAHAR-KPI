@@ -6347,7 +6347,7 @@ export default function DepartmentPage() {
                                                     onChange={(e) => !globalFilterMonth && setFacilityFilterMonth(e.target.value)}
                                                     placeholder="فلترة حسب الشهر"
                                                     disabled={!!globalFilterMonth}
-                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                     title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 />
                                             </div>
@@ -6797,7 +6797,7 @@ export default function DepartmentPage() {
                                                     value={globalFilterMonth || completionFacilityFilterMonth}
                                                     onChange={(e) => !globalFilterMonth && setCompletionFacilityFilterMonth(e.target.value)}
                                                     disabled={!!globalFilterMonth}
-                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                     title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
@@ -7813,7 +7813,7 @@ export default function DepartmentPage() {
                                                     value={globalFilterMonth || medicalProfessionalFilterMonth}
                                                     onChange={(e) => !globalFilterMonth && setMedicalProfessionalFilterMonth(e.target.value)}
                                                     disabled={!!globalFilterMonth}
-                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                     title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
@@ -8141,7 +8141,7 @@ export default function DepartmentPage() {
                                                     value={globalFilterMonth || correctivePlanFacilityFilterMonth}
                                                     onChange={(e) => !globalFilterMonth && setCorrectivePlanFacilityFilterMonth(e.target.value)}
                                                     disabled={!!globalFilterMonth}
-                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                                    style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                     title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                     placeholder="فلترة حسب الشهر"
                                                 />
@@ -8502,7 +8502,7 @@ export default function DepartmentPage() {
                                                 value={globalFilterMonth || technicalClinicalFacilityFilterMonth}
                                                 onChange={(e) => !globalFilterMonth && setTechnicalClinicalFacilityFilterMonth(e.target.value)}
                                                 disabled={!!globalFilterMonth}
-                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                                 placeholder="فلترة حسب الشهر"
                                             />
@@ -8796,7 +8796,7 @@ export default function DepartmentPage() {
                                                 value={globalFilterMonth || technicalClinicalObservationFilterMonth}
                                                 onChange={(e) => !globalFilterMonth && setTechnicalClinicalObservationFilterMonth(e.target.value)}
                                                 disabled={!!globalFilterMonth}
-                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             />
                                         </div>
@@ -9072,7 +9072,7 @@ export default function DepartmentPage() {
                                             value={globalFilterMonth || tcCorrectionRateFilterMonth}
                                             onChange={(e) => !globalFilterMonth && setTcCorrectionRateFilterMonth(e.target.value)}
                                             disabled={!!globalFilterMonth}
-                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
                                             title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"} />
                                     </div>
                                 </div>
@@ -10865,7 +10865,7 @@ export default function DepartmentPage() {
                                                 value={globalFilterMonth || adminAuditFacilityFilterMonth}
                                                 onChange={(e) => !globalFilterMonth && setAdminAuditFacilityFilterMonth(e.target.value)}
                                                 disabled={!!globalFilterMonth}
-                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             />
                                         </div>
@@ -11136,7 +11136,7 @@ export default function DepartmentPage() {
                                                 value={globalFilterMonth || adminAuditObservationFilterMonth}
                                                 onChange={(e) => !globalFilterMonth && setAdminAuditObservationFilterMonth(e.target.value)}
                                                 disabled={!!globalFilterMonth}
-                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', borderColor: 'var(--primary-color)' } : {}}
+                                                style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             />
                                         </div>
