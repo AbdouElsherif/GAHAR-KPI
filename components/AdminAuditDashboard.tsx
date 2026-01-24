@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
@@ -11,9 +11,10 @@ interface AdminAuditDashboardProps {
     facilities: AdminAuditFacility[];
     observations: AdminAuditObservation[];
     correctionRates?: ObservationCorrectionRate[];
+    filterMonth?: string;
 }
 
-export default function AdminAuditDashboard({ submissions, facilities, observations, correctionRates = [] }: AdminAuditDashboardProps) {
+export default function AdminAuditDashboard({ submissions, facilities, observations, correctionRates = [], filterMonth }: AdminAuditDashboardProps) {
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
         const month = parseInt(dateStr.split('-')[1]);
@@ -48,6 +49,24 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
         seriousIncidentExam: true
     });
+
+    // Sync with external filter
+    useEffect(() => {
+        if (filterMonth) {
+            setComparisonType('monthly');
+            const [yearStr, monthStr] = filterMonth.split('-');
+            const year = parseInt(yearStr);
+            const month = parseInt(monthStr);
+
+            // Calculate fiscal year end based on month
+            // If month >= 7 (July-Dec), fiscal year ends next year. E.g. 2024-07 -> FY2025 (2024-2025)
+            // If month < 7 (Jan-June), fiscal year ends current year. E.g. 2025-01 -> FY2025 (2024-2025)
+            const fiscalYear = month >= 7 ? year + 1 : year;
+
+            setTargetYear(fiscalYear);
+            setSelectedMonth(month);
+        }
+    }, [filterMonth]);
 
     const getYear = (dateStr: string): number => {
         return parseInt(dateStr.split('-')[0]);
@@ -501,6 +520,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                         onChange={(e) => setComparisonType(e.target.value as any)}
                         className="form-input"
                         style={{ width: '100%' }}
+                        disabled={!!filterMonth}
                     >
                         <option value="monthly">شهري</option>
                         <option value="quarterly">ربع سنوي</option>
@@ -518,6 +538,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                         onChange={(e) => setTargetYear(parseInt(e.target.value))}
                         className="form-input"
                         style={{ width: '100%' }}
+                        disabled={!!filterMonth}
                     >
                         {[2026, 2025, 2024].map(year => (
                             <option key={year} value={year}>العام المالي {year - 1} - {year}</option>
@@ -535,6 +556,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                             onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
                             className="form-input"
                             style={{ width: '100%' }}
+                            disabled={!!filterMonth}
                         >
                             {[
                                 { value: 7, label: 'يوليو' },

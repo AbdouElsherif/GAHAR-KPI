@@ -15,12 +15,13 @@ import {
 interface ProgramTypesSectionProps {
     currentUser: any;
     canEdit: (user: any) => boolean;
+    globalFilterMonth?: string | null;
 }
 
 /**
  * مكون قسم "نوع البرنامج" لـ dept1
  */
-export default function ProgramTypesSection({ currentUser, canEdit }: ProgramTypesSectionProps) {
+export default function ProgramTypesSection({ currentUser, canEdit, globalFilterMonth }: ProgramTypesSectionProps) {
     // State
     const [programTypes, setProgramTypes] = useState<ProgramType[]>([]);
     const [editingProgramTypeId, setEditingProgramTypeId] = useState<string | null>(null);
@@ -135,6 +136,11 @@ export default function ProgramTypesSection({ currentUser, canEdit }: ProgramTyp
         }
     };
 
+    // Filtering
+    const filteredPrograms = (globalFilterMonth || programTypeFilterMonth)
+        ? programTypes.filter(p => p.month === (globalFilterMonth || programTypeFilterMonth))
+        : programTypes;
+
     // Export functions
     const exportToExcel = () => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -153,8 +159,8 @@ export default function ProgramTypesSection({ currentUser, canEdit }: ProgramTyp
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'نوع البرنامج');
 
-        const filterMonthText = programTypeFilterMonth
-            ? `_${programTypeFilterMonth.replace('-', '_')}`
+        const filterMonthText = (globalFilterMonth || programTypeFilterMonth)
+            ? `_${(globalFilterMonth || programTypeFilterMonth).replace('-', '_')}`
             : '';
 
         XLSX.writeFile(workbook, `نوع_البرنامج${filterMonthText}.xlsx`);
@@ -233,18 +239,13 @@ export default function ProgramTypesSection({ currentUser, canEdit }: ProgramTyp
         const link = document.createElement('a');
         link.href = url;
 
-        const filterMonthText = programTypeFilterMonth
-            ? `_${programTypeFilterMonth.replace('-', '_')}`
+        const filterMonthText = (globalFilterMonth || programTypeFilterMonth)
+            ? `_${(globalFilterMonth || programTypeFilterMonth).replace('-', '_')}`
             : '';
 
         link.download = `نوع_البرنامج${filterMonthText}.docx`;
         link.click();
     };
-
-    // Filtering
-    const filteredPrograms = programTypeFilterMonth
-        ? programTypes.filter(p => p.month === programTypeFilterMonth)
-        : programTypes;
 
     // Format month for display
     const formatMonthYear = (month: string) => {
@@ -325,10 +326,11 @@ export default function ProgramTypesSection({ currentUser, canEdit }: ProgramTyp
                     {/* Filter and Export */}
                     <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '15px' }}>
                         <MonthFilter
-                            value={programTypeFilterMonth}
-                            onChange={setProgramTypeFilterMonth}
+                            value={globalFilterMonth || programTypeFilterMonth}
+                            onChange={(val) => !globalFilterMonth && setProgramTypeFilterMonth(val)}
                             label="فلترة حسب الشهر"
                             minWidth="250px"
+                            disabled={!!globalFilterMonth}
                         />
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <ExportButtons

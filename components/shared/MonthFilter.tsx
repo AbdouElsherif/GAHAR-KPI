@@ -8,6 +8,7 @@ interface MonthFilterProps {
     label?: string;
     maxDate?: string;
     minWidth?: string;
+    disabled?: boolean;
 }
 
 /**
@@ -19,7 +20,8 @@ export default function MonthFilter({
     onChange,
     label = 'فلترة حسب الشهر',
     maxDate,
-    minWidth = '200px'
+    minWidth = '200px',
+    disabled = false
 }: MonthFilterProps) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
@@ -41,13 +43,16 @@ export default function MonthFilter({
                 placeholder={label}
                 min={defaultMinDate}
                 max={defaultMaxDate}
+                disabled={disabled}
                 style={{
                     width: '100%',
                     padding: '8px 12px',
                     fontSize: '0.9rem',
                     borderRadius: '6px',
                     border: '1px solid #ddd',
-                    transition: 'border-color 0.2s'
+                    transition: 'border-color 0.2s',
+                    backgroundColor: disabled ? '#e9ecef' : 'white',
+                    cursor: disabled ? 'not-allowed' : 'auto'
                 }}
             />
         </div>

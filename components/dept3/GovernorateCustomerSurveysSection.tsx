@@ -15,6 +15,7 @@ import {
 interface GovernorateCustomerSurveysSectionProps {
     currentUser: any;
     canEdit: (user: any) => boolean;
+    globalFilterMonth?: string | null;
 }
 
 const egyptGovernorates = [
@@ -28,7 +29,7 @@ const egyptGovernorates = [
 /**
  * مكون قسم "استبيانات رضاء المتعاملين حسب المحافظة" لـ dept3
  */
-export default function GovernorateCustomerSurveysSection({ currentUser, canEdit }: GovernorateCustomerSurveysSectionProps) {
+export default function GovernorateCustomerSurveysSection({ currentUser, canEdit, globalFilterMonth }: GovernorateCustomerSurveysSectionProps) {
     // State
     const [surveys, setSurveys] = useState<GovernorateCustomerSurvey[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -224,7 +225,8 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'استبيانات المحافظات');
 
-        const filterMonthText = filterMonth ? `_${filterMonth.replace('-', '_')}` : '';
+        const currentFilterMonth = globalFilterMonth || filterMonth;
+        const filterMonthText = currentFilterMonth ? `_${currentFilterMonth.replace('-', '_')}` : '';
         XLSX.writeFile(workbook, `استبيانات_المحافظات${filterMonthText}.xlsx`);
     };
 
@@ -282,14 +284,15 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        const filterMonthText = filterMonth ? `_${filterMonth.replace('-', '_')}` : '';
+        const currentFilterMonth = globalFilterMonth || filterMonth;
+        const filterMonthText = currentFilterMonth ? `_${currentFilterMonth.replace('-', '_')}` : '';
         link.download = `استبيانات_المحافظات${filterMonthText}.docx`;
         link.click();
     };
 
     // Filtering
-    const filteredSurveys = filterMonth
-        ? surveys.filter(s => s.month === filterMonth)
+    const filteredSurveys = (globalFilterMonth || filterMonth)
+        ? surveys.filter(s => s.month === (globalFilterMonth || filterMonth))
         : surveys;
 
     // Format month for display
@@ -459,10 +462,11 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                     {/* Filter, Export, and Expand/CollapseButtons */}
                     <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '15px', flexWrap: 'wrap' }}>
                         <MonthFilter
-                            value={filterMonth}
-                            onChange={setFilterMonth}
+                            value={globalFilterMonth || filterMonth}
+                            onChange={(val) => !globalFilterMonth && setFilterMonth(val)}
                             label="فلترة حسب الشهر"
                             minWidth="250px"
+                            disabled={!!globalFilterMonth}
                         />
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             {filteredSurveys.length > 0 && (
