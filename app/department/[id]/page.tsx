@@ -8468,7 +8468,7 @@ export default function DepartmentPage() {
                         onClick={() => setIsTechnicalClinicalFacilitiesSectionExpanded(!isTechnicalClinicalFacilitiesSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            🏥 المنشآت التي تم زيارتها خلال الشهر {(() => {
+                            🏥 المنشآت التي تم زيارتها خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
                                 if (globalFilterMonth || technicalClinicalFacilityFilterMonth) {
                                     const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
                                     const [year, month] = filterMonth.split('-');
@@ -8476,7 +8476,13 @@ export default function DepartmentPage() {
                                     return `${monthNames[parseInt(month) - 1]} ${year}`;
                                 }
                                 return '....';
-                            })()}
+                            })()}</span> - <span style={{ color: '#e67e22' }}>{(() => {
+                                if (globalFilterMonth || technicalClinicalFacilityFilterMonth) {
+                                    const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
+                                    return technicalClinicalFacilities.filter(f => f.month === filterMonth).length;
+                                }
+                                return '....';
+                            })()} منشأة</span>
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -8865,7 +8871,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsTechnicalClinicalObservationsSectionExpanded(!isTechnicalClinicalObservationsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية خلال الشهر {(() => {
+                                📋 الملاحظات المتكررة خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
                                     if (globalFilterMonth || technicalClinicalObservationFilterMonth) {
                                         const filterMonth = globalFilterMonth || technicalClinicalObservationFilterMonth;
                                         const [year, month] = filterMonth.split('-');
@@ -8873,12 +8879,13 @@ export default function DepartmentPage() {
                                         return `${monthNames[parseInt(month) - 1]} ${year}`;
                                     }
                                     return '....';
-                                })()}
-                                {(globalFilterMonth || technicalClinicalObservationFilterMonth) && (
-                                    <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
-                                        {' '}- عدد {technicalClinicalObservations.filter(f => !(globalFilterMonth || technicalClinicalObservationFilterMonth) || f.month === (globalFilterMonth || technicalClinicalObservationFilterMonth)).length} ملاحظة
-                                    </span>
-                                )}
+                                })()}</span> - <span style={{ color: '#e67e22' }}>{(() => {
+                                    if (globalFilterMonth || technicalClinicalObservationFilterMonth) {
+                                        const filterMonth = globalFilterMonth || technicalClinicalObservationFilterMonth;
+                                        return technicalClinicalObservations.filter(f => f.month === filterMonth).length;
+                                    }
+                                    return '....';
+                                })()} ملاحظة</span>
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -9215,7 +9222,21 @@ export default function DepartmentPage() {
                             onClick={() => setIsTcCorrectionRateSectionExpanded(!isTcCorrectionRateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات خلال الشهر
+                                📊 نسب تصحيح الملاحظات خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                    if (globalFilterMonth || tcCorrectionRateFilterMonth) {
+                                        const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
+                                        const [year, month] = filterMonth.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                    }
+                                    return '....';
+                                })()}</span> - <span style={{ color: '#e67e22' }}>{(() => {
+                                    if (globalFilterMonth || tcCorrectionRateFilterMonth) {
+                                        const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
+                                        return tcCorrectionRates.filter(r => r.month === filterMonth).length;
+                                    }
+                                    return '....';
+                                })()} ملاحظة</span>
                             </h2>
                             <div style={{
                                 display: 'flex',
