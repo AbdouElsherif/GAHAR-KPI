@@ -1764,9 +1764,9 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                مرحلة تسجيل عضو مهن - {filteredMedicalProfessionalRegistrations.length} منشأة - {(() => {
+                                التحويل إلى مرحلة تسجيل عضو مهن طبية - {filteredMedicalProfessionalRegistrations.length} منشأة - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
+                                    return `شهر ${monthNames[selectedMonth - 1]}`;
                                 })()} {targetYear}
                             </h3>
                         </div>

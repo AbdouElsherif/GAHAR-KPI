@@ -7501,14 +7501,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsPaidFacilitiesSectionExpanded(!isPaidFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                ✅ المنشآت التي قامت بسداد رسوم الزيارة التقييمية خلال الشهر {(() => {
+                                ✅ المنشآت التي قامت بسداد رسوم الزيارة التقييمية {(() => {
                                     if (globalFilterMonth || paidFacilityFilterMonth) {
                                         const filterMonth = globalFilterMonth || paidFacilityFilterMonth;
                                         const [year, month] = filterMonth.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const monthName = `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = paidFacilities.filter(f => f.month === filterMonth).length;
+                                        return `شهر ${monthName} عدد ${count}`;
                                     }
-                                    return '....';
+                                    return '';
                                 })()}
                             </h2>
                             <div style={{
@@ -7841,14 +7843,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedicalProfessionalSectionExpanded(!isMedicalProfessionalSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                👨‍⚕️ التحويل إلى مرحلة تسجيل عضو مهن طبية خلال الشهر {(() => {
+                                👨‍⚕️ التحويل إلى مرحلة تسجيل عضو مهن طبية {(() => {
                                     if (globalFilterMonth || medicalProfessionalFilterMonth) {
                                         const filterMonth = globalFilterMonth || medicalProfessionalFilterMonth;
                                         const [year, month] = filterMonth.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const monthName = `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = medicalProfessionalRegistrations.filter(r => r.month === filterMonth).length;
+                                        return ` ${monthName} عدد ${count}`;
                                     }
-                                    return '....';
+                                    return '';
                                 })()}
                             </h2>
                             <div style={{
