@@ -11049,11 +11049,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsAdminAuditFacilitiesSectionExpanded(!isAdminAuditFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🏥 المنشآت التي تم زيارتها خلال الشهر
-                                {(globalFilterMonth || adminAuditFacilityFilterMonth) && (
-                                    <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
-                                        {' '}- عدد {adminAuditFacilities.length} زيارة
-                                    </span>
+                                {(globalFilterMonth || adminAuditFacilityFilterMonth) ? (
+                                    <>
+                                        🏥 المنشآت التي تم زيارتها خلال شهر {(() => {
+                                            const [year, month] = (globalFilterMonth || adminAuditFacilityFilterMonth).split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - {adminAuditFacilities.filter(f => f.month === (globalFilterMonth || adminAuditFacilityFilterMonth)).length} منشأة
+                                    </>
+                                ) : (
+                                    "🏥 المنشآت التي تم زيارتها خلال الشهر"
                                 )}
                             </h2>
                             <div style={{
@@ -11349,11 +11354,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsAdminAuditObservationsSectionExpanded(!isAdminAuditObservationsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية
-                                {(globalFilterMonth || adminAuditObservationFilterMonth) && (
-                                    <span style={{ fontSize: '1.2rem', fontWeight: 'normal' }}>
-                                        {' '}- عدد {adminAuditObservations.length} ملاحظة
-                                    </span>
+                                {(globalFilterMonth || adminAuditObservationFilterMonth) ? (
+                                    <>
+                                        📋 الملاحظات المتكررة خلال شهر {(() => {
+                                            const [year, month] = (globalFilterMonth || adminAuditObservationFilterMonth).split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - {adminAuditObservations.filter(o => o.month === (globalFilterMonth || adminAuditObservationFilterMonth)).length} ملاحظة
+                                    </>
+                                ) : (
+                                    "📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية"
                                 )}
                             </h2>
                             <div style={{
@@ -11646,7 +11656,17 @@ export default function DepartmentPage() {
                             onClick={() => setIsCorrectionRateSectionExpanded(!isCorrectionRateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات - عدد {correctionRates.length} سجل
+                                {(globalFilterMonth || correctionRateFilterMonth) ? (
+                                    <>
+                                        📊 نسب تصحيح الملاحظات خلال شهر {(() => {
+                                            const [year, month] = (globalFilterMonth || correctionRateFilterMonth).split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - {correctionRates.filter(r => r.month === (globalFilterMonth || correctionRateFilterMonth)).length} سجل
+                                    </>
+                                ) : (
+                                    "📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات"
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
