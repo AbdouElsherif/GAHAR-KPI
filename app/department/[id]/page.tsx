@@ -8468,21 +8468,18 @@ export default function DepartmentPage() {
                         onClick={() => setIsTechnicalClinicalFacilitiesSectionExpanded(!isTechnicalClinicalFacilitiesSectionExpanded)}
                     >
                         <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                            🏥 المنشآت التي تم زيارتها خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
-                                if (globalFilterMonth || technicalClinicalFacilityFilterMonth) {
-                                    const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
-                                    const [year, month] = filterMonth.split('-');
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                }
-                                return '....';
-                            })()}</span> - <span style={{ color: '#e67e22' }}>{(() => {
-                                if (globalFilterMonth || technicalClinicalFacilityFilterMonth) {
-                                    const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
-                                    return technicalClinicalFacilities.filter(f => f.month === filterMonth).length;
-                                }
-                                return '....';
-                            })()} منشأة</span>
+                            {globalFilterMonth || technicalClinicalFacilityFilterMonth ? (
+                                <>
+                                    🏥 المنشآت التي تم زيارتها خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                        const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
+                                        const [year, month] = filterMonth.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                    })()}</span> - <span style={{ color: '#e67e22' }}>{technicalClinicalFacilities.filter(f => f.month === (globalFilterMonth || technicalClinicalFacilityFilterMonth)).length} منشأة</span>
+                                </>
+                            ) : (
+                                '🏥 المنشآت التي تم زيارتها'
+                            )}
                         </h2>
                         <div style={{
                             display: 'flex',
@@ -8871,21 +8868,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsTechnicalClinicalObservationsSectionExpanded(!isTechnicalClinicalObservationsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 الملاحظات المتكررة خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
-                                    if (globalFilterMonth || technicalClinicalObservationFilterMonth) {
-                                        const filterMonth = globalFilterMonth || technicalClinicalObservationFilterMonth;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()}</span> - <span style={{ color: '#e67e22' }}>{(() => {
-                                    if (globalFilterMonth || technicalClinicalObservationFilterMonth) {
-                                        const filterMonth = globalFilterMonth || technicalClinicalObservationFilterMonth;
-                                        return technicalClinicalObservations.filter(f => f.month === filterMonth).length;
-                                    }
-                                    return '....';
-                                })()} ملاحظة</span>
+                                {globalFilterMonth || technicalClinicalObservationFilterMonth ? (
+                                    <>
+                                        📋 الملاحظات المتكررة خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                            const filterMonth = globalFilterMonth || technicalClinicalObservationFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()}</span> - <span style={{ color: '#e67e22' }}>{technicalClinicalObservations.filter(f => f.month === (globalFilterMonth || technicalClinicalObservationFilterMonth)).length} ملاحظة</span>
+                                    </>
+                                ) : (
+                                    '📋 الملاحظات المتكررة'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -9222,21 +9216,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsTcCorrectionRateSectionExpanded(!isTcCorrectionRateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 نسب تصحيح الملاحظات خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
-                                    if (globalFilterMonth || tcCorrectionRateFilterMonth) {
-                                        const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()}</span> - <span style={{ color: '#e67e22' }}>{(() => {
-                                    if (globalFilterMonth || tcCorrectionRateFilterMonth) {
-                                        const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
-                                        return tcCorrectionRates.filter(r => r.month === filterMonth).length;
-                                    }
-                                    return '....';
-                                })()} ملاحظة</span>
+                                {globalFilterMonth || tcCorrectionRateFilterMonth ? (
+                                    <>
+                                        📊 نسب تصحيح الملاحظات خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                            const filterMonth = globalFilterMonth || tcCorrectionRateFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()}</span> - <span style={{ color: '#e67e22' }}>{tcCorrectionRates.filter(r => r.month === (globalFilterMonth || tcCorrectionRateFilterMonth)).length} ملاحظة</span>
+                                    </>
+                                ) : (
+                                    '📊 نسب تصحيح الملاحظات'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
