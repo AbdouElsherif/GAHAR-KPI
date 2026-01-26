@@ -6287,15 +6287,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsFacilitiesSectionExpanded(!isFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 المنشآت المتقدمة خلال الشهر {(() => {
-                                    if (globalFilterMonth || facilityFilterMonth) {
-                                        const filterMonth = globalFilterMonth || facilityFilterMonth;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()}
+                                {globalFilterMonth || facilityFilterMonth ? (
+                                    <>
+                                        📋 المنشآت المتقدمة شهر {(() => {
+                                            const filterMonth = globalFilterMonth || facilityFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {facilities.filter(f => !(globalFilterMonth || facilityFilterMonth) || f.month === (globalFilterMonth || facilityFilterMonth)).length} منشأة
+                                    </>
+                                ) : (
+                                    '📋 المنشآت المتقدمة'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -6818,15 +6821,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsCompletionFacilitiesSectionExpanded(!isCompletionFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 مرحلة استكمال الطلب (طرف المنشأة) خلال الشهر {(() => {
-                                    if (globalFilterMonth || completionFacilityFilterMonth) {
-                                        const filterMonth = globalFilterMonth || completionFacilityFilterMonth;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()}
+                                {globalFilterMonth || completionFacilityFilterMonth ? (
+                                    <>
+                                        📋 مرحلة استكمال الطلب (طرف المنشأة) شهر {(() => {
+                                            const filterMonth = globalFilterMonth || completionFacilityFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {completionFacilities.filter(f => !(globalFilterMonth || completionFacilityFilterMonth) || f.month === (globalFilterMonth || completionFacilityFilterMonth)).length} منشأة
+                                    </>
+                                ) : (
+                                    '📋 مرحلة استكمال الطلب (طرف المنشأة)'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -8179,7 +8185,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || correctivePlanFacilityFilterMonth ? (
                                     <>
-                                        📋 متابعة الخطط التصحيحية خلال شهر {(() => {
+                                        📋 متابعة الخطط التصحيحية شهر {(() => {
                                             const filterMonth = globalFilterMonth || correctivePlanFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -12154,12 +12160,12 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || basicRequirementsFacilityFilterMonth ? (
                                     <>
-                                        📝 متابعة استكمال المتطلبات الأساسية خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                        📝 متابعة استكمال المتطلبات الأساسية شهر <span>{(() => {
                                             const filterMonth = globalFilterMonth || basicRequirementsFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                             return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                        })()}</span> - <span style={{ color: '#e67e22' }}>{basicRequirementsFacilities.filter(f => f.month === (globalFilterMonth || basicRequirementsFacilityFilterMonth)).length} منشأة</span>
+                                        })()}</span> - عدد {basicRequirementsFacilities.filter(f => f.month === (globalFilterMonth || basicRequirementsFacilityFilterMonth)).length} منشأة
                                     </>
                                 ) : (
                                     '📝 متابعة استكمال المتطلبات الأساسية'
@@ -12446,12 +12452,12 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || appealsFacilityFilterMonth ? (
                                     <>
-                                        📋 دراسة الالتماسات خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                        📋 دراسة الالتماسات شهر <span>{(() => {
                                             const filterMonth = globalFilterMonth || appealsFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                             return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                        })()}</span> - <span style={{ color: '#e67e22' }}>{appealsFacilities.filter(f => f.month === (globalFilterMonth || appealsFacilityFilterMonth)).length} التماس</span>
+                                        })()}</span> - عدد {appealsFacilities.filter(f => f.month === (globalFilterMonth || appealsFacilityFilterMonth)).length} التماس
                                     </>
                                 ) : (
                                     '📋 دراسة الالتماسات'
