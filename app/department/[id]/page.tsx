@@ -8177,15 +8177,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsCorrectivePlanFacilitiesSectionExpanded(!isCorrectivePlanFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 متابعة الخطط التصحيحية خلال الشهر {(() => {
-                                    if (globalFilterMonth || correctivePlanFacilityFilterMonth) {
-                                        const filterMonth = globalFilterMonth || correctivePlanFacilityFilterMonth;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()}
+                                {globalFilterMonth || correctivePlanFacilityFilterMonth ? (
+                                    <>
+                                        📋 متابعة الخطط التصحيحية خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || correctivePlanFacilityFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {correctivePlanFacilities.filter(f => !(globalFilterMonth || correctivePlanFacilityFilterMonth) || f.month === (globalFilterMonth || correctivePlanFacilityFilterMonth)).length} خطة
+                                    </>
+                                ) : (
+                                    '📋 متابعة الخطط التصحيحية'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -12149,7 +12152,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsBasicRequirementsFacilitiesSectionExpanded(!isBasicRequirementsFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📝 متابعة استكمال المتطلبات الأساسية
+                                {globalFilterMonth || basicRequirementsFacilityFilterMonth ? (
+                                    <>
+                                        📝 متابعة استكمال المتطلبات الأساسية خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                            const filterMonth = globalFilterMonth || basicRequirementsFacilityFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()}</span> - <span style={{ color: '#e67e22' }}>{basicRequirementsFacilities.filter(f => f.month === (globalFilterMonth || basicRequirementsFacilityFilterMonth)).length} منشأة</span>
+                                    </>
+                                ) : (
+                                    '📝 متابعة استكمال المتطلبات الأساسية'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -12430,7 +12444,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsAppealsFacilitiesSectionExpanded(!isAppealsFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📋 دراسة الالتماسات
+                                {globalFilterMonth || appealsFacilityFilterMonth ? (
+                                    <>
+                                        📋 دراسة الالتماسات خلال شهر <span style={{ color: '#e67e22' }}>{(() => {
+                                            const filterMonth = globalFilterMonth || appealsFacilityFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()}</span> - <span style={{ color: '#e67e22' }}>{appealsFacilities.filter(f => f.month === (globalFilterMonth || appealsFacilityFilterMonth)).length} التماس</span>
+                                    </>
+                                ) : (
+                                    '📋 دراسة الالتماسات'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
