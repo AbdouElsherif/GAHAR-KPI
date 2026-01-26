@@ -9692,15 +9692,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsTechSupportVisitsSectionExpanded(!isTechSupportVisitsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🏥 الزيارات الميدانية للمنشآت خلال شهر {(() => {
-                                    if (globalFilterMonth || techSupportVisitsFilter) {
-                                        const filterMonth = globalFilterMonth || techSupportVisitsFilter;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()} - عدد {techSupportVisits.filter(v => !(globalFilterMonth || techSupportVisitsFilter) || v.month === (globalFilterMonth || techSupportVisitsFilter)).length} زيارة
+                                {globalFilterMonth || techSupportVisitsFilter ? (
+                                    <>
+                                        🏥 الزيارات الميدانية للمنشآت خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || techSupportVisitsFilter;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {techSupportVisits.filter(v => v.month === (globalFilterMonth || techSupportVisitsFilter)).length} زيارة
+                                    </>
+                                ) : (
+                                    '🏥 الزيارات الميدانية للمنشآت'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -10034,15 +10037,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsRemoteTechSupportSectionExpanded(!isRemoteTechSupportSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                💻 الدعم الفني عن بعد خلال شهر {(() => {
-                                    if (globalFilterMonth || remoteTechSupportFilter) {
-                                        const filterMonth = globalFilterMonth || remoteTechSupportFilter;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()} - عدد {remoteTechnicalSupports.filter(s => !(globalFilterMonth || remoteTechSupportFilter) || s.month === (globalFilterMonth || remoteTechSupportFilter)).length} زيارة
+                                {globalFilterMonth || remoteTechSupportFilter ? (
+                                    <>
+                                        💻 الدعم الفني عن بعد خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || remoteTechSupportFilter;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {remoteTechnicalSupports.filter(s => s.month === (globalFilterMonth || remoteTechSupportFilter)).length} زيارة
+                                    </>
+                                ) : (
+                                    '💻 الدعم الفني عن بعد'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -10367,15 +10373,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsIntroSupportVisitsSectionExpanded(!isIntroSupportVisitsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🎯 زيارات الدعم الفني التمهيدية خلال شهر {(() => {
-                                    if (globalFilterMonth || introSupportVisitsFilter) {
-                                        const filterMonth = globalFilterMonth || introSupportVisitsFilter;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()} - عدد {introSupportVisits.filter(v => !(globalFilterMonth || introSupportVisitsFilter) || v.month === (globalFilterMonth || introSupportVisitsFilter)).length} زيارة
+                                {globalFilterMonth || introSupportVisitsFilter ? (
+                                    <>
+                                        🎯 زيارات الدعم الفني التمهيدية خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || introSupportVisitsFilter;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {introSupportVisits.filter(v => v.month === (globalFilterMonth || introSupportVisitsFilter)).length} زيارة
+                                    </>
+                                ) : (
+                                    '🎯 زيارات الدعم الفني التمهيدية'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -10713,15 +10722,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsQueuedSupportVisitsSectionExpanded(!isQueuedSupportVisitsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                ⏳ زيارات الدعم الفني بقائمة الانتظار خلال شهر {(() => {
-                                    if (globalFilterMonth || queuedSupportVisitsFilter) {
-                                        const filterMonth = globalFilterMonth || queuedSupportVisitsFilter;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()} - عدد {queuedSupportVisits.filter(v => !(globalFilterMonth || queuedSupportVisitsFilter) || v.month === (globalFilterMonth || queuedSupportVisitsFilter)).length} زيارة
+                                {globalFilterMonth || queuedSupportVisitsFilter ? (
+                                    <>
+                                        ⏳ زيارات الدعم الفني بقائمة الانتظار خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || queuedSupportVisitsFilter;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {queuedSupportVisits.filter(v => v.month === (globalFilterMonth || queuedSupportVisitsFilter)).length} زيارة
+                                    </>
+                                ) : (
+                                    '⏳ زيارات الدعم الفني بقائمة الانتظار'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -12710,15 +12722,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsScheduledSupportVisitsSectionExpanded(!isScheduledSupportVisitsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📅 زيارات الدعم الفني المجدولة في شهر {(() => {
-                                    if (globalFilterMonth || scheduledSupportVisitsFilter) {
-                                        const filterMonth = globalFilterMonth || scheduledSupportVisitsFilter;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()} - عدد {scheduledSupportVisits.filter(v => !(globalFilterMonth || scheduledSupportVisitsFilter) || v.month === (globalFilterMonth || scheduledSupportVisitsFilter)).length} زيارة
+                                {globalFilterMonth || scheduledSupportVisitsFilter ? (
+                                    <>
+                                        📅 الزيارات الميدانية للمنشآت خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || scheduledSupportVisitsFilter;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {scheduledSupportVisits.filter(v => v.month === (globalFilterMonth || scheduledSupportVisitsFilter)).length} زيارة
+                                    </>
+                                ) : (
+                                    '📅 الزيارات الميدانية للمنشآت'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -13001,15 +13016,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsAccreditedSupportedFacilitiesSectionExpanded(!isAccreditedSupportedFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم خلال شهر {(() => {
-                                    if (globalFilterMonth || accreditedSupportedFacilitiesFilter) {
-                                        const filterMonth = globalFilterMonth || accreditedSupportedFacilitiesFilter;
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    }
-                                    return '....';
-                                })()} - عدد {accreditedSupportedFacilities.filter(f => !(globalFilterMonth || accreditedSupportedFacilitiesFilter) || f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter)).length} منشأة
+                                {globalFilterMonth || accreditedSupportedFacilitiesFilter ? (
+                                    <>
+                                        🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم خلال شهر {(() => {
+                                            const filterMonth = globalFilterMonth || accreditedSupportedFacilitiesFilter;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {accreditedSupportedFacilities.filter(f => f.month === (globalFilterMonth || accreditedSupportedFacilitiesFilter)).length} منشأة
+                                    </>
+                                ) : (
+                                    '🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
