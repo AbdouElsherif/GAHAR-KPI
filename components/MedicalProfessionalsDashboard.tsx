@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
@@ -78,6 +78,7 @@ interface MedicalProfessionalsDashboardProps {
     medProfsByGovernorate?: MedicalProfessionalByGovernorate[];
     totalMedProfsByCategory?: TotalMedicalProfessionalByCategory[];
     totalMedProfsByGovernorate?: TotalMedicalProfessionalByGovernorate[];
+    globalFilterMonth?: string;
 }
 
 export default function MedicalProfessionalsDashboard({
@@ -85,11 +86,27 @@ export default function MedicalProfessionalsDashboard({
     medProfsByCategory = [],
     medProfsByGovernorate = [],
     totalMedProfsByCategory = [],
-    totalMedProfsByGovernorate = []
+    totalMedProfsByGovernorate = [],
+    globalFilterMonth
 }: MedicalProfessionalsDashboardProps) {
+    const getInitialMonth = () => {
+        if (globalFilterMonth) {
+            return parseInt(globalFilterMonth.split('-')[1]);
+        }
+        return 10;
+    };
+
+    const getInitialYear = () => {
+        if (globalFilterMonth) {
+            const [year, month] = globalFilterMonth.split('-').map(Number);
+            return month >= 7 ? year + 1 : year;
+        }
+        return 2025;
+    };
+
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
-    const [targetYear, setTargetYear] = useState(2025);
-    const [selectedMonth, setSelectedMonth] = useState<number>(10);
+    const [targetYear, setTargetYear] = useState(getInitialYear());
+    const [selectedMonth, setSelectedMonth] = useState<number>(getInitialMonth());
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
     const [visibleMetrics, setVisibleMetrics] = useState<{
@@ -99,6 +116,17 @@ export default function MedicalProfessionalsDashboard({
         members: true,
         facilities: true
     });
+
+
+    // Update state when globalFilterMonth changes
+    useEffect(() => {
+        if (globalFilterMonth) {
+            const [year, month] = globalFilterMonth.split('-').map(Number);
+            setSelectedMonth(month);
+            setTargetYear(month >= 7 ? year + 1 : year);
+            setComparisonType('monthly');
+        }
+    }, [globalFilterMonth]);
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);

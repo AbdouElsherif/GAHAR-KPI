@@ -907,32 +907,33 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, reviewerEvaluationVisitByTypeFilterMonth]);
 
+
     // Load Medical Professionals By Category for dept7
     useEffect(() => {
         if (id === 'dept7' && currentUser) {
             loadMedicalProfessionalsByCategory();
         }
-    }, [id, currentUser, medProfByCategoryFilterMonth]);
+    }, [id, currentUser, medProfByCategoryFilterMonth, globalFilterMonth]);
 
     useEffect(() => {
         if (id === 'dept7' && currentUser) {
             loadMedicalProfessionalsByGovernorate();
         }
-    }, [id, currentUser, medProfByGovernorateFilterMonth]);
+    }, [id, currentUser, medProfByGovernorateFilterMonth, globalFilterMonth]);
 
     // Load Total Medical Professionals By Category for dept7
     useEffect(() => {
         if (id === 'dept7' && currentUser) {
             loadTotalMedProfsByCategory();
         }
-    }, [id, currentUser, totalMedProfByCategoryFilterMonth]);
+    }, [id, currentUser, totalMedProfByCategoryFilterMonth, globalFilterMonth]);
 
     // Load Total Medical Professionals By Governorate for dept7
     useEffect(() => {
         if (id === 'dept7' && currentUser) {
             loadTotalMedProfsByGovernorate();
         }
-    }, [id, currentUser, totalMedProfByGovernorateFilterMonth]);
+    }, [id, currentUser, totalMedProfByGovernorateFilterMonth, globalFilterMonth]);
 
     // Load Training Entities for dept1
     useEffect(() => {
@@ -1019,22 +1020,22 @@ export default function DepartmentPage() {
     };
 
     const loadMedicalProfessionalsByCategory = async () => {
-        const data = await getMedicalProfessionalsByCategory(medProfByCategoryFilterMonth || undefined);
+        const data = await getMedicalProfessionalsByCategory(globalFilterMonth || medProfByCategoryFilterMonth || undefined);
         setMedProfsByCategory(data);
     };
 
     const loadMedicalProfessionalsByGovernorate = async () => {
-        const data = await getMedicalProfessionalsByGovernorate(medProfByGovernorateFilterMonth || undefined);
+        const data = await getMedicalProfessionalsByGovernorate(globalFilterMonth || medProfByGovernorateFilterMonth || undefined);
         setMedProfsByGovernorate(data);
     };
 
     const loadTotalMedProfsByCategory = async () => {
-        const data = await getTotalMedProfsByCategory(totalMedProfByCategoryFilterMonth || undefined);
+        const data = await getTotalMedProfsByCategory(globalFilterMonth || totalMedProfByCategoryFilterMonth || undefined);
         setTotalMedProfsByCategory(data);
     };
 
     const loadTotalMedProfsByGovernorate = async () => {
-        const data = await getTotalMedProfsByGovernorate(totalMedProfByGovernorateFilterMonth || undefined);
+        const data = await getTotalMedProfsByGovernorate(globalFilterMonth || totalMedProfByGovernorateFilterMonth || undefined);
         setTotalMedProfsByGovernorate(data);
     };
 
@@ -1185,11 +1186,12 @@ export default function DepartmentPage() {
         }
 
         // Apply date range filter
-        if (dateFrom || dateTo) {
+        if (globalFilterMonth || dateFrom || dateTo) {
             filtered = filtered.filter(sub => {
                 if (!sub.date) return false;
                 const subDate = sub.date; // Format: YYYY-MM
 
+                if (globalFilterMonth && subDate !== globalFilterMonth) return false;
                 if (dateFrom && subDate < dateFrom) return false;
                 if (dateTo && subDate > dateTo) return false;
                 return true;
@@ -2804,7 +2806,7 @@ export default function DepartmentPage() {
             sections: [{
                 children: [
                     new Paragraph({
-                        text: 'المنشآت المتقدمة خلال الشهر',
+                        text: 'المنشآت المتقدمة خلال شهر',
                         alignment: AlignmentType.CENTER,
                         spacing: { after: 200 }
                     }),
@@ -6289,7 +6291,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || facilityFilterMonth ? (
                                     <>
-                                        📋 المنشآت المتقدمة شهر {(() => {
+                                        📋 المنشآت المتقدمة - {(() => {
                                             const filterMonth = globalFilterMonth || facilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -6497,7 +6499,7 @@ export default function DepartmentPage() {
                                 <div style={{ marginTop: '20px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--secondary-color)' }}>
-                                            المنشآت المسجلة خلال الشهر
+                                            المنشآت المسجلة خلال شهر
                                             {(globalFilterMonth || facilityFilterMonth) && (
                                                 <span style={{ fontWeight: 'normal' }}>
                                                     {' '}- عدد {facilities.filter(f => !(globalFilterMonth || facilityFilterMonth) || f.month === (globalFilterMonth || facilityFilterMonth)).length} منشأة
@@ -6823,7 +6825,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || completionFacilityFilterMonth ? (
                                     <>
-                                        📋 مرحلة استكمال الطلب (طرف المنشأة) شهر {(() => {
+                                        📋 مرحلة استكمال الطلب (طرف المنشأة) - {(() => {
                                             const filterMonth = globalFilterMonth || completionFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -7166,7 +7168,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsPaymentFacilitiesSectionExpanded(!isPaymentFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                💰 مرحلة جاري سداد رسوم الزيارة التقييمية (طرف المنشأة)
+                                {(globalFilterMonth || paymentFacilityFilterMonth) ? (
+                                    <>
+                                        💰 مرحلة جاري سداد رسوم الزيارة التقييمية (طرف المنشأة) - {(() => {
+                                            const filterMonth = globalFilterMonth || paymentFacilityFilterMonth;
+                                            const [year, month] = filterMonth.split('-');
+                                            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                            return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        })()} - عدد {paymentFacilities.filter(f => f.month === (globalFilterMonth || paymentFacilityFilterMonth)).length} منشأة
+                                    </>
+                                ) : (
+                                    '💰 مرحلة جاري سداد رسوم الزيارة التقييمية (طرف المنشأة)'
+                                )}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -7501,14 +7514,14 @@ export default function DepartmentPage() {
                             onClick={() => setIsPaidFacilitiesSectionExpanded(!isPaidFacilitiesSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                ✅ المنشآت التي قامت بسداد رسوم الزيارة التقييمية {(() => {
+                                ✅ المنشآت التي قامت بسداد رسوم الزيارة التقييمية - {(() => {
                                     if (globalFilterMonth || paidFacilityFilterMonth) {
                                         const filterMonth = globalFilterMonth || paidFacilityFilterMonth;
                                         const [year, month] = filterMonth.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                         const monthName = `${monthNames[parseInt(month) - 1]} ${year}`;
                                         const count = paidFacilities.filter(f => f.month === filterMonth).length;
-                                        return `شهر ${monthName} عدد ${count}`;
+                                        return `${monthName} عدد ${count}`;
                                     }
                                     return '';
                                 })()}
@@ -8189,7 +8202,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || correctivePlanFacilityFilterMonth ? (
                                     <>
-                                        📋 متابعة الخطط التصحيحية شهر {(() => {
+                                        📋 متابعة الخطط التصحيحية - {(() => {
                                             const filterMonth = globalFilterMonth || correctivePlanFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -11037,16 +11050,6 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* Governorate Customer Surveys Section - Dept3 Only */}
-            {
-                id === 'dept3' && (
-                    <GovernorateCustomerSurveysSection
-                        currentUser={currentUser}
-                        canEdit={canEdit}
-                        globalFilterMonth={globalFilterMonth}
-                    />
-                )
-            }
 
             {
                 id === 'dept5' && (
@@ -11074,7 +11077,7 @@ export default function DepartmentPage() {
                                         })()} - {adminAuditFacilities.filter(f => f.month === (globalFilterMonth || adminAuditFacilityFilterMonth)).length} منشأة
                                     </>
                                 ) : (
-                                    "🏥 المنشآت التي تم زيارتها خلال الشهر"
+                                    "🏥 المنشآت التي تم زيارتها خلال شهر"
                                 )}
                             </h2>
                             <div style={{
@@ -12164,7 +12167,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || basicRequirementsFacilityFilterMonth ? (
                                     <>
-                                        📝 متابعة استكمال المتطلبات الأساسية شهر <span>{(() => {
+                                        📝 متابعة استكمال المتطلبات الأساسية - <span>{(() => {
                                             const filterMonth = globalFilterMonth || basicRequirementsFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -12456,7 +12459,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || appealsFacilityFilterMonth ? (
                                     <>
-                                        📋 دراسة الالتماسات شهر <span>{(() => {
+                                        📋 دراسة الالتماسات - <span>{(() => {
                                             const filterMonth = globalFilterMonth || appealsFacilityFilterMonth;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -14611,6 +14614,7 @@ export default function DepartmentPage() {
                             medProfsByGovernorate={medProfsByGovernorate}
                             totalMedProfsByCategory={totalMedProfsByCategory}
                             totalMedProfsByGovernorate={totalMedProfsByGovernorate}
+                            globalFilterMonth={globalFilterMonth}
                         />
                     </DashboardModal>
                 )
@@ -14651,15 +14655,18 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedProfByCategorySectionExpanded(!isMedProfByCategorySectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                👥 أعضاء المهن الطبية المسجلين خلال الشهر {(() => {
-                                    if (globalFilterMonth || medProfByCategoryFilterMonth) {
-                                        const filterMonth = globalFilterMonth || medProfByCategoryFilterMonth;
+                                👥 أعضاء المهن الطبية المسجلين (طبقا للفئة) {(() => {
+                                    const filterMonth = globalFilterMonth || medProfByCategoryFilterMonth;
+                                    if (filterMonth) {
                                         const [year, month] = filterMonth.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const total = medProfsByCategory
+                                            .filter(item => item.month === filterMonth)
+                                            .reduce((sum, item) => sum + (item.total || 0), 0);
+                                        return `- ${monthNames[parseInt(month) - 1]} ${year} - ${total}`;
                                     }
-                                    return '....';
-                                })()} (طبقا للفئة)
+                                    return '';
+                                })()}
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                                 <span style={{ fontSize: '0.9rem' }}>
@@ -14929,14 +14936,17 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedProfByGovernorateSectionExpanded(!isMedProfByGovernorateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات خلال الشهر {(() => {
-                                    if (globalFilterMonth || medProfByGovernorateFilterMonth) {
-                                        const filterMonth = globalFilterMonth || medProfByGovernorateFilterMonth;
+                                🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات {(() => {
+                                    const filterMonth = globalFilterMonth || medProfByGovernorateFilterMonth;
+                                    if (filterMonth) {
                                         const [year, month] = filterMonth.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const total = medProfsByGovernorate
+                                            .filter(item => item.month === filterMonth)
+                                            .reduce((sum, item) => sum + (item.total || 0), 0);
+                                        return `- ${monthNames[parseInt(month) - 1]} ${year} - ${total}`;
                                     }
-                                    return '....';
+                                    return '';
                                 })()}
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
