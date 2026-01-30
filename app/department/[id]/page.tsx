@@ -8,7 +8,9 @@ import {
     saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveReviewerEvaluationVisitByGovernorate, getReviewerEvaluationVisitsByGovernorate, updateReviewerEvaluationVisitByGovernorate, deleteReviewerEvaluationVisitByGovernorate, type ReviewerEvaluationVisitByGovernorate, saveReviewerEvaluationVisitByType, getReviewerEvaluationVisitsByType, updateReviewerEvaluationVisitByType, deleteReviewerEvaluationVisitByType, type ReviewerEvaluationVisitByType, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
     saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity, saveProgramType, getProgramTypes, updateProgramType, deleteProgramType, type ProgramType,
     saveTotalMedProfByCategory, getTotalMedProfsByCategory, updateTotalMedProfByCategory, deleteTotalMedProfByCategory, type TotalMedicalProfessionalByCategory,
-    saveTotalMedProfByGovernorate, getTotalMedProfsByGovernorate, updateTotalMedProfByGovernorate, deleteTotalMedProfByGovernorate, type TotalMedicalProfessionalByGovernorate
+    saveTotalMedProfByGovernorate, getTotalMedProfsByGovernorate, updateTotalMedProfByGovernorate, deleteTotalMedProfByGovernorate, type TotalMedicalProfessionalByGovernorate,
+    saveCommitteePreparationFacility, getCommitteePreparationFacilities, updateCommitteePreparationFacility, deleteCommitteePreparationFacility, type CommitteePreparationFacility,
+    saveCertificateIssuanceFacility, getCertificateIssuanceFacilities, updateCertificateIssuanceFacility, deleteCertificateIssuanceFacility, type CertificateIssuanceFacility
 } from '@/lib/firestore';
 
 
@@ -450,6 +452,34 @@ export default function DepartmentPage() {
     const [isMedicalProfessionalSectionExpanded, setIsMedicalProfessionalSectionExpanded] = useState(false);
     const [medicalProfessionalRegistrationsCurrentPage, setMedicalProfessionalRegistrationsCurrentPage] = useState(1);
 
+    // Committee Preparation Facilities tracking states (التجهيز للعرض على اللجنة for dept6 only)
+    const [committeePreparationFacilities, setCommitteePreparationFacilities] = useState<CommitteePreparationFacility[]>([]);
+    const [committeePreparationFormData, setCommitteePreparationFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        accreditationStatus: '',
+        month: ''
+    });
+    const [editingCommitteePreparationId, setEditingCommitteePreparationId] = useState<string | null>(null);
+    const [committeePreparationFilterMonth, setCommitteePreparationFilterMonth] = useState('');
+    const [committeePreparationSubmitted, setCommitteePreparationSubmitted] = useState(false);
+    const [committeePreparationCurrentPage, setCommitteePreparationCurrentPage] = useState(1);
+    const [isCommitteePreparationSectionExpanded, setIsCommitteePreparationSectionExpanded] = useState(false);
+
+    // Certificate Issuance Facilities tracking states (إصدار الشهادات for dept6 only)
+    const [certificateIssuanceFacilities, setCertificateIssuanceFacilities] = useState<CertificateIssuanceFacility[]>([]);
+    const [certificateIssuanceFormData, setCertificateIssuanceFormData] = useState({
+        facilityName: '',
+        governorate: '',
+        accreditationStatus: '',
+        month: ''
+    });
+    const [editingCertificateIssuanceId, setEditingCertificateIssuanceId] = useState<string | null>(null);
+    const [certificateIssuanceFilterMonth, setCertificateIssuanceFilterMonth] = useState('');
+    const [certificateIssuanceSubmitted, setCertificateIssuanceSubmitted] = useState(false);
+    const [isCertificateIssuanceSectionExpanded, setIsCertificateIssuanceSectionExpanded] = useState(false);
+    const [certificateIssuanceCurrentPage, setCertificateIssuanceCurrentPage] = useState(1);
+
     // Technical Clinical Facilities tracking states (for dept4)
     const [technicalClinicalFacilities, setTechnicalClinicalFacilities] = useState<TechnicalClinicalFacility[]>([]);
     const [technicalClinicalFacilityFormData, setTechnicalClinicalFacilityFormData] = useState({
@@ -829,6 +859,20 @@ export default function DepartmentPage() {
             loadMedicalProfessionalRegistrations();
         }
     }, [id, currentUser, medicalProfessionalFilterMonth, globalFilterMonth]);
+
+    // Load committee preparation facilities for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadCommitteePreparationFacilities();
+        }
+    }, [id, currentUser, committeePreparationFilterMonth, globalFilterMonth]);
+
+    // Load certificate issuance facilities for dept6
+    useEffect(() => {
+        if (id === 'dept6' && currentUser) {
+            loadCertificateIssuanceFacilities();
+        }
+    }, [id, currentUser, certificateIssuanceFilterMonth, globalFilterMonth]);
 
     // Load Technical Clinical facilities for dept4
     useEffect(() => {
@@ -3663,6 +3707,328 @@ export default function DepartmentPage() {
         setEditingPaidFacilityId(null);
     };
 
+    // Committee Preparation Facility handlers (التجهيز للعرض على اللجنة for dept6)
+    const loadCommitteePreparationFacilities = async () => {
+        const filterMonth = globalFilterMonth || committeePreparationFilterMonth || undefined;
+        const data = await getCommitteePreparationFacilities(filterMonth);
+        setCommitteePreparationFacilities(data);
+    };
+
+    const handleCommitteePreparationInputChange = (field: string, value: string) => {
+        setCommitteePreparationFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleCommitteePreparationSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingCommitteePreparationId) {
+                const success = await updateCommitteePreparationFacility(editingCommitteePreparationId, {
+                    ...committeePreparationFormData,
+                    year: parseInt(committeePreparationFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setCommitteePreparationSubmitted(true);
+                    setTimeout(() => setCommitteePreparationSubmitted(false), 3000);
+                    resetCommitteePreparationForm();
+                    await loadCommitteePreparationFacilities();
+                }
+            } else {
+                const docId = await saveCommitteePreparationFacility({
+                    ...committeePreparationFormData,
+                    year: parseInt(committeePreparationFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setCommitteePreparationSubmitted(true);
+                    setTimeout(() => setCommitteePreparationSubmitted(false), 3000);
+                    resetCommitteePreparationForm();
+                    await loadCommitteePreparationFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving committee preparation facility:', error);
+            alert('حدث خطأ أثناء الحفظ');
+        }
+    };
+
+    const handleEditCommitteePreparationFacility = (facility: CommitteePreparationFacility) => {
+        setEditingCommitteePreparationId(facility.id || null);
+        setCommitteePreparationFormData({
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            accreditationStatus: facility.accreditationStatus,
+            month: facility.month
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteCommitteePreparationFacility = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذه المنشأة؟')) return;
+
+        const success = await deleteCommitteePreparationFacility(id);
+        if (success) {
+            await loadCommitteePreparationFacilities();
+        }
+    };
+
+    const resetCommitteePreparationForm = () => {
+        setCommitteePreparationFormData({
+            facilityName: '',
+            governorate: '',
+            accreditationStatus: '',
+            month: ''
+        });
+        setEditingCommitteePreparationId(null);
+    };
+
+    // Export functions for Committee Preparation Facilities
+    const exportCommitteePreparationToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = committeePreparationFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'حالة الاعتماد': facility.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'التجهيز للعرض على اللجنة');
+
+        const fileName = committeePreparationFilterMonth
+            ? `التجهيز_للعرض_على_اللجنة_${committeePreparationFilterMonth}.xlsx`
+            : `التجهيز_للعرض_على_اللجنة_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportCommitteePreparationToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...committeePreparationFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'التجهيز للعرض على اللجنة',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = committeePreparationFilterMonth
+            ? `التجهيز_للعرض_على_اللجنة_${committeePreparationFilterMonth}.docx`
+            : `التجهيز_للعرض_على_اللجنة_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Certificate Issuance Facility handlers (إصدار الشهادات for dept6)
+    const loadCertificateIssuanceFacilities = async () => {
+        const filterMonth = globalFilterMonth || certificateIssuanceFilterMonth || undefined;
+        const data = await getCertificateIssuanceFacilities(filterMonth);
+        setCertificateIssuanceFacilities(data);
+    };
+
+    const handleCertificateIssuanceInputChange = (field: string, value: string) => {
+        setCertificateIssuanceFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleCertificateIssuanceSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            if (editingCertificateIssuanceId) {
+                const success = await updateCertificateIssuanceFacility(editingCertificateIssuanceId, {
+                    ...certificateIssuanceFormData,
+                    year: parseInt(certificateIssuanceFormData.month.split('-')[0]),
+                    updatedBy: currentUser.id
+                });
+
+                if (success) {
+                    setCertificateIssuanceSubmitted(true);
+                    setTimeout(() => setCertificateIssuanceSubmitted(false), 3000);
+                    resetCertificateIssuanceForm();
+                    await loadCertificateIssuanceFacilities();
+                }
+            } else {
+                const docId = await saveCertificateIssuanceFacility({
+                    ...certificateIssuanceFormData,
+                    year: parseInt(certificateIssuanceFormData.month.split('-')[0]),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setCertificateIssuanceSubmitted(true);
+                    setTimeout(() => setCertificateIssuanceSubmitted(false), 3000);
+                    resetCertificateIssuanceForm();
+                    await loadCertificateIssuanceFacilities();
+                }
+            }
+        } catch (error) {
+            console.error('Error saving certificate issuance facility:', error);
+            alert('حدث خطأ أثناء الحفظ');
+        }
+    };
+
+    const handleEditCertificateIssuanceFacility = (facility: CertificateIssuanceFacility) => {
+        setEditingCertificateIssuanceId(facility.id || null);
+        setCertificateIssuanceFormData({
+            facilityName: facility.facilityName,
+            governorate: facility.governorate,
+            accreditationStatus: facility.accreditationStatus,
+            month: facility.month
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteCertificateIssuanceFacility = async (id: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذه المنشأة؟')) return;
+
+        const success = await deleteCertificateIssuanceFacility(id);
+        if (success) {
+            await loadCertificateIssuanceFacilities();
+        }
+    };
+
+    const resetCertificateIssuanceForm = () => {
+        setCertificateIssuanceFormData({
+            facilityName: '',
+            governorate: '',
+            accreditationStatus: '',
+            month: ''
+        });
+        setEditingCertificateIssuanceId(null);
+    };
+
+    // Export functions for Certificate Issuance Facilities
+    const exportCertificateIssuanceToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const data = certificateIssuanceFacilities.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                '#': index + 1,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'حالة الاعتماد': facility.accreditationStatus,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'إصدار الشهادات');
+
+        const fileName = certificateIssuanceFilterMonth
+            ? `إصدار_الشهادات_${certificateIssuanceFilterMonth}.xlsx`
+            : `إصدار_الشهادات_جميع.xlsx`;
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportCertificateIssuanceToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        const tableRows = [
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'حالة الاعتماد', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
+                ]
+            }),
+            ...certificateIssuanceFacilities.map((facility, index) => {
+                const [year, month] = facility.month.split('-');
+                return new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.accreditationStatus, alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
+                    ]
+                });
+            })
+        ];
+
+        const doc = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({
+                        text: 'إصدار الشهادات',
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 }
+                    }),
+                    new Table({
+                        rows: tableRows,
+                        width: { size: 100, type: WidthType.PERCENTAGE }
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = certificateIssuanceFilterMonth
+            ? `إصدار_الشهادات_${certificateIssuanceFilterMonth}.docx`
+            : `إصدار_الشهادات_جميع.docx`;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     // Technical Support Visit handlers
     const handleTechSupportVisitSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -6271,6 +6637,7 @@ export default function DepartmentPage() {
                 />
             )}
 
+            {/* ====== DEPT6-SECTION-1: المنشآت المتقدمة خلال الشهر ====== */}
             {/* Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -6805,6 +7172,7 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* ====== DEPT6-SECTION-2: مرحلة استكمال الطلب (طرف المنشأة) ====== */}
             {/* Completion Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -7150,6 +7518,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT6-SECTION-3: مرحلة جاري سداد رسوم الزيارة التقييمية ====== */}
             {/* Payment Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -7496,6 +7865,7 @@ export default function DepartmentPage() {
             }
 
 
+            {/* ====== DEPT6-SECTION-4: المنشآت التي قامت بسداد رسوم الزيارة ====== */}
             {/* Paid Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -7838,6 +8208,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT6-SECTION-5: التحويل إلى مرحلة تسجيل عضو مهن طبية ====== */}
             {/* Medical Professional Registration Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -8182,6 +8553,589 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT6-SECTION-5.5: التجهيز للعرض على اللجنة ====== */}
+            {/* Committee Preparation Facilities Tracking Section - Only for dept6 */}
+            {
+                id === 'dept6' && (
+                    <div className="card" style={{ marginTop: '30px' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                marginBottom: isCommitteePreparationSectionExpanded ? '20px' : '0',
+                                paddingBottom: isCommitteePreparationSectionExpanded ? '15px' : '0',
+                                borderBottom: isCommitteePreparationSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onClick={() => setIsCommitteePreparationSectionExpanded(!isCommitteePreparationSectionExpanded)}
+                        >
+                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                                📋 التجهيز للعرض على اللجنة {(() => {
+                                    if (globalFilterMonth || committeePreparationFilterMonth) {
+                                        const filterMonth = globalFilterMonth || committeePreparationFilterMonth;
+                                        const [year, month] = filterMonth.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const monthName = `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = committeePreparationFacilities.filter(r => r.month === filterMonth).length;
+                                        return ` ${monthName} عدد ${count}`;
+                                    }
+                                    return '';
+                                })()}
+                            </h2>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                color: 'var(--primary-color)',
+                                fontWeight: 'bold'
+                            }}>
+                                <span style={{ fontSize: '0.9rem' }}>
+                                    {isCommitteePreparationSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                </span>
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isCommitteePreparationSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s ease'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+
+                        {isCommitteePreparationSectionExpanded && (
+                            <>
+                                {/* Form Section */}
+                                {canEdit(currentUser) && (
+                                    <>
+                                        {committeePreparationSubmitted && (
+                                            <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                                <strong>تم بنجاح!</strong> تم {editingCommitteePreparationId ? 'تحديث' : 'إضافة'} التسجيل بنجاح.
+                                            </div>
+                                        )}
+
+                                        <form onSubmit={handleCommitteePreparationSubmit} style={{ marginBottom: '30px' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                <div className="form-group">
+                                                    <label className="form-label">اسم المنشأة *</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-input"
+                                                        required
+                                                        value={committeePreparationFormData.facilityName}
+                                                        onChange={(e) => handleCommitteePreparationInputChange('facilityName', e.target.value)}
+                                                        placeholder="أدخل اسم المنشأة"
+                                                    />
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">المحافظة *</label>
+                                                    <select
+                                                        className="form-input"
+                                                        required
+                                                        value={committeePreparationFormData.governorate}
+                                                        onChange={(e) => handleCommitteePreparationInputChange('governorate', e.target.value)}
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">حالة الاعتماد *</label>
+                                                    <select
+                                                        className="form-input"
+                                                        required
+                                                        value={committeePreparationFormData.accreditationStatus}
+                                                        onChange={(e) => handleCommitteePreparationInputChange('accreditationStatus', e.target.value)}
+                                                    >
+                                                        <option value="">اختر حالة الاعتماد</option>
+                                                        <option value="منشأة جديدة">منشأة جديدة</option>
+                                                        <option value="تجديد / استكمال اعتماد">تجديد / استكمال اعتماد</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">الشهر *</label>
+                                                    <input
+                                                        type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
+                                                        className="form-input"
+                                                        required
+                                                        value={committeePreparationFormData.month}
+                                                        onChange={(e) => handleCommitteePreparationInputChange('month', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                                <button type="submit" className="btn btn-primary">
+                                                    {editingCommitteePreparationId ? 'تحديث التسجيل' : 'إضافة تسجيل'}
+                                                </button>
+                                                {editingCommitteePreparationId && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={resetCommitteePreparationForm}
+                                                        className="btn"
+                                                        style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                    >
+                                                        إلغاء
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </form>
+                                    </>
+                                )}
+
+                                {/* Filter and Export Section */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <label style={{ fontWeight: 'bold' }}>فلترة حسب الشهر:</label>
+                                        <input
+                                            type="month"
+                                            value={committeePreparationFilterMonth}
+                                            onChange={(e) => setCommitteePreparationFilterMonth(e.target.value)}
+                                            style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                            disabled={!!globalFilterMonth}
+                                        />
+                                        {committeePreparationFilterMonth && !globalFilterMonth && (
+                                            <button
+                                                onClick={() => setCommitteePreparationFilterMonth('')}
+                                                style={{
+                                                    padding: '5px 10px',
+                                                    backgroundColor: '#6c757d',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                إلغاء الفلتر
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportCommitteePreparationToExcel}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#28a745',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            📊 تصدير Excel
+                                        </button>
+                                        <button
+                                            onClick={exportCommitteePreparationToWord}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#007bff',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            📝 تصدير Word
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Data Table */}
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>#</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>حالة الاعتماد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>الشهر</th>
+                                                {canEdit(currentUser) && (
+                                                    <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>الإجراءات</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(() => {
+                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                const startIndex = (committeePreparationCurrentPage - 1) * FACILITIES_PER_PAGE;
+                                                const endIndex = startIndex + FACILITIES_PER_PAGE;
+                                                const paginatedData = committeePreparationFacilities.slice(startIndex, endIndex);
+
+                                                return paginatedData.map((facility, index) => {
+                                                    const [year, month] = facility.month.split('-');
+                                                    return (
+                                                        <tr key={facility.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{startIndex + index + 1}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd' }}>{facility.facilityName}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{facility.governorate}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{facility.accreditationStatus}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{`${monthNames[parseInt(month) - 1]} ${year}`}</td>
+                                                            {canEdit(currentUser) && (
+                                                                <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>
+                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                        <button
+                                                                            onClick={() => handleEditCommitteePreparationFacility(facility)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: '#ffc107',
+                                                                                color: 'black',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            تعديل
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDeleteCommitteePreparationFacility(facility.id!)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: '#dc3545',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            حذف
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    );
+                                                });
+                                            })()}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Pagination Controls */}
+                                {committeePreparationFacilities.length > 0 && (
+                                    <Pagination
+                                        currentPage={committeePreparationCurrentPage}
+                                        totalItems={committeePreparationFacilities.length}
+                                        itemsPerPage={FACILITIES_PER_PAGE}
+                                        onPageChange={setCommitteePreparationCurrentPage}
+                                        onItemsPerPageChange={() => { }}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+                )
+            }
+
+            {/* ====== DEPT6-SECTION-5.6: إصدار الشهادات ====== */}
+            {/* Certificate Issuance Facilities Tracking Section - Only for dept6 */}
+            {
+                id === 'dept6' && (
+                    <div className="card" style={{ marginTop: '30px' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                marginBottom: isCertificateIssuanceSectionExpanded ? '20px' : '0',
+                                paddingBottom: isCertificateIssuanceSectionExpanded ? '15px' : '0',
+                                borderBottom: isCertificateIssuanceSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onClick={() => setIsCertificateIssuanceSectionExpanded(!isCertificateIssuanceSectionExpanded)}
+                        >
+                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                                🎓 إصدار الشهادات {(() => {
+                                    if (globalFilterMonth || certificateIssuanceFilterMonth) {
+                                        const filterMonth = globalFilterMonth || certificateIssuanceFilterMonth;
+                                        const [year, month] = filterMonth.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const monthName = `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = certificateIssuanceFacilities.filter(r => r.month === filterMonth).length;
+                                        return ` ${monthName} عدد ${count}`;
+                                    }
+                                    return '';
+                                })()}
+                            </h2>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                color: 'var(--primary-color)',
+                                fontWeight: 'bold'
+                            }}>
+                                <span style={{ fontSize: '0.9rem' }}>
+                                    {isCertificateIssuanceSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                </span>
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isCertificateIssuanceSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s ease'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+
+                        {isCertificateIssuanceSectionExpanded && (
+                            <>
+                                {/* Form Section */}
+                                {canEdit(currentUser) && (
+                                    <>
+                                        {certificateIssuanceSubmitted && (
+                                            <div style={{ padding: '15px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '8px', marginBottom: '20px', border: '1px solid #c3e6cb' }}>
+                                                <strong>تم بنجاح!</strong> تم {editingCertificateIssuanceId ? 'تحديث' : 'إضافة'} التسجيل بنجاح.
+                                            </div>
+                                        )}
+
+                                        <form onSubmit={handleCertificateIssuanceSubmit} style={{ marginBottom: '30px' }}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                <div className="form-group">
+                                                    <label className="form-label">اسم المنشأة *</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-input"
+                                                        required
+                                                        value={certificateIssuanceFormData.facilityName}
+                                                        onChange={(e) => handleCertificateIssuanceInputChange('facilityName', e.target.value)}
+                                                        placeholder="أدخل اسم المنشأة"
+                                                    />
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">المحافظة *</label>
+                                                    <select
+                                                        className="form-input"
+                                                        required
+                                                        value={certificateIssuanceFormData.governorate}
+                                                        onChange={(e) => handleCertificateIssuanceInputChange('governorate', e.target.value)}
+                                                    >
+                                                        <option value="">اختر المحافظة</option>
+                                                        {egyptGovernorates.map((gov) => (
+                                                            <option key={gov} value={gov}>{gov}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">حالة الاعتماد *</label>
+                                                    <select
+                                                        className="form-input"
+                                                        required
+                                                        value={certificateIssuanceFormData.accreditationStatus}
+                                                        onChange={(e) => handleCertificateIssuanceInputChange('accreditationStatus', e.target.value)}
+                                                    >
+                                                        <option value="">اختر حالة الاعتماد</option>
+                                                        <option value="منشأة جديدة">منشأة جديدة</option>
+                                                        <option value="تجديد / استكمال اعتماد">تجديد / استكمال اعتماد</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">الشهر *</label>
+                                                    <input
+                                                        type="month"
+                                                        min={MIN_MONTH}
+                                                        max={MAX_MONTH}
+                                                        className="form-input"
+                                                        required
+                                                        value={certificateIssuanceFormData.month}
+                                                        onChange={(e) => handleCertificateIssuanceInputChange('month', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                                <button type="submit" className="btn btn-primary">
+                                                    {editingCertificateIssuanceId ? 'تحديث التسجيل' : 'إضافة تسجيل'}
+                                                </button>
+                                                {editingCertificateIssuanceId && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={resetCertificateIssuanceForm}
+                                                        className="btn"
+                                                        style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                    >
+                                                        إلغاء
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </form>
+                                    </>
+                                )}
+
+                                {/* Filter and Export Section */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <label style={{ fontWeight: 'bold' }}>فلترة حسب الشهر:</label>
+                                        <input
+                                            type="month"
+                                            value={certificateIssuanceFilterMonth}
+                                            onChange={(e) => setCertificateIssuanceFilterMonth(e.target.value)}
+                                            style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                                            disabled={!!globalFilterMonth}
+                                        />
+                                        {certificateIssuanceFilterMonth && !globalFilterMonth && (
+                                            <button
+                                                onClick={() => setCertificateIssuanceFilterMonth('')}
+                                                style={{
+                                                    padding: '5px 10px',
+                                                    backgroundColor: '#6c757d',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                إلغاء الفلتر
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportCertificateIssuanceToExcel}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#28a745',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            📊 تصدير Excel
+                                        </button>
+                                        <button
+                                            onClick={exportCertificateIssuanceToWord}
+                                            style={{
+                                                padding: '8px 16px',
+                                                backgroundColor: '#007bff',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            📝 تصدير Word
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Data Table */}
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>#</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>المحافظة</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>حالة الاعتماد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>الشهر</th>
+                                                {canEdit(currentUser) && (
+                                                    <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>الإجراءات</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(() => {
+                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                const startIndex = (certificateIssuanceCurrentPage - 1) * FACILITIES_PER_PAGE;
+                                                const endIndex = startIndex + FACILITIES_PER_PAGE;
+                                                const paginatedData = certificateIssuanceFacilities.slice(startIndex, endIndex);
+
+                                                return paginatedData.map((facility, index) => {
+                                                    const [year, month] = facility.month.split('-');
+                                                    return (
+                                                        <tr key={facility.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{startIndex + index + 1}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd' }}>{facility.facilityName}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{facility.governorate}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{facility.accreditationStatus}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{`${monthNames[parseInt(month) - 1]} ${year}`}</td>
+                                                            {canEdit(currentUser) && (
+                                                                <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>
+                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                        <button
+                                                                            onClick={() => handleEditCertificateIssuanceFacility(facility)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: '#ffc107',
+                                                                                color: 'black',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            تعديل
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDeleteCertificateIssuanceFacility(facility.id!)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: '#dc3545',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            حذف
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    );
+                                                });
+                                            })()}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Pagination Controls */}
+                                {certificateIssuanceFacilities.length > 0 && (
+                                    <Pagination
+                                        currentPage={certificateIssuanceCurrentPage}
+                                        totalItems={certificateIssuanceFacilities.length}
+                                        itemsPerPage={FACILITIES_PER_PAGE}
+                                        onPageChange={setCertificateIssuanceCurrentPage}
+                                        onItemsPerPageChange={() => { }}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+                )
+            }
+
+            {/* ====== DEPT6-SECTION-6: متابعة الخطط التصحيحية ====== */}
             {/* Corrective Plan Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -12145,6 +13099,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT6-SECTION-7: متابعة استكمال المتطلبات الأساسية ====== */}
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -12439,6 +13394,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT6-SECTION-8: دراسة الالتماسات ====== */}
             {/* Appeals Facilities Section - Dept6 only */}
             {
                 id === 'dept6' && (

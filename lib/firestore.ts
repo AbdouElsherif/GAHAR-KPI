@@ -229,6 +229,34 @@ export interface MedicalProfessionalRegistration {
     updatedBy?: string;
 }
 
+// Committee Preparation Facilities (التجهيز للعرض على اللجنة)
+export interface CommitteePreparationFacility {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    accreditationStatus: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+// Certificate Issuance Facilities (إصدار الشهادات)
+export interface CertificateIssuanceFacility {
+    id?: string;
+    facilityName: string;
+    governorate: string;
+    accreditationStatus: string;
+    month: string;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export interface TechnicalClinicalFacility {
     id?: string;
     facilityType: string;
@@ -1666,6 +1694,166 @@ export async function deleteMedicalProfessionalRegistration(id: string): Promise
         return true;
     } catch (error) {
         console.error('Error deleting medical professional registration:', error);
+        return false;
+    }
+}
+
+// Committee Preparation Facilities Functions (التجهيز للعرض على اللجنة)
+export async function saveCommitteePreparationFacility(
+    data: Omit<CommitteePreparationFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'committee_preparation_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving committee preparation facility:', error);
+        return null;
+    }
+}
+
+export async function getCommitteePreparationFacilities(month?: string): Promise<CommitteePreparationFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'committee_preparation_facilities');
+        let q;
+
+        if (month) {
+            q = query(facilitiesRef, where('month', '==', month));
+        } else {
+            q = query(facilitiesRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as CommitteePreparationFacility));
+
+        if (month) {
+            facilities.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting committee preparation facilities:', error);
+        return [];
+    }
+}
+
+export async function updateCommitteePreparationFacility(
+    id: string,
+    updates: Partial<CommitteePreparationFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'committee_preparation_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating committee preparation facility:', error);
+        return false;
+    }
+}
+
+export async function deleteCommitteePreparationFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'committee_preparation_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting committee preparation facility:', error);
+        return false;
+    }
+}
+
+// Certificate Issuance Facilities Functions (إصدار الشهادات)
+export async function saveCertificateIssuanceFacility(
+    data: Omit<CertificateIssuanceFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const facilitiesRef = collection(db, 'certificate_issuance_facilities');
+        const docRef = await addDoc(facilitiesRef, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving certificate issuance facility:', error);
+        return null;
+    }
+}
+
+export async function getCertificateIssuanceFacilities(month?: string): Promise<CertificateIssuanceFacility[]> {
+    try {
+        const facilitiesRef = collection(db, 'certificate_issuance_facilities');
+        let q;
+
+        if (month) {
+            q = query(facilitiesRef, where('month', '==', month));
+        } else {
+            q = query(facilitiesRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let facilities = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as CertificateIssuanceFacility));
+
+        if (month) {
+            facilities.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return facilities;
+    } catch (error) {
+        console.error('Error getting certificate issuance facilities:', error);
+        return [];
+    }
+}
+
+export async function updateCertificateIssuanceFacility(
+    id: string,
+    updates: Partial<CertificateIssuanceFacility> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'certificate_issuance_facilities', id);
+        await setDoc(facilityRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating certificate issuance facility:', error);
+        return false;
+    }
+}
+
+export async function deleteCertificateIssuanceFacility(id: string): Promise<boolean> {
+    try {
+        const facilityRef = doc(db, 'certificate_issuance_facilities', id);
+        await deleteDoc(facilityRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting certificate issuance facility:', error);
         return false;
     }
 }

@@ -95,6 +95,18 @@ service cloud.firestore {
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
 
+    // Committee Preparation Facilities (التجهيز للعرض على اللجنة for dept6)
+    match /committee_preparation_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
+    // Certificate Issuance Facilities (إصدار الشهادات for dept6)
+    match /certificate_issuance_facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+    }
+
     match /technical_clinical_facilities/{facilityId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
