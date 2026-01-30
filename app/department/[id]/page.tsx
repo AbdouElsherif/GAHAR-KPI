@@ -8423,14 +8423,14 @@ export default function DepartmentPage() {
                                         <table style={{
                                             width: '100%',
                                             borderCollapse: 'collapse',
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.85rem',
                                             boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
                                         }}>
                                             <thead>
                                                 <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>حالة الاعتماد</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center', minWidth: '160px' }}>حالة الاعتماد</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                     {userCanEdit && (
                                                         <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>إجراءات</th>
@@ -8466,27 +8466,28 @@ export default function DepartmentPage() {
                                                             return (
                                                                 <tr key={registration.id} style={{
                                                                     borderBottom: '1px solid #eee',
-                                                                    backgroundColor: isNewFacility ? '#f1f8e9' : (index % 2 === 0 ? 'white' : '#f9fafb')
+                                                                    backgroundColor: isNewFacility ? 'rgb(241, 248, 233)' : (index % 2 === 0 ? 'white' : '#f9fafb')
                                                                 }}>
-                                                                    <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                    <td style={{ padding: '12px', fontWeight: '500', fontSize: '0.8rem' }}>
                                                                         {registration.facilityName}
                                                                     </td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    <td style={{ padding: '12px', textAlign: 'center', fontSize: '0.8rem' }}>
                                                                         {registration.governorate}
                                                                     </td>
                                                                     <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                         <span style={{
                                                                             padding: '4px 12px',
                                                                             borderRadius: '12px',
-                                                                            fontSize: '0.85rem',
+                                                                            fontSize: '0.8rem',
                                                                             backgroundColor: isNewFacility ? '#4caf50' : 'var(--background-color)',
                                                                             color: isNewFacility ? 'white' : 'var(--primary-color)',
-                                                                            fontWeight: '500'
+                                                                            fontWeight: '500',
+                                                                            whiteSpace: 'nowrap'
                                                                         }}>
                                                                             {registration.accreditationStatus}
                                                                         </span>
                                                                     </td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>
+                                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontSize: '0.8rem' }}>
                                                                         {(() => {
                                                                             const [year, month] = registration.month.split('-');
                                                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -9048,13 +9049,13 @@ export default function DepartmentPage() {
 
                                 {/* Data Table */}
                                 <div style={{ overflowX: 'auto' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                                         <thead>
                                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>#</th>
+
                                                 <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>اسم المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>المحافظة</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>حالة الاعتماد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd', minWidth: '160px' }}>حالة الاعتماد</th>
                                                 <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>الشهر</th>
                                                 {canEdit(currentUser) && (
                                                     <th style={{ padding: '12px', textAlign: 'center', border: '1px solid #ddd' }}>الإجراءات</th>
@@ -9064,19 +9065,44 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {(() => {
                                                 const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+                                                // التصفية والترتيب (المنشآت الجديدة أولاً)
+                                                const filteredData = certificateIssuanceFacilities.filter(f => !(globalFilterMonth || certificateIssuanceFilterMonth) || f.month === (globalFilterMonth || certificateIssuanceFilterMonth));
+                                                const sortedData = [...filteredData].sort((a, b) => {
+                                                    if (a.accreditationStatus === 'منشأة جديدة' && b.accreditationStatus !== 'منشأة جديدة') return -1;
+                                                    if (a.accreditationStatus !== 'منشأة جديدة' && b.accreditationStatus === 'منشأة جديدة') return 1;
+                                                    return 0;
+                                                });
+
                                                 const startIndex = (certificateIssuanceCurrentPage - 1) * FACILITIES_PER_PAGE;
                                                 const endIndex = startIndex + FACILITIES_PER_PAGE;
-                                                const paginatedData = certificateIssuanceFacilities.slice(startIndex, endIndex);
+                                                const paginatedData = sortedData.slice(startIndex, endIndex);
 
                                                 return paginatedData.map((facility, index) => {
                                                     const [year, month] = facility.month.split('-');
+                                                    const isNewFacility = facility.accreditationStatus === 'منشأة جديدة';
                                                     return (
-                                                        <tr key={facility.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
-                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{startIndex + index + 1}</td>
-                                                            <td style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd' }}>{facility.facilityName}</td>
-                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{facility.governorate}</td>
-                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{facility.accreditationStatus}</td>
-                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>{`${monthNames[parseInt(month) - 1]} ${year}`}</td>
+                                                        <tr key={facility.id} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: isNewFacility ? 'rgb(241, 248, 233)' : (index % 2 === 0 ? 'white' : '#f9fafb')
+                                                        }}>
+                                                            <td style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd', fontWeight: '500', fontSize: '0.8rem' }}>{facility.facilityName}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd', fontSize: '0.8rem' }}>{facility.governorate}</td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>
+                                                                <span style={{
+                                                                    padding: '4px 12px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.8rem',
+                                                                    backgroundColor: isNewFacility ? '#4caf50' : 'var(--background-color)',
+                                                                    color: isNewFacility ? 'white' : 'var(--primary-color)',
+                                                                    fontWeight: '500',
+                                                                    display: 'inline-block',
+                                                                    whiteSpace: 'nowrap'
+                                                                }}>
+                                                                    {facility.accreditationStatus}
+                                                                </span>
+                                                            </td>
+                                                            <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd', color: '#666', fontSize: '0.8rem' }}>{`${monthNames[parseInt(month) - 1]} ${year}`}</td>
                                                             {canEdit(currentUser) && (
                                                                 <td style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>
                                                                     <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
