@@ -8554,7 +8554,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* ====== DEPT6-SECTION-5.5: التجهيز للعرض على اللجنة ====== */}
+            {/* ====== DEPT6-SECTION-6: التجهيز للعرض على اللجنة ====== */}
             {/* Committee Preparation Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -8845,7 +8845,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* ====== DEPT6-SECTION-5.6: إصدار الشهادات ====== */}
+            {/* ====== DEPT6-SECTION-7: إصدار الشهادات ====== */}
             {/* Certificate Issuance Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -9161,7 +9161,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* ====== DEPT6-SECTION-6: متابعة الخطط التصحيحية ====== */}
+            {/* ====== DEPT6-SECTION-8: متابعة الخطط التصحيحية ====== */}
             {/* Corrective Plan Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -10671,7 +10671,7 @@ export default function DepartmentPage() {
             }
 
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
-            {/* Technical Support Visits Section - Dept2 Only */}
+            {/* ====== DEPT2-SECTION-1: الزيارات الميدانية للمنشآت ====== */}
             {
                 id === 'dept2' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -10691,7 +10691,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || techSupportVisitsFilter ? (
                                     <>
-                                        🏥 الزيارات الميدانية للمنشآت خلال شهر {(() => {
+                                        🏥 الزيارات الميدانية للمنشآت - شهر {(() => {
                                             const filterMonth = globalFilterMonth || techSupportVisitsFilter;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -11017,6 +11017,7 @@ export default function DepartmentPage() {
                     </div>
                 )
             }
+            {/* ====== DEPT2-SECTION-2: الدعم الفني عن بعد ====== */}
             {
                 id === 'dept2' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -11036,7 +11037,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || remoteTechSupportFilter ? (
                                     <>
-                                        💻 الدعم الفني عن بعد خلال شهر {(() => {
+                                        💻 الدعم الفني عن بعد - شهر {(() => {
                                             const filterMonth = globalFilterMonth || remoteTechSupportFilter;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -11353,6 +11354,7 @@ export default function DepartmentPage() {
             }
 
             {/* Introductory Support Visits Section - Dept2 Only */}
+            {/* ====== DEPT2-SECTION-3: زيارات الدعم الفني التمهيدية ====== */}
             {
                 id === 'dept2' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -11372,7 +11374,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || introSupportVisitsFilter ? (
                                     <>
-                                        🎯 زيارات الدعم الفني التمهيدية خلال شهر {(() => {
+                                        🎯 زيارات الدعم الفني التمهيدية - شهر {(() => {
                                             const filterMonth = globalFilterMonth || introSupportVisitsFilter;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -11702,6 +11704,7 @@ export default function DepartmentPage() {
             }
 
             {/* Queued Support Visits Section - Dept2 Only */}
+            {/* ====== DEPT2-SECTION-4: زيارات الدعم الفني بقائمة الانتظار ====== */}
             {
                 id === 'dept2' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -11721,7 +11724,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || queuedSupportVisitsFilter ? (
                                     <>
-                                        ⏳ زيارات الدعم الفني بقائمة الانتظار خلال شهر {(() => {
+                                        ⏳ زيارات الدعم الفني بقائمة الانتظار - شهر {(() => {
                                             const filterMonth = globalFilterMonth || queuedSupportVisitsFilter;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -13125,7 +13128,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* ====== DEPT6-SECTION-7: متابعة استكمال المتطلبات الأساسية ====== */}
+            {/* ====== DEPT6-SECTION-9: متابعة استكمال المتطلبات الأساسية ====== */}
             {/* Basic Requirements Facilities Tracking Section - Only for dept6 */}
             {
                 id === 'dept6' && (
@@ -13420,7 +13423,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* ====== DEPT6-SECTION-8: دراسة الالتماسات ====== */}
+            {/* ====== DEPT6-SECTION-10: دراسة الالتماسات ====== */}
             {/* Appeals Facilities Section - Dept6 only */}
             {
                 id === 'dept6' && (
@@ -13715,7 +13718,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* Scheduled Support Visits Section - زيارات الدعم الفني المجدولة في شهر .... (for dept2 only) */}
+            {/* ====== DEPT2-SECTION-5: زيارات الدعم الفني المجدولة ====== */}
             {
                 id === 'dept2' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -13735,7 +13738,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || scheduledSupportVisitsFilter ? (
                                     <>
-                                        📅 الزيارات الميدانية للمنشآت خلال شهر {(() => {
+                                        📅 زيارات الدعم الفني المجدولة - شهر {(() => {
                                             const filterMonth = globalFilterMonth || scheduledSupportVisitsFilter;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -13743,7 +13746,7 @@ export default function DepartmentPage() {
                                         })()} - عدد {scheduledSupportVisits.filter(v => v.month === (globalFilterMonth || scheduledSupportVisitsFilter)).length} زيارة
                                     </>
                                 ) : (
-                                    '📅 الزيارات الميدانية للمنشآت'
+                                    '📅 زيارات الدعم الفني المجدولة'
                                 )}
                             </h2>
                             <div style={{
@@ -14009,7 +14012,7 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* Accredited Supported Facilities Section - المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم (for dept2 only) */}
+            {/* ====== DEPT2-SECTION-6: المنشآت المعتمدة ====== */}
             {
                 id === 'dept2' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -14029,7 +14032,7 @@ export default function DepartmentPage() {
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
                                 {globalFilterMonth || accreditedSupportedFacilitiesFilter ? (
                                     <>
-                                        🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم خلال شهر {(() => {
+                                        🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم - شهر {(() => {
                                             const filterMonth = globalFilterMonth || accreditedSupportedFacilitiesFilter;
                                             const [year, month] = filterMonth.split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
