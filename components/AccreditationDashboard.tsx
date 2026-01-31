@@ -10,6 +10,8 @@ interface AccreditationDashboardProps {
         id?: string;
         facilityName: string;
         governorate: string;
+        affiliation?: string;
+        standards?: string;
         accreditationStatus: string;
         month: string;
         year: number;
@@ -76,6 +78,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // أكتوبر كقيمة افتراضية
+    const [section1View, setSection1View] = useState<'charts' | 'table'>('charts');
+    const [section1ChartType, setSection1ChartType] = useState<'governorate' | 'affiliation' | 'standards'>('governorate');
     const [visibleMetrics, setVisibleMetrics] = useState<{
         newFacilities: boolean;
         appeals: boolean;
@@ -324,6 +328,59 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     };
 
     const filteredFacilities = getFacilitiesForSelectedMonth();
+    const newFacilitiesOnly = filteredFacilities.filter(f => f.accreditationStatus === 'منشأة جديدة');
+
+    // تجهيز بيانات الرسوم البيانية للقسم الأول (المنشآت الجديدة فقط)
+    const prepareSection1ChartData = () => {
+        if (section1ChartType === 'governorate') {
+            const govCounts: Record<string, number> = {};
+            newFacilitiesOnly.forEach(f => {
+                govCounts[f.governorate] = (govCounts[f.governorate] || 0) + 1;
+            });
+            return Object.entries(govCounts)
+                .map(([name, value]) => ({ name, value }))
+                .sort((a, b) => b.value - a.value);
+        } else if (section1ChartType === 'affiliation') {
+            const affCounts: Record<string, number> = {};
+            newFacilitiesOnly.forEach(f => {
+                const aff = f.affiliation || 'غير محدد';
+                affCounts[aff] = (affCounts[aff] || 0) + 1;
+            });
+            return Object.entries(affCounts)
+                .map(([name, value]) => ({ name, value }))
+                .sort((a, b) => b.value - a.value);
+        } else {
+            const stdCounts: Record<string, number> = {};
+            const standardMapping: Record<string, string> = {
+                'معايير اعتماد العلاج الطبيعي': 'العلاج الطبيعي',
+                'معايير اعتماد مركز الاسنان': 'مركز الأسنان',
+                'معايير اعتماد معامل التحاليل الطبية': 'المعامل',
+                'معايير اعتماد مراكز ووحدات الرعاية الأولية': 'اعتماد مراكز ووحدات الرعاية',
+                'الاعتماد المبدئي لمراكز ووحدات الرعاية الأولية': 'مبدئي مراكز ووحدات الرعاية',
+                'معايير اعتماد مراكز جراحات اليوم الواحد': 'جراحات اليوم الواحد',
+                'الاعتماد المبدئي للمستشفيات': 'مبدئي المستشفيات',
+                'معايير اعتماد مراكز الاشعة التشخيصية والعلاجية': 'مراكز الأشعة التشخيصية',
+                'معايير اعتماد العيادات الخاصة/ الأسنان': 'العيادات الخاصة/ الأسنان',
+                'معايير اعتماد الصيدليات العامة': 'الصيدليات',
+                'معايير اعتماد المستشفيات': 'اعتماد المستشفيات',
+                'معايير اعتماد العيادات المجمعة': 'العيادات المجمعة',
+                'معايير اعتماد مراكز الغسيل الكلوي': 'الغسيل الكلوي',
+                'معايير اعتماد مستشفيات الصحة النفسية': 'مستشفيات الصحة النفسية',
+                'معايير اعتماد التميز الأخضر': 'التميز الأخضر'
+            };
+
+            newFacilitiesOnly.forEach(f => {
+                const rawStd = f.standards || 'غير محدد';
+                const std = standardMapping[rawStd] || rawStd;
+                stdCounts[std] = (stdCounts[std] || 0) + 1;
+            });
+            return Object.entries(stdCounts)
+                .map(([name, value]) => ({ name, value }))
+                .sort((a, b) => b.value - a.value);
+        }
+    };
+
+    const section1ChartData = prepareSection1ChartData();
 
     // دالة لفلترة وترتيب منشآت الاستكمال حسب الشهر المحدد وحالة الاعتماد
     const getCompletionFacilitiesForSelectedMonth = () => {
@@ -1219,7 +1276,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             </div>
 
             {/* قسم المنشآت المتقدمة خلال الشهر - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredFacilities.length > 0 && (
+            {comparisonType === 'monthly' && newFacilitiesOnly.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -1234,7 +1291,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                             gap: '10px',
                             marginBottom: '20px',
                             paddingBottom: '15px',
-                            borderBottom: '2px solid #0eacb8'
+                            borderBottom: '2px solid #0eacb8',
+                            flexWrap: 'wrap'
                         }}>
                             <span style={{ fontSize: '1.5rem' }}>📋</span>
                             <h3 style={{
@@ -1243,57 +1301,186 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المنشآت المتقدمة خلال {(() => {
+                                المنشآت المتقدمة (منشأة جديدة) خلال {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
                                 })()} {targetYear}
                             </h3>
-                            <span style={{ marginLeft: 'auto', fontSize: '1rem', color: '#666', fontWeight: '500' }}>
-                                ({filteredFacilities.length} منشأة)
+                            <span style={{ fontSize: '1rem', color: '#666', fontWeight: '500' }}>
+                                ({newFacilitiesOnly.length} منشأة)
                             </span>
+
+                            <div style={{
+                                marginLeft: 'auto',
+                                display: 'flex',
+                                backgroundColor: '#f0f2f5',
+                                padding: '4px',
+                                borderRadius: '8px',
+                                gap: '4px'
+                            }}>
+                                <button
+                                    onClick={() => setSection1View('charts')}
+                                    style={{
+                                        padding: '6px 16px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '500',
+                                        backgroundColor: section1View === 'charts' ? '#0eacb8' : 'transparent',
+                                        color: section1View === 'charts' ? 'white' : '#666',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    📊 الرسوم البيانية
+                                </button>
+                                <button
+                                    onClick={() => setSection1View('table')}
+                                    style={{
+                                        padding: '6px 16px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '500',
+                                        backgroundColor: section1View === 'table' ? '#0eacb8' : 'transparent',
+                                        color: section1View === 'table' ? 'white' : '#666',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    📑 الجدول
+                                </button>
+                            </div>
                         </div>
 
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.95rem'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#0eacb8', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                <span style={{
-                                                    padding: '6px 14px',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    backgroundColor: 'rgba(14, 172, 184, 0.1)',
-                                                    color: '#0eacb8',
-                                                    fontWeight: '500',
-                                                    display: 'inline-block'
-                                                }}>
-                                                    {facility.accreditationStatus}
-                                                </span>
-                                            </td>
+                        {section1View === 'charts' ? (
+                            <div>
+                                <div style={{ display: 'flex', gap: '15px', marginBottom: '25px', justifyContent: 'center' }}>
+                                    <button
+                                        onClick={() => setSection1ChartType('governorate')}
+                                        style={{
+                                            padding: '8px 20px',
+                                            borderRadius: '20px',
+                                            border: `1px solid ${section1ChartType === 'governorate' ? '#0eacb8' : '#ddd'}`,
+                                            backgroundColor: section1ChartType === 'governorate' ? 'rgba(14, 172, 184, 0.1)' : 'white',
+                                            color: section1ChartType === 'governorate' ? '#0eacb8' : '#666',
+                                            cursor: 'pointer',
+                                            fontWeight: '600',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        حسب المحافظة
+                                    </button>
+                                    <button
+                                        onClick={() => setSection1ChartType('affiliation')}
+                                        style={{
+                                            padding: '8px 20px',
+                                            borderRadius: '20px',
+                                            border: `1px solid ${section1ChartType === 'affiliation' ? '#0eacb8' : '#ddd'}`,
+                                            backgroundColor: section1ChartType === 'affiliation' ? 'rgba(14, 172, 184, 0.1)' : 'white',
+                                            color: section1ChartType === 'affiliation' ? '#0eacb8' : '#666',
+                                            cursor: 'pointer',
+                                            fontWeight: '600',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        حسب التبعية
+                                    </button>
+                                    <button
+                                        onClick={() => setSection1ChartType('standards')}
+                                        style={{
+                                            padding: '8px 20px',
+                                            borderRadius: '20px',
+                                            border: `1px solid ${section1ChartType === 'standards' ? '#0eacb8' : '#ddd'}`,
+                                            backgroundColor: section1ChartType === 'standards' ? 'rgba(14, 172, 184, 0.1)' : 'white',
+                                            color: section1ChartType === 'standards' ? '#0eacb8' : '#666',
+                                            cursor: 'pointer',
+                                            fontWeight: '600',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        حسب المعايير
+                                    </button>
+                                </div>
+
+                                <div style={{ height: '450px', width: '100%' }}>
+                                    {section1ChartData.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={section1ChartData} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    type="category"
+                                                    interval={0}
+                                                    angle={0}
+                                                    textAnchor="middle"
+                                                    style={{ fontSize: '0.8rem', fontWeight: '600' }}
+                                                    tick={{ fill: '#333', dy: 15 }}
+                                                    height={60}
+                                                    axisLine={{ stroke: '#ddd' }}
+                                                    tickLine={false}
+                                                />
+                                                <YAxis type="number" allowDecimals={false} hide />
+                                                <Tooltip
+                                                    cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                                />
+                                                <Bar dataKey="value" name="عدد المنشآت الجديدة" fill="#0eacb8" radius={[4, 4, 0, 0]} barSize={40}>
+                                                    <LabelList dataKey="value" position="insideTop" style={{ fontSize: '0.85rem', fontWeight: 'bold', fill: '#fff' }} dy={10} />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+                                            <span style={{ fontSize: '3rem', marginBottom: '10px' }}>🏥</span>
+                                            لا توجد منشآت جديدة مسجلة لهذا الشهر
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#0eacb8', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {newFacilitiesOnly.map((facility, index) => (
+                                            <tr key={facility.id || index} style={{
+                                                borderBottom: '1px solid #eee',
+                                                backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                            }}>
+                                                <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
+                                                <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                    <span style={{
+                                                        padding: '6px 14px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.85rem',
+                                                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                                        color: '#4caf50',
+                                                        fontWeight: '500',
+                                                        display: 'inline-block'
+                                                    }}>
+                                                        {facility.accreditationStatus}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
