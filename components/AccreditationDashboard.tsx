@@ -1655,7 +1655,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                                         layout="vertical"
                                                         verticalAlign="middle"
                                                         align="right"
-                                                        wrapperStyle={{ right: 0, fontSize: "13px" }}
+                                                        wrapperStyle={{ right: 0, fontSize: "13px", color: "#000000" }}
                                                     />
                                                     {(() => {
                                                         // استخراج جميع المحافظات الموجودة في البيانات لعمل Stacks
@@ -1773,164 +1773,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
 
             {/* قسم منشآت الاستكمال - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredCompletionFacilities.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #17a2b8',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #17a2b8'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>🏗️</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#17a2b8',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                مرحلة استكمال الطلب (طرف المنشأة) خلال {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                            <span style={{ marginLeft: 'auto', fontSize: '1rem', color: '#666', fontWeight: '500' }}>
-                                ({filteredCompletionFacilities.length} منشأة)
-                            </span>
-                        </div>
 
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.95rem'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredCompletionFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                <span style={{
-                                                    padding: '6px 14px',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                                                    color: '#17a2b8',
-                                                    fontWeight: '500',
-                                                    display: 'inline-block'
-                                                }}>
-                                                    {facility.accreditationStatus}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* قسم منشآت السداد - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredPaymentFacilities.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #28a745',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #28a745'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>💰</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#28a745',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                مرحلة جاري سداد رسوم الزيارة التقييمية (طرف المنشأة) خلال {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                            <span style={{ marginLeft: 'auto', fontSize: '1rem', color: '#666', fontWeight: '500' }}>
-                                ({filteredPaymentFacilities.length} منشأة)
-                            </span>
-                        </div>
 
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.95rem'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredPaymentFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                <span style={{
-                                                    padding: '6px 14px',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                                                    color: '#28a745',
-                                                    fontWeight: '500',
-                                                    display: 'inline-block'
-                                                }}>
-                                                    {facility.accreditationStatus}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* قسم المنشآت المدفوعة - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && filteredPaidFacilities.length > 0 && (
@@ -2073,270 +1919,16 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             )}
 
             {/* قسم تسجيل مهن - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredMedicalProfessionalRegistrations.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #fd7e14',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #fd7e14'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>👨‍⚕️</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#fd7e14',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                التحويل إلى مرحلة تسجيل عضو مهن طبية - {filteredMedicalProfessionalRegistrations.length} منشأة - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return `شهر ${monthNames[selectedMonth - 1]}`;
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#fd7e14', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '200px' }}>حالة الاعتماد</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredMedicalProfessionalRegistrations.map((registration, index) => (
-                                        <tr key={registration.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{registration.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{registration.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                <span style={{
-                                                    padding: '6px 14px',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    backgroundColor: 'rgba(253, 126, 20, 0.1)',
-                                                    color: '#fd7e14',
-                                                    fontWeight: '500',
-                                                    display: 'inline-block'
-                                                }}>
-                                                    {registration.accreditationStatus}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* قسم متابعة الخطط التصحيحية - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredCorrectivePlanFacilities.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #dc3545',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #dc3545'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>📋</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#dc3545',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                متابعة الخطط التصحيحية - {filteredCorrectivePlanFacilities.length} منشأة - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#dc3545', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredCorrectivePlanFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* قسم متابعة استكمال المتطلبات الأساسية - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredBasicRequirementsFacilities.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #20c997',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #20c997'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>✅</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#20c997',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                متابعة استكمال المتطلبات الأساسية - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#20c997', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredBasicRequirementsFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* قسم دراسة الالتماسات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredAppealsFacilities.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #9370db',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #9370db'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>📋</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#9370db',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                دراسة الالتماسات - {filteredAppealsFacilities.length} التماس - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#9370db', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>المحافظة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredAppealsFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && currentObstacles && (
