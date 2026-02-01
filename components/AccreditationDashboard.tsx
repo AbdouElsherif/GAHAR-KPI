@@ -1033,7 +1033,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                     border: '1px solid var(--border-color)'
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة القرارات - رسم بياني عمودي</h4>
+                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة حالات الاعتماد</h4>
                         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
                                 <input
