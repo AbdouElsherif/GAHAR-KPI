@@ -15608,6 +15608,8 @@ export default function DepartmentPage() {
                             correctivePlanFacilities={correctivePlanFacilities}
                             basicRequirementsFacilities={basicRequirementsFacilities}
                             appealsFacilities={appealsFacilities}
+                            certificateIssuanceFacilities={certificateIssuanceFacilities}
+                            committeePreparationFacilities={committeePreparationFacilities}
                         />
                     </DashboardModal>
                 )

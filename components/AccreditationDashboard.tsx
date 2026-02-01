@@ -70,9 +70,25 @@ interface AccreditationDashboardProps {
         month: string;
         year: number;
     }>;
+    certificateIssuanceFacilities?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        accreditationStatus: string;
+        month: string;
+        year: number;
+    }>;
+    committeePreparationFacilities?: Array<{
+        id?: string;
+        facilityName: string;
+        governorate: string;
+        accreditationStatus: string;
+        month: string;
+        year: number;
+    }>;
 }
 
-export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [], medicalProfessionalRegistrations = [], correctivePlanFacilities = [], basicRequirementsFacilities = [], appealsFacilities = [] }: AccreditationDashboardProps) {
+export default function AccreditationDashboard({ submissions, facilities = [], completionFacilities = [], paymentFacilities = [], paidFacilities = [], medicalProfessionalRegistrations = [], correctivePlanFacilities = [], basicRequirementsFacilities = [], appealsFacilities = [], certificateIssuanceFacilities = [], committeePreparationFacilities = [] }: AccreditationDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -523,6 +539,46 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     };
 
     const filteredAppealsFacilities = getAppealsFacilitiesForSelectedMonth();
+
+    // دالة لفلترة وترتيب منشآت إصدار الشهادات حسب الشهر المحدد
+    const getCertificateIssuanceFacilitiesForSelectedMonth = () => {
+        if (comparisonType !== 'monthly' || !certificateIssuanceFacilities || certificateIssuanceFacilities.length === 0) return [];
+
+        const filtered = certificateIssuanceFacilities.filter(facility => {
+            if (!facility.month) return false;
+            const [year, month] = facility.month.split('-');
+            const facilityMonth = parseInt(month);
+            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
+
+            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+        });
+
+        return filtered.sort((a, b) => {
+            return a.facilityName.localeCompare(b.facilityName, 'ar');
+        });
+    };
+
+    const filteredCertificateIssuanceFacilities = getCertificateIssuanceFacilitiesForSelectedMonth();
+
+    // دالة لفلترة وترتيب منشآت التجهيز للعرض على اللجنة حسب الشهر المحدد
+    const getCommitteePreparationFacilitiesForSelectedMonth = () => {
+        if (comparisonType !== 'monthly' || !committeePreparationFacilities || committeePreparationFacilities.length === 0) return [];
+
+        const filtered = committeePreparationFacilities.filter(facility => {
+            if (!facility.month) return false;
+            const [year, month] = facility.month.split('-');
+            const facilityMonth = parseInt(month);
+            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
+
+            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+        });
+
+        return filtered.sort((a, b) => {
+            return a.facilityName.localeCompare(b.facilityName, 'ar');
+        });
+    };
+
+    const filteredCommitteePreparationFacilities = getCommitteePreparationFacilitiesForSelectedMonth();
 
     const preparePieData = (metric: 'newFacilities' | 'reviewedAppeals' | 'reviewedPlans' | 'accreditation' | 'renewal' | 'completion') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
@@ -1275,6 +1331,146 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                 </div>
             </div>
 
+
+            {/* Pipeline Visualization - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && (
+                <div style={{ marginBottom: '50px', marginTop: '50px' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '40px', color: 'var(--text-color)' }}>
+                        🛤️ تتبع مراحل المنشآت (Pipeline)
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+
+                        {/* الأنبوب المركزي */}
+                        <div style={{
+                            position: 'absolute',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '20px',
+                            height: '100%',
+                            background: 'linear-gradient(to bottom, #bdc3c7, #2c3e50)',
+                            borderRadius: '10px',
+                            zIndex: 1
+                        }}></div>
+
+                        {/* المراحل */}
+                        {[
+                            { id: 1, title: 'مرحلة استكمال الطلب', count: filteredCompletionFacilities.length, color: '#e67e22', icon: '📝' },
+                            { id: 2, title: 'مرحلة تم سداد الرسوم', count: filteredPaidFacilities.length, color: '#27ae60', icon: '💰' },
+                            { id: 3, title: 'تم التحويل إلى تسجيل أعضاء مهن طبية', count: filteredMedicalProfessionalRegistrations.length, color: '#f1c40f', icon: '👨‍⚕️' },
+                            { id: 4, title: 'تم التجهيز للعرض على اللجنة', count: filteredCommitteePreparationFacilities.length, color: '#8e44ad', icon: '⚖️' },
+                            { id: 5, title: 'مرحلة اصدار الشهادات', count: filteredCertificateIssuanceFacilities.length, color: '#2980b9', icon: '🎓' },
+                            { id: 6, title: 'الالتماسات', count: filteredAppealsFacilities.length, color: '#c0392b', icon: '📜' },
+                            { id: 7, title: 'الخطط التصحيحية', count: filteredCorrectivePlanFacilities.length, color: '#7f8c8d', icon: '🔧' }
+                        ].map((stage, index) => (
+                            <div key={stage.id} style={{
+                                display: 'flex',
+                                justifyContent: index % 2 === 0 ? 'flex-start' : 'flex-end',
+                                width: '100%',
+                                marginBottom: '40px',
+                                position: 'relative',
+                                zIndex: 2
+                            }}>
+                                {/* المحتوى (يمين أو يسار) */}
+                                <div style={{
+                                    width: '45%',
+                                    display: 'flex',
+                                    justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
+                                    paddingRight: index % 2 === 0 ? '40px' : '0',
+                                    paddingLeft: index % 2 !== 0 ? '40px' : '0',
+                                    alignItems: 'center'
+                                }}>
+
+                                    {/* بطاقة المرحلة */}
+                                    <div style={{
+                                        backgroundColor: 'var(--card-bg)',
+                                        padding: '15px 25px',
+                                        borderRadius: '15px',
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                                        borderRight: index % 2 === 0 ? `5px solid ${stage.color}` : 'none',
+                                        borderLeft: index % 2 !== 0 ? `5px solid ${stage.color}` : 'none',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        minWidth: '220px',
+                                        position: 'relative'
+                                    }}>
+
+                                        {/* السهم المتجه للمركز */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            [index % 2 === 0 ? 'right' : 'left']: '-10px',
+                                            transform: 'translateY(-50%) rotate(45deg)',
+                                            width: '20px',
+                                            height: '20px',
+                                            backgroundColor: 'var(--card-bg)',
+                                            zIndex: -1
+                                        }}></div>
+
+                                        <div style={{
+                                            backgroundColor: stage.color,
+                                            color: 'white',
+                                            borderRadius: '50%',
+                                            width: '30px',
+                                            height: '30px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 'bold',
+                                            marginBottom: '10px',
+                                            alignSelf: index % 2 === 0 ? 'flex-end' : 'flex-start'
+                                        }}>
+                                            {stage.id}
+                                        </div>
+
+                                        <h4 style={{ margin: '0 0 10px 0', color: 'var(--text-color)', textAlign: 'center', fontSize: '1rem' }}>
+                                            {stage.icon} {stage.title}
+                                        </h4>
+                                        <div style={{
+                                            background: `linear-gradient(45deg, ${stage.color}, ${stage.color}88)`,
+                                            color: 'white',
+                                            padding: '8px 20px',
+                                            borderRadius: '20px',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.1rem',
+                                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                                        }}>
+                                            {stage.count} منشأة
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* الدائرة المركزية على الأنبوب */}
+                                <div style={{
+                                    position: 'absolute',
+                                    left: '50%',
+                                    top: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '50%',
+                                    backgroundColor: stage.color,
+                                    border: '4px solid white',
+                                    boxShadow: '0 0 10px rgba(0,0,0,0.3)',
+                                    zIndex: 3
+                                }}></div>
+                            </div>
+                        ))}
+
+                        {/* السهم النهائي السفلي */}
+                        <div style={{
+                            width: '0',
+                            height: '0',
+                            borderLeft: '30px solid transparent',
+                            borderRight: '30px solid transparent',
+                            borderTop: '40px solid #2c3e50',
+                            marginTop: '-10px',
+                            zIndex: 1
+                        }}></div>
+                    </div>
+                </div>
+            )}
+
             {/* قسم المنشآت المتقدمة خلال الشهر - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && newFacilitiesOnly.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
@@ -1484,6 +1680,9 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                     </div>
                 </div>
             )}
+
+
+
 
 
             {/* قسم منشآت الاستكمال - يظهر فقط في حالة الفلترة الشهرية */}
