@@ -95,7 +95,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // أكتوبر كقيمة افتراضية
     const [section1View, setSection1View] = useState<'charts' | 'table'>('charts');
-    const [section1ChartType, setSection1ChartType] = useState<'governorate' | 'affiliation' | 'standards'>('governorate');
+    const [section1ChartType, setSection1ChartType] = useState<'governorate' | 'affiliation' | 'standards' | 'affiliation_governorate'>('governorate');
     const [visibleMetrics, setVisibleMetrics] = useState<{
         newFacilities: boolean;
         appeals: boolean;
@@ -365,7 +365,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             return Object.entries(affCounts)
                 .map(([name, value]) => ({ name, value }))
                 .sort((a, b) => b.value - a.value);
-        } else {
+        } else if (section1ChartType === 'standards') {
             const stdCounts: Record<string, number> = {};
             const standardMapping: Record<string, string> = {
                 'معايير اعتماد العلاج الطبيعي': 'العلاج الطبيعي',
@@ -393,7 +393,22 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             return Object.entries(stdCounts)
                 .map(([name, value]) => ({ name, value }))
                 .sort((a, b) => b.value - a.value);
+        } else if (section1ChartType === 'affiliation_governorate') {
+            const data: Record<string, any> = {};
+            // تجميع التبعيات والمحافظات
+            newFacilitiesOnly.forEach(f => {
+                const aff = f.affiliation || 'غير محدد';
+                const gov = f.governorate;
+
+                if (!data[aff]) {
+                    data[aff] = { name: aff };
+                }
+                data[aff][gov] = (data[aff][gov] || 0) + 1;
+            });
+
+            return Object.values(data);
         }
+        return [];
     };
 
     const section1ChartData = prepareSection1ChartData();
@@ -1597,34 +1612,106 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                     >
                                         حسب المعايير
                                     </button>
+                                    <button
+                                        onClick={() => setSection1ChartType('affiliation_governorate')}
+                                        style={{
+                                            padding: '8px 20px',
+                                            borderRadius: '20px',
+                                            border: `1px solid ${section1ChartType === 'affiliation_governorate' ? '#0eacb8' : '#ddd'}`,
+                                            backgroundColor: section1ChartType === 'affiliation_governorate' ? 'rgba(14, 172, 184, 0.1)' : 'white',
+                                            color: section1ChartType === 'affiliation_governorate' ? '#0eacb8' : '#666',
+                                            cursor: 'pointer',
+                                            fontWeight: '600',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        حسب المحافظة والتبعية
+                                    </button>
                                 </div>
 
                                 <div style={{ height: '450px', width: '100%' }}>
                                     {section1ChartData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={section1ChartData} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                                                <XAxis
-                                                    dataKey="name"
-                                                    type="category"
-                                                    interval={0}
-                                                    angle={0}
-                                                    textAnchor="middle"
-                                                    style={{ fontSize: '0.8rem', fontWeight: '600' }}
-                                                    tick={{ fill: '#333', dy: 15 }}
-                                                    height={60}
-                                                    axisLine={{ stroke: '#ddd' }}
-                                                    tickLine={false}
-                                                />
-                                                <YAxis type="number" allowDecimals={false} hide />
-                                                <Tooltip
-                                                    cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                                />
-                                                <Bar dataKey="value" name="عدد المنشآت الجديدة" fill="#0eacb8" radius={[4, 4, 0, 0]} barSize={40}>
-                                                    <LabelList dataKey="value" position="insideTop" style={{ fontSize: '0.85rem', fontWeight: 'bold', fill: '#fff' }} dy={10} />
-                                                </Bar>
-                                            </BarChart>
+                                            {section1ChartType === 'affiliation_governorate' ? (
+                                                <BarChart data={section1ChartData} margin={{ top: 20, right: 0, left: 20, bottom: 60 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                                    <XAxis
+                                                        dataKey="name"
+                                                        interval={0}
+                                                        angle={0}
+                                                        textAnchor="middle"
+                                                        style={{ fontSize: '0.8rem', fontWeight: 'bold' }}
+                                                        tick={{ fill: '#333', dy: 15 }}
+                                                        height={100}
+                                                        axisLine={{ stroke: '#ddd' }}
+                                                        tickLine={false}
+                                                    />
+                                                    <YAxis type="number" allowDecimals={false} axisLine={false} tickLine={false} />
+                                                    <Tooltip
+                                                        cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                                    />
+                                                    <Legend
+                                                        layout="vertical"
+                                                        verticalAlign="middle"
+                                                        align="right"
+                                                        wrapperStyle={{ right: 0, fontSize: "13px" }}
+                                                    />
+                                                    {(() => {
+                                                        // استخراج جميع المحافظات الموجودة في البيانات لعمل Stacks
+                                                        const governorates = new Set<string>();
+                                                        newFacilitiesOnly.forEach(f => governorates.add(f.governorate));
+
+                                                        const colors = [
+                                                            '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#00C49F',
+                                                            '#FFBB28', '#FF8042', '#0088FE', '#00C49F', '#FFBB28',
+                                                            '#FF8042', '#a4de6c', '#d0ed57', '#ffc658'
+                                                        ];
+
+                                                        return Array.from(governorates).map((gov, index) => (
+                                                            <Bar
+                                                                key={gov}
+                                                                dataKey={gov}
+                                                                stackId="a"
+                                                                barSize={60}
+                                                                fill={colors[index % colors.length]}
+                                                                name={gov}
+                                                            >
+                                                                <LabelList
+                                                                    dataKey={gov}
+                                                                    position="center"
+                                                                    style={{ fill: 'white', fontSize: '11px', fontWeight: 'bold', textShadow: '0px 0px 3px rgba(0,0,0,0.5)' }}
+                                                                    formatter={(value: any) => value > 0 ? value : ''}
+                                                                />
+                                                            </Bar>
+                                                        ));
+                                                    })()}
+                                                </BarChart>
+                                            ) : (
+                                                <BarChart data={section1ChartData} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                                    <XAxis
+                                                        dataKey="name"
+                                                        type="category"
+                                                        interval={0}
+                                                        angle={0}
+                                                        textAnchor="middle"
+                                                        style={{ fontSize: '0.8rem', fontWeight: '600' }}
+                                                        tick={{ fill: '#333', dy: 15 }}
+                                                        height={60}
+                                                        axisLine={{ stroke: '#ddd' }}
+                                                        tickLine={false}
+                                                    />
+                                                    <YAxis type="number" allowDecimals={false} hide />
+                                                    <Tooltip
+                                                        cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                                    />
+                                                    <Bar dataKey="value" name="عدد المنشآت الجديدة" fill="#0eacb8" radius={[4, 4, 0, 0]} barSize={40}>
+                                                        <LabelList dataKey="value" position="insideTop" style={{ fontSize: '0.85rem', fontWeight: 'bold', fill: '#fff' }} dy={10} />
+                                                    </Bar>
+                                                </BarChart>
+                                            )}
                                         </ResponsiveContainer>
                                     ) : (
                                         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
