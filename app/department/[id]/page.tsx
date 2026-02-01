@@ -8664,6 +8664,7 @@ export default function DepartmentPage() {
                                                         <option value="منشأة جديدة">منشأة جديدة</option>
                                                         <option value="تجديد الاعتماد">تجديد الاعتماد</option>
                                                         <option value="استكمال الاعتماد واعتماد مبدئي">استكمال الاعتماد واعتماد مبدئي</option>
+                                                        <option value="فرصة ثانية">فرصة ثانية</option>
                                                     </select>
                                                 </div>
 
