@@ -435,7 +435,7 @@ export default function GovernorateCustomerSurveysSection({ currentUser, canEdit
                             </div>
 
                             <div className="form-group">
-                                <label className="form-label">المنشآت التي تمت زيارتها (كل منشأة في سطر جديد)</label>
+                                <label className="form-label">المنشآت التي تمت زيارتها</label>
                                 <textarea
                                     className="form-input"
                                     rows={6}
