@@ -9,6 +9,7 @@ export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -21,7 +22,7 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const user = await login(email, password);
+            const user = await login(email, password, rememberMe);
 
             if (user) {
                 if (user.role === 'super_admin') {
@@ -107,6 +108,37 @@ export default function LoginPage() {
                             required
                             disabled={loading}
                         />
+                    </div>
+
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginTop: '10px',
+                        marginBottom: '10px'
+                    }}>
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            disabled={loading}
+                            style={{
+                                width: '18px',
+                                height: '18px',
+                                cursor: 'pointer'
+                            }}
+                        />
+                        <label
+                            htmlFor="rememberMe"
+                            style={{
+                                cursor: 'pointer',
+                                fontSize: '0.95rem',
+                                color: '#555'
+                            }}
+                        >
+                            تذكرني
+                        </label>
                     </div>
 
                     <button

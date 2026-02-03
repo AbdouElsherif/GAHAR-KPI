@@ -6,7 +6,10 @@ import {
     updatePassword,
     reauthenticateWithCredential,
     EmailAuthProvider,
-    getAuth
+    getAuth,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence
 } from 'firebase/auth';
 import {
     doc,
@@ -184,9 +187,27 @@ export async function resetUserPassword(userId: string, newPassword: string = 'G
     }
 }
 
-// Authentication
-export async function login(email: string, password: string): Promise<User | null> {
+// Set Remember Me persistence
+export async function setRememberMe(remember: boolean): Promise<void> {
     try {
+        if (remember) {
+            // LOCAL: persists even after browser is closed
+            await setPersistence(auth, browserLocalPersistence);
+        } else {
+            // SESSION: clears when browser tab is closed
+            await setPersistence(auth, browserSessionPersistence);
+        }
+    } catch (error) {
+        console.error('Error setting persistence:', error);
+    }
+}
+
+// Authentication
+export async function login(email: string, password: string, rememberMe: boolean = false): Promise<User | null> {
+    try {
+        // Set persistence before login
+        await setRememberMe(rememberMe);
+
         logger.log('Attempting login for:', email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         logger.log('Auth successful. UID:', userCredential.user.uid);
