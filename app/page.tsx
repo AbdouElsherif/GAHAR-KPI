@@ -66,6 +66,7 @@ export default function Home() {
                                 إدارة المستخدمين
                             </Link>
                         )}
+
                         <Link href="/change-password" className="btn btn-primary" style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }}>
                             تغيير كلمة المرور
                         </Link>

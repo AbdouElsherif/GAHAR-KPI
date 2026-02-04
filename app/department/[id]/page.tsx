@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
@@ -220,6 +220,7 @@ export const dynamicParams = true;
 export default function DepartmentPage() {
     const router = useRouter();
     const params = useParams();
+    const searchParams = useSearchParams();
     const id = params?.id as string;
     const departmentName = departments[id] || 'الإدارة';
     const fields = departmentFields[id] || [];
@@ -6346,11 +6347,7 @@ export default function DepartmentPage() {
                             </>
                         )}
                     </>
-                ) : (
-                    <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffc107' }}>
-                        <p style={{ margin: 0, color: '#856404' }}>⚠️ لديك صلاحية العرض فقط. لا يمكنك إضافة أو تعديل البيانات.</p>
-                    </div>
-                )}
+                ) : null}
 
             </div>
 
@@ -6608,11 +6605,7 @@ export default function DepartmentPage() {
                                         </div>
                                     )}
                                 </>
-                            ) : (
-                                <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffc107' }}>
-                                    <p style={{ margin: 0, color: '#856404' }}>⚠️ لديك صلاحية العرض فقط. لا يمكنك إضافة أو تعديل البيانات.</p>
-                                </div>
-                            )}
+                            ) : null}
                         </>
                     )}
                 </div>
