@@ -2324,6 +2324,8 @@ export interface TechnicalClinicalCorrectionRate {
     lepCorrected: number;
     lpoCorrected: number;
     lqcCorrected: number;
+    cssTotal: number;
+    cssCorrected: number;
     createdAt?: Date;
     createdBy?: string;
     updatedAt?: Date;
@@ -2414,6 +2416,8 @@ export async function getTechnicalClinicalCorrectionRates(
                 lepCorrected: data.lepCorrected || 0,
                 lpoCorrected: data.lpoCorrected || 0,
                 lqcCorrected: data.lqcCorrected || 0,
+                cssTotal: data.cssTotal || 0,
+                cssCorrected: data.cssCorrected || 0,
                 createdAt: data.createdAt?.toDate(),
                 createdBy: data.createdBy,
                 updatedAt: data.updatedAt?.toDate(),
