@@ -6063,7 +6063,21 @@ export default function DepartmentPage() {
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <h1 className="page-title" style={{ margin: 0, fontSize: '1.8rem' }}>لوحة مؤشرات {departmentName}</h1>
-                <Link href="/" className="btn btn-secondary">العودة للرئيسية</Link>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    {(id === 'dept6' || id === 'dept4') && (
+                        <button
+                            onClick={() => {
+                                if (id === 'dept6') setIsAccreditationDashboardOpen(true);
+                                if (id === 'dept4') setIsTechnicalClinicalDashboardOpen(true);
+                            }}
+                            className="btn"
+                            style={{ backgroundColor: '#198754', color: 'white', fontSize: '0.95rem', padding: '10px 20px' }}
+                        >
+                            📊 لوحة البيانات
+                        </button>
+                    )}
+                    <Link href="/" className="btn btn-secondary">العودة للرئيسية</Link>
+                </div>
             </div>
 
             <div className="card card-hover">
@@ -15255,27 +15269,9 @@ export default function DepartmentPage() {
                                     📊 لوحة البيانات
                                 </button>
                             )}
-                            {id === 'dept4' && (
-                                <button
-                                    onClick={() => setIsTechnicalClinicalDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
                             {id === 'dept5' && (
                                 <button
                                     onClick={() => setIsAdminAuditDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept6' && (
-                                <button
-                                    onClick={() => setIsAccreditationDashboardOpen(true)}
                                     className="btn"
                                     style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
                                 >
