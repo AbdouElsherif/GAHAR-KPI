@@ -585,7 +585,14 @@ export default function DepartmentPage() {
         teqTotal: '', teqCorrected: '',
         tpoTotal: '', tpoCorrected: '',
         nsrTotal: '', nsrCorrected: '',
-        sasTotal: '', sasCorrected: ''
+        sasTotal: '', sasCorrected: '',
+        irsTotal: '', irsCorrected: '',
+        mrsTotal: '', mrsCorrected: '',
+        cpsTotal: '', cpsCorrected: '',
+        lprTotal: '', lprCorrected: '',
+        lepTotal: '', lepCorrected: '',
+        lpoTotal: '', lpoCorrected: '',
+        lqcTotal: '', lqcCorrected: ''
     });
 
     const [editingTcCorrectionRateId, setEditingTcCorrectionRateId] = useState<string | null>(null);
@@ -1952,7 +1959,21 @@ export default function DepartmentPage() {
                 nsrTotal: parseInt(tcCorrectionRateFormData.nsrTotal) || 0,
                 nsrCorrected: parseInt(tcCorrectionRateFormData.nsrCorrected) || 0,
                 sasTotal: parseInt(tcCorrectionRateFormData.sasTotal) || 0,
-                sasCorrected: parseInt(tcCorrectionRateFormData.sasCorrected) || 0
+                sasCorrected: parseInt(tcCorrectionRateFormData.sasCorrected) || 0,
+                irsTotal: parseInt(tcCorrectionRateFormData.irsTotal) || 0,
+                irsCorrected: parseInt(tcCorrectionRateFormData.irsCorrected) || 0,
+                mrsTotal: parseInt(tcCorrectionRateFormData.mrsTotal) || 0,
+                mrsCorrected: parseInt(tcCorrectionRateFormData.mrsCorrected) || 0,
+                cpsTotal: parseInt(tcCorrectionRateFormData.cpsTotal) || 0,
+                cpsCorrected: parseInt(tcCorrectionRateFormData.cpsCorrected) || 0,
+                lprTotal: parseInt(tcCorrectionRateFormData.lprTotal) || 0,
+                lprCorrected: parseInt(tcCorrectionRateFormData.lprCorrected) || 0,
+                lepTotal: parseInt(tcCorrectionRateFormData.lepTotal) || 0,
+                lepCorrected: parseInt(tcCorrectionRateFormData.lepCorrected) || 0,
+                lpoTotal: parseInt(tcCorrectionRateFormData.lpoTotal) || 0,
+                lpoCorrected: parseInt(tcCorrectionRateFormData.lpoCorrected) || 0,
+                lqcTotal: parseInt(tcCorrectionRateFormData.lqcTotal) || 0,
+                lqcCorrected: parseInt(tcCorrectionRateFormData.lqcCorrected) || 0
             };
 
 
@@ -2016,7 +2037,21 @@ export default function DepartmentPage() {
             nsrTotal: rate.nsrTotal.toString(),
             nsrCorrected: rate.nsrCorrected.toString(),
             sasTotal: rate.sasTotal.toString(),
-            sasCorrected: rate.sasCorrected.toString()
+            sasCorrected: rate.sasCorrected.toString(),
+            irsTotal: rate.irsTotal.toString(),
+            irsCorrected: rate.irsCorrected.toString(),
+            mrsTotal: rate.mrsTotal.toString(),
+            mrsCorrected: rate.mrsCorrected.toString(),
+            cpsTotal: rate.cpsTotal.toString(),
+            cpsCorrected: rate.cpsCorrected.toString(),
+            lprTotal: rate.lprTotal.toString(),
+            lprCorrected: rate.lprCorrected.toString(),
+            lepTotal: rate.lepTotal.toString(),
+            lepCorrected: rate.lepCorrected.toString(),
+            lpoTotal: rate.lpoTotal.toString(),
+            lpoCorrected: rate.lpoCorrected.toString(),
+            lqcTotal: rate.lqcTotal.toString(),
+            lqcCorrected: rate.lqcCorrected.toString()
         });
         setEditingTcCorrectionRateId(rate.id || null);
     };
@@ -2050,7 +2085,14 @@ export default function DepartmentPage() {
             teqTotal: '', teqCorrected: '',
             tpoTotal: '', tpoCorrected: '',
             nsrTotal: '', nsrCorrected: '',
-            sasTotal: '', sasCorrected: ''
+            sasTotal: '', sasCorrected: '',
+            irsTotal: '', irsCorrected: '',
+            mrsTotal: '', mrsCorrected: '',
+            cpsTotal: '', cpsCorrected: '',
+            lprTotal: '', lprCorrected: '',
+            lepTotal: '', lepCorrected: '',
+            lpoTotal: '', lpoCorrected: '',
+            lqcTotal: '', lqcCorrected: ''
         });
         setEditingTcCorrectionRateId(null);
     };
@@ -2081,7 +2123,14 @@ export default function DepartmentPage() {
                 'TEQ (واردة)': rate.teqTotal, 'TEQ (مصححة)': rate.teqCorrected,
                 'TPO (واردة)': rate.tpoTotal, 'TPO (مصححة)': rate.tpoCorrected,
                 'NSR (واردة)': rate.nsrTotal, 'NSR (مصححة)': rate.nsrCorrected,
-                'SAS (واردة)': rate.sasTotal, 'SAS (مصححة)': rate.sasCorrected
+                'SAS (واردة)': rate.sasTotal, 'SAS (مصححة)': rate.sasCorrected,
+                'IRS (واردة)': rate.irsTotal, 'IRS (مصححة)': rate.irsCorrected,
+                'MRS (واردة)': rate.mrsTotal, 'MRS (مصححة)': rate.mrsCorrected,
+                'CPS (واردة)': rate.cpsTotal, 'CPS (مصححة)': rate.cpsCorrected,
+                'LPR (واردة)': rate.lprTotal, 'LPR (مصححة)': rate.lprCorrected,
+                'LEP (واردة)': rate.lepTotal, 'LEP (مصححة)': rate.lepCorrected,
+                'LPO (واردة)': rate.lpoTotal, 'LPO (مصححة)': rate.lpoCorrected,
+                'LQC (واردة)': rate.lqcTotal, 'LQC (مصححة)': rate.lqcCorrected
             };
         });
 
@@ -2100,7 +2149,7 @@ export default function DepartmentPage() {
 
         const tableRows = filteredData.map((rate, index) => {
             const [year, month] = rate.month.split('-');
-            const criteriaText = ['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS']
+            const criteriaText = ['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS', 'IRS', 'MRS', 'CPS', 'LPR', 'LEP', 'LPO', 'LQC']
                 .map(c => {
                     const total = rate[`${c.toLowerCase()}Total` as keyof typeof rate];
                     const corrected = rate[`${c.toLowerCase()}Corrected` as keyof typeof rate];
@@ -10370,7 +10419,7 @@ export default function DepartmentPage() {
 
                                             <h4 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>بيانات المعايير (عدد الملاحظات الواردة / عدد المصححة)</h4>
                                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', marginBottom: '20px' }}>
-                                                {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(criterion => (
+                                                {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS', 'IRS', 'MRS', 'CPS', 'LPR', 'LEP', 'LPO', 'LQC'].map(criterion => (
                                                     <div key={criterion} style={{ textAlign: 'center', backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '8px' }}>
                                                         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{criterion}</label>
                                                         <input type="number" min="0" className="form-input" placeholder="الواردة"
@@ -10518,7 +10567,7 @@ export default function DepartmentPage() {
                                                                                         <thead>
                                                                                             <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
                                                                                                 <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                                                {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                                {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS', 'IRS', 'MRS', 'CPS', 'LPR', 'LEP', 'LPO', 'LQC'].map(c => (
                                                                                                     <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
                                                                                                 ))}
                                                                                             </tr>
@@ -10526,19 +10575,19 @@ export default function DepartmentPage() {
                                                                                         <tbody>
                                                                                             <tr style={{ backgroundColor: 'white' }}>
                                                                                                 <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }].map((item, i) => (
                                                                                                     <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
                                                                                                 ))}
                                                                                             </tr>
                                                                                             <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                                 <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => (
+                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }].map((item, i) => (
                                                                                                     <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
                                                                                                 ))}
                                                                                             </tr>
                                                                                             <tr style={{ backgroundColor: 'white' }}>
                                                                                                 <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
-                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }].map((item, i) => {
+                                                                                                {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }].map((item, i) => {
                                                                                                     if (item.t === 0 && item.c === 0) {
                                                                                                         return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                     }
@@ -10590,7 +10639,7 @@ export default function DepartmentPage() {
                                                                                             <thead>
                                                                                                 <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
                                                                                                     <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                                                    {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS'].map(c => (
+                                                                                                    {['ACT', 'ICD', 'DAS', 'MMS', 'SIP', 'IPC', 'SCM', 'TEX', 'TEQ', 'TPO', 'NSR', 'SAS', 'IRS', 'MRS', 'CPS', 'LPR', 'LEP', 'LPO', 'LQC'].map(c => (
                                                                                                         <th key={c} style={{ padding: '6px', textAlign: 'center' }}>{c}</th>
                                                                                                     ))}
                                                                                                 </tr>

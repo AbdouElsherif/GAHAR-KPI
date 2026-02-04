@@ -2310,6 +2310,20 @@ export interface TechnicalClinicalCorrectionRate {
     tpoCorrected: number;
     nsrCorrected: number;
     sasCorrected: number;
+    irsTotal: number;
+    mrsTotal: number;
+    cpsTotal: number;
+    lprTotal: number;
+    lepTotal: number;
+    lpoTotal: number;
+    lqcTotal: number;
+    irsCorrected: number;
+    mrsCorrected: number;
+    cpsCorrected: number;
+    lprCorrected: number;
+    lepCorrected: number;
+    lpoCorrected: number;
+    lqcCorrected: number;
     createdAt?: Date;
     createdBy?: string;
     updatedAt?: Date;
@@ -2386,6 +2400,20 @@ export async function getTechnicalClinicalCorrectionRates(
                 tpoCorrected: data.tpoCorrected || 0,
                 nsrCorrected: data.nsrCorrected || 0,
                 sasCorrected: data.sasCorrected || 0,
+                irsTotal: data.irsTotal || 0,
+                mrsTotal: data.mrsTotal || 0,
+                cpsTotal: data.cpsTotal || 0,
+                lprTotal: data.lprTotal || 0,
+                lepTotal: data.lepTotal || 0,
+                lpoTotal: data.lpoTotal || 0,
+                lqcTotal: data.lqcTotal || 0,
+                irsCorrected: data.irsCorrected || 0,
+                mrsCorrected: data.mrsCorrected || 0,
+                cpsCorrected: data.cpsCorrected || 0,
+                lprCorrected: data.lprCorrected || 0,
+                lepCorrected: data.lepCorrected || 0,
+                lpoCorrected: data.lpoCorrected || 0,
+                lqcCorrected: data.lqcCorrected || 0,
                 createdAt: data.createdAt?.toDate(),
                 createdBy: data.createdBy,
                 updatedAt: data.updatedAt?.toDate(),
