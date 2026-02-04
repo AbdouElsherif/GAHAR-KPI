@@ -6064,11 +6064,18 @@ export default function DepartmentPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <h1 className="page-title" style={{ margin: 0, fontSize: '1.8rem' }}>لوحة مؤشرات {departmentName}</h1>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    {(id === 'dept6' || id === 'dept4') && (
+                    {(id === 'dept6' || id === 'dept4' || id === 'dept5' || id === 'dept2' || id === 'dept1' || id === 'dept3' || id === 'dept7' || id === 'dept8' || id === 'dept9') && (
                         <button
                             onClick={() => {
                                 if (id === 'dept6') setIsAccreditationDashboardOpen(true);
                                 if (id === 'dept4') setIsTechnicalClinicalDashboardOpen(true);
+                                if (id === 'dept5') setIsAdminAuditDashboardOpen(true);
+                                if (id === 'dept2') setIsTechSupportDashboardOpen(true);
+                                if (id === 'dept1') setIsDashboardOpen(true);
+                                if (id === 'dept3') setIsCustomerSatisfactionDashboardOpen(true);
+                                if (id === 'dept7') setIsMedicalProfessionalsDashboardOpen(true);
+                                if (id === 'dept8') setIsStandardsDashboardOpen(true);
+                                if (id === 'dept9') setIsReviewersDashboardOpen(true);
                             }}
                             className="btn"
                             style={{ backgroundColor: '#198754', color: 'white', fontSize: '0.95rem', padding: '10px 20px' }}
@@ -15242,69 +15249,7 @@ export default function DepartmentPage() {
 
                         {/* Export Buttons */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
-                            {id === 'dept1' && (
-                                <button
-                                    onClick={() => setIsDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept2' && (
-                                <button
-                                    onClick={() => setIsTechSupportDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept3' && (
-                                <button
-                                    onClick={() => setIsCustomerSatisfactionDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept5' && (
-                                <button
-                                    onClick={() => setIsAdminAuditDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept7' && (
-                                <button
-                                    onClick={() => setIsMedicalProfessionalsDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept8' && (
-                                <button
-                                    onClick={() => setIsStandardsDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
-                            {id === 'dept9' && (
-                                <button
-                                    onClick={() => setIsReviewersDashboardOpen(true)}
-                                    className="btn"
-                                    style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                                >
-                                    📊 لوحة البيانات
-                                </button>
-                            )}
+                            {/* Dashboard buttons moved to header */}
                             <button
                                 onClick={handleExportPDF}
                                 className="btn"
@@ -16713,13 +16658,6 @@ export default function DepartmentPage() {
 
                         {/* Export Buttons */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
-                            <button
-                                onClick={() => setIsMedicalProfessionalsDashboardOpen(true)}
-                                className="btn"
-                                style={{ backgroundColor: '#0eacb8', color: 'white', fontSize: '0.9rem' }}
-                            >
-                                📊 لوحة البيانات
-                            </button>
                             <button
                                 onClick={handleExportPDF}
                                 className="btn"
