@@ -806,15 +806,15 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                     return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
                                 });
 
-                                // Count by assessment type
-                                let technicalAudit = 0;  // تدقيق فني
-                                let technicalAssessment = 0;  // تقييم فني
+                                // Count by assessment type using visitType field
+                                let technicalAudit = 0;  // التدقيق الفني والإكلينيكي
+                                let technicalAssessment = 0;  // التقييم الفني والإكلينيكي
 
                                 filteredFacilities.forEach(f => {
-                                    const assessmentType = f.assessmentType || '';
-                                    if (assessmentType.includes('تدقيق فني')) {
+                                    const visitType = f.visitType || '';
+                                    if (visitType === 'التدقيق الفني والإكلينيكي') {
                                         technicalAudit++;
-                                    } else {
+                                    } else if (visitType === 'التقييم الفني والإكلينيكي') {
                                         technicalAssessment++;
                                     }
                                 });
@@ -1200,235 +1200,274 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 </div>
             )}
 
-            {/* Recurring Observations Section */}
+            {/* قسم الرسوم البيانية للملاحظات المتكررة */}
             {comparisonType === 'monthly' && observations.length > 0 && (
                 <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                     <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '20px'
                     }}>
+                        <span style={{ fontSize: '1.5rem' }}>🔄</span>
                         <h3 style={{
-                            margin: '0 0 20px 0',
+                            margin: 0,
                             color: '#dc3545',
                             fontSize: '1.3rem',
-                            fontWeight: 'bold',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px'
+                            fontWeight: 'bold'
                         }}>
-                            🔄 الملاحظات المتكررة - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                            تحليل الملاحظات المتكررة - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
                         </h3>
-                        {(() => {
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            const filteredObs = observations.filter(o => {
-                                const [year, month] = o.month.split('-');
-                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                            });
-
-                            if (filteredObs.length === 0) {
-                                return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
-                            }
-
-                            // Group by entityType
-                            const hcaObservations = filteredObs.filter(o => o.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية');
-                            const mohObservations = filteredObs.filter(o => o.entityType === 'منشآت تابعة لوزارة الصحة');
-                            const otherObservations = filteredObs.filter(o => o.entityType === 'منشآت تابعة لجهات أخرى');
-
-                            return (
-                                <div>
-                                    {/* HCA Observations Accordion */}
-                                    {hcaObservations.length > 0 && (
-                                        <div style={{ marginBottom: '20px' }}>
-                                            <details open style={{
-                                                backgroundColor: '#f8f9fa',
-                                                borderRadius: '8px',
-                                                overflow: 'hidden'
-                                            }}>
-                                                <summary style={{
-                                                    padding: '15px 20px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: 'bold',
-                                                    fontSize: '1.1rem',
-                                                    backgroundColor: '#e3f2fd',
-                                                    color: '#1565c0',
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <span>المنشآت الصحية التابعة لهيئة الرعاية الصحية</span>
-                                                    <span style={{
-                                                        backgroundColor: '#1565c0',
-                                                        color: 'white',
-                                                        padding: '4px 12px',
-                                                        borderRadius: '12px',
-                                                        fontSize: '0.85rem'
-                                                    }}>{hcaObservations.length} ملاحظات</span>
-                                                </summary>
-                                                <div style={{ padding: '15px' }}>
-                                                    <div style={{ overflowX: 'auto' }}>
-                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                            <thead>
-                                                                <tr style={{ backgroundColor: '#e3f2fd' }}>
-                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>نوع المنشأة</th>
-                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>الملاحظة</th>
-                                                                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #1565c0', width: '120px' }}>النسبة</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {hcaObservations.map((obs, idx) => (
-                                                                    <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                                        <td style={{ padding: '12px' }}>{obs.facilityType}</td>
-                                                                        <td style={{ padding: '12px' }}>{obs.observation}</td>
-                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                            <span style={{
-                                                                                padding: '4px 10px',
-                                                                                borderRadius: '12px',
-                                                                                fontWeight: 'bold',
-                                                                                backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
-                                                                                color: obs.percentage >= 50 ? '#721c24' : '#856404'
-                                                                            }}>{obs.percentage}%</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </details>
-                                        </div>
-                                    )}
-
-                                    {/* MOH Observations Accordion */}
-                                    {mohObservations.length > 0 && (
-                                        <div style={{ marginBottom: '20px' }}>
-                                            <details open style={{
-                                                backgroundColor: '#f8f9fa',
-                                                borderRadius: '8px',
-                                                overflow: 'hidden'
-                                            }}>
-                                                <summary style={{
-                                                    padding: '15px 20px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: 'bold',
-                                                    fontSize: '1.1rem',
-                                                    backgroundColor: '#fff3e0',
-                                                    color: '#e65100',
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <span>منشآت تابعة لوزارة الصحة</span>
-                                                    <span style={{
-                                                        backgroundColor: '#e65100',
-                                                        color: 'white',
-                                                        padding: '4px 12px',
-                                                        borderRadius: '12px',
-                                                        fontSize: '0.85rem'
-                                                    }}>{mohObservations.length} ملاحظات</span>
-                                                </summary>
-                                                <div style={{ padding: '15px' }}>
-                                                    <div style={{ overflowX: 'auto' }}>
-                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                            <thead>
-                                                                <tr style={{ backgroundColor: '#fff3e0' }}>
-                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>نوع المنشأة</th>
-                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>الملاحظة</th>
-                                                                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #e65100', width: '120px' }}>النسبة</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {mohObservations.map((obs, idx) => (
-                                                                    <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                                        <td style={{ padding: '12px' }}>{obs.facilityType}</td>
-                                                                        <td style={{ padding: '12px' }}>{obs.observation}</td>
-                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                            <span style={{
-                                                                                padding: '4px 10px',
-                                                                                borderRadius: '12px',
-                                                                                fontWeight: 'bold',
-                                                                                backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
-                                                                                color: obs.percentage >= 50 ? '#721c24' : '#856404'
-                                                                            }}>{obs.percentage}%</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </details>
-                                        </div>
-                                    )}
-
-                                    {/* Other Observations Accordion */}
-                                    {otherObservations.length > 0 && (
-                                        <div style={{ marginBottom: '20px' }}>
-                                            <details open style={{
-                                                backgroundColor: '#f8f9fa',
-                                                borderRadius: '8px',
-                                                overflow: 'hidden'
-                                            }}>
-                                                <summary style={{
-                                                    padding: '15px 20px',
-                                                    cursor: 'pointer',
-                                                    fontWeight: 'bold',
-                                                    fontSize: '1.1rem',
-                                                    backgroundColor: '#e8f5e9',
-                                                    color: '#2e7d32',
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <span>منشآت تابعة لجهات أخرى</span>
-                                                    <span style={{
-                                                        backgroundColor: '#2e7d32',
-                                                        color: 'white',
-                                                        padding: '4px 12px',
-                                                        borderRadius: '12px',
-                                                        fontSize: '0.85rem'
-                                                    }}>{otherObservations.length} ملاحظات</span>
-                                                </summary>
-                                                <div style={{ padding: '15px' }}>
-                                                    <div style={{ overflowX: 'auto' }}>
-                                                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                            <thead>
-                                                                <tr style={{ backgroundColor: '#e8f5e9' }}>
-                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>نوع المنشأة</th>
-                                                                    <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>الملاحظة</th>
-                                                                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #2e7d32', width: '120px' }}>النسبة</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {otherObservations.map((obs, idx) => (
-                                                                    <tr key={idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                                        <td style={{ padding: '12px' }}>{obs.facilityType}</td>
-                                                                        <td style={{ padding: '12px' }}>{obs.observation}</td>
-                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                            <span style={{
-                                                                                padding: '4px 10px',
-                                                                                borderRadius: '12px',
-                                                                                fontWeight: 'bold',
-                                                                                backgroundColor: obs.percentage >= 50 ? '#f8d7da' : '#fff3cd',
-                                                                                color: obs.percentage >= 50 ? '#721c24' : '#856404'
-                                                                            }}>{obs.percentage}%</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </details>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })()}
                     </div>
+
+                    {(() => {
+                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                        const filteredObs = observations.filter(o => {
+                            const [year, month] = o.month.split('-');
+                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                        });
+
+                        if (filteredObs.length === 0) {
+                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
+                        }
+
+                        // Group by facility type
+                        const facilityTypeCount: { [key: string]: number } = {};
+                        filteredObs.forEach(o => {
+                            const type = o.facilityType || 'غير محدد';
+                            facilityTypeCount[type] = (facilityTypeCount[type] || 0) + 1;
+                        });
+
+                        // Group by entity type
+                        const entityTypeCount: { [key: string]: number } = {};
+                        filteredObs.forEach(o => {
+                            const entity = o.entityType || 'غير محدد';
+                            entityTypeCount[entity] = (entityTypeCount[entity] || 0) + 1;
+                        });
+
+                        // Color palettes
+                        const facilityColors = ['#0d6a79', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#17a2b8', '#fd7e14'];
+                        const entityColors = ['#1565c0', '#e65100', '#2e7d32'];
+
+                        const facilityTypeData = Object.entries(facilityTypeCount)
+                            .map(([name, value], index) => ({
+                                name,
+                                value,
+                                color: facilityColors[index % facilityColors.length]
+                            }))
+                            .sort((a, b) => b.value - a.value);
+
+                        const entityTypeData = Object.entries(entityTypeCount)
+                            .map(([name, value], index) => ({
+                                name: name === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية' ? 'هيئة الرعاية' :
+                                    name === 'منشآت تابعة لوزارة الصحة' ? 'وزارة الصحة' :
+                                        name === 'منشآت تابعة لجهات أخرى' ? 'جهات أخرى' : name,
+                                fullName: name,
+                                value,
+                                color: entityColors[index % entityColors.length]
+                            }))
+                            .sort((a, b) => b.value - a.value);
+
+                        return (
+                            <div>
+                                {/* Container for both charts */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                                    gap: '20px'
+                                }}>
+                                    {/* Chart 1: Facility Type Distribution */}
+                                    <div style={{
+                                        backgroundColor: 'var(--card-bg)',
+                                        borderRadius: '12px',
+                                        padding: '25px',
+                                        border: '1px solid var(--border-color)',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            margin: '0 0 20px 0',
+                                            color: 'var(--text-color)',
+                                            fontSize: '1.1rem',
+                                            fontWeight: 'bold',
+                                            textAlign: 'center'
+                                        }}>
+                                            🏥 توزيع الملاحظات حسب نوع المنشأة
+                                        </h4>
+                                        <ResponsiveContainer width="100%" height={280}>
+                                            <BarChart data={facilityTypeData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    stroke="var(--text-color)"
+                                                    tick={{ fontSize: 11, dy: 8 }}
+                                                    interval={0}
+                                                    textAnchor="middle"
+                                                    height={50}
+                                                />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...facilityTypeData.map(d => d.value)) + 3]} />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--card-bg)',
+                                                        border: '1px solid var(--border-color)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                    formatter={(value: number) => [`${value} ملاحظة`, 'العدد']}
+                                                />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {facilityTypeData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <LabelList
+                                                        dataKey="value"
+                                                        position="top"
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            fill: 'var(--text-color)',
+                                                            fontSize: '14px'
+                                                        }}
+                                                    />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            marginTop: '15px'
+                                        }}>
+                                            {facilityTypeData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Chart 2: Entity Type (Affiliate) Distribution */}
+                                    <div style={{
+                                        backgroundColor: 'var(--card-bg)',
+                                        borderRadius: '12px',
+                                        padding: '25px',
+                                        border: '1px solid var(--border-color)',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            margin: '0 0 20px 0',
+                                            color: 'var(--text-color)',
+                                            fontSize: '1.1rem',
+                                            fontWeight: 'bold',
+                                            textAlign: 'center'
+                                        }}>
+                                            🏛️ توزيع الملاحظات حسب الجهة التابعة
+                                        </h4>
+                                        <ResponsiveContainer width="100%" height={280}>
+                                            <BarChart data={entityTypeData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    stroke="var(--text-color)"
+                                                    tick={{ fontSize: 11, dy: 8 }}
+                                                    interval={0}
+                                                    textAnchor="middle"
+                                                    height={50}
+                                                />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...entityTypeData.map(d => d.value)) + 3]} />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--card-bg)',
+                                                        border: '1px solid var(--border-color)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                    formatter={(value: number, name: string, props: any) => [`${value} ملاحظة`, props.payload.fullName]}
+                                                />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {entityTypeData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <LabelList
+                                                        dataKey="value"
+                                                        position="top"
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            fill: 'var(--text-color)',
+                                                            fontSize: '14px'
+                                                        }}
+                                                    />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'center',
+                                            gap: '15px',
+                                            marginTop: '15px'
+                                        }}>
+                                            {entityTypeData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.fullName}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Total observations summary */}
+                                <div style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    padding: '15px 25px',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '15px',
+                                    fontWeight: 'bold',
+                                    marginTop: '20px',
+                                    fontSize: '1.1rem'
+                                }}>
+                                    <span>📋</span>
+                                    <span>إجمالي الملاحظات المتكررة: {filteredObs.length} ملاحظة</span>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
             )}
+
 
             {/* Correction Rates Section */}
             {comparisonType === 'monthly' && correctionRates.length > 0 && (
@@ -1643,148 +1682,155 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                         })()}
                     </div>
                 </div>
-            )}
+            )
+            }
 
             {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
-            {comparisonType === 'monthly' && currentObstacles && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #ffc107',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
+            {
+                comparisonType === 'monthly' && currentObstacles && (
+                    <div style={{ marginBottom: '30px' }}>
                         <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #ffc107'
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '2px solid #ffc107',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}>
-                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#856404',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                paddingBottom: '15px',
+                                borderBottom: '2px solid #ffc107'
                             }}>
-                                المعوقات - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#fff3cd',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#856404',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentObstacles}
+                                <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                                <h3 style={{
+                                    margin: 0,
+                                    color: '#856404',
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    المعوقات - {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return monthNames[selectedMonth - 1];
+                                    })()} {targetYear}
+                                </h3>
+                            </div>
+                            <div style={{
+                                backgroundColor: '#fff3cd',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                color: '#856404',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {currentObstacles}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
-            {comparisonType === 'monthly' && currentDevelopmentProposals && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #28a745',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
+            {
+                comparisonType === 'monthly' && currentDevelopmentProposals && (
+                    <div style={{ marginBottom: '30px' }}>
                         <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #28a745'
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '2px solid #28a745',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}>
-                            <span style={{ fontSize: '1.5rem' }}>💡</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#155724',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                paddingBottom: '15px',
+                                borderBottom: '2px solid #28a745'
                             }}>
-                                مقترحات التطوير - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#d4edda',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#155724',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentDevelopmentProposals}
+                                <span style={{ fontSize: '1.5rem' }}>💡</span>
+                                <h3 style={{
+                                    margin: 0,
+                                    color: '#155724',
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    مقترحات التطوير - {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return monthNames[selectedMonth - 1];
+                                    })()} {targetYear}
+                                </h3>
+                            </div>
+                            <div style={{
+                                backgroundColor: '#d4edda',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                color: '#155724',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {currentDevelopmentProposals}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* قسم الأنشطة الإضافية - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
-            {comparisonType === 'monthly' && currentAdditionalActivities && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #6f42c1',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
+            {
+                comparisonType === 'monthly' && currentAdditionalActivities && (
+                    <div style={{ marginBottom: '30px' }}>
                         <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #6f42c1'
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '2px solid #6f42c1',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}>
-                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#4a2c7a',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                paddingBottom: '15px',
+                                borderBottom: '2px solid #6f42c1'
                             }}>
-                                أنشطة إضافية - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#e8d9f5',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#4a2c7a',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentAdditionalActivities}
+                                <span style={{ fontSize: '1.5rem' }}>🎯</span>
+                                <h3 style={{
+                                    margin: 0,
+                                    color: '#4a2c7a',
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    أنشطة إضافية - {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return monthNames[selectedMonth - 1];
+                                    })()} {targetYear}
+                                </h3>
+                            </div>
+                            <div style={{
+                                backgroundColor: '#e8d9f5',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                color: '#4a2c7a',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {currentAdditionalActivities}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
