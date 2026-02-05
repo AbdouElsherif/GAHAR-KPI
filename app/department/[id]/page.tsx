@@ -6282,6 +6282,7 @@ export default function DepartmentPage() {
                             }}
                             onClick={() => setIsDataEntrySectionExpanded(!isDataEntrySectionExpanded)}
                         >
+                            {/* ====== DEPT3-SECTION-1: المؤشرات الرئيسية ====== */}
                             <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--primary-color)' }}>
                                 📝 المؤشرات الرئيسية
                             </h2>
@@ -6698,7 +6699,7 @@ export default function DepartmentPage() {
                 />
             )}
 
-            {/* GovernorateCustomerSurveysSection - استبيانات المحافظات (for dept3 only) */}
+            {/* ====== DEPT3-SECTION-2: استبيانات رضاء المتعاملين حسب المحافظة ====== */}
             {id === 'dept3' && (
                 <GovernorateCustomerSurveysSection
                     currentUser={currentUser}
@@ -9555,6 +9556,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT4-SECTION-2: المنشآت التي تم زيارتها ====== */}
             {/* Technical Clinical Facilities Section - Dept4 only */}
             {id === 'dept4' && (
                 <div className="card" style={{ marginBottom: '30px' }}>
@@ -9954,6 +9956,7 @@ export default function DepartmentPage() {
             )
             }
 
+            {/* ====== DEPT4-SECTION-3: الملاحظات المتكررة ====== */}
             {/* Technical Clinical Observations Section - الملاحظات المتكررة خلال زيارات الرقابة الفنية والإكلينيكية - Only for dept4 */}
             {
                 id === 'dept4' && (
@@ -10302,6 +10305,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT4-SECTION-4: نسب تصحيح الملاحظات ====== */}
             {/* Technical Clinical Correction Rates Section - نسب تصحيح الملاحظات للرقابة الفنية والإكلينيكية - Only for dept4 */}
             {
                 id === 'dept4' && (
@@ -12135,6 +12139,7 @@ export default function DepartmentPage() {
             {
                 id === 'dept5' && (
                     <div className="card" style={{ marginTop: '30px' }}>
+                        {/* ====== DEPT5-SECTION-2: المنشآت التي تم زيارتها ====== */}
                         <div
                             style={{
                                 display: 'flex',
@@ -12440,6 +12445,7 @@ export default function DepartmentPage() {
             {
                 id === 'dept5' && (
                     <div className="card" style={{ marginTop: '30px' }}>
+                        {/* ====== DEPT5-SECTION-3: الملاحظات المتكررة ====== */}
                         <div
                             style={{
                                 display: 'flex',
@@ -12742,6 +12748,7 @@ export default function DepartmentPage() {
             {
                 id === 'dept5' && (
                     <div className="card" style={{ marginTop: '30px' }}>
+                        {/* ====== DEPT5-SECTION-4: نسب تصحيح الملاحظات ====== */}
                         <div
                             style={{
                                 display: 'flex',
@@ -14430,6 +14437,7 @@ export default function DepartmentPage() {
             }
 
             {/* Reviewer Evaluation Visits Section - الزيارات التقييمية وفقا لنوع المنشأة (for dept9 only) */}
+            {/* ====== DEPT9-SECTION-1: الزيارات التقييمية وفقا لنوع المنشأة ====== */}
             {
                 id === 'dept9' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -14685,6 +14693,7 @@ export default function DepartmentPage() {
             }
 
             {/* Reviewer Evaluation Visits By Governorate Section - الزيارات التقييمية وفقا للمحافظة (for dept9 only) */}
+            {/* ====== DEPT9-SECTION-2: الزيارات التقييمية وفقا للمحافظة ====== */}
             {
                 id === 'dept9' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -14967,6 +14976,7 @@ export default function DepartmentPage() {
             }
 
             {/* Reviewer Evaluation Visits By Visit Type Section - الزيارات التقييمية وفقا لنوع الزيارة (for dept9 only) */}
+            {/* ====== DEPT9-SECTION-3: الزيارات التقييمية وفقا لنوع الزيارة ====== */}
             {
                 id === 'dept9' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -15237,6 +15247,10 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT4-SECTION-1: المؤشرات الرئيسية ====== */}
+            {/* ====== DEPT5-SECTION-1: المؤشرات الرئيسية ====== */}
+            {/* ====== DEPT8-SECTION-2: جدول البيانات الرئيسي ====== */}
+            {/* ====== DEPT9-SECTION-5: جدول البيانات الرئيسي ====== */}
             {
                 submissions.length > 0 && id !== 'dept7' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -15326,6 +15340,7 @@ export default function DepartmentPage() {
 
 
                         {/* Achievements Card for dept8 */}
+                        {/* ====== DEPT8-SECTION-1: بطاقة الإنجازات المكتملة ====== */}
                         {id === 'dept8' && completedStandards.length > 0 && (
                             <div style={{
                                 marginBottom: '25px',
@@ -15536,6 +15551,7 @@ export default function DepartmentPage() {
                     </DashboardModal>
                 )
             }
+            {/* ====== DEPT3-SECTION-3: لوحة البيانات (Dashboard) ====== */}
             {
                 id === 'dept3' && (
                     <DashboardModal
@@ -15546,6 +15562,7 @@ export default function DepartmentPage() {
                     </DashboardModal>
                 )
             }
+            {/* ====== DEPT4-SECTION-5: TechnicalClinicalDashboard (لوحة البيانات) ====== */}
             {
                 id === 'dept4' && (
                     <DashboardModal
@@ -15570,6 +15587,7 @@ export default function DepartmentPage() {
                         onClose={() => setIsAdminAuditDashboardOpen(false)}
                         title="لوحة بيانات الرقابة الإدارية على المنشآت الصحية"
                     >
+                        {/* ====== DEPT5-SECTION-5: AdminAuditDashboard (لوحة البيانات) ====== */}
                         <AdminAuditDashboard
                             submissions={submissions}
                             facilities={adminAuditFacilities}
@@ -15606,6 +15624,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT7-SECTION-1: لوحة بيانات المهن الطبية ====== */}
             {
                 id === 'dept7' && (
                     <DashboardModal
@@ -15643,6 +15662,7 @@ export default function DepartmentPage() {
             }
 
             {/* Medical Professionals By Category Section - أعضاء المهن الطبية حسب الفئة (for dept7 only) */}
+            {/* ====== DEPT7-SECTION-2: المهن الطبية حسب الفئة ====== */}
             {
                 id === 'dept7' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -15924,6 +15944,7 @@ export default function DepartmentPage() {
             }
 
             {/* Medical Professionals By Governorate Section - for dept7 only */}
+            {/* ====== DEPT7-SECTION-3: المهن الطبية حسب المحافظة ====== */}
             {
                 id === 'dept7' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -16182,6 +16203,7 @@ export default function DepartmentPage() {
             }
 
             {/* Total Medical Professionals By Category Section for dept7 */}
+            {/* ====== DEPT7-SECTION-4: الإجمالي الكلي حسب الفئة ====== */}
             {
                 id === 'dept7' && (
                     <div className="card" style={{ marginTop: '30px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -16404,6 +16426,7 @@ export default function DepartmentPage() {
             }
 
             {/* Total Medical Professionals By Governorate Section for dept7 */}
+            {/* ====== DEPT7-SECTION-5: الإجمالي الكلي حسب المحافظة ====== */}
             {
                 id === 'dept7' && (
                     <div className="card" style={{ marginTop: '30px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -16646,6 +16669,7 @@ export default function DepartmentPage() {
             }
 
             {/* Main Data Table for dept7 (Moved to bottom) */}
+            {/* ====== DEPT7-SECTION-6: جدول البيانات الرئيسي ====== */}
             {
                 submissions.length > 0 && id === 'dept7' && (
                     <div className="card" style={{ marginTop: '30px' }}>
@@ -16859,6 +16883,7 @@ export default function DepartmentPage() {
             }
 
             {/* Standards Dashboard Modal for dept8 */}
+            {/* ====== DEPT8-SECTION-3: لوحة البيانات (Dashboard) ====== */}
             {
                 id === 'dept8' && (
                     <DashboardModal

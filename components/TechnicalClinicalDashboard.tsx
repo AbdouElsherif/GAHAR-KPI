@@ -806,147 +806,6 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 </div>
             </div>
 
-            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentObstacles && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #ffc107',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #ffc107'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#856404',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                المعوقات - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#fff3cd',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#856404',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentObstacles}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentDevelopmentProposals && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #28a745',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #28a745'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>💡</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#155724',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                مقترحات التطوير - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#d4edda',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#155724',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentDevelopmentProposals}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* قسم الأنشطة الإضافية - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentAdditionalActivities && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #6f42c1',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #6f42c1'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#4a2c7a',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                أنشطة إضافية - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#e8d9f5',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#4a2c7a',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentAdditionalActivities}
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* قسم المنشآت التي تم زيارتها - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && (
                 <div style={{ marginBottom: '30px' }}>
@@ -1545,6 +1404,147 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                 </div>
                             );
                         })()}
+                    </div>
+                </div>
+            )}
+
+            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
+            {comparisonType === 'monthly' && currentObstacles && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #ffc107',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #ffc107'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#856404',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                المعوقات - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#fff3cd',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#856404',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentObstacles}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
+            {comparisonType === 'monthly' && currentDevelopmentProposals && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #28a745',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #28a745'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>💡</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#155724',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                مقترحات التطوير - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#d4edda',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#155724',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentDevelopmentProposals}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم الأنشطة الإضافية - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
+            {comparisonType === 'monthly' && currentAdditionalActivities && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #6f42c1',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #6f42c1'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#4a2c7a',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                أنشطة إضافية - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#e8d9f5',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#4a2c7a',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentAdditionalActivities}
+                        </div>
                     </div>
                 </div>
             )}
