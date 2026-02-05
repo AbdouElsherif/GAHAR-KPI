@@ -1500,7 +1500,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                 { key: 'tex', label: 'TEX', desc: 'التجهيزات الطبية' },
                                 { key: 'teq', label: 'TEQ', desc: 'الأعطال والأجهزة' },
                                 { key: 'tpo', label: 'TPO', desc: 'السياسات والإجراءات' },
-                                { key: 'nsr', label: 'NSR', desc: 'عدم المطابقة' },
+                                { key: 'nsr', label: 'NSR', desc: 'متطلبات السلامة الوطنية' },
                                 { key: 'irs', label: 'IRS', desc: 'تحديد المريض' },
                                 { key: 'cps', label: 'CPS', desc: 'سجلات الطوارئ' },
                                 { key: 'lpr', label: 'LPR', desc: 'السجلات المعملية' },
