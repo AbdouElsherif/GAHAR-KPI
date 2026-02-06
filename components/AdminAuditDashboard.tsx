@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Cell } from 'recharts';
 
 import { AdminAuditFacility, AdminAuditObservation, ObservationCorrectionRate } from '@/lib/firestore';
 
@@ -1145,140 +1145,464 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                 </div>
             )}
 
-            {/* قسم المنشآت التي تم زيارتها - يظهر فقط في حالة الفلترة الشهرية */}
+            {/* قسم تحليل الزيارات - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && (
                 <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '20px'
+                    }}>
+                        <span style={{ fontSize: '1.5rem' }}>📊</span>
+                        <h3 style={{
+                            margin: 0,
+                            color: 'var(--primary-color)',
+                            fontSize: '1.3rem',
+                            fontWeight: 'bold'
+                        }}>
+                            تحليل الزيارات - {(() => {
+                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                return monthNames[selectedMonth - 1];
+                            })()} {targetYear}
+                        </h3>
+                    </div>
+
+                    {/* Container for charts */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                        gap: '20px'
+                    }}>
+                        {/* Chart 1: Visit Type Distribution */}
+                        <div style={{
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <h4 style={{
+                                margin: '0 0 20px 0',
+                                color: 'var(--text-color)',
+                                fontSize: '1.1rem',
+                                fontWeight: 'bold',
+                                textAlign: 'center'
+                            }}>
+                                🎯 توزيع الزيارات حسب نوع الزيارة
+                            </h4>
+                            {(() => {
+                                const filteredFacilities = facilities.filter(f => {
+                                    const [year, month] = f.month.split('-');
+                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                                });
+
+                                // Count by visit type
+                                const visitTypeCount: { [key: string]: number } = {};
+                                filteredFacilities.forEach(f => {
+                                    const type = f.visitType || 'غير محدد';
+                                    visitTypeCount[type] = (visitTypeCount[type] || 0) + 1;
+                                });
+
+                                // Color palette for visit types
+                                const visitTypeColors: { [key: string]: string } = {
+                                    'تدقيق إداري وسلامة بيئية': '#0d6a79',
+                                    'تفتيش إداري': '#28a745',
+                                    'زيارة متابعة': '#ffc107',
+                                    'فحص / إحالة / تكليف': '#dc3545',
+                                    'فحص حدث جسيم': '#6f42c1'
+                                };
+
+                                const visitTypeData = Object.entries(visitTypeCount)
+                                    .map(([name, value]) => ({
+                                        name: name.length > 15 ? name.substring(0, 15) + '...' : name,
+                                        fullName: name,
+                                        value,
+                                        color: visitTypeColors[name] || '#17a2b8'
+                                    }))
+                                    .sort((a, b) => b.value - a.value);
+
+                                const total = visitTypeData.reduce((sum, item) => sum + item.value, 0);
+
+                                if (total === 0) {
+                                    return (
+                                        <div style={{
+                                            textAlign: 'center',
+                                            padding: '40px',
+                                            color: '#6c757d'
+                                        }}>
+                                            لا توجد زيارات مسجلة لهذا الشهر
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div>
+                                        <ResponsiveContainer width="100%" height={280}>
+                                            <BarChart data={visitTypeData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    stroke="var(--text-color)"
+                                                    tick={{ fontSize: 10, dy: 8 }}
+                                                    interval={0}
+                                                    textAnchor="middle"
+                                                    height={60}
+                                                />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...visitTypeData.map(d => d.value)) + 3]} />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--card-bg)',
+                                                        border: '1px solid var(--border-color)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                    formatter={(value: number, name: string, props: any) => [`${value} زيارة`, props.payload.fullName]}
+                                                />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {visitTypeData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <LabelList
+                                                        dataKey="value"
+                                                        position="top"
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            fill: 'var(--text-color)',
+                                                            fontSize: '14px'
+                                                        }}
+                                                    />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            marginTop: '15px'
+                                        }}>
+                                            {visitTypeData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.fullName}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
+
+                        {/* Chart 2: Facility Type Distribution */}
+                        <div style={{
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <h4 style={{
+                                margin: '0 0 20px 0',
+                                color: 'var(--text-color)',
+                                fontSize: '1.1rem',
+                                fontWeight: 'bold',
+                                textAlign: 'center'
+                            }}>
+                                🏥 توزيع الزيارات حسب نوع المنشأة
+                            </h4>
+                            {(() => {
+                                const filteredFacilities = facilities.filter(f => {
+                                    const [year, month] = f.month.split('-');
+                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                                });
+
+                                // Group by facility type
+                                const facilityTypeCount: { [key: string]: number } = {};
+                                filteredFacilities.forEach(f => {
+                                    const type = f.facilityType || 'غير محدد';
+                                    facilityTypeCount[type] = (facilityTypeCount[type] || 0) + 1;
+                                });
+
+                                // Color palette for facility types
+                                const colors = [
+                                    '#0d6a79', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
+                                    '#17a2b8', '#fd7e14', '#20c997', '#e83e8c', '#6610f2'
+                                ];
+
+                                const facilityTypeData = Object.entries(facilityTypeCount)
+                                    .map(([name, value], index) => ({
+                                        name,
+                                        value,
+                                        color: colors[index % colors.length]
+                                    }))
+                                    .sort((a, b) => b.value - a.value);
+
+                                if (facilityTypeData.length === 0) {
+                                    return (
+                                        <div style={{
+                                            textAlign: 'center',
+                                            padding: '40px',
+                                            color: '#6c757d'
+                                        }}>
+                                            لا توجد زيارات مسجلة لهذا الشهر
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div>
+                                        <ResponsiveContainer width="100%" height={250}>
+                                            <BarChart data={facilityTypeData} layout="horizontal">
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    stroke="var(--text-color)"
+                                                    tick={{ fontSize: 11, dy: 8 }}
+                                                    interval={0}
+                                                    textAnchor="middle"
+                                                    height={50}
+                                                />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...facilityTypeData.map(d => d.value)) + 3]} />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--card-bg)',
+                                                        border: '1px solid var(--border-color)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                    formatter={(value: number) => [`${value} زيارة`, 'العدد']}
+                                                />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {facilityTypeData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <LabelList
+                                                        dataKey="value"
+                                                        position="top"
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            fill: 'var(--text-color)',
+                                                            fontSize: '14px'
+                                                        }}
+                                                    />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'center',
+                                            gap: '15px',
+                                            marginTop: '15px'
+                                        }}>
+                                            {facilityTypeData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '15px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    </div>
+
+                    {/* Chart 3: Governorate Distribution */}
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
                         borderRadius: '12px',
                         padding: '25px',
-                        border: '1px solid #e0e0e0',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                        marginTop: '20px'
                     }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: '20px'
+                        <h4 style={{
+                            margin: '0 0 20px 0',
+                            color: 'var(--text-color)',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            textAlign: 'center'
                         }}>
-                            <h3 style={{
-                                margin: 0,
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px'
-                            }}>
-                                🏥 المنشآت التي تم زيارتها خلال {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                            <div style={{
-                                backgroundColor: 'var(--primary-color)',
-                                color: 'white',
-                                padding: '5px 15px',
-                                borderRadius: '20px',
-                                fontSize: '0.9rem',
-                                fontWeight: 'bold'
-                            }}>
-                                العدد: {facilities.filter(f => {
-                                    const [year, month] = f.month.split('-');
-                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                }).length}
-                            </div>
-                        </div>
+                            📍 توزيع الزيارات حسب المحافظة
+                        </h4>
+                        {(() => {
+                            const filteredFacilities = facilities.filter(f => {
+                                const [year, month] = f.month.split('-');
+                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                            });
 
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.9rem'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#0D6A79', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>نوع المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>نوع الزيارة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #0D6A79', fontWeight: '700', fontSize: '0.95rem' }}>المحافظة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(() => {
-                                        const filteredFacilities = facilities.filter(f => {
-                                            const [year, month] = f.month.split('-');
-                                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                        });
+                            // Group by governorate
+                            const governorateCount: { [key: string]: number } = {};
+                            filteredFacilities.forEach(f => {
+                                const gov = f.governorate || 'غير محدد';
+                                governorateCount[gov] = (governorateCount[gov] || 0) + 1;
+                            });
 
-                                        if (filteredFacilities.length === 0) {
-                                            return (
-                                                <tr>
-                                                    <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-                                                        لا توجد زيارات مسجلة لهذا الشهر
-                                                    </td>
-                                                </tr>
-                                            );
-                                        }
+                            // Color palette for governorates
+                            const colors = [
+                                '#0d6a79', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
+                                '#17a2b8', '#fd7e14', '#20c997', '#e83e8c', '#6610f2'
+                            ];
 
-                                        // تجميع المنشآت حسب المحافظة
-                                        const groupedByGovernorate: Record<string, typeof filteredFacilities> = {};
-                                        filteredFacilities.forEach(facility => {
-                                            const gov = facility.governorate || 'غير محدد';
-                                            if (!groupedByGovernorate[gov]) {
-                                                groupedByGovernorate[gov] = [];
-                                            }
-                                            groupedByGovernorate[gov].push(facility);
-                                        });
+                            const governorateData = Object.entries(governorateCount)
+                                .map(([name, value], index) => ({
+                                    name,
+                                    value,
+                                    color: colors[index % colors.length]
+                                }))
+                                .sort((a, b) => b.value - a.value);
 
-                                        // ترتيب المحافظات أبجدياً
-                                        const sortedGovernorates = Object.keys(groupedByGovernorate).sort((a, b) => a.localeCompare(b, 'ar'));
+                            if (governorateData.length === 0) {
+                                return (
+                                    <div style={{
+                                        textAlign: 'center',
+                                        padding: '40px',
+                                        color: '#6c757d'
+                                    }}>
+                                        لا توجد زيارات مسجلة لهذا الشهر
+                                    </div>
+                                );
+                            }
 
-                                        // ألوان خلفية خفيفة متناوبة للمحافظات
-                                        const governorateColors = [
-                                            'rgba(13, 106, 121, 0.05)',  // لون أساسي خفيف جداً
-                                            'rgba(13, 106, 121, 0.12)', // لون أساسي خفيف
-                                        ];
-
-                                        let rowIndex = 0;
-                                        return sortedGovernorates.map((governorate, govIndex) => {
-                                            const bgColor = governorateColors[govIndex % 2];
-                                            const facilitiesInGov = groupedByGovernorate[governorate];
-
-                                            return facilitiesInGov.map((facility, facilityIndex) => {
-                                                const currentRowIndex = rowIndex++;
-                                                return (
-                                                    <tr
-                                                        key={`${governorate}-${facilityIndex}`}
-                                                        style={{
-                                                            borderBottom: '1px solid #dee2e6',
-                                                            backgroundColor: bgColor
-                                                        }}
-                                                    >
-                                                        <td style={{ padding: '12px' }}>{facility.facilityType}</td>
-                                                        <td style={{ padding: '12px', fontWeight: 'bold' }}>{facility.facilityName}</td>
-                                                        <td style={{ padding: '12px' }}>{facility.visitType}</td>
-                                                        <td style={{
-                                                            padding: '12px',
-                                                            textAlign: 'center',
-                                                            fontWeight: facilityIndex === 0 ? '600' : 'normal',
-                                                            color: facilityIndex === 0 ? '#0D6A79' : 'inherit'
-                                                        }}>
-                                                            {facility.governorate}
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            });
-                                        });
-                                    })()}
-                                </tbody>
-                            </table>
-                        </div>
+                            return (
+                                <div>
+                                    <ResponsiveContainer width="100%" height={280}>
+                                        <BarChart data={governorateData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                            <XAxis
+                                                dataKey="name"
+                                                stroke="var(--text-color)"
+                                                tick={{ fontSize: 11, dy: 8 }}
+                                                interval={0}
+                                                textAnchor="middle"
+                                                height={50}
+                                            />
+                                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...governorateData.map(d => d.value)) + 3]} />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: 'var(--card-bg)',
+                                                    border: '1px solid var(--border-color)',
+                                                    borderRadius: '8px'
+                                                }}
+                                                formatter={(value: number) => [`${value} زيارة`, 'العدد']}
+                                            />
+                                            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                {governorateData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                                <LabelList
+                                                    dataKey="value"
+                                                    position="top"
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        fill: 'var(--text-color)',
+                                                        fontSize: '14px'
+                                                    }}
+                                                />
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'center',
+                                        gap: '10px',
+                                        marginTop: '15px'
+                                    }}>
+                                        {governorateData.map((item, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    padding: '4px 10px',
+                                                    backgroundColor: 'rgba(0,0,0,0.03)',
+                                                    borderRadius: '8px'
+                                                }}
+                                            >
+                                                <div style={{
+                                                    width: '12px',
+                                                    height: '12px',
+                                                    backgroundColor: item.color,
+                                                    borderRadius: '3px'
+                                                }}></div>
+                                                <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
+
+                    {/* Total visits summary */}
+                    {(() => {
+                        const filteredCount = facilities.filter(f => {
+                            const [year, month] = f.month.split('-');
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                        }).length;
+
+                        if (filteredCount > 0) {
+                            return (
+                                <div style={{
+                                    backgroundColor: 'var(--primary-color)',
+                                    color: 'white',
+                                    padding: '15px 25px',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '15px',
+                                    fontWeight: 'bold',
+                                    marginTop: '20px',
+                                    fontSize: '1.1rem'
+                                }}>
+                                    <span>📈</span>
+                                    <span>إجمالي الزيارات الميدانية: {filteredCount} زيارة</span>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
                 </div>
             )}
+
+
 
             {/* Recurring Observations Section - الملاحظات المتكررة */}
             {comparisonType === 'monthly' && (() => {
