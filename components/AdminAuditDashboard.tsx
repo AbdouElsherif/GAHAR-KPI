@@ -1892,273 +1892,134 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
 
 
-            {/* Correction Rates Section */}
+            {/* Correction Rates Section - Smart Card Design */}
             {comparisonType === 'monthly' && correctionRates.length > 0 && (() => {
-                // Normalize category names - convert old names to new standard names
-                const normalizeCategory = (category: string): string => {
-                    const categoryMap: { [key: string]: string } = {
-                        'مستشفى': 'مستشفيات',
-                        'صيدلية': 'صيدليات',
-                        'معمل': 'معامل'
-                    };
-                    return categoryMap[category] || category;
+                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                const filteredRates = correctionRates.filter(r => {
+
+                    const [year, month] = r.month.split('-');
+                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
+                });
+
+                if (filteredRates.length === 0) {
+                    return (
+                        <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                            <h3 style={{ margin: '0 0 15px 0', color: '#17a2b8', fontSize: '1.2rem' }}>
+                                📊 نسب تصحيح الملاحظات - {monthNames[selectedMonth - 1]} {expectedYear}
+                            </h3>
+                            <p style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد بيانات متاحة لهذا الشهر</p>
+                        </div>
+                    );
+                }
+
+                // Criteria config for Administrative Audit
+                const criteriaConfig = [
+                    { key: 'pcc', label: 'PCC', desc: 'رعاية المرضى والرعاية المتمركزة حولهم' },
+                    { key: 'efs', label: 'EFS', desc: 'إدارة وسلامة المنشأة' },
+                    { key: 'ogm', label: 'OGM', desc: 'الحوكمة وإدارة المنظمة' },
+                    { key: 'imt', label: 'IMT', desc: 'إدارة المعلومات والتكامل' },
+                    { key: 'wfm', label: 'WFM', desc: 'إدارة القوى العاملة' },
+                    { key: 'cai', label: 'CAI', desc: 'الاتصال والاعتماد والجودة' },
+                    { key: 'qpi', label: 'QPI', desc: 'تحسين الجودة والأداء' },
+                    { key: 'mrs', label: 'MRS', desc: 'خدمات الأشعة الطبية' },
+                    { key: 'scm', label: 'SCM', desc: 'إدارة سلاسل الإمداد' },
+                    { key: 'ems', label: 'EMS', desc: 'خدمات الطوارئ' }
+                ];
+
+                const renderSmartTable = (title: string, color: string, rates: any[]) => {
+                    if (rates.length === 0) return null;
+                    return (
+                        <div style={{ marginBottom: '40px' }}>
+                            <h4 style={{ backgroundColor: color, color: 'white', padding: '15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
+                                {title} ({rates.length} زيارات)
+                            </h4>
+                            <div style={{ border: `2px solid ${color}`, borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '20px', overflowX: 'auto' }}>
+                                {['مراكز ووحدات الرعاية الأولية', 'مستشفيات', 'مستشفى صحة نفسية', 'صيدليات', 'معامل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
+                                    const categoryRates = rates.filter(r => r.facilityCategory === category);
+                                    if (categoryRates.length === 0) return null;
+                                    return (
+                                        <div key={category} style={{ marginBottom: '25px' }}>
+                                            <h5 style={{ marginBottom: '15px', color: color, borderBottom: `2px solid ${color}`, paddingBottom: '10px' }}>
+                                                🏥 {category} ({categoryRates.length} زيارات)
+                                            </h5>
+                                            {categoryRates.map((rate) => (
+                                                <div key={rate.id} style={{ marginBottom: '25px', backgroundColor: '#fdfdfd', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', border: '1px solid #eee' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                                        <span style={{ fontWeight: 'bold', fontSize: '1.05rem', color: '#333' }}>
+                                                            ● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}
+                                                        </span>
+                                                    </div>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '15px' }}>
+                                                        {criteriaConfig.map(c => {
+                                                            const total = (rate as any)[`${c.key}Total`] || 0;
+                                                            const corrected = (rate as any)[`${c.key}Corrected`] || 0;
+                                                            const pct = total > 0 ? Math.round((corrected / total) * 100) : 0;
+                                                            const hasData = total > 0 || corrected > 0;
+
+                                                            if (!hasData) return null;
+
+                                                            return (
+                                                                <div key={c.key} style={{
+                                                                    backgroundColor: 'white',
+                                                                    padding: '12px',
+                                                                    borderRadius: '8px',
+                                                                    border: '1px solid #f0f0f0',
+                                                                    display: 'flex',
+                                                                    flexDirection: 'column',
+                                                                    gap: '6px'
+                                                                }}>
+                                                                    <span
+                                                                        title={c.desc}
+                                                                        style={{
+                                                                            fontSize: '0.75rem',
+                                                                            color: '#666',
+                                                                            fontWeight: 'bold',
+                                                                            cursor: 'help',
+                                                                            borderBottom: '1px dotted #ccc'
+                                                                        }}
+                                                                    >
+                                                                        {c.label}
+                                                                    </span>
+                                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                                                        <span>{corrected} / {total}</span>
+                                                                        <span style={{
+                                                                            color: pct >= 80 ? '#2e7d32' : pct >= 50 ? '#f9a825' : '#c62828',
+                                                                            fontWeight: 'bold'
+                                                                        }}>{pct}%</span>
+                                                                    </div>
+                                                                    <div style={{ height: '6px', width: '100%', backgroundColor: '#eee', borderRadius: '3px', overflow: 'hidden' }}>
+                                                                        <div style={{
+                                                                            height: '100%',
+                                                                            width: `${pct}%`,
+                                                                            backgroundColor: pct >= 80 ? '#4caf50' : pct >= 50 ? '#ffc107' : '#f44336',
+                                                                            borderRadius: '3px'
+                                                                        }}></div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
                 };
 
-                const filteredRates = correctionRates.filter(r => {
-                    const [rateYear, rateMonth] = r.month.split('-').map(Number);
-                    // حساب السنة المتوقعة بناءً على السنة المالية المختارة
-                    // إذا كان الشهر أكبر من أو يساوي 7 (يوليو - ديسمبر)، تكون السنة هي السنة السابقة لسنة النهاية
-                    // إذا كان الشهر أقل من 7 (يناير - يونيو)، تكون السنة هي نفس سنة النهاية
-                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                    return rateYear === expectedYear && rateMonth === selectedMonth;
-                }).map(r => ({
-                    ...r,
-                    facilityCategory: normalizeCategory(r.facilityCategory)
-                }));
-
-                if (filteredRates.length === 0) return null;
-
                 return (
-                    <div style={{ marginTop: '30px' }}>
-                        <details open style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                            <summary style={{ cursor: 'pointer', fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '20px' }}>
-                                📊 نسب تصحيح الملاحظات بناء على تقارير الزيارات ({filteredRates.length} سجل)
-                            </summary>
-
-                            {/* HCA Facilities */}
-                            {filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية').length > 0 && (
-                                <div style={{ marginBottom: '30px' }}>
-                                    <h3 style={{ backgroundColor: '#17a2b8', color: 'white', padding: '12px 15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                        🏛️ المنشآت الصحية التابعة لهيئة الرعاية
-                                    </h3>
-                                    <div style={{ border: '2px solid #17a2b8', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مراكز ووحدات الرعاية الأولية', 'مستشفيات', 'مستشفى صحة نفسية'].map(category => {
-                                            const categoryRates = filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية' && r.facilityCategory === category);
-                                            if (categoryRates.length === 0) return null;
-                                            return (
-                                                <div key={category} style={{ marginBottom: '20px' }}>
-                                                    <h4 style={{ color: '#17a2b8', borderBottom: '1px solid #17a2b8', paddingBottom: '8px', marginBottom: '10px' }}>
-                                                        🏥 {category} ({categoryRates.length})
-                                                    </h4>
-                                                    {categoryRates.map(rate => (
-                                                        <div key={rate.id} style={{ marginBottom: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '12px' }}>
-                                                            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                                                                ● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}
-                                                            </div>
-                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                                                                <thead>
-                                                                    <tr style={{ backgroundColor: '#17a2b8', color: 'white' }}>
-                                                                        <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>PCC</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EFS</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>OGM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>IMT</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>WFM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>CAI</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>QPI</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>MRS</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>SCM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EMS</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr style={{ backgroundColor: 'white' }}>
-                                                                        <td style={{ padding: '6px' }}>الواردة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                            <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
-                                                                        ))}
-                                                                    </tr>
-                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                        <td style={{ padding: '6px' }}>المصححة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                            <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
-                                                                        ))}
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                            if (item.t < 0 && item.c < 0) {
-                                                                                return (
-                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
-                                                                                        <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
-                                                                                    </td>
-                                                                                );
-                                                                            }
-                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                            return (
-                                                                                <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
-                                                                                    <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span>
-                                                                                </td>
-                                                                            );
-                                                                        })}
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* MOH Facilities */}
-                            {filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة').length > 0 && (
-                                <div style={{ marginBottom: '30px' }}>
-                                    <h3 style={{ backgroundColor: '#ff9800', color: 'white', padding: '12px 15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                        🏥 المنشآت الصحية التابعة لوزارة الصحة
-                                    </h3>
-                                    <div style={{ border: '2px solid #ff9800', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مراكز ووحدات الرعاية الأولية', 'مستشفيات', 'مستشفى صحة نفسية', 'صيدليات', 'معامل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
-                                            const categoryRates = filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة' && r.facilityCategory === category);
-                                            if (categoryRates.length === 0) return null;
-                                            return (
-                                                <div key={category} style={{ marginBottom: '20px' }}>
-                                                    <h4 style={{ color: '#ff9800', borderBottom: '1px solid #ff9800', paddingBottom: '8px', marginBottom: '10px' }}>
-                                                        🏥 {category} ({categoryRates.length})
-                                                    </h4>
-                                                    {categoryRates.map(rate => (
-                                                        <div key={rate.id} style={{ marginBottom: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '12px' }}>
-                                                            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                                                                ● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}
-                                                            </div>
-                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                                                                <thead>
-                                                                    <tr style={{ backgroundColor: '#ff9800', color: 'white' }}>
-                                                                        <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>PCC</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EFS</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>OGM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>IMT</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>WFM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>CAI</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>QPI</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>MRS</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>SCM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EMS</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr style={{ backgroundColor: 'white' }}>
-                                                                        <td style={{ padding: '6px' }}>الواردة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                            <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
-                                                                        ))}
-                                                                    </tr>
-                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                        <td style={{ padding: '6px' }}>المصححة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                            <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
-                                                                        ))}
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                            if (item.t < 0 && item.c < 0) {
-                                                                                return (
-                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
-                                                                                        <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
-                                                                                    </td>
-                                                                                );
-                                                                            }
-                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                            return (
-                                                                                <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
-                                                                                    <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span>
-                                                                                </td>
-                                                                            );
-                                                                        })}
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Other Facilities */}
-                            {filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى').length > 0 && (
-                                <div>
-                                    <h3 style={{ backgroundColor: '#28a745', color: 'white', padding: '12px 15px', borderRadius: '8px 8px 0 0', margin: 0 }}>
-                                        🏢 منشآت صحية أخرى
-                                    </h3>
-                                    <div style={{ border: '2px solid #28a745', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '15px' }}>
-                                        {['مراكز ووحدات الرعاية الأولية', 'صيدليات', 'معامل', 'مراكز أشعة', 'مراكز طبية', 'مراكز علاج طبيعي', 'عيادات طبية'].map(category => {
-                                            const categoryRates = filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى' && r.facilityCategory === category);
-                                            if (categoryRates.length === 0) return null;
-                                            return (
-                                                <div key={category} style={{ marginBottom: '20px' }}>
-                                                    <h4 style={{ color: '#28a745', borderBottom: '1px solid #28a745', paddingBottom: '8px', marginBottom: '10px' }}>
-                                                        🏥 {category} ({categoryRates.length})
-                                                    </h4>
-                                                    {categoryRates.map(rate => (
-                                                        <div key={rate.id} style={{ marginBottom: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '12px' }}>
-                                                            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                                                                ● {rate.visitType} - {rate.facilityName} - {rate.governorate} - {rate.visitDate}
-                                                            </div>
-                                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                                                                <thead>
-                                                                    <tr style={{ backgroundColor: '#28a745', color: 'white' }}>
-                                                                        <th style={{ padding: '6px', textAlign: 'right' }}>البيان</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>PCC</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EFS</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>OGM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>IMT</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>WFM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>CAI</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>QPI</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>MRS</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>SCM</th>
-                                                                        <th style={{ padding: '6px', textAlign: 'center' }}>EMS</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr style={{ backgroundColor: 'white' }}>
-                                                                        <td style={{ padding: '6px' }}>الواردة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                            <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
-                                                                        ))}
-                                                                    </tr>
-                                                                    <tr style={{ backgroundColor: '#f1f1f1' }}>
-                                                                        <td style={{ padding: '6px' }}>المصححة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => (
-                                                                            <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
-                                                                        ))}
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
-                                                                        {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }].map((item, i) => {
-                                                                            if (item.t < 0 && item.c < 0) {
-                                                                                return (
-                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
-                                                                                        <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
-                                                                                    </td>
-                                                                                );
-                                                                            }
-                                                                            const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
-                                                                            return (
-                                                                                <td key={i} style={{ padding: '6px', textAlign: 'center' }}>
-                                                                                    <span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span>
-                                                                                </td>
-                                                                            );
-                                                                        })}
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-                        </details>
+                    <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
+                        <h3 style={{ margin: '0 0 15px 0', color: '#17a2b8', fontSize: '1.2rem' }}>
+                            📊 نسب تصحيح الملاحظات - {monthNames[selectedMonth - 1]} {expectedYear}
+                        </h3>
+                        <div style={{ marginTop: '20px' }}>
+                            {renderSmartTable('🏛️ أولاً: المنشآت الصحية التابعة لهيئة الرعاية', '#17a2b8', filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية'))}
+                            {renderSmartTable('🏥 ثانياً: المنشآت الصحية التابعة لوزارة الصحة', '#ff9800', filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لوزارة الصحة'))}
+                            {renderSmartTable('🏢 ثالثاً: منشآت صحية أخرى', '#28a745', filteredRates.filter(r => r.entityType === 'منشآت صحية أخرى'))}
+                        </div>
                     </div>
                 );
             })()}
