@@ -1603,253 +1603,294 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             )}
 
 
-
-            {/* Recurring Observations Section - الملاحظات المتكررة */}
-            {comparisonType === 'monthly' && (() => {
-                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-                const filteredObservations = observations.filter(o => o.month === monthStr);
-
-                // Group by entityType
-                const hcaObservations = filteredObservations.filter(o => o.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية');
-                const mohObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لوزارة الصحة');
-                const otherObservations = filteredObservations.filter(o => o.entityType === 'منشآت تابعة لجهات أخرى');
-
-                if (filteredObservations.length === 0) return null;
-
-
-                return (
-                    <div style={{ marginBottom: '30px' }}>
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '12px',
-                            padding: '25px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            {/* قسم تحليل الملاحظات المتكررة - رسوم بيانية */}
+            {comparisonType === 'monthly' && observations.length > 0 && (
+                <div style={{ marginTop: '30px', marginBottom: '30px' }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '15px'
+                    }}>
+                        <span style={{ fontSize: '1.5rem' }}>🔄</span>
+                        <h3 style={{
+                            margin: 0,
+                            color: '#dc3545',
+                            fontSize: '1.3rem',
+                            fontWeight: 'bold'
                         }}>
-                            <h3 style={{
-                                margin: '0 0 20px 0',
-                                color: 'var(--primary-color)',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px'
-                            }}>
-                                📋 الملاحظات المتكررة خلال زيارات الرقابة الإدارية - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-
-                            {/* ملاحظة حول احتساب نسب التطابق */}
-                            <div style={{
-                                padding: '12px 16px',
-                                backgroundColor: '#fff3cd',
-                                borderRadius: '8px',
-                                marginBottom: '20px',
-                                border: '1px solid #ffc107',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px'
-                            }}>
-                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                                <span style={{ color: '#856404', fontWeight: '500' }}>
-                                    نسب التطابق يتم احتسابها بصورة ربع سنوية فقط
-                                </span>
-                            </div>
-
-                            {/* HCA Observations Accordion */}
-                            {hcaObservations.length > 0 && (
-                                <div style={{ marginBottom: '20px' }}>
-                                    <details open style={{
-                                        backgroundColor: '#f8f9fa',
-                                        borderRadius: '8px',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <summary style={{
-                                            padding: '15px 20px',
-                                            cursor: 'pointer',
-                                            fontWeight: 'bold',
-                                            fontSize: '1.1rem',
-                                            backgroundColor: '#e3f2fd',
-                                            color: '#1565c0',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}>
-                                            <span>المنشآت الصحية التابعة لهيئة الرعاية الصحية</span>
-                                            <span style={{
-                                                backgroundColor: '#1565c0',
-                                                color: 'white',
-                                                padding: '4px 12px',
-                                                borderRadius: '12px',
-                                                fontSize: '0.85rem'
-                                            }}>{hcaObservations.length} ملاحظات</span>
-                                        </summary>
-                                        <div style={{ padding: '15px' }}>
-                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                <thead>
-                                                    <tr style={{ backgroundColor: '#e3f2fd' }}>
-                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>نوع المنشأة</th>
-                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #1565c0' }}>أدلة التطابق التي ورد عليها ملاحظات متكررة</th>
-                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #1565c0', width: '120px' }}>نسبة الملاحظات</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {hcaObservations.map((obs, idx) => (
-                                                        <tr key={obs.id || idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                            <td style={{ padding: '12px' }}>{obs.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{obs.observation}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.9rem',
-                                                                    fontWeight: 'bold',
-                                                                    backgroundColor: obs.percentage > 30 ? '#f8d7da' : obs.percentage >= 20 ? '#fff3cd' : '#d4edda',
-                                                                    color: obs.percentage > 30 ? '#721c24' : obs.percentage >= 20 ? '#856404' : '#155724'
-                                                                }}>
-                                                                    {obs.percentage}%
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </details>
-                                </div>
-                            )}
-
-                            {/* MOH Observations Accordion */}
-                            {mohObservations.length > 0 && (
-                                <div>
-                                    <details open style={{
-                                        backgroundColor: '#f8f9fa',
-                                        borderRadius: '8px',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <summary style={{
-                                            padding: '15px 20px',
-                                            cursor: 'pointer',
-                                            fontWeight: 'bold',
-                                            fontSize: '1.1rem',
-                                            backgroundColor: '#fff3e0',
-                                            color: '#e65100',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}>
-                                            <span>منشآت تابعة لوزارة الصحة</span>
-                                            <span style={{
-                                                backgroundColor: '#e65100',
-                                                color: 'white',
-                                                padding: '4px 12px',
-                                                borderRadius: '12px',
-                                                fontSize: '0.85rem'
-                                            }}>{mohObservations.length} ملاحظات</span>
-                                        </summary>
-                                        <div style={{ padding: '15px' }}>
-                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                <thead>
-                                                    <tr style={{ backgroundColor: '#fff3e0' }}>
-                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>نوع المنشأة</th>
-                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e65100' }}>أدلة التطابق التي ورد عليها ملاحظات متكررة</th>
-                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #e65100', width: '120px' }}>نسبة الملاحظات</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {mohObservations.map((obs, idx) => (
-                                                        <tr key={obs.id || idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                            <td style={{ padding: '12px' }}>{obs.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{obs.observation}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.9rem',
-                                                                    fontWeight: 'bold',
-                                                                    backgroundColor: obs.percentage > 30 ? '#f8d7da' : obs.percentage >= 20 ? '#fff3cd' : '#d4edda',
-                                                                    color: obs.percentage > 30 ? '#721c24' : obs.percentage >= 20 ? '#856404' : '#155724'
-                                                                }}>
-                                                                    {obs.percentage}%
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </details>
-                                </div>
-                            )}
-
-                            {/* Other Facilities Observations Accordion */}
-                            {otherObservations.length > 0 && (
-                                <div style={{ marginTop: '20px' }}>
-                                    <details open style={{
-                                        backgroundColor: '#f8f9fa',
-                                        borderRadius: '8px',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <summary style={{
-                                            padding: '15px 20px',
-                                            cursor: 'pointer',
-                                            fontWeight: 'bold',
-                                            fontSize: '1.1rem',
-                                            backgroundColor: '#e8f5e9',
-                                            color: '#2e7d32',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center'
-                                        }}>
-                                            <span>منشآت تابعة لجهات أخرى</span>
-                                            <span style={{
-                                                backgroundColor: '#2e7d32',
-                                                color: 'white',
-                                                padding: '4px 12px',
-                                                borderRadius: '12px',
-                                                fontSize: '0.85rem'
-                                            }}>{otherObservations.length} ملاحظات</span>
-                                        </summary>
-                                        <div style={{ padding: '15px' }}>
-                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                                <thead>
-                                                    <tr style={{ backgroundColor: '#e8f5e9' }}>
-                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>نوع المنشأة</th>
-                                                        <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #2e7d32' }}>أدلة التطابق التي ورد عليها ملاحظات متكررة</th>
-                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #2e7d32', width: '120px' }}>نسبة الملاحظات</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {otherObservations.map((obs, idx) => (
-                                                        <tr key={obs.id || idx} style={{ borderBottom: '1px solid #dee2e6' }}>
-                                                            <td style={{ padding: '12px' }}>{obs.facilityType}</td>
-                                                            <td style={{ padding: '12px' }}>{obs.observation}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.9rem',
-                                                                    fontWeight: 'bold',
-                                                                    backgroundColor: obs.percentage > 30 ? '#f8d7da' : obs.percentage >= 20 ? '#fff3cd' : '#d4edda',
-                                                                    color: obs.percentage > 30 ? '#721c24' : obs.percentage >= 20 ? '#856404' : '#155724'
-                                                                }}>
-                                                                    {obs.percentage}%
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </details>
-                                </div>
-                            )}
-                        </div>
+                            تحليل الملاحظات المتكررة - {(() => {
+                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                return monthNames[selectedMonth - 1];
+                            })()} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                        </h3>
                     </div>
-                );
-            })()}
+
+                    {/* ملاحظة حول احتساب نسب التطابق */}
+                    <div style={{
+                        padding: '12px 16px',
+                        backgroundColor: '#fff3cd',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        border: '1px solid #ffc107',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                    }}>
+                        <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                        <span style={{ color: '#856404', fontWeight: '500' }}>
+                            نسب التطابق يتم احتسابها بصورة ربع سنوية فقط
+                        </span>
+                    </div>
+
+                    {(() => {
+                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                        const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+                        const filteredObs = observations.filter(o => o.month === monthStr);
+
+                        if (filteredObs.length === 0) {
+                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
+                        }
+
+                        // Group by facility type
+                        const facilityTypeCount: { [key: string]: number } = {};
+                        filteredObs.forEach(o => {
+                            const type = o.facilityType || 'غير محدد';
+                            facilityTypeCount[type] = (facilityTypeCount[type] || 0) + 1;
+                        });
+
+                        // Group by entity type
+                        const entityTypeCount: { [key: string]: number } = {};
+                        filteredObs.forEach(o => {
+                            const entity = o.entityType || 'غير محدد';
+                            entityTypeCount[entity] = (entityTypeCount[entity] || 0) + 1;
+                        });
+
+                        // Color palettes
+                        const facilityColors = ['#0d6a79', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#17a2b8', '#fd7e14'];
+                        const entityColors = ['#1565c0', '#e65100', '#2e7d32'];
+
+                        const facilityTypeData = Object.entries(facilityTypeCount)
+                            .map(([name, value], index) => ({
+                                name,
+                                value,
+                                color: facilityColors[index % facilityColors.length]
+                            }))
+                            .sort((a, b) => b.value - a.value);
+
+                        const entityTypeData = Object.entries(entityTypeCount)
+                            .map(([name, value], index) => ({
+                                name: name === 'المنشآت الصحية التابعة لهيئة الرعاية الصحية' ? 'هيئة الرعاية' :
+                                    name === 'منشآت تابعة لوزارة الصحة' ? 'وزارة الصحة' :
+                                        name === 'منشآت تابعة لجهات أخرى' ? 'جهات أخرى' : name,
+                                fullName: name,
+                                value,
+                                color: entityColors[index % entityColors.length]
+                            }))
+                            .sort((a, b) => b.value - a.value);
+
+                        return (
+                            <div>
+                                {/* Container for both charts */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                                    gap: '20px'
+                                }}>
+                                    {/* Chart 1: Facility Type Distribution */}
+                                    <div style={{
+                                        backgroundColor: 'var(--card-bg)',
+                                        borderRadius: '12px',
+                                        padding: '25px',
+                                        border: '1px solid var(--border-color)',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            margin: '0 0 20px 0',
+                                            color: 'var(--text-color)',
+                                            fontSize: '1.1rem',
+                                            fontWeight: 'bold',
+                                            textAlign: 'center'
+                                        }}>
+                                            🏥 توزيع الملاحظات حسب نوع المنشأة
+                                        </h4>
+                                        <ResponsiveContainer width="100%" height={280}>
+                                            <BarChart data={facilityTypeData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    stroke="var(--text-color)"
+                                                    tick={{ fontSize: 11, dy: 8 }}
+                                                    interval={0}
+                                                    textAnchor="middle"
+                                                    height={50}
+                                                />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...facilityTypeData.map(d => d.value)) + 3]} />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--card-bg)',
+                                                        border: '1px solid var(--border-color)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                    formatter={(value: number) => [`${value} ملاحظة`, 'العدد']}
+                                                />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {facilityTypeData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <LabelList
+                                                        dataKey="value"
+                                                        position="top"
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            fill: 'var(--text-color)',
+                                                            fontSize: '14px'
+                                                        }}
+                                                    />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'center',
+                                            gap: '10px',
+                                            marginTop: '15px'
+                                        }}>
+                                            {facilityTypeData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Chart 2: Entity Type (Affiliate) Distribution */}
+                                    <div style={{
+                                        backgroundColor: 'var(--card-bg)',
+                                        borderRadius: '12px',
+                                        padding: '25px',
+                                        border: '1px solid var(--border-color)',
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                                    }}>
+                                        <h4 style={{
+                                            margin: '0 0 20px 0',
+                                            color: 'var(--text-color)',
+                                            fontSize: '1.1rem',
+                                            fontWeight: 'bold',
+                                            textAlign: 'center'
+                                        }}>
+                                            🏛️ توزيع الملاحظات حسب الجهة التابعة
+                                        </h4>
+                                        <ResponsiveContainer width="100%" height={280}>
+                                            <BarChart data={entityTypeData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    stroke="var(--text-color)"
+                                                    tick={{ fontSize: 11, dy: 8 }}
+                                                    interval={0}
+                                                    textAnchor="middle"
+                                                    height={50}
+                                                />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...entityTypeData.map(d => d.value)) + 3]} />
+                                                <Tooltip
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--card-bg)',
+                                                        border: '1px solid var(--border-color)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                    formatter={(value: number, name: string, props: any) => [`${value} ملاحظة`, props.payload.fullName]}
+                                                />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {entityTypeData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                    <LabelList
+                                                        dataKey="value"
+                                                        position="top"
+                                                        style={{
+                                                            fontWeight: 'bold',
+                                                            fill: 'var(--text-color)',
+                                                            fontSize: '14px'
+                                                        }}
+                                                    />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            justifyContent: 'center',
+                                            gap: '15px',
+                                            marginTop: '15px'
+                                        }}>
+                                            {entityTypeData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.fullName}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Total observations summary */}
+                                <div style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    padding: '15px 25px',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '15px',
+                                    fontWeight: 'bold',
+                                    marginTop: '20px',
+                                    fontSize: '1.1rem'
+                                }}>
+                                    <span>📋</span>
+                                    <span>إجمالي الملاحظات المتكررة: {filteredObs.length} ملاحظة</span>
+                                </div>
+                            </div>
+                        );
+                    })()}
+                </div>
+            )}
+
+
+
 
             {/* Correction Rates Section */}
             {comparisonType === 'monthly' && correctionRates.length > 0 && (() => {
