@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import KPICard from './KPICard';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Cell } from 'recharts';
 
 interface TechnicalSupportDashboardProps {
     submissions: Array<Record<string, any>>;
@@ -70,6 +70,9 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // أكتوبر كقيمة افتراضية
+    const [fieldTab, setFieldTab] = useState<'governorate' | 'entity' | 'facilityType'>('governorate');
+    const [remoteTab, setRemoteTab] = useState<'governorate' | 'entity' | 'facilityType'>('governorate');
+    const [introTab, setIntroTab] = useState<'governorate' | 'entity' | 'facilityType'>('governorate');
     const [visibleMetrics, setVisibleMetrics] = useState<{
         intro: boolean;
         field: boolean;
@@ -105,6 +108,21 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
 
     const getHalf = (month: number): number => {
         return month >= 7 ? 1 : 2;
+    };
+
+    // دالة لاختصار الأسماء (الجهات والمحافظات) لتجنب التداخل
+    const shortenLabel = (name: string): string => {
+        const abbreviations: { [key: string]: string } = {
+            'المنشآت الصحية التابعة لهيئة الرعاية الصحية': 'هيئة الرعاية',
+            'منشآت تابعة لوزارة الصحة': 'وزارة الصحة',
+            'منشآت تابعة لجهات أخرى': 'جهات أخرى',
+            'الأمانة العامة لمستشفيات الصحة النفسية': 'الصحة النفسية',
+            'الأمانة العامة لمستشفيات الصحة النفسية - وزارة الصحة': 'الصحة النفسية',
+            'قطاع خاص': 'قطاع خاص',
+            'شمال سيناء': 'ش سيناء',
+            'جنوب سيناء': 'ج سيناء'
+        };
+        return abbreviations[name] || name;
     };
 
     const filterByYear = (fiscalYear: number) => {
@@ -935,461 +953,563 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                 </div>
             </div>
 
-            {/* Field Visits Section */}
-            {comparisonType === 'monthly' && visits.length > 0 && (() => {
-                const monthlyVisits = visits.filter(v => {
-                    const visitMonth = parseInt(v.month.split('-')[1]);
-                    const visitYear = parseInt(v.month.split('-')[0]);
-                    // Calculate fiscal year: if month >= 7, fiscal year is visitYear + 1, else visitYear
-                    const fiscalYear = visitMonth >= 7 ? visitYear + 1 : visitYear;
-                    return visitMonth === selectedMonth && fiscalYear === targetYear;
-                });
-
-                if (monthlyVisits.length === 0) return null;
-
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-                return (
-                    <div style={{ marginTop: '40px' }}>
-                        <h3 style={{
-                            fontSize: '1.4rem',
-                            fontWeight: 'bold',
-                            color: 'var(--primary-color)',
-                            marginBottom: '20px',
-                            padding: '15px',
-                            backgroundColor: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            borderRight: '4px solid var(--primary-color)'
-                        }}>
-                            🏥 الزيارات الميدانية للمنشآت - {monthNames[selectedMonth - 1]} {targetYear} ({monthlyVisits.length} زيارة)
-                        </h3>
-
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '12px',
-                            padding: '25px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            overflowX: 'auto'
-                        }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الجهة التابعة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع المنشأة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthlyVisits.map((visit, index) => (
-                                        <tr key={visit.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                        }}>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.visitType}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.affiliatedEntity}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                <span style={{
-                                                    padding: '4px 12px',
-                                                    backgroundColor: '#e3f2fd',
-                                                    color: '#1976d2',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: '500'
-                                                }}>
-                                                    {visit.facilityType}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                );
-            })()}
-
-            {/* Remote Technical Support Section */}
-            {comparisonType === 'monthly' && remoteSupports.length > 0 && (() => {
-                const monthlyRemoteSupports = remoteSupports.filter(s => {
-                    const supportMonth = parseInt(s.month.split('-')[1]);
-                    const supportYear = parseInt(s.month.split('-')[0]);
-                    const fiscalYear = supportMonth >= 7 ? supportYear + 1 : supportYear;
-                    return supportMonth === selectedMonth && fiscalYear === targetYear;
-                });
-
-                if (monthlyRemoteSupports.length === 0) return null;
-
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-                return (
-                    <div style={{ marginTop: '40px' }}>
-                        <h3 style={{
-                            fontSize: '1.4rem',
-                            fontWeight: 'bold',
-                            color: 'var(--primary-color)',
-                            marginBottom: '20px',
-                            padding: '15px',
-                            backgroundColor: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            borderRight: '4px solid #ffc658'
-                        }}>
-                            💻 الدعم الفني عن بعد - {monthNames[selectedMonth - 1]} {targetYear} ({monthlyRemoteSupports.length} زيارة)
-                        </h3>
-
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '12px',
-                            padding: '25px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            overflowX: 'auto'
-                        }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الجهة التابعة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع المنشأة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthlyRemoteSupports.map((support, index) => (
-                                        <tr key={support.id || index} style={{
-                                            borderBottom: '1px solid #eee',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                        }}>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{support.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{support.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{support.visitType}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{support.affiliatedEntity}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                <span style={{
-                                                    padding: '4px 12px',
-                                                    backgroundColor: '#fff3cd',
-                                                    color: '#856404',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: '500'
-                                                }}>
-                                                    {support.facilityType}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                );
-            })()}
-
-            {/* Introductory Support Visits Section */}
-            {comparisonType === 'monthly' && introductoryVisits.length > 0 && (() => {
-                const monthlyIntroVisits = introductoryVisits.filter(v => {
-                    const visitMonth = parseInt(v.month.split('-')[1]);
-                    const visitYear = parseInt(v.month.split('-')[0]);
-                    const fiscalYear = visitMonth >= 7 ? visitYear + 1 : visitYear;
-                    return visitMonth === selectedMonth && fiscalYear === targetYear;
-                });
-
-                if (monthlyIntroVisits.length === 0) return null;
-
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-                return (
+            {/* قسم تحليل الزيارات - رسوم بيانية */}
+            {comparisonType === 'monthly' && (
+                <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                     <div style={{
-                        marginTop: '30px',
-                        padding: '25px',
-                        backgroundColor: 'white',
-                        borderRadius: '12px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '25px'
                     }}>
+                        <span style={{ fontSize: '1.5rem' }}>📊</span>
                         <h3 style={{
-                            margin: '0 0 20px 0',
-                            color: '#00796b',
-                            fontSize: '1.3rem',
-                            fontWeight: 'bold',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
-                            زيارات الدعم الفني التمهيدية خلال شهر {monthNames[selectedMonth - 1]} - عدد {monthlyIntroVisits.length} زيارة
-                        </h3>
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.95rem'
-                            }}>
-                                <thead>
-                                    <tr style={{
-                                        backgroundColor: '#00796b',
-                                        color: 'white'
-                                    }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>الجهة التابعة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع المنشأة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthlyIntroVisits.map((visit, index) => (
-                                        <tr key={visit.id || index} style={{
-                                            borderBottom: '1px solid #e0e0e0',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                        }}>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.visitType}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.affiliatedEntity}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                <span style={{
-                                                    padding: '4px 12px',
-                                                    backgroundColor: '#e0f2f1',
-                                                    color: '#00695c',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: '500'
-                                                }}>
-                                                    {visit.facilityType}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                );
-            })()}
-
-            {/* Queued Support Visits Section */}
-            {comparisonType === 'monthly' && queuedVisits.length > 0 && (() => {
-                const monthlyQueuedVisits = queuedVisits.filter(v => {
-                    const visitMonth = parseInt(v.month.split('-')[1]);
-                    const visitYear = parseInt(v.month.split('-')[0]);
-                    const fiscalYear = visitMonth >= 7 ? visitYear + 1 : visitYear;
-                    return visitMonth === selectedMonth && fiscalYear === targetYear;
-                });
-
-                if (monthlyQueuedVisits.length === 0) return null;
-
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-                return (
-                    <div style={{ marginTop: '40px' }}>
-                        <h3 style={{
-                            fontSize: '1.4rem',
-                            fontWeight: 'bold',
+                            margin: 0,
                             color: 'var(--primary-color)',
-                            marginBottom: '20px',
-                            padding: '15px',
+                            fontSize: '1.4rem',
+                            fontWeight: 'bold'
+                        }}>
+                            تحليل الزيارات - {(() => {
+                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                return monthNames[selectedMonth - 1];
+                            })()} {targetYear}
+                        </h3>
+                    </div>
+
+                    {/* رسم 1: إجمالي أنواع الزيارات */}
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '1px solid var(--border-color)',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                        marginBottom: '20px'
+                    }}>
+                        <h4 style={{
+                            margin: '0 0 20px 0',
+                            color: 'var(--text-color)',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            textAlign: 'center'
+                        }}>
+                            🎯 إجمالي أنواع الزيارات
+                        </h4>
+                        {(() => {
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+
+                            const fieldCount = visits.filter(v => v.month === monthStr).length;
+                            const remoteCount = remoteSupports.filter(v => v.month === monthStr).length;
+                            const introCount = introductoryVisits.filter(v => v.month === monthStr).length;
+
+                            const visitTypesData = [
+                                { name: 'زيارات ميدانية', value: fieldCount, color: '#0d6a79' },
+                                { name: 'زيارات عن بعد', value: remoteCount, color: '#28a745' },
+                                { name: 'زيارات تمهيدية', value: introCount, color: '#ffc107' }
+                            ];
+
+                            const total = visitTypesData.reduce((sum, item) => sum + item.value, 0);
+
+                            if (total === 0) {
+                                return (
+                                    <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>
+                                        لا توجد زيارات مسجلة لهذا الشهر
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div>
+                                    <ResponsiveContainer width="100%" height={280}>
+                                        <BarChart data={visitTypesData} layout="horizontal" margin={{ top: 30, right: 10, left: 10, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                            <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 12, dy: 8 }} interval={0} />
+                                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...visitTypesData.map(d => d.value)) + 3]} />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                                                formatter={(value: number) => [`${value} زيارة`, 'العدد']}
+                                            />
+                                            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                {visitTypesData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                                <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '14px' }} />
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px', marginTop: '15px' }}>
+                                        {visitTypesData.map((item, index) => (
+                                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '8px' }}>
+                                                <div style={{ width: '14px', height: '14px', backgroundColor: item.color, borderRadius: '4px' }}></div>
+                                                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{item.name}: {item.value}</span>
+                                            </div>
+                                        ))}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', backgroundColor: 'var(--primary-color)', borderRadius: '8px', color: 'white' }}>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>الإجمالي: {total}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+                    </div>
+
+                    {/* قسم الزيارات الميدانية - إطار موحد بتبويبات */}
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        marginBottom: '25px',
+                        border: '2px solid #0d6a79',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h4 style={{ margin: '0 0 20px 0', color: '#0d6a79', fontSize: '1.2rem', fontWeight: 'bold', textAlign: 'center' }}>
+                            🏙️ الزيارات الميدانية
+                        </h4>
+                        {/* أزرار التبديل */}
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => setFieldTab('governorate')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: fieldTab === 'governorate' ? '#0d6a79' : '#e9ecef',
+                                    color: fieldTab === 'governorate' ? 'white' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب المحافظة
+                            </button>
+                            <button
+                                onClick={() => setFieldTab('entity')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: fieldTab === 'entity' ? '#0d6a79' : '#e9ecef',
+                                    color: fieldTab === 'entity' ? 'white' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب الجهة التابعة
+                            </button>
+                            <button
+                                onClick={() => setFieldTab('facilityType')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: fieldTab === 'facilityType' ? '#0d6a79' : '#e9ecef',
+                                    color: fieldTab === 'facilityType' ? 'white' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب نوع المنشأة
+                            </button>
+                        </div>
+                        {/* الرسم البياني حسب التبويب المختار */}
+                        {(() => {
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+                            const filtered = visits.filter(v => v.month === monthStr);
+
+                            let counts: { [key: string]: number } = {};
+                            if (fieldTab === 'governorate') {
+                                filtered.forEach(v => {
+                                    const key = (v.governorate || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            } else if (fieldTab === 'entity') {
+                                filtered.forEach(v => {
+                                    const key = (v.affiliatedEntity || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            } else {
+                                filtered.forEach(v => {
+                                    const key = (v.facilityType || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            }
+
+                            const colors = ['#0d6a79', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#17a2b8', '#fd7e14'];
+                            const data = Object.entries(counts).map(([name, value], index) => ({
+                                name: shortenLabel(name),
+                                fullName: name,
+                                value,
+                                color: colors[index % colors.length]
+                            })).sort((a, b) => b.value - a.value);
+
+                            if (data.length === 0) return <div style={{ textAlign: 'center', padding: '30px', color: '#6c757d' }}>لا توجد بيانات</div>;
+
+                            return (
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <BarChart data={data} layout="horizontal" margin={{ top: 25, right: 10, left: 10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                        <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={50} />
+                                        <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
+                                        <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number, name: string, props: any) => [`${value}`, props.payload.fullName]} />
+                                        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                                            {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                                            <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            );
+                        })()}
+                    </div>
+
+                    {/* قسم الزيارات عن بعد - إطار موحد بتبويبات */}
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        marginBottom: '25px',
+                        border: '2px solid #28a745',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h4 style={{ margin: '0 0 20px 0', color: '#28a745', fontSize: '1.2rem', fontWeight: 'bold', textAlign: 'center' }}>
+                            💻 الزيارات عن بعد
+                        </h4>
+                        {/* أزرار التبديل */}
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => setRemoteTab('governorate')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: remoteTab === 'governorate' ? '#28a745' : '#e9ecef',
+                                    color: remoteTab === 'governorate' ? 'white' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب المحافظة
+                            </button>
+                            <button
+                                onClick={() => setRemoteTab('entity')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: remoteTab === 'entity' ? '#28a745' : '#e9ecef',
+                                    color: remoteTab === 'entity' ? 'white' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب الجهة التابعة
+                            </button>
+                            <button
+                                onClick={() => setRemoteTab('facilityType')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: remoteTab === 'facilityType' ? '#28a745' : '#e9ecef',
+                                    color: remoteTab === 'facilityType' ? 'white' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب نوع المنشأة
+                            </button>
+                        </div>
+                        {/* الرسم البياني حسب التبويب المختار */}
+                        {(() => {
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+                            const filtered = remoteSupports.filter(v => v.month === monthStr);
+
+                            let counts: { [key: string]: number } = {};
+                            if (remoteTab === 'governorate') {
+                                filtered.forEach(v => {
+                                    const key = (v.governorate || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            } else if (remoteTab === 'entity') {
+                                filtered.forEach(v => {
+                                    const key = (v.affiliatedEntity || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            } else {
+                                filtered.forEach(v => {
+                                    const key = (v.facilityType || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            }
+
+                            const colors = ['#28a745', '#0d6a79', '#ffc107', '#dc3545', '#6f42c1', '#17a2b8', '#fd7e14'];
+                            const data = Object.entries(counts).map(([name, value], index) => ({
+                                name: shortenLabel(name),
+                                fullName: name,
+                                value,
+                                color: colors[index % colors.length]
+                            })).sort((a, b) => b.value - a.value);
+
+                            if (data.length === 0) return <div style={{ textAlign: 'center', padding: '30px', color: '#6c757d' }}>لا توجد بيانات</div>;
+
+                            return (
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <BarChart data={data} layout="horizontal" margin={{ top: 25, right: 10, left: 10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                        <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={50} />
+                                        <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
+                                        <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number, name: string, props: any) => [`${value}`, props.payload.fullName]} />
+                                        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                                            {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                                            <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            );
+                        })()}
+                    </div>
+
+                    {/* قسم الزيارات التمهيدية - إطار موحد بتبويبات */}
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        marginBottom: '25px',
+                        border: '2px solid #ffc107',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h4 style={{ margin: '0 0 20px 0', color: '#856404', fontSize: '1.2rem', fontWeight: 'bold', textAlign: 'center' }}>
+                            📋 الزيارات التمهيدية
+                        </h4>
+                        {/* أزرار التبديل */}
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={() => setIntroTab('governorate')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: introTab === 'governorate' ? '#ffc107' : '#e9ecef',
+                                    color: introTab === 'governorate' ? '#333' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب المحافظة
+                            </button>
+                            <button
+                                onClick={() => setIntroTab('entity')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: introTab === 'entity' ? '#ffc107' : '#e9ecef',
+                                    color: introTab === 'entity' ? '#333' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب الجهة التابعة
+                            </button>
+                            <button
+                                onClick={() => setIntroTab('facilityType')}
+                                style={{
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                    backgroundColor: introTab === 'facilityType' ? '#ffc107' : '#e9ecef',
+                                    color: introTab === 'facilityType' ? '#333' : '#333',
+                                    transition: 'all 0.2s ease'
+                                }}
+                            >
+                                حسب نوع المنشأة
+                            </button>
+                        </div>
+                        {/* الرسم البياني حسب التبويب المختار */}
+                        {(() => {
+                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+                            const filtered = introductoryVisits.filter(v => v.month === monthStr);
+
+                            let counts: { [key: string]: number } = {};
+                            if (introTab === 'governorate') {
+                                filtered.forEach(v => {
+                                    const key = (v.governorate || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            } else if (introTab === 'entity') {
+                                filtered.forEach(v => {
+                                    const key = (v.affiliatedEntity || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            } else {
+                                filtered.forEach(v => {
+                                    const key = (v.facilityType || 'غير محدد').trim();
+                                    counts[key] = (counts[key] || 0) + 1;
+                                });
+                            }
+
+                            const colors = ['#ffc107', '#0d6a79', '#28a745', '#dc3545', '#6f42c1', '#17a2b8', '#fd7e14'];
+                            const data = Object.entries(counts).map(([name, value], index) => ({
+                                name: shortenLabel(name),
+                                fullName: name,
+                                value,
+                                color: colors[index % colors.length]
+                            })).sort((a, b) => b.value - a.value);
+
+                            if (data.length === 0) return <div style={{ textAlign: 'center', padding: '30px', color: '#6c757d' }}>لا توجد بيانات</div>;
+
+                            return (
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <BarChart data={data} layout="horizontal" margin={{ top: 25, right: 10, left: 10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                        <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={50} />
+                                        <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
+                                        <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number, name: string, props: any) => [`${value}`, props.payload.fullName]} />
+                                        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                                            {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                                            <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            );
+                        })()}
+                    </div>
+
+                    {/* رسم حالة الزيارات */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+                        <div style={{
                             backgroundColor: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            borderRight: '4px solid var(--primary-color)'
-                        }}>
-                            ⏳ زيارات الدعم الفني بقائمة الانتظار - {monthNames[selectedMonth - 1]} {targetYear} ({monthlyQueuedVisits.length} زيارة)
-                        </h3>
-
-                        <div style={{
-                            backgroundColor: 'white',
                             borderRadius: '12px',
                             padding: '25px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            overflowX: 'auto'
+                            border: '1px solid var(--border-color)',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthlyQueuedVisits.map((visit, index) => (
-                                        <tr key={visit.id || index} style={{
-                                            borderBottom: '1px solid #e0e0e0',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                        }}>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)', fontSize: '1.1rem', fontWeight: 'bold', textAlign: 'center' }}>
+                                ⏳ حالة الزيارات (الانتظار والمجدولة)
+                            </h4>
+                            {(() => {
+                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+
+                                const queuedCount = queuedVisits.filter(v => v.month === monthStr).length;
+                                const scheduledCount = scheduledVisits.filter(v => v.month === monthStr).length;
+
+                                const statusData = [
+                                    { name: 'قائمة الانتظار', value: queuedCount, color: '#dc3545' },
+                                    { name: 'زيارات مجدولة', value: scheduledCount, color: '#17a2b8' }
+                                ];
+
+                                const total = statusData.reduce((sum, item) => sum + item.value, 0);
+
+                                if (total === 0) {
+                                    return <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد بيانات</div>;
+                                }
+
+                                return (
+                                    <div>
+                                        <ResponsiveContainer width="100%" height={220}>
+                                            <BarChart data={statusData} layout="horizontal" margin={{ top: 25, right: 20, left: 20, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 12 }} />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
+                                                <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number) => [`${value}`, 'العدد']} />
+                                                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                    {statusData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                                                    <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '14px' }} />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '15px' }}>
+                                            {statusData.map((item, index) => (
+                                                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '8px' }}>
+                                                    <div style={{ width: '14px', height: '14px', backgroundColor: item.color, borderRadius: '4px' }}></div>
+                                                    <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{item.name}: {item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </div>
-                    </div>
-                );
-            })()}
 
-            {/* Scheduled Support Visits Section */}
-            {comparisonType === 'monthly' && scheduledVisits.length > 0 && (() => {
-                const monthlyScheduledVisits = scheduledVisits.filter(v => {
-                    const visitMonth = parseInt(v.month.split('-')[1]);
-                    const visitYear = parseInt(v.month.split('-')[0]);
-                    const fiscalYear = visitMonth >= 7 ? visitYear + 1 : visitYear;
-                    return visitMonth === selectedMonth && fiscalYear === targetYear;
-                });
-
-                if (monthlyScheduledVisits.length === 0) return null;
-
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-                return (
-                    <div style={{ marginTop: '40px' }}>
-                        <h3 style={{
-                            fontSize: '1.4rem',
-                            fontWeight: 'bold',
-                            color: '#1976d2',
-                            marginBottom: '20px',
-                            padding: '15px',
-                            backgroundColor: '#e3f2fd',
-                            borderRadius: '8px',
-                            borderRight: '4px solid #1976d2'
-                        }}>
-                            📅 زيارات الدعم الفني المجدولة في شهر {monthNames[selectedMonth - 1]} {targetYear} ({monthlyScheduledVisits.length} زيارة)
-                        </h3>
-
+                        {/* رسم المنشآت المعتمدة */}
                         <div style={{
-                            backgroundColor: 'white',
+                            backgroundColor: 'var(--card-bg)',
                             borderRadius: '12px',
                             padding: '25px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            overflowX: 'auto'
+                            border: '2px solid #198754',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#1976d2', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الزيارة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthlyScheduledVisits.map((visit, index) => (
-                                        <tr key={visit.id || index} style={{
-                                            borderBottom: '1px solid #e0e0e0',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                        }}>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{visit.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                <span style={{
-                                                    padding: '4px 12px',
-                                                    backgroundColor: '#e3f2fd',
-                                                    color: '#1976d2',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: '500'
-                                                }}>
-                                                    {visit.visitType}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <h4 style={{ margin: '0 0 20px 0', color: '#198754', fontSize: '1.1rem', fontWeight: 'bold', textAlign: 'center' }}>
+                                🏆 المنشآت المعتمدة حسب نوع الدعم
+                            </h4>
+                            {(() => {
+                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
+                                const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
+                                const filtered = accreditedSupportedFacilities.filter(f => {
+                                    const facilityMonth = parseInt(f.month.split('-')[1]);
+                                    const facilityYear = parseInt(f.month.split('-')[0]);
+                                    const fiscalYear = facilityMonth >= 7 ? facilityYear + 1 : facilityYear;
+                                    return facilityMonth === selectedMonth && fiscalYear === targetYear;
+                                });
+
+                                const supportTypeCount: { [key: string]: number } = {};
+                                filtered.forEach(f => {
+                                    const type = (f.supportType || 'غير محدد').trim();
+                                    supportTypeCount[type] = (supportTypeCount[type] || 0) + 1;
+                                });
+
+                                const colors = ['#198754', '#0d6a79', '#ffc107', '#dc3545', '#6f42c1'];
+                                const data = Object.entries(supportTypeCount).map(([name, value], index) => ({ name, value, color: colors[index % colors.length] })).sort((a, b) => b.value - a.value);
+
+                                if (data.length === 0) return <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد منشآت معتمدة لهذا الشهر</div>;
+
+                                return (
+                                    <div>
+                                        <ResponsiveContainer width="100%" height={220}>
+                                            <BarChart data={data} layout="horizontal" margin={{ top: 25, right: 10, left: 10, bottom: 5 }}>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                                                <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={40} />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
+                                                <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number) => [`${value} منشأة`, 'العدد']} />
+                                                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                                                    {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                                                    <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                        <div style={{ textAlign: 'center', marginTop: '10px', padding: '8px', backgroundColor: '#d1e7dd', borderRadius: '8px' }}>
+                                            <span style={{ fontWeight: 'bold', color: '#198754' }}>إجمالي المنشآت المعتمدة: {filtered.length}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     </div>
-                );
-            })()}
+                </div>
+            )}
 
-            {/* Accredited Supported Facilities Section */}
-            {comparisonType === 'monthly' && accreditedSupportedFacilities.length > 0 && (() => {
-                const monthlyAccreditedFacilities = accreditedSupportedFacilities.filter(facility => {
-                    const facilityMonth = parseInt(facility.month.split('-')[1]);
-                    const facilityYear = parseInt(facility.month.split('-')[0]);
-                    const fiscalYear = facilityMonth >= 7 ? facilityYear + 1 : facilityYear;
-                    return facilityMonth === selectedMonth && fiscalYear === targetYear;
-                });
 
-                if (monthlyAccreditedFacilities.length === 0) return null;
-
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-                return (
-                    <div style={{ marginTop: '40px' }}>
-                        <h3 style={{
-                            fontSize: '1.4rem',
-                            fontWeight: 'bold',
-                            color: '#198754',
-                            marginBottom: '20px',
-                            padding: '15px',
-                            backgroundColor: '#d1e7dd',
-                            borderRadius: '8px',
-                            borderRight: '4px solid #198754'
-                        }}>
-                            🏥 المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم - {monthNames[selectedMonth - 1]} {targetYear} ({monthlyAccreditedFacilities.length} منشأة)
-                        </h3>
-
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '12px',
-                            padding: '25px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            overflowX: 'auto'
-                        }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#198754', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>رقم القرار</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>تاريخ القرار</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>نوع الدعم</th>
-                                        <th style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>موقف الاعتماد</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthlyAccreditedFacilities.map((facility, index) => (
-                                        <tr key={facility.id || index} style={{
-                                            borderBottom: '1px solid #e0e0e0',
-                                            backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa'
-                                        }}>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{index + 1}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: '500' }}>{facility.facilityName}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.governorate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.decisionNumber}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.decisionDate}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{facility.supportType}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                <span style={{
-                                                    padding: '4px 12px',
-                                                    backgroundColor: '#d1e7dd',
-                                                    color: '#198754',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: '500'
-                                                }}>
-                                                    {facility.accreditationStatus}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                );
-            })()}
 
             {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && currentObstacles && (
