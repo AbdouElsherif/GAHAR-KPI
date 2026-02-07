@@ -404,10 +404,10 @@ export default function MedicalProfessionalsDashboard({
 
             return {
                 period: formatPeriodLabel(period),
-                [`أعضاء ${targetYear}`]: currentAggregated[period]?.registeredMembers || 0,
-                [`أعضاء ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.registeredMembers || 0,
-                [`منشآت ${targetYear}`]: currentAggregated[period]?.facilitiesUpdated || 0,
-                [`منشآت ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.facilitiesUpdated || 0,
+                [`أعضاء ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.registeredMembers || 0,
+                [`أعضاء ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.registeredMembers || 0,
+                [`منشآت ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.facilitiesUpdated || 0,
+                [`منشآت ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.facilitiesUpdated || 0,
             };
         });
     }
@@ -628,59 +628,6 @@ export default function MedicalProfessionalsDashboard({
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--text-color)' }}>📈 الرسوم البيانية</h3>
 
-                <div style={{
-                    backgroundColor: 'var(--card-bg)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px',
-                    border: '1px solid var(--border-color)'
-                }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة الأعضاء المسجلين - رسم بياني خطي</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={prepareChartData()}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                            <XAxis dataKey="period" stroke="var(--text-color)" />
-                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey={`أعضاء ${targetYear}`}
-                                stroke="#0eacb8"
-                                strokeWidth={2}
-                                dot={{ fill: '#0eacb8', r: 4 }}
-                            >
-                                <LabelList
-                                    dataKey={`أعضاء ${targetYear}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Line>
-                            <Line
-                                type="monotone"
-                                dataKey={`أعضاء ${targetYear - 1}`}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={{ fill: '#999', r: 3 }}
-                            >
-                                <LabelList
-                                    dataKey={`أعضاء ${targetYear - 1}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Line>
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
 
                 <div style={{
                     backgroundColor: 'var(--card-bg)',
@@ -689,17 +636,7 @@ export default function MedicalProfessionalsDashboard({
                     border: '1px solid var(--border-color)'
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة المنشآت - رسم بياني عمودي</h4>
-                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={visibleMetrics.facilities}
-                                    onChange={(e) => setVisibleMetrics({ ...visibleMetrics, facilities: e.target.checked })}
-                                />
-                                <span>منشآت</span>
-                            </label>
-                        </div>
+                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة الأعضاء المسجلين - رسم بياني عمودي</h4>
                     </div>
                     <ResponsiveContainer width="100%" height={350}>
                         <BarChart data={prepareChartData()}>
@@ -714,24 +651,20 @@ export default function MedicalProfessionalsDashboard({
                                 }}
                             />
                             <Legend />
-                            {visibleMetrics.facilities && (
-                                <>
-                                    <Bar dataKey={`منشآت ${targetYear}`} fill="#8884d8">
-                                        <LabelList
-                                            dataKey={`منشآت ${targetYear}`}
-                                            position="top"
-                                            style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                        />
-                                    </Bar>
-                                    <Bar dataKey={`منشآت ${targetYear - 1}`} fill="#c5c5e8">
-                                        <LabelList
-                                            dataKey={`منشآت ${targetYear - 1}`}
-                                            position="top"
-                                            style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                        />
-                                    </Bar>
-                                </>
-                            )}
+                            <Bar dataKey={`أعضاء ${targetYear - 1} - ${targetYear}`} fill="#0eacb8">
+                                <LabelList
+                                    dataKey={`أعضاء ${targetYear - 1} - ${targetYear}`}
+                                    position="top"
+                                    style={{ fontWeight: 'bold', fill: '#0eacb8', fontSize: '14px' }}
+                                />
+                            </Bar>
+                            <Bar dataKey={`أعضاء ${targetYear - 2} - ${targetYear - 1}`} fill="#a8e6cf">
+                                <LabelList
+                                    dataKey={`أعضاء ${targetYear - 2} - ${targetYear - 1}`}
+                                    position="top"
+                                    style={{ fontWeight: 'bold', fill: '#666', fontSize: '14px' }}
+                                />
+                            </Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -750,8 +683,8 @@ export default function MedicalProfessionalsDashboard({
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>المؤشر</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1} - {targetYear}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 2} - {targetYear - 1}</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
                             </tr>
                         </thead>
@@ -817,147 +750,6 @@ export default function MedicalProfessionalsDashboard({
                     </table>
                 </div>
             </div>
-
-            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentObstacles && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #ffc107',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #ffc107'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#856404',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                المعوقات - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#fff3cd',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#856404',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentObstacles}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentDevelopmentProposals && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #28a745',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #28a745'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>💡</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#155724',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                مقترحات التطوير - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#d4edda',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#155724',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentDevelopmentProposals}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* قسم الأنشطة الإضافية - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentAdditionalActivities && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #6f42c1',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #6f42c1'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#4a2c7a',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                أنشطة إضافية - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#e8d9f5',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#4a2c7a',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentAdditionalActivities}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* قسم أعضاء المهن الطبية المسجلين خلال الشهر (طبقا للفئة) */}
             {medProfsByCategory && medProfsByCategory.length > 0 && (
@@ -1480,6 +1272,212 @@ export default function MedicalProfessionalsDashboard({
                     </div>
                 </div>
             )}
+
+            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && currentObstacles && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #ffc107',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #ffc107'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#856404',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                المعوقات - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#fff3cd',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#856404',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentObstacles}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && currentDevelopmentProposals && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #28a745',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #28a745'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>💡</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#155724',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                مقترحات التطوير - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#d4edda',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#155724',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentDevelopmentProposals}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم الأنشطة الإضافية - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && currentAdditionalActivities && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #6f42c1',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #6f42c1'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>🎯</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#4a2c7a',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                أنشطة إضافية - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#e8d9f5',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#4a2c7a',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentAdditionalActivities}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم الملاحظات - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && (() => {
+                const currentMonthSubmission = submissions.find(s => {
+                    if (!s.month) return false;
+                    const month = parseInt(s.month.split('-')[1]);
+                    const year = parseInt(s.month.split('-')[0]);
+                    const fiscalYear = month >= 7 ? year + 1 : year;
+                    return fiscalYear === targetYear && month === selectedMonth;
+                });
+                return currentMonthSubmission?.notes;
+            })() && (
+                    <div style={{ marginBottom: '30px' }}>
+                        <div style={{
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '2px solid #17a2b8',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                paddingBottom: '15px',
+                                borderBottom: '2px solid #17a2b8'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>📝</span>
+                                <h3 style={{
+                                    margin: 0,
+                                    color: '#0c5460',
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    ملاحظات - {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return monthNames[selectedMonth - 1];
+                                    })()} {targetYear}
+                                </h3>
+                            </div>
+                            <div style={{
+                                backgroundColor: '#d1ecf1',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                color: '#0c5460',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {(() => {
+                                    const currentMonthSubmission = submissions.find(s => {
+                                        if (!s.month) return false;
+                                        const month = parseInt(s.month.split('-')[1]);
+                                        const year = parseInt(s.month.split('-')[0]);
+                                        const fiscalYear = month >= 7 ? year + 1 : year;
+                                        return fiscalYear === targetYear && month === selectedMonth;
+                                    });
+                                    return currentMonthSubmission?.notes || '';
+                                })()}
+                            </div>
+                        </div>
+                    </div>
+                )}
         </div >
     );
 }
