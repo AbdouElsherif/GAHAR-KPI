@@ -673,62 +673,9 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                 />
             </div>
 
+
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--text-color)' }}>📈 الرسوم البيانية</h3>
-
-                <div style={{
-                    backgroundColor: 'var(--card-bg)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px',
-                    border: '1px solid var(--border-color)'
-                }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة برامج الدعم الفني - رسم بياني خطي</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={prepareChartData()}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                            <XAxis dataKey="period" stroke="var(--text-color)" />
-                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey={`برامج ${targetYear}`}
-                                stroke="#0eacb8"
-                                strokeWidth={2}
-                                dot={{ fill: '#0eacb8', r: 4 }}
-                            >
-                                <LabelList
-                                    dataKey={`برامج ${targetYear}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Line>
-                            <Line
-                                type="monotone"
-                                dataKey={`برامج ${targetYear - 1}`}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={{ fill: '#999', r: 3 }}
-                            >
-                                <LabelList
-                                    dataKey={`برامج ${targetYear - 1}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Line>
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
 
                 <div style={{
                     backgroundColor: 'var(--card-bg)',
@@ -911,40 +858,59 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                 }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0, toolReleasesUpdates: 0, reportsComplianceRate: 0 };
 
                                 const indicators = [
-                                    { label: 'برامج الدعم الفني', current: currentData.supportPrograms || 0, previous: previousData.supportPrograms || 0 },
-                                    { label: 'زيارات تمهيدية', current: currentData.introVisits || 0, previous: previousData.introVisits || 0 },
-                                    { label: 'دعم فني ميداني', current: currentData.fieldSupportVisits || 0, previous: previousData.fieldSupportVisits || 0 },
-                                    { label: 'دعم فني عن بعد', current: currentData.remoteSupportVisits || 0, previous: previousData.remoteSupportVisits || 0 },
-                                    { label: 'منشآت مدعومة', current: currentData.supportedFacilities || 0, previous: previousData.supportedFacilities || 0 },
-                                    { label: 'عدد إصدارات وتحديثات أدوات التقييم الذاتي', current: currentData.toolReleasesUpdates || 0, previous: previousData.toolReleasesUpdates || 0 },
-                                    { label: 'نسبة استيفاء التقارير (%)', current: currentData.reportsComplianceRate || 0, previous: previousData.reportsComplianceRate || 0 },
+                                    { label: 'زيارات تمهيدية', current: currentData.introVisits || 0, previous: previousData.introVisits || 0, type: 'sub' },
+                                    { label: 'دعم فني ميداني', current: currentData.fieldSupportVisits || 0, previous: previousData.fieldSupportVisits || 0, type: 'sub' },
+                                    { label: 'دعم فني عن بعد', current: currentData.remoteSupportVisits || 0, previous: previousData.remoteSupportVisits || 0, type: 'sub' },
+                                    { label: 'برامج الدعم الفني', current: currentData.supportPrograms || 0, previous: previousData.supportPrograms || 0, type: 'total' },
+                                    { label: 'منشآت مدعومة', current: currentData.supportedFacilities || 0, previous: previousData.supportedFacilities || 0, type: 'normal' },
+                                    { label: 'عدد إصدارات وتحديثات أدوات التقييم الذاتي', current: currentData.toolReleasesUpdates || 0, previous: previousData.toolReleasesUpdates || 0, type: 'normal' },
+                                    { label: 'نسبة استيفاء التقارير (%)', current: currentData.reportsComplianceRate || 0, previous: previousData.reportsComplianceRate || 0, type: 'normal' },
                                 ];
 
-                                const totalCurrent = indicators.reduce((sum, ind) => sum + ind.current, 0);
-                                const totalPrevious = indicators.reduce((sum, ind) => sum + ind.previous, 0);
+                                const getRowStyle = (type: string) => {
+                                    if (type === 'total') {
+                                        return {
+                                            backgroundColor: '#17a2b8',
+                                            color: 'white',
+                                            fontWeight: 'bold' as const
+                                        };
+                                    } else if (type === 'sub') {
+                                        return {
+                                            backgroundColor: '#e6f4f5',
+                                            color: '#333'
+                                        };
+                                    }
+                                    return {
+                                        backgroundColor: 'transparent'
+                                    };
+                                };
 
                                 return (
                                     <>
-                                        {indicators.map((ind, index) => (
+                                        {indicators.map((ind) => (
                                             <tr key={ind.label} style={{
                                                 borderBottom: '1px solid #eee',
-                                                backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                                ...getRowStyle(ind.type)
                                             }}>
-                                                <td style={{ padding: '12px', fontWeight: '500' }}>{ind.label}</td>
-                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{ind.current}</td>
-                                                <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{ind.previous}</td>
+                                                <td style={{
+                                                    padding: '12px',
+                                                    fontWeight: ind.type === 'total' ? 'bold' : '500',
+                                                    color: ind.type === 'total' ? 'white' : 'inherit',
+                                                    paddingRight: ind.type === 'sub' ? '30px' : '12px'
+                                                }}>{ind.label}</td>
+                                                <td style={{
+                                                    padding: '12px',
+                                                    textAlign: 'center',
+                                                    fontWeight: 'bold',
+                                                    color: ind.type === 'total' ? 'white' : 'var(--primary-color)'
+                                                }}>{ind.current}</td>
+                                                <td style={{
+                                                    padding: '12px',
+                                                    textAlign: 'center',
+                                                    color: ind.type === 'total' ? 'rgba(255,255,255,0.8)' : '#999'
+                                                }}>{ind.previous}</td>
                                             </tr>
                                         ))}
-                                        <tr style={{
-                                            borderTop: '2px solid var(--primary-color)',
-                                            backgroundColor: 'var(--primary-color)',
-                                            fontWeight: 'bold',
-                                            color: 'white'
-                                        }}>
-                                            <td style={{ padding: '12px', fontWeight: 'bold', color: 'white' }}>المجموع</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'white', fontSize: '1.1rem' }}>{totalCurrent}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: 'white', fontSize: '1.1rem' }}>{totalPrevious}</td>
-                                        </tr>
                                     </>
                                 );
                             })()}
