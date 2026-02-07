@@ -1220,6 +1220,23 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                         </h3>
                     </div>
 
+                    {/* ملاحظة حول احتساب نسب التطابق */}
+                    <div style={{
+                        padding: '12px 16px',
+                        backgroundColor: '#fff3cd',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        border: '1px solid #ffc107',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                    }}>
+                        <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                        <span style={{ color: '#856404', fontWeight: '500' }}>
+                            نسب التطابق يتم احتسابها بصورة ربع سنوية فقط
+                        </span>
+                    </div>
+
                     {(() => {
                         const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
                         const filteredObs = observations.filter(o => {
