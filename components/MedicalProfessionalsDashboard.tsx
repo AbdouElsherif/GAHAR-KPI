@@ -850,6 +850,7 @@ export default function MedicalProfessionalsDashboard({
                                 {(() => {
                                     const sourceData = activeCategoryView === 'monthly' ? medProfsByCategory : totalMedProfsByCategory;
                                     const filteredData = sourceData.filter(item => {
+                                        if (activeCategoryView === 'monthly' && item.branch === 'رئاسة الهيئة') return false;
                                         if (!item.month) return false;
                                         const month = parseInt(item.month.split('-')[1]);
                                         const year = parseInt(item.month.split('-')[0]);
@@ -874,6 +875,7 @@ export default function MedicalProfessionalsDashboard({
                                 data={(() => {
                                     const sourceData = activeCategoryView === 'monthly' ? medProfsByCategory : totalMedProfsByCategory;
                                     const filteredData = sourceData.filter(item => {
+                                        if (activeCategoryView === 'monthly' && item.branch === 'رئاسة الهيئة') return false;
                                         if (!item.month) return false;
                                         const month = parseInt(item.month.split('-')[1]);
                                         const year = parseInt(item.month.split('-')[0]);
@@ -936,6 +938,7 @@ export default function MedicalProfessionalsDashboard({
                                     {(() => {
                                         const sourceData = activeCategoryView === 'monthly' ? medProfsByCategory : totalMedProfsByCategory;
                                         const filteredData = sourceData.filter(item => {
+                                            if (activeCategoryView === 'monthly' && item.branch === 'رئاسة الهيئة') return false;
                                             if (!item.month) return false;
                                             const month = parseInt(item.month.split('-')[1]);
                                             const year = parseInt(item.month.split('-')[0]);
@@ -1070,7 +1073,7 @@ export default function MedicalProfessionalsDashboard({
                             minWidth: '120px'
                         }}>
                             <span style={{ fontSize: '0.85rem', color: '#555', fontWeight: 'bold', marginBottom: '4px' }}>
-                                {activeGovernorateView === 'monthly' ? 'محافظات مرحلة أولى' : 'الإجمالي الكلي'}
+                                {activeGovernorateView === 'monthly' ? 'خلال الشهر' : 'الإجمالي الكلي'}
                             </span>
                             <span style={{ fontSize: '1.2rem', color: '#006666', fontWeight: '900' }}>
                                 {(() => {
