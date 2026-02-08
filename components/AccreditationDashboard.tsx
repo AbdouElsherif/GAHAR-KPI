@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
@@ -96,6 +96,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // أكتوبر كقيمة افتراضية
     const [section1View, setSection1View] = useState<'charts' | 'table'>('charts');
     const [section1ChartType, setSection1ChartType] = useState<'governorate' | 'affiliation' | 'standards' | 'affiliation_governorate'>('governorate');
+    const [paidSectionView, setPaidSectionView] = useState<'charts' | 'table'>('charts');
     const [visibleMetrics, setVisibleMetrics] = useState<{
         newFacilities: boolean;
         appeals: boolean;
@@ -112,36 +113,36 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
         completion: true
     });
 
-    const getFiscalYear = (dateStr: string): number => {
+    const getFiscalYear = useCallback((dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
         const month = parseInt(dateStr.split('-')[1]);
         return month >= 7 ? year + 1 : year;
-    };
+    }, []);
 
-    const getYear = (dateStr: string): number => {
+    const getYear = useCallback((dateStr: string): number => {
         return parseInt(dateStr.split('-')[0]);
-    };
+    }, []);
 
-    const getMonth = (dateStr: string): number => {
+    const getMonth = useCallback((dateStr: string): number => {
         return parseInt(dateStr.split('-')[1]);
-    };
+    }, []);
 
-    const getQuarter = (month: number): number => {
+    const getQuarter = useCallback((month: number): number => {
         if (month >= 7 && month <= 9) return 1;
         if (month >= 10 && month <= 12) return 2;
         if (month >= 1 && month <= 3) return 3;
         return 4;
-    };
+    }, []);
 
-    const getHalf = (month: number): number => {
+    const getHalf = useCallback((month: number): number => {
         return month >= 7 ? 1 : 2;
-    };
+    }, []);
 
-    const filterByYear = (fiscalYear: number) => {
+    const filterByYear = useCallback((fiscalYear: number) => {
         return submissions.filter(sub => sub.date && getFiscalYear(sub.date) === fiscalYear);
-    };
+    }, [submissions, getFiscalYear]);
 
-    const aggregateData = (data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
+    const aggregateData = useCallback((data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
         const aggregated: Record<string, {
             newFacilities: number;
             reviewedAppeals: number;
@@ -195,21 +196,21 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
         });
 
         return aggregated;
-    };
+    }, [getMonth, getQuarter, getHalf]);
 
-    const calculateChange = (current: number, previous: number): number => {
+    const calculateChange = useCallback((current: number, previous: number): number => {
         if (previous === 0) return current > 0 ? 100 : 0;
         return ((current - previous) / previous) * 100;
-    };
+    }, []);
 
-    const currentYearData = filterByYear(targetYear);
-    const previousYearData = filterByYear(targetYear - 1);
+    const currentYearData = useMemo(() => filterByYear(targetYear), [filterByYear, targetYear]);
+    const previousYearData = useMemo(() => filterByYear(targetYear - 1), [filterByYear, targetYear]);
 
-    const currentAggregated = aggregateData(currentYearData, comparisonType);
-    const previousAggregated = aggregateData(previousYearData, comparisonType);
+    const currentAggregated = useMemo(() => aggregateData(currentYearData, comparisonType), [aggregateData, currentYearData, comparisonType]);
+    const previousAggregated = useMemo(() => aggregateData(previousYearData, comparisonType), [aggregateData, previousYearData, comparisonType]);
 
     // Calculate totals based on the selected comparison type
-    const calculateFilteredTotal = (
+    const calculateFilteredTotal = useCallback((
         aggregated: Record<string, any>,
         metric: string,
         compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
@@ -219,7 +220,6 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                 sum + (period[metric] || 0), 0
             );
         } else if (compType === 'monthly') {
-            // فلترة حسب الشهر المحدد
             const monthKey = Object.keys(aggregated).find(key => {
                 if (key.includes('-')) {
                     const month = parseInt(key.split('-')[1]);
@@ -236,35 +236,33 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             return aggregated[periodKey]?.[metric] || 0;
         }
         return 0;
-    };
+    }, [selectedMonth, selectedQuarter, selectedHalf]);
 
-    // Calculate totals
-    const currentTotalNewFacilities = calculateFilteredTotal(currentAggregated, 'newFacilities', comparisonType);
-    const previousTotalNewFacilities = calculateFilteredTotal(previousAggregated, 'newFacilities', comparisonType);
-    const newFacilitiesChange = calculateChange(currentTotalNewFacilities, previousTotalNewFacilities);
+    const currentTotalNewFacilities = useMemo(() => calculateFilteredTotal(currentAggregated, 'newFacilities', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalNewFacilities = useMemo(() => calculateFilteredTotal(previousAggregated, 'newFacilities', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const newFacilitiesChange = useMemo(() => calculateChange(currentTotalNewFacilities, previousTotalNewFacilities), [calculateChange, currentTotalNewFacilities, previousTotalNewFacilities]);
 
-    const currentTotalAppeals = calculateFilteredTotal(currentAggregated, 'reviewedAppeals', comparisonType);
-    const previousTotalAppeals = calculateFilteredTotal(previousAggregated, 'reviewedAppeals', comparisonType);
-    const appealsChange = calculateChange(currentTotalAppeals, previousTotalAppeals);
+    const currentTotalAppeals = useMemo(() => calculateFilteredTotal(currentAggregated, 'reviewedAppeals', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalAppeals = useMemo(() => calculateFilteredTotal(previousAggregated, 'reviewedAppeals', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const appealsChange = useMemo(() => calculateChange(currentTotalAppeals, previousTotalAppeals), [calculateChange, currentTotalAppeals, previousTotalAppeals]);
 
-    const currentTotalPlans = calculateFilteredTotal(currentAggregated, 'reviewedPlans', comparisonType);
-    const previousTotalPlans = calculateFilteredTotal(previousAggregated, 'reviewedPlans', comparisonType);
-    const plansChange = calculateChange(currentTotalPlans, previousTotalPlans);
+    const currentTotalPlans = useMemo(() => calculateFilteredTotal(currentAggregated, 'reviewedPlans', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalPlans = useMemo(() => calculateFilteredTotal(previousAggregated, 'reviewedPlans', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const plansChange = useMemo(() => calculateChange(currentTotalPlans, previousTotalPlans), [calculateChange, currentTotalPlans, previousTotalPlans]);
 
-    const currentTotalAccreditation = calculateFilteredTotal(currentAggregated, 'accreditation', comparisonType);
-    const previousTotalAccreditation = calculateFilteredTotal(previousAggregated, 'accreditation', comparisonType);
-    const accreditationChange = calculateChange(currentTotalAccreditation, previousTotalAccreditation);
+    const currentTotalAccreditation = useMemo(() => calculateFilteredTotal(currentAggregated, 'accreditation', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalAccreditation = useMemo(() => calculateFilteredTotal(previousAggregated, 'accreditation', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const accreditationChange = useMemo(() => calculateChange(currentTotalAccreditation, previousTotalAccreditation), [calculateChange, currentTotalAccreditation, previousTotalAccreditation]);
 
-    const currentTotalRenewal = calculateFilteredTotal(currentAggregated, 'renewal', comparisonType);
-    const previousTotalRenewal = calculateFilteredTotal(previousAggregated, 'renewal', comparisonType);
-    const renewalChange = calculateChange(currentTotalRenewal, previousTotalRenewal);
+    const currentTotalRenewal = useMemo(() => calculateFilteredTotal(currentAggregated, 'renewal', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalRenewal = useMemo(() => calculateFilteredTotal(previousAggregated, 'renewal', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const renewalChange = useMemo(() => calculateChange(currentTotalRenewal, previousTotalRenewal), [calculateChange, currentTotalRenewal, previousTotalRenewal]);
 
-    const currentTotalCompletion = calculateFilteredTotal(currentAggregated, 'completion', comparisonType);
-    const previousTotalCompletion = calculateFilteredTotal(previousAggregated, 'completion', comparisonType);
-    const completionChange = calculateChange(currentTotalCompletion, previousTotalCompletion);
+    const currentTotalCompletion = useMemo(() => calculateFilteredTotal(currentAggregated, 'completion', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalCompletion = useMemo(() => calculateFilteredTotal(previousAggregated, 'completion', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const completionChange = useMemo(() => calculateChange(currentTotalCompletion, previousTotalCompletion), [calculateChange, currentTotalCompletion, previousTotalCompletion]);
 
-
-    const formatPeriodLabel = (period: string): string => {
+    const formatPeriodLabel = useCallback((period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
         if (period.startsWith('H')) return `النصف ${period.slice(1)}`;
         if (period === 'السنة الكاملة') return period;
@@ -274,7 +272,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             return monthNames[parseInt(month) - 1];
         }
         return period;
-    };
+    }, []);
 
     const getObstaclesForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
@@ -456,24 +454,61 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     const filteredPaymentFacilities = getPaymentFacilitiesForSelectedMonth();
 
     // دالة لفلترة وترتيب المنشآت المدفوعة حسب الشهر المحدد وحالة الاعتماد
-    const getPaidFacilitiesForSelectedMonth = () => {
+    const getPaidFacilitiesForSelectedMonth = useMemo(() => {
         if (comparisonType !== 'monthly' || !paidFacilities || paidFacilities.length === 0) return [];
 
         const filtered = paidFacilities.filter(facility => {
             if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
             const facilityFiscalYear = getFiscalYear(facility.month + '-01');
+            const month = parseInt(facility.month.split('-')[1]);
 
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return month === selectedMonth && facilityFiscalYear === targetYear;
         });
 
         return filtered.sort((a, b) => {
             return a.accreditationStatus.localeCompare(b.accreditationStatus, 'ar');
         });
-    };
+    }, [comparisonType, paidFacilities, selectedMonth, targetYear, getFiscalYear]);
 
-    const filteredPaidFacilities = getPaidFacilitiesForSelectedMonth();
+    const filteredPaidFacilities = getPaidFacilitiesForSelectedMonth;
+
+    const paidFacilitiesChartData = useMemo(() => {
+        const categories = {
+            'إيرادات الاعتماد': { value: 0, count: 0 },
+            'إيرادات اعتماد بعد اعتماد مبدئي': { value: 0, count: 0 },
+            'إيرادات الاعتماد المبدئي': { value: 0, count: 0 },
+            'إيرادات تجديد الاعتماد': { value: 0, count: 0 },
+            'إيرادات تجديد الاعتماد المبدئي': { value: 0, count: 0 }
+        };
+
+        filteredPaidFacilities.forEach(f => {
+            const status = f.accreditationStatus;
+            let categoryKey: keyof typeof categories | null = null;
+
+            if (status.includes('تجديد') && status.includes('مبدئي')) {
+                categoryKey = 'إيرادات تجديد الاعتماد المبدئي';
+            } else if (status.includes('تجديد')) {
+                categoryKey = 'إيرادات تجديد الاعتماد';
+            } else if (status.includes('مبدئي') && status.includes('بعد')) {
+                categoryKey = 'إيرادات اعتماد بعد اعتماد مبدئي';
+            } else if (status.includes('مبدئي')) {
+                categoryKey = 'إيرادات الاعتماد المبدئي';
+            } else if (status.includes('اعتماد')) {
+                categoryKey = 'إيرادات الاعتماد';
+            }
+
+            if (categoryKey) {
+                categories[categoryKey].value += f.amount || 0;
+                categories[categoryKey].count += 1;
+            }
+        });
+
+        return Object.entries(categories).map(([name, data]) => ({
+            name,
+            value: data.value,
+            count: data.count
+        }));
+    }, [filteredPaidFacilities]);
 
     // دالة لفلترة وترتيب منشآت تسجيل المهن حسب الشهر المحدد ونوع المنشأة
     const getMedicalProfessionalRegistrationsForSelectedMonth = () => {
@@ -659,7 +694,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
     const renewalPieData = preparePieData('renewal');
     const completionPieData = preparePieData('completion');
 
-    function prepareChartData() {
+    const prepareChartData = useCallback(() => {
         const currentPeriods = Object.keys(currentAggregated);
         const allPeriods = new Set<string>();
 
@@ -681,7 +716,6 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
         let sortedPeriods = Array.from(allPeriods).sort();
 
         if (comparisonType === 'monthly') {
-            // فلترة حسب الشهر المحدد فقط
             sortedPeriods = sortedPeriods.filter(p => {
                 if (p.includes('-')) {
                     const month = parseInt(p.split('-')[1]);
@@ -723,13 +757,12 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                 [`استكمال ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.completion || 0,
             };
         });
-    }
+    }, [comparisonType, currentAggregated, previousAggregated, selectedMonth, selectedQuarter, selectedHalf, targetYear, formatPeriodLabel]);
 
-    function renderTableRows() {
+    const renderTableRows = useCallback(() => {
         let periods = Object.keys(currentAggregated).sort();
 
         if (comparisonType === 'monthly') {
-            // فلترة حسب الشهر المحدد فقط
             periods = periods.filter(p => {
                 if (p.includes('-')) {
                     const month = parseInt(p.split('-')[1]);
@@ -789,7 +822,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                 </tr>
             );
         });
-    }
+    }, [comparisonType, currentAggregated, previousAggregated, selectedMonth, selectedQuarter, selectedHalf, formatPeriodLabel]);
 
     return (
         <div>
@@ -1794,9 +1827,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                             gap: '10px',
                             marginBottom: '20px',
                             paddingBottom: '15px',
-                            borderBottom: '2px solid #6f42c1'
+                            borderBottom: '2px solid #6f42c1',
+                            flexWrap: 'wrap'
                         }}>
-                            <span style={{ fontSize: '1.5rem' }}>✅</span>
+                            <span style={{ fontSize: '1.5rem' }}>💰</span>
                             <h3 style={{
                                 margin: 0,
                                 color: '#6f42c1',
@@ -1808,112 +1842,194 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                     return monthNames[selectedMonth - 1];
                                 })()} {targetYear}
                             </h3>
-                            <span style={{ marginLeft: 'auto', fontSize: '1rem', color: '#666', fontWeight: '500' }}>
-                                ({filteredPaidFacilities.length} منشأة)
+                            <span style={{ fontSize: '1rem', color: '#666', fontWeight: '500' }}>
+                                ({filteredPaidFacilities.length} منشأة - الإجمالي: {filteredPaidFacilities.reduce((sum, f) => sum + (f.amount || 0), 0).toLocaleString('ar-EG')} ج.م)
                             </span>
+
+                            <div style={{
+                                marginLeft: 'auto',
+                                display: 'flex',
+                                backgroundColor: '#f0f2f5',
+                                padding: '4px',
+                                borderRadius: '8px',
+                                gap: '4px'
+                            }}>
+                                <button
+                                    onClick={() => setPaidSectionView('charts')}
+                                    style={{
+                                        padding: '6px 16px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '500',
+                                        backgroundColor: paidSectionView === 'charts' ? '#6f42c1' : 'transparent',
+                                        color: paidSectionView === 'charts' ? 'white' : '#666',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    📊 الرسوم البيانية
+                                </button>
+                                <button
+                                    onClick={() => setPaidSectionView('table')}
+                                    style={{
+                                        padding: '6px 16px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '500',
+                                        backgroundColor: paidSectionView === 'table' ? '#6f42c1' : 'transparent',
+                                        color: paidSectionView === 'table' ? 'white' : '#666',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    📑 الجدول
+                                </button>
+                            </div>
                         </div>
 
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                fontSize: '0.95rem'
-                            }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#6f42c1', color: 'white' }}>
-                                        <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>المحافظة</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>حالة الاعتماد</th>
-                                        <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>القيمة المالية</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(() => {
-                                        // تجميع المنشآت حسب حالة الاعتماد
-                                        const groupedFacilities = filteredPaidFacilities.reduce((groups, facility) => {
-                                            const status = facility.accreditationStatus;
-                                            if (!groups[status]) {
-                                                groups[status] = [];
-                                            }
-                                            groups[status].push(facility);
-                                            return groups;
-                                        }, {} as Record<string, typeof filteredPaidFacilities>);
-
-                                        if (Object.keys(groupedFacilities).length === 0) {
-                                            return (
-                                                <tr>
-                                                    <td colSpan={5} style={{
-                                                        padding: '40px',
-                                                        textAlign: 'center',
-                                                        color: '#999'
-                                                    }}>
-                                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
-                                                        لا توجد منشآت مسجلة
-                                                    </td>
-                                                </tr>
-                                            );
-                                        }
-
-                                        let globalIndex = 0;
-                                        const rows: any[] = [];
-
-                                        Object.entries(groupedFacilities).forEach(([status, facilities]) => {
-                                            const groupTotal = facilities.reduce((sum, f) => sum + f.amount, 0);
-
-                                            // رأس المجموعة
-                                            rows.push(
-                                                <tr key={`header-${status}`} style={{ backgroundColor: '#f8f9fa' }}>
-                                                    <td colSpan={5} style={{
-                                                        padding: '12px',
-                                                        fontWeight: 'bold',
-                                                        color: '#6f42c1',
-                                                        fontSize: '1rem',
-                                                        borderTop: '2px solid #6f42c1',
-                                                        borderBottom: '1px solid #dee2e6'
-                                                    }}>
-                                                        {status} ({facilities.length} منشأة - الإجمالي: {groupTotal.toLocaleString('ar-EG')} ج.م)
-                                                    </td>
-                                                </tr>
-                                            );
-
-                                            // منشآت المجموعة
-                                            facilities.forEach((facility) => {
-                                                globalIndex++;
-                                                rows.push(
-                                                    <tr key={facility.id || `facility-${globalIndex}`} style={{
-                                                        borderBottom: '1px solid #eee',
-                                                        backgroundColor: globalIndex % 2 === 0 ? 'transparent' : 'var(--background-color)'
-                                                    }}>
-                                                        <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{globalIndex}</td>
-                                                        <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            <span style={{
-                                                                padding: '6px 14px',
-                                                                borderRadius: '12px',
-                                                                fontSize: '0.85rem',
-                                                                backgroundColor: 'rgba(111, 66, 193, 0.1)',
-                                                                color: '#6f42c1',
-                                                                fontWeight: '500',
-                                                                display: 'inline-block'
-                                                            }}>
-                                                                {facility.accreditationStatus}
+                        {paidSectionView === 'charts' ? (
+                            <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={paidFacilitiesChartData}
+                                        margin={{ top: 30, right: 30, left: 20, bottom: 60 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#eee" />
+                                        <XAxis
+                                            dataKey="name"
+                                            interval={0}
+                                            angle={0}
+                                            textAnchor="middle"
+                                            style={{ fontSize: '0.75rem', fontWeight: 'bold' }}
+                                            tickMargin={8}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis hide />
+                                        <Tooltip
+                                            formatter={(value: number, name: string, props: any) => {
+                                                if (name === 'value') {
+                                                    return [
+                                                        `${value.toLocaleString('ar-EG')} ج.م`,
+                                                        'الإيرادات'
+                                                    ];
+                                                }
+                                                return [value, name];
+                                            }}
+                                            labelFormatter={(label) => {
+                                                const item = paidFacilitiesChartData.find(d => d.name === label);
+                                                return (
+                                                    <span style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
+                                                        {label}
+                                                        {item && (
+                                                            <span style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px', display: 'block' }}>
+                                                                عدد المنشآت: {item.count}
                                                             </span>
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#6f42c1', fontSize: '1rem' }}>
-                                                            {facility.amount.toLocaleString('ar-EG')} ج.م
+                                                        )}
+                                                    </span>
+                                                );
+                                            }}
+                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                        />
+                                        <Bar dataKey="value" fill="#6f42c1" radius={[4, 4, 0, 0]} barSize={50}>
+                                            <LabelList
+                                                dataKey="value"
+                                                position="top"
+                                                formatter={(value: any) => `${(value || 0).toLocaleString('ar-EG')}`}
+                                                style={{ fontSize: '0.85rem', fontWeight: 'bold', fill: '#6f42c1' }}
+                                            />
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#6f42c1', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'right', width: '60px' }}>#</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>المحافظة</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '150px' }}>حالة الاعتماد</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '120px' }}>القيمة المالية</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {(() => {
+                                            // تجميع المنشآت حسب حالة الاعتماد
+                                            const groupedFacilities = filteredPaidFacilities.reduce((groups, facility) => {
+                                                const status = facility.accreditationStatus;
+                                                if (!groups[status]) {
+                                                    groups[status] = [];
+                                                }
+                                                groups[status].push(facility);
+                                                return groups;
+                                            }, {} as Record<string, typeof filteredPaidFacilities>);
+
+                                            let globalIndex = 0;
+                                            const rows: any[] = [];
+
+                                            Object.entries(groupedFacilities).forEach(([status, facilities]) => {
+                                                const groupTotal = facilities.reduce((sum, f) => sum + (f.amount || 0), 0);
+
+                                                rows.push(
+                                                    <tr key={`header-${status}`} style={{ backgroundColor: '#f8f9fa' }}>
+                                                        <td colSpan={5} style={{
+                                                            padding: '12px',
+                                                            fontWeight: 'bold',
+                                                            color: '#6f42c1',
+                                                            fontSize: '1rem',
+                                                            borderTop: '2px solid #6f42c1',
+                                                            borderBottom: '1px solid #dee2e6'
+                                                        }}>
+                                                            {status} ({facilities.length} منشأة - الإجمالي: {groupTotal.toLocaleString('ar-EG')} ج.م)
                                                         </td>
                                                     </tr>
                                                 );
-                                            });
-                                        });
 
-                                        return rows;
-                                    })()}
-                                </tbody>
-                            </table>
-                        </div>
+                                                facilities.forEach((facility) => {
+                                                    globalIndex++;
+                                                    rows.push(
+                                                        <tr key={facility.id || `facility-${globalIndex}`} style={{
+                                                            borderBottom: '1px solid #eee',
+                                                            backgroundColor: globalIndex % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                                                        }}>
+                                                            <td style={{ padding: '12px', fontWeight: '500', color: '#666' }}>{globalIndex}</td>
+                                                            <td style={{ padding: '12px', fontWeight: '500' }}>{facility.facilityName}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{facility.governorate}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                <span style={{
+                                                                    padding: '6px 14px',
+                                                                    borderRadius: '12px',
+                                                                    fontSize: '0.85rem',
+                                                                    backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                                                                    color: '#6f42c1',
+                                                                    fontWeight: '500',
+                                                                    display: 'inline-block'
+                                                                }}>
+                                                                    {facility.accreditationStatus}
+                                                                </span>
+                                                            </td>
+                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#6f42c1', fontSize: '1rem' }}>
+                                                                {(facility.amount || 0).toLocaleString('ar-EG')} ج.م
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                });
+                                            });
+
+                                            return rows;
+                                        })()}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
