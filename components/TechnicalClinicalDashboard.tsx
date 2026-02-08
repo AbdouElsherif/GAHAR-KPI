@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import KPICard from './KPICard';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Cell } from 'recharts';
 import { TechnicalClinicalFacility, TechnicalClinicalCorrectionRate, TechnicalClinicalObservation } from '@/lib/firestore';
@@ -31,37 +31,36 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
 
     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
-    const getFiscalYear = (dateStr: string): number => {
-
+    const getFiscalYear = useCallback((dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
         const month = parseInt(dateStr.split('-')[1]);
         return month >= 7 ? year + 1 : year;
-    };
+    }, []);
 
-    const getYear = (dateStr: string): number => {
+    const getYear = useCallback((dateStr: string): number => {
         return parseInt(dateStr.split('-')[0]);
-    };
+    }, []);
 
-    const getMonth = (dateStr: string): number => {
+    const getMonth = useCallback((dateStr: string): number => {
         return parseInt(dateStr.split('-')[1]);
-    };
+    }, []);
 
-    const getQuarter = (month: number): number => {
+    const getQuarter = useCallback((month: number): number => {
         if (month >= 7 && month <= 9) return 1;
         if (month >= 10 && month <= 12) return 2;
         if (month >= 1 && month <= 3) return 3;
         return 4;
-    };
+    }, []);
 
-    const getHalf = (month: number): number => {
+    const getHalf = useCallback((month: number): number => {
         return month >= 7 ? 1 : 2;
-    };
+    }, []);
 
-    const filterByYear = (fiscalYear: number) => {
+    const filterByYear = useCallback((fiscalYear: number) => {
         return submissions.filter(sub => sub.date && getFiscalYear(sub.date) === fiscalYear);
-    };
+    }, [submissions, getFiscalYear]);
 
-    const aggregateData = (data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
+    const aggregateData = useCallback((data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
         const aggregated: Record<string, {
             totalFieldVisits: number;
             auditVisits: number;
@@ -109,21 +108,21 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
         });
 
         return aggregated;
-    };
+    }, [getMonth, getQuarter, getHalf]);
 
-    const calculateChange = (current: number, previous: number): number => {
+    const calculateChange = useCallback((current: number, previous: number): number => {
         if (previous === 0) return current > 0 ? 100 : 0;
         return ((current - previous) / previous) * 100;
-    };
+    }, []);
 
-    const currentYearData = filterByYear(targetYear);
-    const previousYearData = filterByYear(targetYear - 1);
+    const currentYearData = useMemo(() => filterByYear(targetYear), [filterByYear, targetYear]);
+    const previousYearData = useMemo(() => filterByYear(targetYear - 1), [filterByYear, targetYear]);
 
-    const currentAggregated = aggregateData(currentYearData, comparisonType);
-    const previousAggregated = aggregateData(previousYearData, comparisonType);
+    const currentAggregated = useMemo(() => aggregateData(currentYearData, comparisonType), [aggregateData, currentYearData, comparisonType]);
+    const previousAggregated = useMemo(() => aggregateData(previousYearData, comparisonType), [aggregateData, previousYearData, comparisonType]);
 
     // Calculate totals based on the selected comparison type
-    const calculateFilteredTotal = (
+    const calculateFilteredTotal = useCallback((
         aggregated: Record<string, any>,
         metric: string,
         compType: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly'
@@ -150,26 +149,26 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
             return aggregated[periodKey]?.[metric] || 0;
         }
         return 0;
-    };
+    }, [selectedMonth, selectedQuarter, selectedHalf]);
 
     // Calculate totals for each metric
-    const currentTotalFieldVisits = calculateFilteredTotal(currentAggregated, 'totalFieldVisits', comparisonType);
-    const previousTotalFieldVisits = calculateFilteredTotal(previousAggregated, 'totalFieldVisits', comparisonType);
-    const fieldVisitsChange = calculateChange(currentTotalFieldVisits, previousTotalFieldVisits);
+    const currentTotalFieldVisits = useMemo(() => calculateFilteredTotal(currentAggregated, 'totalFieldVisits', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalFieldVisits = useMemo(() => calculateFilteredTotal(previousAggregated, 'totalFieldVisits', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const fieldVisitsChange = useMemo(() => calculateChange(currentTotalFieldVisits, previousTotalFieldVisits), [calculateChange, currentTotalFieldVisits, previousTotalFieldVisits]);
 
-    const currentTotalAuditVisits = calculateFilteredTotal(currentAggregated, 'auditVisits', comparisonType);
-    const previousTotalAuditVisits = calculateFilteredTotal(previousAggregated, 'auditVisits', comparisonType);
-    const auditVisitsChange = calculateChange(currentTotalAuditVisits, previousTotalAuditVisits);
+    const currentTotalAuditVisits = useMemo(() => calculateFilteredTotal(currentAggregated, 'auditVisits', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalAuditVisits = useMemo(() => calculateFilteredTotal(previousAggregated, 'auditVisits', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const auditVisitsChange = useMemo(() => calculateChange(currentTotalAuditVisits, previousTotalAuditVisits), [calculateChange, currentTotalAuditVisits, previousTotalAuditVisits]);
 
-    const currentTotalAssessmentVisits = calculateFilteredTotal(currentAggregated, 'assessmentVisits', comparisonType);
-    const previousTotalAssessmentVisits = calculateFilteredTotal(previousAggregated, 'assessmentVisits', comparisonType);
-    const assessmentVisitsChange = calculateChange(currentTotalAssessmentVisits, previousTotalAssessmentVisits);
+    const currentTotalAssessmentVisits = useMemo(() => calculateFilteredTotal(currentAggregated, 'assessmentVisits', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalAssessmentVisits = useMemo(() => calculateFilteredTotal(previousAggregated, 'assessmentVisits', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const assessmentVisitsChange = useMemo(() => calculateChange(currentTotalAssessmentVisits, previousTotalAssessmentVisits), [calculateChange, currentTotalAssessmentVisits, previousTotalAssessmentVisits]);
 
-    const currentTotalVisitedFacilities = calculateFilteredTotal(currentAggregated, 'visitedFacilities', comparisonType);
-    const previousTotalVisitedFacilities = calculateFilteredTotal(previousAggregated, 'visitedFacilities', comparisonType);
-    const visitedFacilitiesChange = calculateChange(currentTotalVisitedFacilities, previousTotalVisitedFacilities);
+    const currentTotalVisitedFacilities = useMemo(() => calculateFilteredTotal(currentAggregated, 'visitedFacilities', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalVisitedFacilities = useMemo(() => calculateFilteredTotal(previousAggregated, 'visitedFacilities', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const visitedFacilitiesChange = useMemo(() => calculateChange(currentTotalVisitedFacilities, previousTotalVisitedFacilities), [calculateChange, currentTotalVisitedFacilities, previousTotalVisitedFacilities]);
 
-    const formatPeriodLabel = (period: string): string => {
+    const formatPeriodLabel = useCallback((period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
         if (period.startsWith('H')) return `النصف ${period.slice(1)}`;
         if (period === 'السنة الكاملة') return period;
@@ -179,7 +178,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
             return monthNames[parseInt(month) - 1];
         }
         return period;
-    };
+    }, []);
 
     const getObstaclesForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
@@ -227,7 +226,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
-    const preparePieData = (metric: 'totalFieldVisits' | 'auditVisits' | 'assessmentVisits' | 'visitedFacilities') => {
+    const preparePieData = useCallback((metric: 'totalFieldVisits' | 'auditVisits' | 'assessmentVisits' | 'visitedFacilities') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
@@ -275,14 +274,14 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 value: aggregated[period]?.[metric] || 0
             }));
         }
-    };
+    }, [comparisonType, currentTotalFieldVisits, previousTotalFieldVisits, currentTotalAuditVisits, previousTotalAuditVisits, currentTotalAssessmentVisits, previousTotalAssessmentVisits, currentTotalVisitedFacilities, previousTotalVisitedFacilities, targetYear, selectedQuarter, selectedHalf, currentYearData, previousYearData, aggregateData, formatPeriodLabel]);
 
-    const fieldVisitsPieData = preparePieData('totalFieldVisits');
-    const auditVisitsPieData = preparePieData('auditVisits');
-    const assessmentVisitsPieData = preparePieData('assessmentVisits');
-    const visitedFacilitiesPieData = preparePieData('visitedFacilities');
+    const fieldVisitsPieData = useMemo(() => preparePieData('totalFieldVisits'), [preparePieData]);
+    const auditVisitsPieData = useMemo(() => preparePieData('auditVisits'), [preparePieData]);
+    const assessmentVisitsPieData = useMemo(() => preparePieData('assessmentVisits'), [preparePieData]);
+    const visitedFacilitiesPieData = useMemo(() => preparePieData('visitedFacilities'), [preparePieData]);
 
-    function prepareChartData() {
+    const prepareChartData = useCallback(() => {
         const currentPeriods = Object.keys(currentAggregated);
         const allPeriods = new Set<string>();
 
@@ -343,7 +342,9 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 [`منشآت ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.visitedFacilities || 0,
             };
         });
-    }
+    }, [currentAggregated, previousAggregated, comparisonType, selectedMonth, selectedQuarter, selectedHalf, targetYear, formatPeriodLabel]);
+
+    const chartData = useMemo(() => prepareChartData(), [prepareChartData]);
 
     function renderTableRows() {
         let periods = Object.keys(currentAggregated).sort();
@@ -623,7 +624,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                         </div>
                     </div>
                     <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={prepareChartData()}>
+                        <BarChart data={chartData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                             <XAxis dataKey="period" stroke="var(--text-color)" />
                             <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
