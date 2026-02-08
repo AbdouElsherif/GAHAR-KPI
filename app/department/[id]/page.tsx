@@ -200,6 +200,7 @@ const egyptGovernorates = [
 // Facility Types for Technical Support
 const techSupportFacilityTypes = [
     'مستشفيات',
+    'مستشفيات الصحة النفسية',
     'عيادات خاصة',
     'معامل',
     'صيدليات',
