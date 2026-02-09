@@ -14456,14 +14456,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsReviewerEvaluationVisitsSectionExpanded(!isReviewerEvaluationVisitsSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 الزيارات التقييمية وفقا لنوع المنشأة - شهر {(() => {
-                                    if (globalFilterMonth || reviewerEvaluationVisitFilterMonth) {
-                                        const [year, month] = (globalFilterMonth || reviewerEvaluationVisitFilterMonth).split('-');
+                                📊 الزيارات التقييمية وفقا لنوع المنشأة{(() => {
+                                    const activeFilter = globalFilterMonth || reviewerEvaluationVisitFilterMonth;
+                                    if (activeFilter) {
+                                        const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = reviewerEvaluationVisits.filter(v => v.month === activeFilter).reduce((sum, v) => sum + v.visitsCount, 0);
+                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
                                     }
-                                    return '....'
-                                })()} - عدد {reviewerEvaluationVisits.filter(v => !(globalFilterMonth || reviewerEvaluationVisitFilterMonth) || v.month === (globalFilterMonth || reviewerEvaluationVisitFilterMonth)).reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                                    return '';
+                                })()}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -14712,14 +14714,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsReviewerEvaluationVisitsByGovernorateSectionExpanded(!isReviewerEvaluationVisitsByGovernorateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📍 الزيارات التقييمية وفقا للمحافظة - شهر {(() => {
-                                    if (globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth) {
-                                        const [year, month] = (globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth).split('-');
+                                📍 الزيارات التقييمية وفقا للمحافظة{(() => {
+                                    const activeFilter = globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth;
+                                    if (activeFilter) {
+                                        const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = reviewerEvaluationVisitsByGovernorate.filter(v => v.month === activeFilter).reduce((sum, v) => sum + v.visitsCount, 0);
+                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
                                     }
-                                    return '....';
-                                })()} - عدد {reviewerEvaluationVisitsByGovernorate.filter(v => !(globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth) || v.month === (globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth)).reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                                    return '';
+                                })()}
                             </h2>
                             <div style={{
                                 display: 'flex',
@@ -14995,14 +14999,16 @@ export default function DepartmentPage() {
                             onClick={() => setIsReviewerEvaluationVisitsByTypeSectionExpanded(!isReviewerEvaluationVisitsByTypeSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 الزيارات التقييمية وفقا لنوع الزيارة - شهر {(() => {
-                                    if (globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth) {
-                                        const [year, month] = (globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth).split('-');
+                                🔍 الزيارات التقييمية وفقا لنوع الزيارة{(() => {
+                                    const activeFilter = globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth;
+                                    if (activeFilter) {
+                                        const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return `${monthNames[parseInt(month) - 1]} ${year}`;
+                                        const count = reviewerEvaluationVisitsByType.filter(v => v.month === activeFilter).reduce((sum, v) => sum + v.visitsCount, 0);
+                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
                                     }
-                                    return '....';
-                                })()} - عدد {reviewerEvaluationVisitsByType.filter(v => !(globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth) || v.month === (globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth)).reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                                    return '';
+                                })()}
                             </h2>
                             <div style={{
                                 display: 'flex',
