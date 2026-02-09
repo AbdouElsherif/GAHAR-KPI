@@ -8,31 +8,19 @@ interface ReviewerEvaluationVisit {
     id?: string;
     month: string;
     facilityType: string;
-    visitsCount: number;
+    facilityName?: string;
+    governorate?: string;
+    visitType?: string;
     year: number;
 }
 
-interface ReviewerEvaluationVisitByGovernorate {
-    id?: string;
-    month: string;
-    governorate: string;
-    visitsCount: number;
-    year: number;
-}
 
-interface ReviewerEvaluationVisitByType {
-    id?: string;
-    month: string;
-    visitType: string;
-    visitsCount: number;
-    year: number;
-}
 
 interface ReviewersDashboardProps {
     submissions: Array<Record<string, any>>;
     evaluationVisits: ReviewerEvaluationVisit[];
-    governorateVisits: ReviewerEvaluationVisitByGovernorate[];
-    visitTypeVisits: ReviewerEvaluationVisitByType[];
+    governorateVisits?: any[]; // Deprecated, computed from evaluationVisits
+    visitTypeVisits?: any[]; // Deprecated, computed from evaluationVisits
 }
 
 export default function ReviewersDashboard({ submissions, evaluationVisits, governorateVisits, visitTypeVisits }: ReviewersDashboardProps) {
@@ -902,18 +890,22 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                         </div>
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
-                                data={evaluationVisits.map(visit => ({
-                                    name: visit.facilityType,
-                                    'عدد الزيارات': visit.visitsCount,
-                                    month: visit.month
-                                }))}
+                                data={(() => {
+                                    const counts = evaluationVisits.reduce((acc, visit) => {
+                                        const type = visit.facilityType || 'غير محدد';
+                                        acc[type] = (acc[type] || 0) + 1;
+                                        return acc;
+                                    }, {} as Record<string, number>);
+                                    return Object.entries(counts).map(([name, count]) => ({
+                                        name,
+                                        'عدد الزيارات': count
+                                    }));
+                                })()}
                                 margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis
                                     dataKey="name"
-
-
                                     height={80}
                                     style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
                                 />
@@ -932,7 +924,11 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 <Legend />
                                 <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
                                     <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {evaluationVisits.map((_, index) => {
+                                    {Object.keys(evaluationVisits.reduce((acc, visit) => {
+                                        const type = visit.facilityType || 'غير محدد';
+                                        acc[type] = true;
+                                        return acc;
+                                    }, {} as Record<string, boolean>)).map((_, index) => {
                                         const colors = ['#17a2b8', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
                                         return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
@@ -947,7 +943,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                             textAlign: 'center'
                         }}>
                             <strong style={{ color: '#0c5460' }}>
-                                إجمالي الزيارات: {evaluationVisits.reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                                إجمالي الزيارات: {evaluationVisits.length} زيارة
                             </strong>
                         </div>
                     </div>
@@ -955,7 +951,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
             )}
 
             {/* Governorate Visits Chart */}
-            {governorateVisits && governorateVisits.length > 0 && (
+            {evaluationVisits && evaluationVisits.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -984,11 +980,17 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                         </div>
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
-                                data={governorateVisits.map(visit => ({
-                                    name: visit.governorate,
-                                    'عدد الزيارات': visit.visitsCount,
-                                    month: visit.month
-                                }))}
+                                data={(() => {
+                                    const counts = evaluationVisits.reduce((acc, visit) => {
+                                        const gov = visit.governorate || 'غير محدد';
+                                        acc[gov] = (acc[gov] || 0) + 1;
+                                        return acc;
+                                    }, {} as Record<string, number>);
+                                    return Object.entries(counts).map(([name, count]) => ({
+                                        name,
+                                        'عدد الزيارات': count
+                                    }));
+                                })()}
                                 margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -1012,7 +1014,11 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 <Legend />
                                 <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
                                     <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {governorateVisits.map((_, index) => {
+                                    {Object.keys(evaluationVisits.reduce((acc, visit) => {
+                                        const gov = visit.governorate || 'غير محدد';
+                                        acc[gov] = true;
+                                        return acc;
+                                    }, {} as Record<string, boolean>)).map((_, index) => {
                                         const colors = ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
                                         return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
@@ -1027,7 +1033,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                             textAlign: 'center'
                         }}>
                             <strong style={{ color: '#155724' }}>
-                                إجمالي الزيارات: {governorateVisits.reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                                إجمالي الزيارات: {evaluationVisits.length} زيارة
                             </strong>
                         </div>
                     </div>
@@ -1035,7 +1041,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
             )}
 
             {/* Evaluation Visits by Visit Type - الزيارات التقييمية وفقا لنوع الزيارة */}
-            {visitTypeVisits && visitTypeVisits.length > 0 && (
+            {evaluationVisits && evaluationVisits.length > 0 && (
                 <div className="card" style={{ marginTop: '30px' }}>
                     <h3 style={{ marginBottom: '20px', color: 'var(--secondary-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ fontSize: '1.5rem' }}>📊</span>
@@ -1044,10 +1050,17 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     <div style={{ height: '400px', width: '100%' }}>
                         <ResponsiveContainer>
                             <BarChart
-                                data={visitTypeVisits.map(visit => ({
-                                    'نوع الزيارة': visit.visitType,
-                                    'عدد الزيارات': visit.visitsCount
-                                }))}
+                                data={(() => {
+                                    const counts = evaluationVisits.reduce((acc, visit) => {
+                                        const type = visit.visitType || 'غير محدد';
+                                        acc[type] = (acc[type] || 0) + 1;
+                                        return acc;
+                                    }, {} as Record<string, number>);
+                                    return Object.entries(counts).map(([type, count]) => ({
+                                        'نوع الزيارة': type,
+                                        'عدد الزيارات': count
+                                    }));
+                                })()}
                                 margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -1073,7 +1086,11 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 <Legend />
                                 <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
                                     <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {visitTypeVisits.map((_, index) => {
+                                    {Object.keys(evaluationVisits.reduce((acc, visit) => {
+                                        const type = visit.visitType || 'غير محدد';
+                                        acc[type] = true;
+                                        return acc;
+                                    }, {} as Record<string, boolean>)).map((_, index) => {
                                         const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
                                         return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
@@ -1088,12 +1105,13 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                             textAlign: 'center'
                         }}>
                             <strong style={{ color: '#084298' }}>
-                                إجمالي الزيارات: {visitTypeVisits.reduce((sum, visit) => sum + visit.visitsCount, 0)} زيارة
+                                إجمالي الزيارات: {evaluationVisits.length} زيارة
                             </strong>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

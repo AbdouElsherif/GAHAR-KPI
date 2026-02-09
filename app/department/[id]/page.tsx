@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
-    saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveReviewerEvaluationVisitByGovernorate, getReviewerEvaluationVisitsByGovernorate, updateReviewerEvaluationVisitByGovernorate, deleteReviewerEvaluationVisitByGovernorate, type ReviewerEvaluationVisitByGovernorate, saveReviewerEvaluationVisitByType, getReviewerEvaluationVisitsByType, updateReviewerEvaluationVisitByType, deleteReviewerEvaluationVisitByType, type ReviewerEvaluationVisitByType, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
+    saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
     saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity, saveProgramType, getProgramTypes, updateProgramType, deleteProgramType, type ProgramType,
     saveTotalMedProfByCategory, getTotalMedProfsByCategory, updateTotalMedProfByCategory, deleteTotalMedProfByCategory, type TotalMedicalProfessionalByCategory,
     saveTotalMedProfByGovernorate, getTotalMedProfsByGovernorate, updateTotalMedProfByGovernorate, deleteTotalMedProfByGovernorate, type TotalMedicalProfessionalByGovernorate,
@@ -196,6 +196,40 @@ const egyptGovernorates = [
     'الوادي الجديد', 'الشرقية', 'السويس', 'أسوان', 'أسيوط', 'بني سويف',
     'بورسعيد', 'دمياط', 'الأقصر', 'مطروح', 'قنا', 'شمال سيناء', 'جنوب سيناء',
     'كفر الشيخ', 'سوهاج'
+];
+
+// Facility Types for Reviewer Evaluation Visits (dept9)
+const reviewerFacilityTypes = [
+    'مستشفيات',
+    'مستشفيات صحة نفسية',
+    'صيدليات',
+    'مراكز ووحدات الرعاية الأولية',
+    'معامل',
+    'مراكز أشعة',
+    'مراكز طبية',
+    'عيادات طبية',
+    'مراكز علاج طبيعي',
+    'مراكز جراحات اليوم الواحد'
+];
+
+// Visit Types for Reviewer Evaluation Visits (dept9)
+const reviewerEvaluationVisitTypes = [
+    'منشآت خضراء',
+    'زيارة تقييمية بناء على التماس',
+    'اعتماد بعد اعتماد مبدئي',
+    'غير معلنة - اعتماد',
+    'غير معلنة - اعتماد مبدئي',
+    'غير معلنة - استكمال اعتماد مبدئي',
+    'غير معلنة - استكمال اعتماد',
+    'استكمال اعتماد مبدئي',
+    'اعتماد مبدئي',
+    'اعتماد مبدئي - فرصة ثانية',
+    'تجديد اعتماد مبدئي',
+    'اعتماد فرصة ثانية',
+    'استكمال اعتماد',
+    'تجديد اعتماد',
+    'اعتماد',
+    'استرشادية'
 ];
 
 // Facility Types for Technical Support
@@ -608,36 +642,16 @@ export default function DepartmentPage() {
     const [reviewerEvaluationVisitFormData, setReviewerEvaluationVisitFormData] = useState({
         month: '',
         facilityType: '',
-        visitsCount: ''
+        facilityName: '',
+        governorate: '',
+        visitType: ''
     });
     const [editingReviewerEvaluationVisitId, setEditingReviewerEvaluationVisitId] = useState<string | null>(null);
     const [reviewerEvaluationVisitFilterMonth, setReviewerEvaluationVisitFilterMonth] = useState('');
     const [reviewerEvaluationVisitSubmitted, setReviewerEvaluationVisitSubmitted] = useState(false);
     const [isReviewerEvaluationVisitsSectionExpanded, setIsReviewerEvaluationVisitsSectionExpanded] = useState(false);
 
-    // Reviewer Evaluation Visits By Governorate states (عدد الزيارات التقييمية وفقا للمحافظة for dept9)
-    const [reviewerEvaluationVisitsByGovernorate, setReviewerEvaluationVisitsByGovernorate] = useState<ReviewerEvaluationVisitByGovernorate[]>([]);
-    const [reviewerEvaluationVisitByGovernorateFormData, setReviewerEvaluationVisitByGovernorateFormData] = useState({
-        month: '',
-        governorate: '',
-        visitsCount: ''
-    });
-    const [editingReviewerEvaluationVisitByGovernorateId, setEditingReviewerEvaluationVisitByGovernorateId] = useState<string | null>(null);
-    const [reviewerEvaluationVisitByGovernorateFilterMonth, setReviewerEvaluationVisitByGovernorateFilterMonth] = useState('');
-    const [reviewerEvaluationVisitByGovernorateSubmitted, setReviewerEvaluationVisitByGovernorateSubmitted] = useState(false);
-    const [isReviewerEvaluationVisitsByGovernorateSectionExpanded, setIsReviewerEvaluationVisitsByGovernorateSectionExpanded] = useState(false);
 
-    // Reviewer Evaluation Visits By Visit Type states (الزيارات التقييمية وفقا لنوع الزيارة for dept9)
-    const [reviewerEvaluationVisitsByType, setReviewerEvaluationVisitsByType] = useState<ReviewerEvaluationVisitByType[]>([]);
-    const [reviewerEvaluationVisitByTypeFormData, setReviewerEvaluationVisitByTypeFormData] = useState({
-        month: '',
-        visitType: '',
-        visitsCount: ''
-    });
-    const [editingReviewerEvaluationVisitByTypeId, setEditingReviewerEvaluationVisitByTypeId] = useState<string | null>(null);
-    const [reviewerEvaluationVisitByTypeFilterMonth, setReviewerEvaluationVisitByTypeFilterMonth] = useState('');
-    const [reviewerEvaluationVisitByTypeSubmitted, setReviewerEvaluationVisitByTypeSubmitted] = useState(false);
-    const [isReviewerEvaluationVisitsByTypeSectionExpanded, setIsReviewerEvaluationVisitsByTypeSectionExpanded] = useState(false);
 
     // Medical Professionals By Category states (for dept7 only)
     const [medProfsByCategory, setMedProfsByCategory] = useState<MedicalProfessionalByCategory[]>([]);
@@ -948,19 +962,7 @@ export default function DepartmentPage() {
         }
     }, [id, currentUser, reviewerEvaluationVisitFilterMonth]);
 
-    // Load Reviewer Evaluation Visits By Governorate for dept9
-    useEffect(() => {
-        if (id === 'dept9' && currentUser) {
-            loadReviewerEvaluationVisitsByGovernorate();
-        }
-    }, [id, currentUser, reviewerEvaluationVisitByGovernorateFilterMonth]);
 
-    // Load Reviewer Evaluation Visits By Type for dept9
-    useEffect(() => {
-        if (id === 'dept9' && currentUser) {
-            loadReviewerEvaluationVisitsByType();
-        }
-    }, [id, currentUser, reviewerEvaluationVisitByTypeFilterMonth]);
 
 
     // Load Medical Professionals By Category for dept7
@@ -2234,16 +2236,9 @@ export default function DepartmentPage() {
         if (!currentUser) return;
 
         try {
-            const visitsCount = parseInt(reviewerEvaluationVisitFormData.visitsCount);
-            if (isNaN(visitsCount) || visitsCount < 0) {
-                alert('يرجى إدخال عدد زيارات صحيح');
-                return;
-            }
-
             if (editingReviewerEvaluationVisitId) {
                 const success = await updateReviewerEvaluationVisit(editingReviewerEvaluationVisitId, {
                     ...reviewerEvaluationVisitFormData,
-                    visitsCount,
                     year: parseInt(reviewerEvaluationVisitFormData.month.split('-')[0]),
                     updatedBy: currentUser.id
                 });
@@ -2257,7 +2252,6 @@ export default function DepartmentPage() {
             } else {
                 const docId = await saveReviewerEvaluationVisit({
                     ...reviewerEvaluationVisitFormData,
-                    visitsCount,
                     year: parseInt(reviewerEvaluationVisitFormData.month.split('-')[0]),
                     createdBy: currentUser.id,
                     updatedBy: currentUser.id
@@ -2280,7 +2274,9 @@ export default function DepartmentPage() {
         setReviewerEvaluationVisitFormData({
             month: visit.month,
             facilityType: visit.facilityType,
-            visitsCount: visit.visitsCount.toString()
+            facilityName: visit.facilityName,
+            governorate: visit.governorate,
+            visitType: visit.visitType
         });
         setEditingReviewerEvaluationVisitId(visit.id || null);
     };
@@ -2298,7 +2294,9 @@ export default function DepartmentPage() {
         setReviewerEvaluationVisitFormData({
             month: '',
             facilityType: '',
-            visitsCount: ''
+            facilityName: '',
+            governorate: '',
+            visitType: ''
         });
         setEditingReviewerEvaluationVisitId(null);
     };
@@ -2311,7 +2309,9 @@ export default function DepartmentPage() {
             return {
                 '#': index + 1,
                 'نوع المنشأة': visit.facilityType,
-                'عدد الزيارات': visit.visitsCount,
+                'اسم المنشأة': visit.facilityName,
+                'المحافظة': visit.governorate,
+                'نوع الزيارة': visit.visitType,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
             };
         });
@@ -2333,10 +2333,12 @@ export default function DepartmentPage() {
         const tableRows = [
             new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 40, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'عدد الزيارات', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 5, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 15, type: WidthType.PERCENTAGE } })
                 ]
             }),
             ...reviewerEvaluationVisits.map((visit, index) => {
@@ -2345,7 +2347,9 @@ export default function DepartmentPage() {
                     children: [
                         new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: visit.facilityType, alignment: AlignmentType.RIGHT })] }),
-                        new TableCell({ children: [new Paragraph({ text: visit.visitsCount.toString(), alignment: AlignmentType.CENTER })] }),
+                        new TableCell({ children: [new Paragraph({ text: visit.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: visit.governorate, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: visit.visitType, alignment: AlignmentType.RIGHT })] }),
                         new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
                     ]
                 });
@@ -2381,307 +2385,6 @@ export default function DepartmentPage() {
     };
 
 
-    // Reviewer Evaluation Visit By Governorate handlers and functions (for dept9)
-    const loadReviewerEvaluationVisitsByGovernorate = async () => {
-        const data = await getReviewerEvaluationVisitsByGovernorate(reviewerEvaluationVisitByGovernorateFilterMonth || undefined);
-        setReviewerEvaluationVisitsByGovernorate(data);
-    };
-
-    const handleReviewerEvaluationVisitByGovernorateSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!currentUser) return;
-
-        try {
-            const visitsCount = parseInt(reviewerEvaluationVisitByGovernorateFormData.visitsCount);
-            if (isNaN(visitsCount) || visitsCount < 0) {
-                alert('يرجى إدخال عدد زيارات صحيح');
-                return;
-            }
-
-            if (editingReviewerEvaluationVisitByGovernorateId) {
-                const success = await updateReviewerEvaluationVisitByGovernorate(editingReviewerEvaluationVisitByGovernorateId, {
-                    ...reviewerEvaluationVisitByGovernorateFormData,
-                    visitsCount,
-                    year: parseInt(reviewerEvaluationVisitByGovernorateFormData.month.split('-')[0]),
-                    updatedBy: currentUser.id
-                });
-
-                if (success) {
-                    setReviewerEvaluationVisitByGovernorateSubmitted(true);
-                    setTimeout(() => setReviewerEvaluationVisitByGovernorateSubmitted(false), 3000);
-                    resetReviewerEvaluationVisitByGovernorateForm();
-                    await loadReviewerEvaluationVisitsByGovernorate();
-                }
-            } else {
-                const docId = await saveReviewerEvaluationVisitByGovernorate({
-                    ...reviewerEvaluationVisitByGovernorateFormData,
-                    visitsCount,
-                    year: parseInt(reviewerEvaluationVisitByGovernorateFormData.month.split('-')[0]),
-                    createdBy: currentUser.id,
-                    updatedBy: currentUser.id
-                });
-
-                if (docId) {
-                    setReviewerEvaluationVisitByGovernorateSubmitted(true);
-                    setTimeout(() => setReviewerEvaluationVisitByGovernorateSubmitted(false), 3000);
-                    resetReviewerEvaluationVisitByGovernorateForm();
-                    await loadReviewerEvaluationVisitsByGovernorate();
-                }
-            }
-        } catch (error) {
-            console.error('Error saving reviewer evaluation visit by governorate:', error);
-            alert('حدث خطأ أثناء الحفظ');
-        }
-    };
-
-    const handleEditReviewerEvaluationVisitByGovernorate = (visit: ReviewerEvaluationVisitByGovernorate) => {
-        setReviewerEvaluationVisitByGovernorateFormData({
-            month: visit.month,
-            governorate: visit.governorate,
-            visitsCount: visit.visitsCount.toString()
-        });
-        setEditingReviewerEvaluationVisitByGovernorateId(visit.id || null);
-    };
-
-    const handleDeleteReviewerEvaluationVisitByGovernorate = async (visitId: string) => {
-        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-            const success = await deleteReviewerEvaluationVisitByGovernorate(visitId);
-            if (success) {
-                await loadReviewerEvaluationVisitsByGovernorate();
-            }
-        }
-    };
-
-    const resetReviewerEvaluationVisitByGovernorateForm = () => {
-        setReviewerEvaluationVisitByGovernorateFormData({
-            month: '',
-            governorate: '',
-            visitsCount: ''
-        });
-        setEditingReviewerEvaluationVisitByGovernorateId(null);
-    };
-
-    const exportReviewerEvaluationVisitsByGovernorateToExcel = () => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-        const data = reviewerEvaluationVisitsByGovernorate.map((visit, index) => {
-            const [year, month] = visit.month.split('-');
-            return {
-                '#': index + 1,
-                'المحافظة': visit.governorate,
-                'عدد الزيارات': visit.visitsCount,
-                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
-            };
-        });
-
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'الزيارات حسب المحافظة');
-
-        const fileName = reviewerEvaluationVisitByGovernorateFilterMonth
-            ? `الزيارات_التقييمية_المحافظة_${reviewerEvaluationVisitByGovernorateFilterMonth}.xlsx`
-            : `الزيارات_التقييمية_المحافظة_جميع.xlsx`;
-
-        XLSX.writeFile(wb, fileName);
-    };
-
-    const exportReviewerEvaluationVisitsByGovernorateToWord = async () => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-        const tableRows = [
-            new TableRow({
-                children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 40, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'عدد الزيارات', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } })
-                ]
-            }),
-            ...reviewerEvaluationVisitsByGovernorate.map((visit, index) => {
-                const [year, month] = visit.month.split('-');
-                return new TableRow({
-                    children: [
-                        new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
-                        new TableCell({ children: [new Paragraph({ text: visit.governorate, alignment: AlignmentType.RIGHT })] }),
-                        new TableCell({ children: [new Paragraph({ text: visit.visitsCount.toString(), alignment: AlignmentType.CENTER })] }),
-                        new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
-                    ]
-                });
-            })
-        ];
-
-        const doc = new Document({
-            sections: [{
-                children: [
-                    new Paragraph({
-                        text: 'الزيارات التقييمية وفقا للمحافظة',
-                        alignment: AlignmentType.CENTER,
-                        spacing: { after: 200 }
-                    }),
-                    new Table({
-                        rows: tableRows,
-                        width: { size: 100, type: WidthType.PERCENTAGE }
-                    })
-                ]
-            }]
-        });
-
-        const blob = await Packer.toBlob(doc);
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const fileName = reviewerEvaluationVisitByGovernorateFilterMonth
-            ? `الزيارات_التقييمية_المحافظة_${reviewerEvaluationVisitByGovernorateFilterMonth}.docx`
-            : `الزيارات_التقييمية_المحافظة_جميع.docx`;
-        link.download = fileName;
-        link.click();
-        URL.revokeObjectURL(url);
-    };
-
-    // ==================== Reviewer Evaluation Visits By Visit Type Functions ====================
-
-    const loadReviewerEvaluationVisitsByType = async () => {
-        const visits = await getReviewerEvaluationVisitsByType(reviewerEvaluationVisitByTypeFilterMonth || undefined);
-        setReviewerEvaluationVisitsByType(visits);
-    };
-
-    const handleReviewerEvaluationVisitByTypeSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!currentUser) return;
-
-        const visitData = {
-            month: reviewerEvaluationVisitByTypeFormData.month,
-            visitType: reviewerEvaluationVisitByTypeFormData.visitType,
-            visitsCount: parseInt(reviewerEvaluationVisitByTypeFormData.visitsCount),
-            year: parseInt(reviewerEvaluationVisitByTypeFormData.month.split('-')[0])
-        };
-
-        if (editingReviewerEvaluationVisitByTypeId) {
-            const success = await updateReviewerEvaluationVisitByType(editingReviewerEvaluationVisitByTypeId, visitData);
-            if (success) {
-                resetReviewerEvaluationVisitByTypeForm();
-                setReviewerEvaluationVisitByTypeSubmitted(true);
-                setTimeout(() => setReviewerEvaluationVisitByTypeSubmitted(false), 3000);
-                await loadReviewerEvaluationVisitsByType();
-            }
-        } else {
-            const visitId = await saveReviewerEvaluationVisitByType(visitData);
-            if (visitId) {
-                resetReviewerEvaluationVisitByTypeForm();
-                setReviewerEvaluationVisitByTypeSubmitted(true);
-                setTimeout(() => setReviewerEvaluationVisitByTypeSubmitted(false), 3000);
-                await loadReviewerEvaluationVisitsByType();
-            }
-        }
-    };
-
-    const handleEditReviewerEvaluationVisitByType = (visit: ReviewerEvaluationVisitByType) => {
-        setReviewerEvaluationVisitByTypeFormData({
-            month: visit.month,
-            visitType: visit.visitType,
-            visitsCount: visit.visitsCount.toString()
-        });
-        setEditingReviewerEvaluationVisitByTypeId(visit.id || null);
-    };
-
-    const handleDeleteReviewerEvaluationVisitByType = async (visitId: string) => {
-        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-            const success = await deleteReviewerEvaluationVisitByType(visitId);
-            if (success) {
-                await loadReviewerEvaluationVisitsByType();
-            }
-        }
-    };
-
-    const resetReviewerEvaluationVisitByTypeForm = () => {
-        setReviewerEvaluationVisitByTypeFormData({
-            month: '',
-            visitType: '',
-            visitsCount: ''
-        });
-        setEditingReviewerEvaluationVisitByTypeId(null);
-    };
-
-    const exportReviewerEvaluationVisitsByTypeToExcel = () => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-        const data = reviewerEvaluationVisitsByType.map((visit, index) => {
-            const [year, month] = visit.month.split('-');
-            return {
-                '#': index + 1,
-                'نوع الزيارة': visit.visitType,
-                'عدد الزيارات': visit.visitsCount,
-                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
-            };
-        });
-
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'الزيارات حسب النوع');
-
-        const fileName = reviewerEvaluationVisitByTypeFilterMonth
-            ? `الزيارات_التقييمية_النوع_${reviewerEvaluationVisitByTypeFilterMonth}.xlsx`
-            : `الزيارات_التقييمية_النوع_جميع.xlsx`;
-
-        XLSX.writeFile(wb, fileName);
-    };
-
-    const exportReviewerEvaluationVisitsByTypeToWord = async () => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
-        const tableRows = [
-            new TableRow({
-                children: [
-                    new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 10, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'نوع الزيارة', alignment: AlignmentType.CENTER })], width: { size: 50, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'عدد الزيارات', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } })
-                ]
-            })
-        ];
-
-        reviewerEvaluationVisitsByType.forEach((visit, index) => {
-            const [year, month] = visit.month.split('-');
-            const monthName = monthNames[parseInt(month) - 1];
-
-            tableRows.push(new TableRow({
-                children: [
-                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
-                    new TableCell({ children: [new Paragraph({ text: visit.visitType, alignment: AlignmentType.CENTER })] }),
-                    new TableCell({ children: [new Paragraph({ text: visit.visitsCount.toString(), alignment: AlignmentType.CENTER })] }),
-                    new TableCell({ children: [new Paragraph({ text: `${monthName} ${year}`, alignment: AlignmentType.CENTER })] })
-                ]
-            }));
-        });
-
-        const table = new Table({
-            rows: tableRows,
-            width: { size: 100, type: WidthType.PERCENTAGE }
-        });
-
-        const doc = new Document({
-            sections: [{
-                children: [
-                    new Paragraph({ text: 'الزيارات التقييمية وفقاً لنوع الزيارة', alignment: AlignmentType.CENTER }),
-                    table
-                ]
-            }]
-        });
-
-        const blob = await Packer.toBlob(doc);
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-
-        const fileName = reviewerEvaluationVisitByTypeFilterMonth
-            ? `الزيارات_التقييمية_النوع_${reviewerEvaluationVisitByTypeFilterMonth}.docx`
-            : `الزيارات_التقييمية_النوع_جميع.docx`;
-
-        link.download = fileName;
-        link.click();
-        URL.revokeObjectURL(url);
-    };
 
 
     // Export functions for Technical Clinical Facilities
@@ -14462,7 +14165,7 @@ export default function DepartmentPage() {
                                     if (activeFilter) {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = reviewerEvaluationVisits.filter(v => v.month === activeFilter).reduce((sum, v) => sum + v.visitsCount, 0);
+                                        const count = reviewerEvaluationVisits.filter(v => v.month === activeFilter).length;
                                         return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
                                     }
                                     return '';
@@ -14518,26 +14221,56 @@ export default function DepartmentPage() {
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">نوع المنشأة *</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     className="form-input"
                                                     value={reviewerEvaluationVisitFormData.facilityType}
                                                     onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, facilityType: e.target.value })}
-                                                    placeholder="أدخل نوع المنشأة"
+                                                    required
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    {reviewerFacilityTypes.map(type => (
+                                                        <option key={type} value={type}>{type}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">اسم المنشأة *</label>
+                                                <input
+                                                    type="text"
+                                                    className="form-input"
+                                                    value={reviewerEvaluationVisitFormData.facilityName}
+                                                    onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, facilityName: e.target.value })}
+                                                    placeholder="أدخل اسم المنشأة"
                                                     required
                                                 />
                                             </div>
                                             <div className="form-group">
-                                                <label className="form-label">عدد الزيارات *</label>
-                                                <input
-                                                    type="number"
+                                                <label className="form-label">المحافظة *</label>
+                                                <select
                                                     className="form-input"
-                                                    value={reviewerEvaluationVisitFormData.visitsCount}
-                                                    onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, visitsCount: e.target.value })}
-                                                    placeholder="0"
-                                                    min="0"
+                                                    value={reviewerEvaluationVisitFormData.governorate}
+                                                    onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, governorate: e.target.value })}
                                                     required
-                                                />
+                                                >
+                                                    <option value="">اختر المحافظة</option>
+                                                    {egyptGovernorates.map(gov => (
+                                                        <option key={gov} value={gov}>{gov}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع الزيارة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    value={reviewerEvaluationVisitFormData.visitType}
+                                                    onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, visitType: e.target.value })}
+                                                    required
+                                                >
+                                                    <option value="">اختر نوع الزيارة</option>
+                                                    {reviewerEvaluationVisitTypes.map(type => (
+                                                        <option key={type} value={type}>{type}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
@@ -14632,7 +14365,9 @@ export default function DepartmentPage() {
                                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>عدد الزيارات</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                     {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
                                                 </tr>
@@ -14647,7 +14382,9 @@ export default function DepartmentPage() {
                                                         <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
                                                             <td style={{ padding: '12px', textAlign: 'right' }}>{visit.facilityType}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{visit.visitsCount}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.facilityName}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.visitType}</td>
                                                             <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{monthName} {year}</td>
                                                             {userCanEdit && (
                                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
@@ -14696,564 +14433,9 @@ export default function DepartmentPage() {
                 )
             }
 
-            {/* Reviewer Evaluation Visits By Governorate Section - الزيارات التقييمية وفقا للمحافظة (for dept9 only) */}
-            {/* ====== DEPT9-SECTION-2: الزيارات التقييمية وفقا للمحافظة ====== */}
-            {
-                id === 'dept9' && (
-                    <div className="card" style={{ marginTop: '30px' }}>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                cursor: 'pointer',
-                                marginBottom: isReviewerEvaluationVisitsByGovernorateSectionExpanded ? '20px' : '0',
-                                paddingBottom: isReviewerEvaluationVisitsByGovernorateSectionExpanded ? '15px' : '0',
-                                borderBottom: isReviewerEvaluationVisitsByGovernorateSectionExpanded ? '2px solid var(--background-color)' : 'none',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onClick={() => setIsReviewerEvaluationVisitsByGovernorateSectionExpanded(!isReviewerEvaluationVisitsByGovernorateSectionExpanded)}
-                        >
-                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📍 الزيارات التقييمية وفقا للمحافظة{(() => {
-                                    const activeFilter = globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth;
-                                    if (activeFilter) {
-                                        const [_, month] = activeFilter.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = reviewerEvaluationVisitsByGovernorate.filter(v => v.month === activeFilter).reduce((sum, v) => sum + v.visitsCount, 0);
-                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
-                                    }
-                                    return '';
-                                })()}
-                            </h2>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                color: 'var(--primary-color)',
-                                fontWeight: 'bold'
-                            }}>
-                                <span style={{ fontSize: '0.9rem' }}>
-                                    {isReviewerEvaluationVisitsByGovernorateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                </span>
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    style={{
-                                        transform: isReviewerEvaluationVisitsByGovernorateSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s ease'
-                                    }}
-                                >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </div>
-                        </div>
 
-                        {isReviewerEvaluationVisitsByGovernorateSectionExpanded && (
-                            <>
-                                {/* Form - Only for users with edit permission */}
-                                {userCanEdit && (
-                                    <form onSubmit={handleReviewerEvaluationVisitByGovernorateSubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-                                        <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
-                                            {editingReviewerEvaluationVisitByGovernorateId ? 'تعديل زيارة تقييمية' : 'إضافة زيارة تقييمية جديدة'}
-                                        </h3>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
-                                            <div className="form-group">
-                                                <label className="form-label">الشهر *</label>
-                                                <input
-                                                    type="month"
-                                                    min={MIN_MONTH}
-                                                    max={MAX_MONTH}
-                                                    className="form-input"
-                                                    value={reviewerEvaluationVisitByGovernorateFormData.month}
-                                                    onChange={(e) => setReviewerEvaluationVisitByGovernorateFormData({ ...reviewerEvaluationVisitByGovernorateFormData, month: e.target.value })}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">المحافظة *</label>
-                                                <select
-                                                    className="form-input"
-                                                    value={reviewerEvaluationVisitByGovernorateFormData.governorate}
-                                                    onChange={(e) => setReviewerEvaluationVisitByGovernorateFormData({ ...reviewerEvaluationVisitByGovernorateFormData, governorate: e.target.value })}
-                                                    required
-                                                >
-                                                    <option value="">اختر المحافظة</option>
-                                                    <option value="القاهرة">القاهرة</option>
-                                                    <option value="الجيزة">الجيزة</option>
-                                                    <option value="الإسكندرية">الإسكندرية</option>
-                                                    <option value="الدقهلية">الدقهلية</option>
-                                                    <option value="الشرقية">الشرقية</option>
-                                                    <option value="المنوفية">المنوفية</option>
-                                                    <option value="القليوبية">القليوبية</option>
-                                                    <option value="البحيرة">البحيرة</option>
-                                                    <option value="الغربية">الغربية</option>
-                                                    <option value="بور سعيد">بور سعيد</option>
-                                                    <option value="دمياط">دمياط</option>
-                                                    <option value="الإسماعيلية">الإسماعيلية</option>
-                                                    <option value="السويس">السويس</option>
-                                                    <option value="كفر الشيخ">كفر الشيخ</option>
-                                                    <option value="الفيوم">الفيوم</option>
-                                                    <option value="بني سويف">بني سويف</option>
-                                                    <option value="المنيا">المنيا</option>
-                                                    <option value="أسيوط">أسيوط</option>
-                                                    <option value="سوهاج">سوهاج</option>
-                                                    <option value="قنا">قنا</option>
-                                                    <option value="الأقصر">الأقصر</option>
-                                                    <option value="أسوان">أسوان</option>
-                                                    <option value="البحر الأحمر">البحر الأحمر</option>
-                                                    <option value="الوادي الجديد">الوادي الجديد</option>
-                                                    <option value="مطروح">مطروح</option>
-                                                    <option value="شمال سيناء">شمال سيناء</option>
-                                                    <option value="جنوب سيناء">جنوب سيناء</option>
-                                                </select>
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">عدد الزيارات *</label>
-                                                <input
-                                                    type="number"
-                                                    className="form-input"
-                                                    value={reviewerEvaluationVisitByGovernorateFormData.visitsCount}
-                                                    onChange={(e) => setReviewerEvaluationVisitByGovernorateFormData({ ...reviewerEvaluationVisitByGovernorateFormData, visitsCount: e.target.value })}
-                                                    placeholder="0"
-                                                    min="0"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                {editingReviewerEvaluationVisitByGovernorateId ? 'تحديث الزيارة' : 'إضافة الزيارة'}
-                                            </button>
-                                            {editingReviewerEvaluationVisitByGovernorateId && (
-                                                <button
-                                                    type="button"
-                                                    className="btn"
-                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
-                                                    onClick={resetReviewerEvaluationVisitByGovernorateForm}
-                                                >
-                                                    إلغاء التعديل
-                                                </button>
-                                            )}
-                                        </div>
-                                        {reviewerEvaluationVisitByGovernorateSubmitted && (
-                                            <div style={{
-                                                padding: '12px',
-                                                backgroundColor: '#d4edda',
-                                                color: '#155724',
-                                                borderRadius: '8px',
-                                                marginTop: '15px',
-                                                border: '1px solid #c3e6cb'
-                                            }}>
-                                                ✓ تم {editingReviewerEvaluationVisitByGovernorateId ? 'تحديث' : 'إضافة'} الزيارة التقييمية بنجاح
-                                            </div>
-                                        )}
-                                    </form>
-                                )}
 
-                                {/* Filter and Export Buttons */}
-                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                                    <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
-                                        <label className="form-label">فلترة حسب الشهر</label>
-                                        <input
-                                            type="month"
-                                            min={MIN_MONTH}
-                                            max={MAX_MONTH}
-                                            className="form-input"
-                                            value={globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth}
-                                            onChange={(e) => !globalFilterMonth && setReviewerEvaluationVisitByGovernorateFilterMonth(e.target.value)}
-                                            disabled={!!globalFilterMonth}
-                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
-                                        />
-                                    </div>
-                                    {reviewerEvaluationVisitsByGovernorate.length > 0 && (
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <button
-                                                onClick={exportReviewerEvaluationVisitsByGovernorateToExcel}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    backgroundColor: '#28a745',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.9rem'
-                                                }}
-                                            >
-                                                📊 تصدير Excel
-                                            </button>
-                                            <button
-                                                onClick={exportReviewerEvaluationVisitsByGovernorateToWord}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    backgroundColor: '#2b5797',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.9rem'
-                                                }}
-                                            >
-                                                📄 تصدير Word
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
 
-                                {/* Table */}
-                                <div style={{ overflowX: 'auto' }}>
-                                    {reviewerEvaluationVisitsByGovernorate.length === 0 ? (
-                                        <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
-                                            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📍</div>
-                                            لا توجد زيارات تقييمية مسجلة
-                                        </div>
-                                    ) : (
-                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>عدد الزيارات</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
-                                                    {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {reviewerEvaluationVisitsByGovernorate.filter(v => !(globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth) || v.month === (globalFilterMonth || reviewerEvaluationVisitByGovernorateFilterMonth)).map((visit, index) => {
-                                                    const [year, month] = visit.month.split('-');
-                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                    const monthName = monthNames[parseInt(month) - 1];
-
-                                                    return (
-                                                        <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.governorate}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{visit.visitsCount}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{monthName} {year}</td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button
-                                                                            onClick={() => handleEditReviewerEvaluationVisitByGovernorate(visit)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: 'var(--primary-color)',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            تعديل
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeleteReviewerEvaluationVisitByGovernorate(visit.id!)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: '#dc3545',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            حذف
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )
-            }
-
-            {/* Reviewer Evaluation Visits By Visit Type Section - الزيارات التقييمية وفقا لنوع الزيارة (for dept9 only) */}
-            {/* ====== DEPT9-SECTION-3: الزيارات التقييمية وفقا لنوع الزيارة ====== */}
-            {
-                id === 'dept9' && (
-                    <div className="card" style={{ marginTop: '30px' }}>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                cursor: 'pointer',
-                                marginBottom: isReviewerEvaluationVisitsByTypeSectionExpanded ? '20px' : '0',
-                                paddingBottom: isReviewerEvaluationVisitsByTypeSectionExpanded ? '15px' : '0',
-                                borderBottom: isReviewerEvaluationVisitsByTypeSectionExpanded ? '2px solid var(--background-color)' : 'none',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onClick={() => setIsReviewerEvaluationVisitsByTypeSectionExpanded(!isReviewerEvaluationVisitsByTypeSectionExpanded)}
-                        >
-                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🔍 الزيارات التقييمية وفقا لنوع الزيارة{(() => {
-                                    const activeFilter = globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth;
-                                    if (activeFilter) {
-                                        const [_, month] = activeFilter.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = reviewerEvaluationVisitsByType.filter(v => v.month === activeFilter).reduce((sum, v) => sum + v.visitsCount, 0);
-                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
-                                    }
-                                    return '';
-                                })()}
-                            </h2>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                                color: 'var(--primary-color)',
-                                fontWeight: 'bold'
-                            }}>
-                                <span style={{ fontSize: '0.9rem' }}>
-                                    {isReviewerEvaluationVisitsByTypeSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
-                                </span>
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    style={{
-                                        transform: isReviewerEvaluationVisitsByTypeSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s ease'
-                                    }}
-                                >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </div>
-                        </div>
-
-                        {isReviewerEvaluationVisitsByTypeSectionExpanded && (
-                            <>
-                                {/* Form - Only for users with edit permission */}
-                                {userCanEdit && (
-                                    <form onSubmit={handleReviewerEvaluationVisitByTypeSubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-                                        <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
-                                            {editingReviewerEvaluationVisitByTypeId ? 'تعديل زيارة تقييمية' : 'إضافة زيارة تقييمية جديدة'}
-                                        </h3>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
-                                            <div className="form-group">
-                                                <label className="form-label">الشهر *</label>
-                                                <input
-                                                    type="month"
-                                                    min={MIN_MONTH}
-                                                    max={MAX_MONTH}
-                                                    className="form-input"
-                                                    value={reviewerEvaluationVisitByTypeFormData.month}
-                                                    onChange={(e) => setReviewerEvaluationVisitByTypeFormData({ ...reviewerEvaluationVisitByTypeFormData, month: e.target.value })}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">نوع الزيارة *</label>
-                                                <select
-                                                    className="form-input"
-                                                    value={reviewerEvaluationVisitByTypeFormData.visitType}
-                                                    onChange={(e) => setReviewerEvaluationVisitByTypeFormData({ ...reviewerEvaluationVisitByTypeFormData, visitType: e.target.value })}
-                                                    required
-                                                >
-                                                    <option value="">اختر نوع الزيارة</option>
-                                                    <option value="منشآت خضراء">منشآت خضراء</option>
-                                                    <option value="زيارة تقييمية بناء على التماس">زيارة تقييمية بناء على التماس</option>
-                                                    <option value="اعتماد بعد اعتماد مبدئي">اعتماد بعد اعتماد مبدئي</option>
-                                                    <option value="غير معلنة - استكمال اعتماد مبدئي">غير معلنة - استكمال اعتماد مبدئي</option>
-                                                    <option value="غير معلنة استكمال اعتماد">غير معلنة استكمال اعتماد</option>
-                                                    <option value="غير معلنة اعتماد مبدئي">غير معلنة اعتماد مبدئي</option>
-                                                    <option value="غير معلنة اعتماد">غير معلنة اعتماد</option>
-                                                    <option value="استكمال اعتماد مبدئي">استكمال اعتماد مبدئي</option>
-                                                    <option value="اعتماد مبدئي فرصة ثانية">اعتماد مبدئي فرصة ثانية</option>
-                                                    <option value="اعتماد مبدئي">اعتماد مبدئي</option>
-                                                    <option value="تجديد اعتماد مبدئي">تجديد اعتماد مبدئي</option>
-                                                    <option value="اعتماد فرصة ثانية">اعتماد فرصة ثانية</option>
-                                                    <option value="استكمال اعتماد">استكمال اعتماد</option>
-                                                    <option value="تجديد اعتماد">تجديد اعتماد</option>
-                                                    <option value="اعتماد">اعتماد</option>
-                                                    <option value="استرشادية">استرشادية</option>
-                                                </select>
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="form-label">عدد الزيارات *</label>
-                                                <input
-                                                    type="number"
-                                                    className="form-input"
-                                                    value={reviewerEvaluationVisitByTypeFormData.visitsCount}
-                                                    onChange={(e) => setReviewerEvaluationVisitByTypeFormData({ ...reviewerEvaluationVisitByTypeFormData, visitsCount: e.target.value })}
-                                                    placeholder="0"
-                                                    min="0"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                {editingReviewerEvaluationVisitByTypeId ? 'تحديث الزيارة' : 'إضافة الزيارة'}
-                                            </button>
-                                            {editingReviewerEvaluationVisitByTypeId && (
-                                                <button
-                                                    type="button"
-                                                    className="btn"
-                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
-                                                    onClick={resetReviewerEvaluationVisitByTypeForm}
-                                                >
-                                                    إلغاء التعديل
-                                                </button>
-                                            )}
-                                        </div>
-                                        {reviewerEvaluationVisitByTypeSubmitted && (
-                                            <div style={{
-                                                padding: '12px',
-                                                backgroundColor: '#d4edda',
-                                                color: '#155724',
-                                                borderRadius: '8px',
-                                                marginTop: '15px',
-                                                border: '1px solid #c3e6cb'
-                                            }}>
-                                                ✓ تم {editingReviewerEvaluationVisitByTypeId ? 'تحديث' : 'إضافة'} الزيارة التقييمية بنجاح
-                                            </div>
-                                        )}
-                                    </form>
-                                )}
-
-                                {/* Filter and Export Buttons */}
-                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                                    <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
-                                        <label className="form-label">فلترة حسب الشهر</label>
-                                        <input
-                                            type="month"
-                                            min={MIN_MONTH}
-                                            max={MAX_MONTH}
-                                            className="form-input"
-                                            value={globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth}
-                                            onChange={(e) => !globalFilterMonth && setReviewerEvaluationVisitByTypeFilterMonth(e.target.value)}
-                                            disabled={!!globalFilterMonth}
-                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
-                                        />
-                                    </div>
-                                    {reviewerEvaluationVisitsByType.length > 0 && (
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <button
-                                                onClick={exportReviewerEvaluationVisitsByTypeToExcel}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    backgroundColor: '#28a745',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.9rem'
-                                                }}
-                                            >
-                                                📊 تصدير Excel
-                                            </button>
-                                            <button
-                                                onClick={exportReviewerEvaluationVisitsByTypeToWord}
-                                                style={{
-                                                    padding: '8px 16px',
-                                                    backgroundColor: '#2b5797',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '6px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '0.9rem'
-                                                }}
-                                            >
-                                                📄 تصدير Word
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Table */}
-                                <div style={{ overflowX: 'auto' }}>
-                                    {reviewerEvaluationVisitsByType.length === 0 ? (
-                                        <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
-                                            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
-                                            لا توجد زيارات تقييمية مسجلة
-                                        </div>
-                                    ) : (
-                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                            <thead>
-                                                <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>عدد الزيارات</th>
-                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
-                                                    {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {reviewerEvaluationVisitsByType.filter(v => !(globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth) || v.month === (globalFilterMonth || reviewerEvaluationVisitByTypeFilterMonth)).map((visit, index) => {
-                                                    const [year, month] = visit.month.split('-');
-                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                                    const monthName = monthNames[parseInt(month) - 1];
-
-                                                    return (
-                                                        <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{visit.visitType}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--primary-color)' }}>{visit.visitsCount}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{monthName} {year}</td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button
-                                                                            onClick={() => handleEditReviewerEvaluationVisitByType(visit)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: 'var(--primary-color)',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            تعديل
-                                                                        </button>
-                                                                        <button
-                                                                            onClick={() => handleDeleteReviewerEvaluationVisitByType(visit.id!)}
-                                                                            style={{
-                                                                                padding: '6px 12px',
-                                                                                backgroundColor: '#dc3545',
-                                                                                color: 'white',
-                                                                                border: 'none',
-                                                                                borderRadius: '4px',
-                                                                                cursor: 'pointer',
-                                                                                fontSize: '0.85rem'
-                                                                            }}
-                                                                        >
-                                                                            حذف
-                                                                        </button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )
-            }
 
             {/* ====== DEPT4-SECTION-1: المؤشرات الرئيسية ====== */}
             {/* ====== DEPT5-SECTION-1: المؤشرات الرئيسية ====== */}
@@ -15662,8 +14844,6 @@ export default function DepartmentPage() {
                         <ReviewersDashboard
                             submissions={submissions}
                             evaluationVisits={reviewerEvaluationVisits}
-                            governorateVisits={reviewerEvaluationVisitsByGovernorate}
-                            visitTypeVisits={reviewerEvaluationVisitsByType}
                         />
                     </DashboardModal>
                 )
