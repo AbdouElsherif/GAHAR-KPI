@@ -167,6 +167,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'visitsToGovFacilities', label: 'عدد الزيارات للمنشآت الحكومية', type: 'number' },
         { name: 'visitsToPrivateFacilities', label: 'عدد الزيارات لمنشآت القطاع الخاص', type: 'number' },
         { name: 'visitsToMOHFacilities', label: 'عدد الزيارات لمنشآت وزارة الصحة والسكان', type: 'number' },
+        { name: 'visitsToUniFacilities', label: 'عدد الزيارات للمنشآت الجامعية', type: 'number' },
         { name: 'accreditationCommittees', label: 'عدد لجان الاعتماد المنعقدة', type: 'number' },
         { name: 'reportsToCommittee', label: 'عدد تقارير الزيارات التقييمية المعروضة على اللجنة', type: 'number' },
         { name: 'appealsSubmitted', label: 'عدد الالتماسات المقدمة', type: 'number' },
