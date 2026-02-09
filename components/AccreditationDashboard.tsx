@@ -1493,10 +1493,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المنشآت المتقدمة (منشأة جديدة) خلال {(() => {
+                                المنشآت المتقدمة (منشأة جديدة) {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                })()} {targetYear - 1} - {targetYear}
                             </h3>
                             <span style={{ fontSize: '1rem', color: '#666', fontWeight: '500' }}>
                                 ({newFacilitiesOnly.length} منشأة)
@@ -1785,10 +1785,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المنشآت التي قامت بسداد رسوم الزيارة التقييمية خلال {(() => {
+                                المنشآت التي قامت بسداد رسوم الزيارة التقييمية {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                })()} {targetYear - 1} - {targetYear}
                             </h3>
                             <span style={{ fontSize: '1rem', color: '#666', fontWeight: '500' }}>
                                 ({filteredPaidFacilities.length} منشأة - الإجمالي: {filteredPaidFacilities.reduce((sum, f) => sum + (f.amount || 0), 0).toLocaleString('ar-EG')} ج.م)
@@ -2022,7 +2022,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 المعوقات - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                })()} {targetYear - 1} - {targetYear}
                             </h3>
                         </div>
                         <div style={{
@@ -2069,7 +2069,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 مقترحات التطوير - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                })()} {targetYear - 1} - {targetYear}
                             </h3>
                         </div>
                         <div style={{
@@ -2116,7 +2116,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 أنشطة إضافية - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                })()} {targetYear - 1} - {targetYear}
                             </h3>
                         </div>
                         <div style={{
