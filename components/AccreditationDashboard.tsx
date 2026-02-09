@@ -1020,59 +1020,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--text-color)' }}>📈 الرسوم البيانية</h3>
 
-                <div style={{
-                    backgroundColor: 'var(--card-bg)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px',
-                    border: '1px solid var(--border-color)'
-                }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة المنشآت الجديدة - رسم بياني خطي</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={prepareChartData()}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                            <XAxis dataKey="period" stroke="var(--text-color)" />
-                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey={`منشآت جديدة ${targetYear}`}
-                                stroke="#0eacb8"
-                                strokeWidth={2}
-                                dot={{ fill: '#0eacb8', r: 4 }}
-                            >
-                                <LabelList
-                                    dataKey={`منشآت جديدة ${targetYear}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Line>
-                            <Line
-                                type="monotone"
-                                dataKey={`منشآت جديدة ${targetYear - 1}`}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={{ fill: '#999', r: 3 }}
-                            >
-                                <LabelList
-                                    dataKey={`منشآت جديدة ${targetYear - 1}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Line>
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+
 
                 <div style={{
                     backgroundColor: 'var(--card-bg)',
