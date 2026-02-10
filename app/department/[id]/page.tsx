@@ -14234,13 +14234,14 @@ export default function DepartmentPage() {
                                                 </select>
                                             </div>
                                             <div className="form-group">
-                                                <label className="form-label">اسم المنشأة *</label>
+                                                <label className="form-label">عدد المنشآت *</label>
                                                 <input
-                                                    type="text"
+                                                    type="number"
+                                                    min="0"
                                                     className="form-input"
                                                     value={reviewerEvaluationVisitFormData.facilityName}
                                                     onChange={(e) => setReviewerEvaluationVisitFormData({ ...reviewerEvaluationVisitFormData, facilityName: e.target.value })}
-                                                    placeholder="أدخل اسم المنشأة"
+                                                    placeholder="أدخل عدد المنشآت"
                                                     required
                                                 />
                                             </div>
@@ -14365,7 +14366,7 @@ export default function DepartmentPage() {
                                                 <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
-                                                    <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>عدد المنشآت</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>المحافظة</th>
                                                     <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
                                                     <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
