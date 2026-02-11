@@ -594,8 +594,19 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     color="#20c997"
                 />
                 <KPICard
+                    title="عدد الزيارات للمنشآت الجامعية"
+                    icon="🏫"
+                    currentValue={currentUniVisits}
+                    previousValue={previousUniVisits}
+                    changePercentage={uniVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={uniVisitsPieData}
+                    color="#ff5722"
+                />
+                <KPICard
                     title="لجان الاعتماد المنعقدة"
-                    icon="👨‍⚖️"
+                    icon="�‍⚖️"
                     currentValue={currentCommittees}
                     previousValue={previousCommittees}
                     changePercentage={committeesChange}
@@ -606,7 +617,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                 />
                 <KPICard
                     title="تقارير الزيارات المعروضة على اللجنة"
-                    icon="📋"
+                    icon="�"
                     currentValue={currentReports}
                     previousValue={previousReports}
                     changePercentage={reportsChange}
@@ -625,17 +636,6 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     previousYear={targetYear - 1}
                     pieData={appealsPieData}
                     color="#e83e8c"
-                />
-                <KPICard
-                    title="عدد الزيارات للمنشآت الجامعية"
-                    icon="🏫"
-                    currentValue={currentUniVisits}
-                    previousValue={previousUniVisits}
-                    changePercentage={uniVisitsChange}
-                    currentYear={targetYear}
-                    previousYear={targetYear - 1}
-                    pieData={uniVisitsPieData}
-                    color="#ff5722"
                 />
             </div>
 
