@@ -70,6 +70,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
             accreditationCommittees: number;
             reportsToCommittee: number;
             appealsSubmitted: number;
+            visitsToUniFacilities: number;
             count: number;
         }> = {};
 
@@ -105,6 +106,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     accreditationCommittees: 0,
                     reportsToCommittee: 0,
                     appealsSubmitted: 0,
+                    visitsToUniFacilities: 0,
                     count: 0
                 };
             }
@@ -118,6 +120,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
             aggregated[periodKey].accreditationCommittees += parseFloat(sub.accreditationCommittees) || 0;
             aggregated[periodKey].reportsToCommittee += parseFloat(sub.reportsToCommittee) || 0;
             aggregated[periodKey].appealsSubmitted += parseFloat(sub.appealsSubmitted) || 0;
+            aggregated[periodKey].visitsToUniFacilities += parseFloat(sub.visitsToUniFacilities) || 0;
             aggregated[periodKey].count += 1;
         });
 
@@ -199,6 +202,10 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     const previousAppeals = calculateFilteredTotal(previousAggregated, 'appealsSubmitted', comparisonType);
     const appealsChange = calculateChange(currentAppeals, previousAppeals);
 
+    const currentUniVisits = calculateFilteredTotal(currentAggregated, 'visitsToUniFacilities', comparisonType);
+    const previousUniVisits = calculateFilteredTotal(previousAggregated, 'visitsToUniFacilities', comparisonType);
+    const uniVisitsChange = calculateChange(currentUniVisits, previousUniVisits);
+
     const formatPeriodLabel = (period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
         if (period.startsWith('H')) return `النصف ${period.slice(1)}`;
@@ -245,6 +252,24 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     const committeesPieData = preparePieData('accreditationCommittees');
     const reportsPieData = preparePieData('reportsToCommittee');
     const appealsPieData = preparePieData('appealsSubmitted');
+    const uniVisitsPieData = preparePieData('visitsToUniFacilities');
+
+    const filterEvaluationVisits = (visits: ReviewerEvaluationVisit[]) => {
+        return visits.filter(visit => {
+            const fiscalYear = getFiscalYear(visit.month);
+            if (fiscalYear !== targetYear) return false;
+
+            const month = getMonth(visit.month);
+            if (comparisonType === 'monthly') {
+                return month === selectedMonth;
+            } else if (comparisonType === 'quarterly') {
+                return getQuarter(month) === selectedQuarter;
+            } else if (comparisonType === 'halfYearly') {
+                return getHalf(month) === selectedHalf;
+            }
+            return true; // yearly
+        });
+    };
 
     function prepareChartData() {
         const currentPeriods = Object.keys(currentAggregated);
@@ -307,11 +332,12 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
         // Define indicators to display
         const indicators = [
             { name: 'إجمالي الزيارات التقييمية', key: 'totalEvaluationVisits' },
-            { name: 'عدد أيام التقييم', key: 'evaluationDays' },
             { name: 'زيارات محافظات التأمين الصحي الشامل', key: 'visitsToInsuranceGovernorate' },
             { name: 'زيارات المنشآت الحكومية', key: 'visitsToGovFacilities' },
             { name: 'زيارات منشآت القطاع الخاص', key: 'visitsToPrivateFacilities' },
             { name: 'زيارات منشآت وزارة الصحة والسكان', key: 'visitsToMOHFacilities' },
+            { name: 'الزيارات للمنشآت الجامعية', key: 'visitsToUniFacilities' },
+            { name: 'عدد أيام التقييم', key: 'evaluationDays' },
             { name: 'لجان الاعتماد المنعقدة', key: 'accreditationCommittees' },
             { name: 'تقارير الزيارات المعروضة على اللجنة', key: 'reportsToCommittee' },
             { name: 'الالتماسات المقدمة', key: 'appealsSubmitted' }
@@ -363,7 +389,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
         return indicators.map((indicator, index) => (
             <tr key={indicator.key} style={{
                 borderBottom: '1px solid #eee',
-                backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--background-color)'
+                backgroundColor: index === 0 ? '#bbdefb' : (index >= 1 && index <= 5) ? '#e3f2fd' : 'transparent'
             }}>
                 <td style={{ padding: '12px', fontWeight: '500', textAlign: 'right' }}>{indicator.name}</td>
                 <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#1976d2' }}>
@@ -599,6 +625,17 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     previousYear={targetYear - 1}
                     pieData={appealsPieData}
                     color="#e83e8c"
+                />
+                <KPICard
+                    title="عدد الزيارات للمنشآت الجامعية"
+                    icon="🏫"
+                    currentValue={currentUniVisits}
+                    previousValue={previousUniVisits}
+                    changePercentage={uniVisitsChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={uniVisitsPieData}
+                    color="#ff5722"
                 />
             </div>
 
@@ -891,7 +928,8 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
                                 data={(() => {
-                                    const counts = evaluationVisits.reduce((acc, visit) => {
+                                    const filtered = filterEvaluationVisits(evaluationVisits);
+                                    const counts = filtered.reduce((acc, visit) => {
                                         const type = visit.facilityType || 'غير محدد';
                                         acc[type] = (acc[type] || 0) + 1;
                                         return acc;
@@ -912,6 +950,8 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 <YAxis
                                     label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
                                     style={{ fontSize: '0.9rem' }}
+                                    tick={false}
+                                    axisLine={false}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -921,7 +961,6 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                         padding: '10px'
                                     }}
                                 />
-                                <Legend />
                                 <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
                                     <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
                                     {Object.keys(evaluationVisits.reduce((acc, visit) => {
@@ -943,7 +982,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                             textAlign: 'center'
                         }}>
                             <strong style={{ color: '#0c5460' }}>
-                                إجمالي الزيارات: {evaluationVisits.length} زيارة
+                                إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
                             </strong>
                         </div>
                     </div>
@@ -981,7 +1020,8 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
                                 data={(() => {
-                                    const counts = evaluationVisits.reduce((acc, visit) => {
+                                    const filtered = filterEvaluationVisits(evaluationVisits);
+                                    const counts = filtered.reduce((acc, visit) => {
                                         const gov = visit.governorate || 'غير محدد';
                                         acc[gov] = (acc[gov] || 0) + 1;
                                         return acc;
@@ -1002,6 +1042,8 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 <YAxis
                                     label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
                                     style={{ fontSize: '0.9rem' }}
+                                    tick={false}
+                                    axisLine={false}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -1011,7 +1053,6 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                         padding: '10px'
                                     }}
                                 />
-                                <Legend />
                                 <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
                                     <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
                                     {Object.keys(evaluationVisits.reduce((acc, visit) => {
@@ -1033,7 +1074,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                             textAlign: 'center'
                         }}>
                             <strong style={{ color: '#155724' }}>
-                                إجمالي الزيارات: {evaluationVisits.length} زيارة
+                                إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
                             </strong>
                         </div>
                     </div>
@@ -1051,7 +1092,8 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                         <ResponsiveContainer>
                             <BarChart
                                 data={(() => {
-                                    const counts = evaluationVisits.reduce((acc, visit) => {
+                                    const filtered = filterEvaluationVisits(evaluationVisits);
+                                    const counts = filtered.reduce((acc, visit) => {
                                         const type = visit.visitType || 'غير محدد';
                                         acc[type] = (acc[type] || 0) + 1;
                                         return acc;
@@ -1066,14 +1108,17 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis
                                     dataKey="نوع الزيارة"
-                                    angle={-15}
-                                    textAnchor="end"
-                                    height={100}
+                                    angle={0}
+                                    textAnchor="middle"
+                                    tickMargin={10}
+                                    height={80}
                                     style={{ fontSize: '0.85rem' }}
                                 />
                                 <YAxis
                                     label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
                                     style={{ fontSize: '0.9rem' }}
+                                    tick={false}
+                                    axisLine={false}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -1083,7 +1128,6 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                         padding: '10px'
                                     }}
                                 />
-                                <Legend />
                                 <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
                                     <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
                                     {Object.keys(evaluationVisits.reduce((acc, visit) => {
@@ -1105,7 +1149,7 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                             textAlign: 'center'
                         }}>
                             <strong style={{ color: '#084298' }}>
-                                إجمالي الزيارات: {evaluationVisits.length} زيارة
+                                إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
                             </strong>
                         </div>
                     </div>
