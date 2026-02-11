@@ -14,16 +14,31 @@ interface ReviewerEvaluationVisit {
     year: number;
 }
 
+interface ReportPresentedToCommittee {
+    id?: string;
+    month: string;
+    committeeDecisionType: string;
+    numberOfDecisions: number;
+    year: number;
+}
+
 
 
 interface ReviewersDashboardProps {
     submissions: Array<Record<string, any>>;
     evaluationVisits: ReviewerEvaluationVisit[];
+    reportsToCommitteeData?: ReportPresentedToCommittee[];
     governorateVisits?: any[]; // Deprecated, computed from evaluationVisits
     visitTypeVisits?: any[]; // Deprecated, computed from evaluationVisits
 }
 
-export default function ReviewersDashboard({ submissions, evaluationVisits, governorateVisits, visitTypeVisits }: ReviewersDashboardProps) {
+export default function ReviewersDashboard({
+    submissions,
+    evaluationVisits,
+    reportsToCommitteeData = [],
+    governorateVisits,
+    visitTypeVisits
+}: ReviewersDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -53,6 +68,23 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
 
     const getHalf = (month: number): number => {
         return month >= 7 ? 1 : 2;
+    };
+
+    const filterReports = (reports: ReportPresentedToCommittee[], year: number) => {
+        return reports.filter(report => {
+            const fiscalYear = getFiscalYear(report.month);
+            if (fiscalYear !== year) return false;
+
+            const month = getMonth(report.month);
+            if (comparisonType === 'monthly') {
+                return month === selectedMonth;
+            } else if (comparisonType === 'quarterly') {
+                return getQuarter(month) === selectedQuarter;
+            } else if (comparisonType === 'halfYearly') {
+                return getHalf(month) === selectedHalf;
+            }
+            return true; // yearly
+        });
     };
 
     const filterByYear = (fiscalYear: number) => {
@@ -194,8 +226,8 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     const previousCommittees = calculateFilteredTotal(previousAggregated, 'accreditationCommittees', comparisonType);
     const committeesChange = calculateChange(currentCommittees, previousCommittees);
 
-    const currentReports = calculateFilteredTotal(currentAggregated, 'reportsToCommittee', comparisonType);
-    const previousReports = calculateFilteredTotal(previousAggregated, 'reportsToCommittee', comparisonType);
+    const currentReports = filterReports(reportsToCommitteeData, targetYear).reduce((sum: number, r: ReportPresentedToCommittee) => sum + (r.numberOfDecisions || 0), 0);
+    const previousReports = filterReports(reportsToCommitteeData, targetYear - 1).reduce((sum: number, r: ReportPresentedToCommittee) => sum + (r.numberOfDecisions || 0), 0);
     const reportsChange = calculateChange(currentReports, previousReports);
 
     const currentAppeals = calculateFilteredTotal(currentAggregated, 'appealsSubmitted', comparisonType);
@@ -250,7 +282,10 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
     const privateVisitsPieData = preparePieData('visitsToPrivateFacilities');
     const mohVisitsPieData = preparePieData('visitsToMOHFacilities');
     const committeesPieData = preparePieData('accreditationCommittees');
-    const reportsPieData = preparePieData('reportsToCommittee');
+    const reportsPieData = [
+        { name: `${targetYear}`, value: currentReports },
+        { name: `${targetYear - 1}`, value: previousReports }
+    ];
     const appealsPieData = preparePieData('appealsSubmitted');
     const uniVisitsPieData = preparePieData('visitsToUniFacilities');
 
@@ -393,10 +428,10 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
             }}>
                 <td style={{ padding: '12px', fontWeight: '500', textAlign: 'right' }}>{indicator.name}</td>
                 <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#1976d2' }}>
-                    {curr?.[indicator.key as keyof typeof curr] || 0}
+                    {indicator.key === 'reportsToCommittee' ? currentReports : (curr?.[indicator.key as keyof typeof curr] || 0)}
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>
-                    {prev?.[indicator.key as keyof typeof prev] || 0}
+                    {indicator.key === 'reportsToCommittee' ? previousReports : (prev?.[indicator.key as keyof typeof prev] || 0)}
                 </td>
             </tr>
         ));
@@ -649,11 +684,25 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                     marginBottom: '20px',
                     border: '1px solid var(--border-color)'
                 }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة الزيارات التقييمية - رسم بياني خطي</h4>
+                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة الزيارات التقييمية وأيام التقييم</h4>
                     <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={prepareChartData()}>
+                        <BarChart
+                            data={[
+                                {
+                                    name: `العام المالي الحالي (${targetYear})`,
+                                    'الزيارات التقييمية': currentTotalVisits,
+                                    'أيام التقييم': currentEvaluationDays
+                                },
+                                {
+                                    name: `العام المالي السابق (${targetYear - 1})`,
+                                    'الزيارات التقييمية': previousTotalVisits,
+                                    'أيام التقييم': previousEvaluationDays
+                                }
+                            ]}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                            <XAxis dataKey="period" stroke="var(--text-color)" />
+                            <XAxis dataKey="name" stroke="var(--text-color)" />
                             <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
                             <Tooltip
                                 contentStyle={{
@@ -663,36 +712,21 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                 }}
                             />
                             <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey={`زيارات ${targetYear}`}
-                                stroke="#0eacb8"
-                                strokeWidth={2}
-                                dot={{ fill: '#0eacb8', r: 4 }}
-                            >
+                            <Bar dataKey="الزيارات التقييمية" fill="#0eacb8" radius={[5, 5, 0, 0]}>
                                 <LabelList
-                                    dataKey={`زيارات ${targetYear}`}
+                                    dataKey="الزيارات التقييمية"
                                     position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
+                                    style={{ fontWeight: 'bold', fill: '#0eacb8', fontSize: '14px' }}
                                 />
-                            </Line>
-                            <Line
-                                type="monotone"
-                                dataKey={`زيارات ${targetYear - 1}`}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={{ fill: '#999', r: 3 }}
-                            >
+                            </Bar>
+                            <Bar dataKey="أيام التقييم" fill="#28a745" radius={[5, 5, 0, 0]}>
                                 <LabelList
-                                    dataKey={`زيارات ${targetYear - 1}`}
+                                    dataKey="أيام التقييم"
                                     position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
+                                    style={{ fontWeight: 'bold', fill: '#28a745', fontSize: '14px' }}
                                 />
-                            </Line>
-                        </LineChart>
+                            </Bar>
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
 
@@ -939,12 +973,12 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                         'عدد الزيارات': count
                                     }));
                                 })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis
                                     dataKey="name"
-                                    height={80}
+                                    height={40}
                                     style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
                                 />
                                 <YAxis
@@ -1031,12 +1065,12 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                         'عدد الزيارات': count
                                     }));
                                 })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis
                                     dataKey="name"
-                                    height={80}
+                                    height={40}
                                     style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
                                 />
                                 <YAxis
@@ -1083,13 +1117,33 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
 
             {/* Evaluation Visits by Visit Type - الزيارات التقييمية وفقا لنوع الزيارة */}
             {evaluationVisits && evaluationVisits.length > 0 && (
-                <div className="card" style={{ marginTop: '30px' }}>
-                    <h3 style={{ marginBottom: '20px', color: 'var(--secondary-color)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '1.5rem' }}>📊</span>
-                        الزيارات التقييمية وفقا لنوع الزيارة
-                    </h3>
-                    <div style={{ height: '400px', width: '100%' }}>
-                        <ResponsiveContainer>
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #007bff',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #007bff'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>📊</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#0056b3',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                الزيارات التقييمية وفقا لنوع الزيارة
+                            </h3>
+                        </div>
+                        <ResponsiveContainer width="100%" height={400}>
                             <BarChart
                                 data={(() => {
                                     const filtered = filterEvaluationVisits(evaluationVisits);
@@ -1103,16 +1157,13 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                                         'عدد الزيارات': count
                                     }));
                                 })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis
                                     dataKey="نوع الزيارة"
-                                    angle={0}
-                                    textAnchor="middle"
-                                    tickMargin={10}
-                                    height={80}
-                                    style={{ fontSize: '0.85rem' }}
+                                    height={40}
+                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
                                 />
                                 <YAxis
                                     label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
@@ -1150,6 +1201,98 @@ export default function ReviewersDashboard({ submissions, evaluationVisits, gove
                         }}>
                             <strong style={{ color: '#084298' }}>
                                 إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reports Presented to Committee Chart - التقارير المعروضة على اللجنة وفقا لنوع القرار */}
+            {reportsToCommitteeData && reportsToCommitteeData.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #6c757d',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #6c757d'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>📑</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#343a40',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                التقارير المعروضة على اللجنة وفقا لنوع القرار
+                            </h3>
+                        </div>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart
+                                data={(() => {
+                                    const filtered = filterReports(reportsToCommitteeData, targetYear);
+                                    const counts = filtered.reduce((acc: Record<string, number>, report: any) => {
+                                        const type = report.committeeDecisionType || 'غير محدد';
+                                        acc[type] = (acc[type] || 0) + (report.numberOfDecisions || 0);
+                                        return acc;
+                                    }, {} as Record<string, number>);
+                                    return Object.entries(counts).map(([name, count]) => ({
+                                        name,
+                                        'عدد التقارير': count
+                                    }));
+                                })()}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis
+                                    dataKey="name"
+                                    height={40}
+                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                />
+                                <YAxis
+                                    label={{ value: 'عدد التقارير', angle: -90, position: 'insideLeft' }}
+                                    style={{ fontSize: '0.9rem' }}
+                                    tick={false}
+                                    axisLine={false}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        border: '1px solid #6c757d',
+                                        borderRadius: '8px',
+                                        padding: '10px'
+                                    }}
+                                />
+                                <Bar dataKey="عدد التقارير" radius={[8, 8, 0, 0]}>
+                                    <LabelList dataKey="عدد التقارير" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                    {Object.keys(reportsToCommitteeData.reduce((acc, report) => {
+                                        const type = report.committeeDecisionType || 'غير محدد';
+                                        acc[type] = true;
+                                        return acc;
+                                    }, {} as Record<string, boolean>)).map((_, index) => {
+                                        const colors = ['#6c757d', '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997'];
+                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                    })}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                        <div style={{
+                            marginTop: '15px',
+                            padding: '15px',
+                            backgroundColor: '#e9ecef',
+                            borderRadius: '8px',
+                            textAlign: 'center'
+                        }}>
+                            <strong style={{ color: '#343a40' }}>
+                                إجمالي التقارير: {filterReports(reportsToCommitteeData, targetYear).reduce((sum: number, r: any) => sum + (r.numberOfDecisions || 0), 0)} تقرير
                             </strong>
                         </div>
                     </div>

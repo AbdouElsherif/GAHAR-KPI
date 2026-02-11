@@ -221,6 +221,11 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
+    // Reports Presented to Committee (Dept 9)
+    match /reports_presented_to_committee/{reportId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
+    }
   }
 }
 

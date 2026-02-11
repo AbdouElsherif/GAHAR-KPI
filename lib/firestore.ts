@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc, limit } from 'firebase/firestore';
+﻿import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc, limit } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface KPIData {
@@ -158,7 +158,7 @@ export interface QueuedSupportVisit {
     updatedBy?: string;
 }
 
-// Scheduled Support Visits (زيارات الدعم الفني المجدولة في شهر ....)
+// Scheduled Support Visits (Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ Ø§Ù„Ù…Ø¬Ø¯ÙˆÙ„Ø© ÙÙŠ Ø´Ù‡Ø± ....)
 export interface ScheduledSupportVisit {
     id?: string;
     facilityName: string;
@@ -172,7 +172,7 @@ export interface ScheduledSupportVisit {
     updatedBy?: string;
 }
 
-// Accredited Supported Facilities (المنشآت المعتمدة من المنشآت التي تلقت زيارات دعم)
+// Accredited Supported Facilities (Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© Ù…Ù† Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„ØªÙŠ ØªÙ„Ù‚Øª Ø²ÙŠØ§Ø±Ø§Øª Ø¯Ø¹Ù…)
 export interface AccreditedSupportedFacility {
     id?: string;
     facilityName: string;
@@ -229,7 +229,7 @@ export interface MedicalProfessionalRegistration {
     updatedBy?: string;
 }
 
-// Committee Preparation Facilities (التجهيز للعرض على اللجنة)
+// Committee Preparation Facilities (Ø§Ù„ØªØ¬Ù‡ÙŠØ² Ù„Ù„Ø¹Ø±Ø¶ Ø¹Ù„Ù‰ Ø§Ù„Ù„Ø¬Ù†Ø©)
 export interface CommitteePreparationFacility {
     id?: string;
     facilityName: string;
@@ -243,7 +243,7 @@ export interface CommitteePreparationFacility {
     updatedBy?: string;
 }
 
-// Certificate Issuance Facilities (إصدار الشهادات)
+// Certificate Issuance Facilities (Ø¥ØµØ¯Ø§Ø± Ø§Ù„Ø´Ù‡Ø§Ø¯Ø§Øª)
 export interface CertificateIssuanceFacility {
     id?: string;
     facilityName: string;
@@ -262,7 +262,7 @@ export interface TechnicalClinicalFacility {
     facilityType: string;
     facilityName: string;
     visitType: string;
-    assessmentType?: string;  // نوع التقييم - حقل نصي حر
+    assessmentType?: string;  // Ù†ÙˆØ¹ Ø§Ù„ØªÙ‚ÙŠÙŠÙ… - Ø­Ù‚Ù„ Ù†ØµÙŠ Ø­Ø±
     governorate: string;
     month: string;
     year: number;
@@ -288,11 +288,11 @@ export interface AdminAuditFacility {
 
 export interface AdminAuditObservation {
     id?: string;
-    entityType: string;  // الجهة التابعة: هيئة الرعاية الصحية / وزارة الصحة
-    facilityType: string;  // نوع المنشأة: مراكز الرعاية الأولية / وحدات الرعاية الأولية
-    observation: string;  // نص دليل التطابق/الملاحظة
-    percentage: number;  // نسبة الملاحظات
-    month: string;  // الشهر YYYY-MM
+    entityType: string;  // Ø§Ù„Ø¬Ù‡Ø© Ø§Ù„ØªØ§Ø¨Ø¹Ø©: Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„ØµØ­ÙŠØ© / ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø©
+    facilityType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø´Ø£Ø©: Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ© / ÙˆØ­Ø¯Ø§Øª Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ©
+    observation: string;  // Ù†Øµ Ø¯Ù„ÙŠÙ„ Ø§Ù„ØªØ·Ø§Ø¨Ù‚/Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø©
+    percentage: number;  // Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -300,14 +300,14 @@ export interface AdminAuditObservation {
     updatedBy?: string;
 }
 
-// Technical Clinical Observations (الملاحظات المتكررة للرقابة الفنية والإكلينيكية)
+// Technical Clinical Observations (Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØªÙƒØ±Ø±Ø© Ù„Ù„Ø±Ù‚Ø§Ø¨Ø© Ø§Ù„ÙÙ†ÙŠØ© ÙˆØ§Ù„Ø¥ÙƒÙ„ÙŠÙ†ÙŠÙƒÙŠØ©)
 export interface TechnicalClinicalObservation {
     id?: string;
-    entityType: string;  // الجهة التابعة: هيئة الرعاية الصحية / وزارة الصحة
-    facilityType: string;  // نوع المنشأة: مراكز الرعاية الأولية / وحدات الرعاية الأولية
-    observation: string;  // نص دليل التطابق/الملاحظة
-    percentage: number;  // نسبة الملاحظات
-    month: string;  // الشهر YYYY-MM
+    entityType: string;  // Ø§Ù„Ø¬Ù‡Ø© Ø§Ù„ØªØ§Ø¨Ø¹Ø©: Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„ØµØ­ÙŠØ© / ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø©
+    facilityType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø´Ø£Ø©: Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ© / ÙˆØ­Ø¯Ø§Øª Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ©
+    observation: string;  // Ù†Øµ Ø¯Ù„ÙŠÙ„ Ø§Ù„ØªØ·Ø§Ø¨Ù‚/Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø©
+    percentage: number;  // Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -317,15 +317,15 @@ export interface TechnicalClinicalObservation {
 
 export interface ObservationCorrectionRate {
     id?: string;
-    entityType: string;  // الجهة: المنشآت الصحية التابعة لهيئة الرعاية / منشآت صحية أخرى
-    facilityCategory: string;  // الفئة: مستشفيات / مراكز ووحدات الرعاية الأولية / المراكز الطبية...
-    facilityName: string;  // اسم المنشأة
-    governorate: string;  // المحافظة
-    visitDate: string;  // تاريخ الزيارة
-    visitType: string;  // نوع الزيارة
-    month: string;  // الشهر YYYY-MM للفلترة
+    entityType: string;  // Ø§Ù„Ø¬Ù‡Ø©: Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„ØµØ­ÙŠØ© Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ù„Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ© / Ù…Ù†Ø´Ø¢Øª ØµØ­ÙŠØ© Ø£Ø®Ø±Ù‰
+    facilityCategory: string;  // Ø§Ù„ÙØ¦Ø©: Ù…Ø³ØªØ´ÙÙŠØ§Øª / Ù…Ø±Ø§ÙƒØ² ÙˆÙˆØ­Ø¯Ø§Øª Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ© / Ø§Ù„Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø·Ø¨ÙŠØ©...
+    facilityName: string;  // Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø´Ø£Ø©
+    governorate: string;  // Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©
+    visitDate: string;  // ØªØ§Ø±ÙŠØ® Ø§Ù„Ø²ÙŠØ§Ø±Ø©
+    visitType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ø²ÙŠØ§Ø±Ø©
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM Ù„Ù„ÙÙ„ØªØ±Ø©
     year: number;
-    // بيانات كل معيار - عدد الملاحظات الواردة
+    // Ø¨ÙŠØ§Ù†Ø§Øª ÙƒÙ„ Ù…Ø¹ÙŠØ§Ø± - Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„ÙˆØ§Ø±Ø¯Ø©
     pccTotal: number;
     efsTotal: number;
     ogmTotal: number;
@@ -336,7 +336,7 @@ export interface ObservationCorrectionRate {
     mrsTotal: number;
     scmTotal: number;
     emsTotal: number;
-    // بيانات كل معيار - عدد الملاحظات المصححة
+    // Ø¨ÙŠØ§Ù†Ø§Øª ÙƒÙ„ Ù…Ø¹ÙŠØ§Ø± - Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØµØ­Ø­Ø©
     pccCorrected: number;
     efsCorrected: number;
     ogmCorrected: number;
@@ -353,14 +353,14 @@ export interface ObservationCorrectionRate {
     updatedBy?: string;
 }
 
-// Reviewer Evaluation Visits (الزيارات التقييمية وفقا لنوع المنشأة للمراجعين)
+// Reviewer Evaluation Visits (Ø§Ù„Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„ØªÙ‚ÙŠÙŠÙ…ÙŠØ© ÙˆÙÙ‚Ø§ Ù„Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø´Ø£Ø© Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹ÙŠÙ†)
 export interface ReviewerEvaluationVisit {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    facilityType: string;  // نوع المنشأة
-    facilityName: string;  // اسم المنشأة
-    governorate: string;  // المحافظة
-    visitType: string;  // نوع الزيارة
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    facilityType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø´Ø£Ø©
+    facilityName: string;  // Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø´Ø£Ø©
+    governorate: string;  // Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©
+    visitType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ø²ÙŠØ§Ø±Ø©
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -370,24 +370,24 @@ export interface ReviewerEvaluationVisit {
 
 
 
-// Reviewer Evaluation Visits By Visit Type (الزيارات التقييمية وفقا لنوع الزيارة)
+// Reviewer Evaluation Visits By Visit Type (Ø§Ù„Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„ØªÙ‚ÙŠÙŠÙ…ÙŠØ© ÙˆÙÙ‚Ø§ Ù„Ù†ÙˆØ¹ Ø§Ù„Ø²ÙŠØ§Ø±Ø©)
 
 
-// Medical Professionals By Category (أعضاء المهن الطبية حسب الفئة)
+// Medical Professionals By Category (Ø£Ø¹Ø¶Ø§Ø¡ Ø§Ù„Ù…Ù‡Ù† Ø§Ù„Ø·Ø¨ÙŠØ© Ø­Ø³Ø¨ Ø§Ù„ÙØ¦Ø©)
 export interface MedicalProfessionalByCategory {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    branch: string;  // الفرع (رئاسة الهيئة، بورسعيد، الأقصر، الإسماعيلية، السويس، أسوان، جنوب سيناء)
-    doctors: number;  // أطباء بشريين
-    dentists: number;  // أطباء أسنان
-    pharmacists: number;  // صيادلة
-    physiotherapy: number;  // علاج طبيعي
-    veterinarians: number;  // بيطريين
-    seniorNursing: number;  // تمريض عالي
-    technicalNursing: number;  // فني تمريض
-    healthTechnician: number;  // فني صحي
-    scientists: number;  // علميين
-    total: number;  // الإجمالي (محسوب)
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    branch: string;  // Ø§Ù„ÙØ±Ø¹ (Ø±Ø¦Ø§Ø³Ø© Ø§Ù„Ù‡ÙŠØ¦Ø©ØŒ Ø¨ÙˆØ±Ø³Ø¹ÙŠØ¯ØŒ Ø§Ù„Ø£Ù‚ØµØ±ØŒ Ø§Ù„Ø¥Ø³Ù…Ø§Ø¹ÙŠÙ„ÙŠØ©ØŒ Ø§Ù„Ø³ÙˆÙŠØ³ØŒ Ø£Ø³ÙˆØ§Ù†ØŒ Ø¬Ù†ÙˆØ¨ Ø³ÙŠÙ†Ø§Ø¡)
+    doctors: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø¨Ø´Ø±ÙŠÙŠÙ†
+    dentists: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø£Ø³Ù†Ø§Ù†
+    pharmacists: number;  // ØµÙŠØ§Ø¯Ù„Ø©
+    physiotherapy: number;  // Ø¹Ù„Ø§Ø¬ Ø·Ø¨ÙŠØ¹ÙŠ
+    veterinarians: number;  // Ø¨ÙŠØ·Ø±ÙŠÙŠÙ†
+    seniorNursing: number;  // ØªÙ…Ø±ÙŠØ¶ Ø¹Ø§Ù„ÙŠ
+    technicalNursing: number;  // ÙÙ†ÙŠ ØªÙ…Ø±ÙŠØ¶
+    healthTechnician: number;  // ÙÙ†ÙŠ ØµØ­ÙŠ
+    scientists: number;  // Ø¹Ù„Ù…ÙŠÙŠÙ†
+    total: number;  // Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ (Ù…Ø­Ø³ÙˆØ¨)
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -397,18 +397,18 @@ export interface MedicalProfessionalByCategory {
 
 export interface MedicalProfessionalByGovernorate {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    governorate: string;  // المحافظة
-    doctors: number;  // أطباء بشريين
-    dentists: number;  // أطباء أسنان
-    pharmacists: number;  // صيادلة
-    physiotherapy: number;  // علاج طبيعي
-    veterinarians: number;  // بيطريين
-    seniorNursing: number;  // تمريض عالي
-    technicalNursing: number;  // فني تمريض
-    healthTechnician: number;  // فني صحي
-    scientists: number;  // علميين
-    total: number;  // الإجمالي (محسوب)
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    governorate: string;  // Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©
+    doctors: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø¨Ø´Ø±ÙŠÙŠÙ†
+    dentists: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø£Ø³Ù†Ø§Ù†
+    pharmacists: number;  // ØµÙŠØ§Ø¯Ù„Ø©
+    physiotherapy: number;  // Ø¹Ù„Ø§Ø¬ Ø·Ø¨ÙŠØ¹ÙŠ
+    veterinarians: number;  // Ø¨ÙŠØ·Ø±ÙŠÙŠÙ†
+    seniorNursing: number;  // ØªÙ…Ø±ÙŠØ¶ Ø¹Ø§Ù„ÙŠ
+    technicalNursing: number;  // ÙÙ†ÙŠ ØªÙ…Ø±ÙŠØ¶
+    healthTechnician: number;  // ÙÙ†ÙŠ ØµØ­ÙŠ
+    scientists: number;  // Ø¹Ù„Ù…ÙŠÙŠÙ†
+    total: number;  // Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ (Ù…Ø­Ø³ÙˆØ¨)
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -416,12 +416,12 @@ export interface MedicalProfessionalByGovernorate {
     updatedBy?: string;
 }
 
-// Training Entity (الجهات الحاصلة على التدريب for dept1)
+// Training Entity (Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ø­Ø§ØµÙ„Ø© Ø¹Ù„Ù‰ Ø§Ù„ØªØ¯Ø±ÙŠØ¨ for dept1)
 export interface TrainingEntity {
     id?: string;
-    entityName: string;  // الجهة الحاصلة على التدريب
-    traineesCount: number;  // عدد المتدربين
-    month: string;  // الشهر YYYY-MM
+    entityName: string;  // Ø§Ù„Ø¬Ù‡Ø© Ø§Ù„Ø­Ø§ØµÙ„Ø© Ø¹Ù„Ù‰ Ø§Ù„ØªØ¯Ø±ÙŠØ¨
+    traineesCount: number;  // Ø¹Ø¯Ø¯ Ø§Ù„Ù…ØªØ¯Ø±Ø¨ÙŠÙ†
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -429,12 +429,12 @@ export interface TrainingEntity {
     updatedBy?: string;
 }
 
-// Program Type (نوع البرنامج for dept1)
+// Program Type (Ù†ÙˆØ¹ Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬ for dept1)
 export interface ProgramType {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    trainingPrograms: number;  // برامج تدريب
-    awarenessPrograms: number;  // برامج توعية
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    trainingPrograms: number;  // Ø¨Ø±Ø§Ù…Ø¬ ØªØ¯Ø±ÙŠØ¨
+    awarenessPrograms: number;  // Ø¨Ø±Ø§Ù…Ø¬ ØªÙˆØ¹ÙŠØ©
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -442,18 +442,18 @@ export interface ProgramType {
     updatedBy?: string;
 }
 
-// Governorate Customer Survey (استبيانات رضاء المتعاملين حسب المحافظة for dept3)
+// Governorate Customer Survey (Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ø±Ø¶Ø§Ø¡ Ø§Ù„Ù…ØªØ¹Ø§Ù…Ù„ÙŠÙ† Ø­Ø³Ø¨ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© for dept3)
 export interface GovernorateCustomerSurvey {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    governorate: string;  // المحافظة
-    visitImplementationRate: number;  // نسبة تنفيذ الزيارات (0-100)
-    facilitiesCount: number;  // عدد المنشآت
-    visitedFacilitiesList: string;  // أسماء المنشآت (نص طويل - كل منشأة في سطر)
-    patientSurveysCount: number;  // عدد استبيانات قياس تجربة المريض
-    staffSurveysCount: number;  // عدد استبيانات مقدمي الخدمة والعاملين
-    patientSatisfactionRate: number;  // نسبة قياس رضاء المريض (0-100، مع كسور)
-    staffSatisfactionRate: number;  // نسبة قياس رضاء العاملين (0-100، مع كسور)
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    governorate: string;  // Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©
+    visitImplementationRate: number;  // Ù†Ø³Ø¨Ø© ØªÙ†ÙÙŠØ° Ø§Ù„Ø²ÙŠØ§Ø±Ø§Øª (0-100)
+    facilitiesCount: number;  // Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª
+    visitedFacilitiesList: string;  // Ø£Ø³Ù…Ø§Ø¡ Ø§Ù„Ù…Ù†Ø´Ø¢Øª (Ù†Øµ Ø·ÙˆÙŠÙ„ - ÙƒÙ„ Ù…Ù†Ø´Ø£Ø© ÙÙŠ Ø³Ø·Ø±)
+    patientSurveysCount: number;  // Ø¹Ø¯Ø¯ Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ù‚ÙŠØ§Ø³ ØªØ¬Ø±Ø¨Ø© Ø§Ù„Ù…Ø±ÙŠØ¶
+    staffSurveysCount: number;  // Ø¹Ø¯Ø¯ Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ù…Ù‚Ø¯Ù…ÙŠ Ø§Ù„Ø®Ø¯Ù…Ø© ÙˆØ§Ù„Ø¹Ø§Ù…Ù„ÙŠÙ†
+    patientSatisfactionRate: number;  // Ù†Ø³Ø¨Ø© Ù‚ÙŠØ§Ø³ Ø±Ø¶Ø§Ø¡ Ø§Ù„Ù…Ø±ÙŠØ¶ (0-100ØŒ Ù…Ø¹ ÙƒØ³ÙˆØ±)
+    staffSatisfactionRate: number;  // Ù†Ø³Ø¨Ø© Ù‚ÙŠØ§Ø³ Ø±Ø¶Ø§Ø¡ Ø§Ù„Ø¹Ø§Ù…Ù„ÙŠÙ† (0-100ØŒ Ù…Ø¹ ÙƒØ³ÙˆØ±)
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -461,21 +461,21 @@ export interface GovernorateCustomerSurvey {
     updatedBy?: string;
 }
 
-// Total Medical Professionals By Category (الإجمالي الكلي لأعضاء المهن الطبية المسجلين طبقا للفئة)
+// Total Medical Professionals By Category (Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙ„ÙŠ Ù„Ø£Ø¹Ø¶Ø§Ø¡ Ø§Ù„Ù…Ù‡Ù† Ø§Ù„Ø·Ø¨ÙŠØ© Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø·Ø¨Ù‚Ø§ Ù„Ù„ÙØ¦Ø©)
 export interface TotalMedicalProfessionalByCategory {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    branch: string;  // الفرع (رئاسة الهيئة، بورسعيد، الأقصر، الإسماعيلية، السويس، أسوان، جنوب سيناء)
-    doctors: number;  // أطباء بشريين
-    dentists: number;  // أطباء أسنان
-    pharmacists: number;  // صيادلة
-    physiotherapy: number;  // علاج طبيعي
-    veterinarians: number;  // بيطريين
-    seniorNursing: number;  // تمريض عالي
-    technicalNursing: number;  // فني تمريض
-    healthTechnician: number;  // فني صحي
-    scientists: number;  // علميين
-    total: number;  // الإجمالي (محسوب)
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    branch: string;  // Ø§Ù„ÙØ±Ø¹ (Ø±Ø¦Ø§Ø³Ø© Ø§Ù„Ù‡ÙŠØ¦Ø©ØŒ Ø¨ÙˆØ±Ø³Ø¹ÙŠØ¯ØŒ Ø§Ù„Ø£Ù‚ØµØ±ØŒ Ø§Ù„Ø¥Ø³Ù…Ø§Ø¹ÙŠÙ„ÙŠØ©ØŒ Ø§Ù„Ø³ÙˆÙŠØ³ØŒ Ø£Ø³ÙˆØ§Ù†ØŒ Ø¬Ù†ÙˆØ¨ Ø³ÙŠÙ†Ø§Ø¡)
+    doctors: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø¨Ø´Ø±ÙŠÙŠÙ†
+    dentists: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø£Ø³Ù†Ø§Ù†
+    pharmacists: number;  // ØµÙŠØ§Ø¯Ù„Ø©
+    physiotherapy: number;  // Ø¹Ù„Ø§Ø¬ Ø·Ø¨ÙŠØ¹ÙŠ
+    veterinarians: number;  // Ø¨ÙŠØ·Ø±ÙŠÙŠÙ†
+    seniorNursing: number;  // ØªÙ…Ø±ÙŠØ¶ Ø¹Ø§Ù„ÙŠ
+    technicalNursing: number;  // ÙÙ†ÙŠ ØªÙ…Ø±ÙŠØ¶
+    healthTechnician: number;  // ÙÙ†ÙŠ ØµØ­ÙŠ
+    scientists: number;  // Ø¹Ù„Ù…ÙŠÙŠÙ†
+    total: number;  // Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ (Ù…Ø­Ø³ÙˆØ¨)
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -483,21 +483,21 @@ export interface TotalMedicalProfessionalByCategory {
     updatedBy?: string;
 }
 
-// Total Medical Professionals By Governorate (الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات)
+// Total Medical Professionals By Governorate (Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙ„ÙŠ Ù„Ø£Ø¹Ø¶Ø§Ø¡ Ø§Ù„Ù…Ù‡Ù† Ø§Ù„Ø·Ø¨ÙŠØ© Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø¨Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª)
 export interface TotalMedicalProfessionalByGovernorate {
     id?: string;
-    month: string;  // الشهر YYYY-MM
-    governorate: string;  // المحافظة
-    doctors: number;  // أطباء بشريين
-    dentists: number;  // أطباء أسنان
-    pharmacists: number;  // صيادلة
-    physiotherapy: number;  // علاج طبيعي
-    veterinarians: number;  // بيطريين
-    seniorNursing: number;  // تمريض عالي
-    technicalNursing: number;  // فني تمريض
-    healthTechnician: number;  // فني صحي
-    scientists: number;  // علميين
-    total: number;  // الإجمالي (محسوب)
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
+    governorate: string;  // Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©
+    doctors: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø¨Ø´Ø±ÙŠÙŠÙ†
+    dentists: number;  // Ø£Ø·Ø¨Ø§Ø¡ Ø£Ø³Ù†Ø§Ù†
+    pharmacists: number;  // ØµÙŠØ§Ø¯Ù„Ø©
+    physiotherapy: number;  // Ø¹Ù„Ø§Ø¬ Ø·Ø¨ÙŠØ¹ÙŠ
+    veterinarians: number;  // Ø¨ÙŠØ·Ø±ÙŠÙŠÙ†
+    seniorNursing: number;  // ØªÙ…Ø±ÙŠØ¶ Ø¹Ø§Ù„ÙŠ
+    technicalNursing: number;  // ÙÙ†ÙŠ ØªÙ…Ø±ÙŠØ¶
+    healthTechnician: number;  // ÙÙ†ÙŠ ØµØ­ÙŠ
+    scientists: number;  // Ø¹Ù„Ù…ÙŠÙŠÙ†
+    total: number;  // Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ (Ù…Ø­Ø³ÙˆØ¨)
     year: number;
     createdAt?: Date;
     createdBy?: string;
@@ -814,7 +814,7 @@ export async function deleteTechnicalSupportVisit(id: string): Promise<boolean> 
     }
 }
 
-// Remote Technical Support Functions (الدعم الفني عن بعد)
+// Remote Technical Support Functions (Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ Ø¹Ù† Ø¨Ø¹Ø¯)
 export async function saveRemoteTechnicalSupport(
     supportData: Omit<RemoteTechnicalSupport, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -894,7 +894,7 @@ export async function deleteRemoteTechnicalSupport(id: string): Promise<boolean>
     }
 }
 
-// Introductory Support Visit Functions (زيارات الدعم الفني التمهيدية)
+// Introductory Support Visit Functions (Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ Ø§Ù„ØªÙ…Ù‡ÙŠØ¯ÙŠØ©)
 export async function saveIntroductorySupportVisit(
     visitData: Omit<IntroductorySupportVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -974,7 +974,7 @@ export async function deleteIntroductorySupportVisit(id: string): Promise<boolea
     }
 }
 
-// Scheduled Support Visit Functions (زيارات الدعم الفني المجدولة في شهر ....)
+// Scheduled Support Visit Functions (Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ Ø§Ù„Ù…Ø¬Ø¯ÙˆÙ„Ø© ÙÙŠ Ø´Ù‡Ø± ....)
 export async function saveScheduledSupportVisit(
     visitData: Omit<ScheduledSupportVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -1680,7 +1680,7 @@ export async function deleteMedicalProfessionalRegistration(id: string): Promise
     }
 }
 
-// Committee Preparation Facilities Functions (التجهيز للعرض على اللجنة)
+// Committee Preparation Facilities Functions (Ø§Ù„ØªØ¬Ù‡ÙŠØ² Ù„Ù„Ø¹Ø±Ø¶ Ø¹Ù„Ù‰ Ø§Ù„Ù„Ø¬Ù†Ø©)
 export async function saveCommitteePreparationFacility(
     data: Omit<CommitteePreparationFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -1760,7 +1760,7 @@ export async function deleteCommitteePreparationFacility(id: string): Promise<bo
     }
 }
 
-// Certificate Issuance Facilities Functions (إصدار الشهادات)
+// Certificate Issuance Facilities Functions (Ø¥ØµØ¯Ø§Ø± Ø§Ù„Ø´Ù‡Ø§Ø¯Ø§Øª)
 export async function saveCertificateIssuanceFacility(
     data: Omit<CertificateIssuanceFacility, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -1986,7 +1986,7 @@ export async function deleteAdminAuditFacility(id: string): Promise<boolean> {
     }
 }
 
-// Admin Audit Observations Functions (الملاحظات المتكررة)
+// Admin Audit Observations Functions (Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØªÙƒØ±Ø±Ø©)
 export async function saveAdminAuditObservation(
     data: Omit<AdminAuditObservation, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2066,7 +2066,7 @@ export async function deleteAdminAuditObservation(id: string): Promise<boolean> 
     }
 }
 
-// Observation Correction Rate CRUD functions - نسب تصحيح الملاحظات
+// Observation Correction Rate CRUD functions - Ù†Ø³Ø¨ ØªØµØ­ÙŠØ­ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª
 export async function saveObservationCorrectionRate(
     data: Omit<ObservationCorrectionRate, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<string | null> {
@@ -2104,12 +2104,12 @@ export async function getObservationCorrectionRates(
             const data = doc.data();
             rates.push({
                 id: doc.id,
-                entityType: data.entityType || 'المنشآت الصحية التابعة لهيئة الرعاية',
+                entityType: data.entityType || 'Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„ØµØ­ÙŠØ© Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ù„Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ©',
                 facilityCategory: data.facilityCategory,
                 facilityName: data.facilityName,
                 governorate: data.governorate,
                 visitDate: data.visitDate,
-                visitType: data.visitType || 'زيارة متابعة تدقيق إداري',
+                visitType: data.visitType || 'Ø²ÙŠØ§Ø±Ø© Ù…ØªØ§Ø¨Ø¹Ø© ØªØ¯Ù‚ÙŠÙ‚ Ø¥Ø¯Ø§Ø±ÙŠ',
                 month: data.month,
                 year: data.year,
                 pccTotal: data.pccTotal,
@@ -2174,7 +2174,7 @@ export async function deleteObservationCorrectionRate(id: string): Promise<boole
     }
 }
 
-// Technical Clinical Observations Functions (الملاحظات المتكررة للرقابة الفنية والإكلينيكية)
+// Technical Clinical Observations Functions (Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØªÙƒØ±Ø±Ø© Ù„Ù„Ø±Ù‚Ø§Ø¨Ø© Ø§Ù„ÙÙ†ÙŠØ© ÙˆØ§Ù„Ø¥ÙƒÙ„ÙŠÙ†ÙŠÙƒÙŠØ©)
 export async function saveTechnicalClinicalObservation(
     data: Omit<TechnicalClinicalObservation, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2255,18 +2255,18 @@ export async function deleteTechnicalClinicalObservation(id: string): Promise<bo
 }
 
 // Technical Clinical Correction Rate Interface and CRUD functions
-// نسب تصحيح الملاحظات للرقابة الفنية والإكلينيكية
+// Ù†Ø³Ø¨ ØªØµØ­ÙŠØ­ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ù„Ù„Ø±Ù‚Ø§Ø¨Ø© Ø§Ù„ÙÙ†ÙŠØ© ÙˆØ§Ù„Ø¥ÙƒÙ„ÙŠÙ†ÙŠÙƒÙŠØ©
 export interface TechnicalClinicalCorrectionRate {
     id?: string;
-    entityType: string;  // الجهة: المنشآت الصحية التابعة لهيئة الرعاية / منشآت صحية أخرى
-    facilityCategory: string;  // الفئة: مستشفيات / مراكز ووحدات الرعاية الأولية / المراكز الطبية...
-    facilityName: string;  // اسم المنشأة
-    governorate: string;  // المحافظة
-    visitDate: string;  // تاريخ الزيارة
-    visitType: string;  // نوع الزيارة
-    month: string;  // الشهر YYYY-MM للفلترة
+    entityType: string;  // Ø§Ù„Ø¬Ù‡Ø©: Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„ØµØ­ÙŠØ© Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ù„Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ© / Ù…Ù†Ø´Ø¢Øª ØµØ­ÙŠØ© Ø£Ø®Ø±Ù‰
+    facilityCategory: string;  // Ø§Ù„ÙØ¦Ø©: Ù…Ø³ØªØ´ÙÙŠØ§Øª / Ù…Ø±Ø§ÙƒØ² ÙˆÙˆØ­Ø¯Ø§Øª Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ© / Ø§Ù„Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø·Ø¨ÙŠØ©...
+    facilityName: string;  // Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø´Ø£Ø©
+    governorate: string;  // Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©
+    visitDate: string;  // ØªØ§Ø±ÙŠØ® Ø§Ù„Ø²ÙŠØ§Ø±Ø©
+    visitType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ø²ÙŠØ§Ø±Ø©
+    month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM Ù„Ù„ÙÙ„ØªØ±Ø©
     year: number;
-    // بيانات كل معيار - عدد الملاحظات الواردة (12 معيار)
+    // Ø¨ÙŠØ§Ù†Ø§Øª ÙƒÙ„ Ù…Ø¹ÙŠØ§Ø± - Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„ÙˆØ§Ø±Ø¯Ø© (12 Ù…Ø¹ÙŠØ§Ø±)
     actTotal: number;
     icdTotal: number;
     dasTotal: number;
@@ -2279,7 +2279,7 @@ export interface TechnicalClinicalCorrectionRate {
     tpoTotal: number;
     nsrTotal: number;
     sasTotal: number;
-    // بيانات كل معيار - عدد الملاحظات المصححة (12 معيار)
+    // Ø¨ÙŠØ§Ù†Ø§Øª ÙƒÙ„ Ù…Ø¹ÙŠØ§Ø± - Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØµØ­Ø­Ø© (12 Ù…Ø¹ÙŠØ§Ø±)
     actCorrected: number;
     icdCorrected: number;
     dasCorrected: number;
@@ -2352,12 +2352,12 @@ export async function getTechnicalClinicalCorrectionRates(
             const data = doc.data();
             rates.push({
                 id: doc.id,
-                entityType: data.entityType || 'المنشآت الصحية التابعة لهيئة الرعاية',
+                entityType: data.entityType || 'Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„ØµØ­ÙŠØ© Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ù„Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ©',
                 facilityCategory: data.facilityCategory,
                 facilityName: data.facilityName,
                 governorate: data.governorate,
                 visitDate: data.visitDate,
-                visitType: data.visitType || 'زيارة متابعة وتدقيق فني وإكلينيكي',
+                visitType: data.visitType || 'Ø²ÙŠØ§Ø±Ø© Ù…ØªØ§Ø¨Ø¹Ø© ÙˆØªØ¯Ù‚ÙŠÙ‚ ÙÙ†ÙŠ ÙˆØ¥ÙƒÙ„ÙŠÙ†ÙŠÙƒÙŠ',
                 month: data.month,
                 year: data.year,
                 actTotal: data.actTotal || 0,
@@ -2443,7 +2443,7 @@ export async function deleteTechnicalClinicalCorrectionRate(id: string): Promise
     }
 }
 
-// Queued Support Visit Functions (زيارات الدعم الفني بقائمة الانتظار)
+// Queued Support Visit Functions (Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ Ø¨Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±)
 export async function saveQueuedSupportVisit(
     visitData: Omit<QueuedSupportVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2523,7 +2523,7 @@ export async function deleteQueuedSupportVisit(id: string): Promise<boolean> {
     }
 }
 
-// Reviewer Evaluation Visits Functions (الزيارات التقييمية وفقا لنوع المنشأة للمراجعين)
+// Reviewer Evaluation Visits Functions (Ø§Ù„Ø²ÙŠØ§Ø±Ø§Øª Ø§Ù„ØªÙ‚ÙŠÙŠÙ…ÙŠØ© ÙˆÙÙ‚Ø§ Ù„Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø´Ø£Ø© Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹ÙŠÙ†)
 export async function saveReviewerEvaluationVisit(
     visitData: Omit<ReviewerEvaluationVisit, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2750,7 +2750,7 @@ export async function deleteMedicalProfessionalByGovernorate(id: string): Promis
     }
 }
 
-// Training Entity Functions (الجهات الحاصلة على التدريب for dept1)
+// Training Entity Functions (Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ø­Ø§ØµÙ„Ø© Ø¹Ù„Ù‰ Ø§Ù„ØªØ¯Ø±ÙŠØ¨ for dept1)
 export async function saveTrainingEntity(
     entityData: Omit<TrainingEntity, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2831,7 +2831,7 @@ export async function deleteTrainingEntity(id: string): Promise<boolean> {
 }
 
 
-// Program Type Functions (نوع البرنامج for dept1)
+// Program Type Functions (Ù†ÙˆØ¹ Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬ for dept1)
 export async function saveProgramType(
     programData: Omit<ProgramType, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2911,7 +2911,7 @@ export async function deleteProgramType(id: string): Promise<boolean> {
     }
 }
 
-// Governorate Customer Survey Functions (استبيانات رضاء المتعاملين حسب المحافظة)
+// Governorate Customer Survey Functions (Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ø±Ø¶Ø§Ø¡ Ø§Ù„Ù…ØªØ¹Ø§Ù…Ù„ÙŠÙ† Ø­Ø³Ø¨ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©)
 export async function saveGovernorateCustomerSurvey(
     surveyData: Omit<GovernorateCustomerSurvey, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -2991,7 +2991,7 @@ export async function deleteGovernorateCustomerSurvey(id: string): Promise<boole
     }
 }
 
-// Total Medical Professionals By Category Functions (الإجمالي الكلي لأعضاء المهن الطبية)
+// Total Medical Professionals By Category Functions (Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙ„ÙŠ Ù„Ø£Ø¹Ø¶Ø§Ø¡ Ø§Ù„Ù…Ù‡Ù† Ø§Ù„Ø·Ø¨ÙŠØ©)
 export async function saveTotalMedProfByCategory(
     data: Omit<TotalMedicalProfessionalByCategory, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -3071,7 +3071,7 @@ export async function deleteTotalMedProfByCategory(id: string): Promise<boolean>
     }
 }
 
-// Total Medical Professionals By Governorate Functions (الإجمالي الكلي لأعضاء المهن الطبية بالمحافظات)
+// Total Medical Professionals By Governorate Functions (Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙ„ÙŠ Ù„Ø£Ø¹Ø¶Ø§Ø¡ Ø§Ù„Ù…Ù‡Ù† Ø§Ù„Ø·Ø¨ÙŠØ© Ø¨Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª)
 export async function saveTotalMedProfByGovernorate(
     data: Omit<TotalMedicalProfessionalByGovernorate, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
 ): Promise<string | null> {
@@ -3147,6 +3147,99 @@ export async function deleteTotalMedProfByGovernorate(id: string): Promise<boole
         return true;
     } catch (error) {
         console.error('Error deleting total medical professional by governorate:', error);
+        return false;
+    }
+}
+
+
+// Reports Presented to Committee (التقارير المعروضة على اللجنة وفقا لنوع القرار)
+export interface ReportPresentedToCommittee {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    committeeDecisionType: string;  // نوع القرار (Dropdown)
+    numberOfDecisions: number;  // عدد القرارات
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export async function saveReportPresentedToCommittee(
+    reportData: Omit<ReportPresentedToCommittee, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const reportsRef = collection(db, 'reports_presented_to_committee');
+        const docRef = await addDoc(reportsRef, {
+            ...reportData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving report presented to committee:', error);
+        return null;
+    }
+}
+
+export async function getReportsPresentedToCommittee(month?: string): Promise<ReportPresentedToCommittee[]> {
+    try {
+        const reportsRef = collection(db, 'reports_presented_to_committee');
+        let q;
+
+        if (month) {
+            q = query(reportsRef, where('month', '==', month));
+        } else {
+            q = query(reportsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let reports = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as ReportPresentedToCommittee));
+
+        if (month) {
+            reports.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return reports;
+    } catch (error) {
+        console.error('Error getting reports presented to committee:', error);
+        return [];
+    }
+}
+
+export async function updateReportPresentedToCommittee(
+    id: string,
+    updates: Partial<ReportPresentedToCommittee> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const reportRef = doc(db, 'reports_presented_to_committee', id);
+        await setDoc(reportRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating report presented to committee:', error);
+        return false;
+    }
+}
+
+export async function deleteReportPresentedToCommittee(id: string): Promise<boolean> {
+    try {
+        const reportRef = doc(db, 'reports_presented_to_committee', id);
+        await deleteDoc(reportRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting report presented to committee:', error);
         return false;
     }
 }
