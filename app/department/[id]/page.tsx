@@ -1855,13 +1855,21 @@ export default function DepartmentPage() {
 
         try {
             const [year, month] = adminAuditObservationFormData.month.split('-');
+            const isQuarterEnd = ['03', '06', '09', '12'].includes(month);
+
+            if (isQuarterEnd && !adminAuditObservationFormData.percentage) {
+                alert('يرجى إدخال نسبة الملاحظات، حيث أنها إلزامية في نهاية كل ربع سنوي (مارس، يونيو، سبتمبر، ديسمبر).');
+                return;
+            }
+
+            const percentageValue = parseFloat(adminAuditObservationFormData.percentage) || 0;
 
             if (editingAdminAuditObservationId) {
                 await updateAdminAuditObservation(editingAdminAuditObservationId, {
                     entityType: adminAuditObservationFormData.entityType,
                     facilityType: adminAuditObservationFormData.facilityType,
                     observation: adminAuditObservationFormData.observation,
-                    percentage: parseFloat(adminAuditObservationFormData.percentage),
+                    percentage: percentageValue,
                     month: adminAuditObservationFormData.month,
                     year: parseInt(year),
                     updatedBy: currentUser.id
@@ -1875,7 +1883,7 @@ export default function DepartmentPage() {
                     entityType: adminAuditObservationFormData.entityType,
                     facilityType: adminAuditObservationFormData.facilityType,
                     observation: adminAuditObservationFormData.observation,
-                    percentage: parseFloat(adminAuditObservationFormData.percentage),
+                    percentage: percentageValue,
                     month: adminAuditObservationFormData.month,
                     year: parseInt(year),
                     createdBy: currentUser.id,
@@ -12406,11 +12414,13 @@ export default function DepartmentPage() {
                                                 </div>
 
                                                 <div className="form-group">
-                                                    <label className="form-label">نسبة الملاحظات (%) *</label>
+                                                    <label className="form-label">
+                                                        نسبة الملاحظات (%) {['03', '06', '09', '12'].includes(adminAuditObservationFormData.month.split('-')[1]) && '*'}
+                                                    </label>
                                                     <input
                                                         type="number"
                                                         className="form-input"
-                                                        required
+                                                        required={['03', '06', '09', '12'].includes(adminAuditObservationFormData.month.split('-')[1])}
                                                         min="0"
                                                         max="100"
                                                         step="0.1"
