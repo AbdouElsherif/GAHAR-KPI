@@ -1563,7 +1563,7 @@ export default function DepartmentPage() {
             entityType: observation.entityType,
             facilityType: observation.facilityType,
             observation: observation.observation,
-            percentage: observation.percentage.toString(),
+            percentage: observation.percentage?.toString() || '',
             month: observation.month
         });
         setEditingTechnicalClinicalObservationId(observation.id || null);
@@ -1601,7 +1601,7 @@ export default function DepartmentPage() {
                 'الجهة التابعة': observation.entityType,
                 'نوع المنشأة': observation.facilityType,
                 'دليل التطابق / الملاحظة': observation.observation,
-                'النسبة': `${observation.percentage}%`
+                'النسبة': observation.percentage !== undefined && observation.percentage !== null ? `${observation.percentage}%` : '-'
             };
         });
 
@@ -1622,7 +1622,7 @@ export default function DepartmentPage() {
             const [year, month] = observation.month.split('-');
             return new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: `${observation.percentage}%`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: observation.percentage !== undefined && observation.percentage !== null ? `${observation.percentage}%` : '-', alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: observation.observation, alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: observation.facilityType, alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: observation.entityType, alignment: AlignmentType.RIGHT })] }),
@@ -1862,33 +1862,54 @@ export default function DepartmentPage() {
                 return;
             }
 
-            const percentageValue = parseFloat(adminAuditObservationFormData.percentage) || 0;
+            const percentageRaw = adminAuditObservationFormData.percentage;
+            const percentageValue = (percentageRaw !== '' && percentageRaw !== undefined)
+                ? parseFloat(percentageRaw)
+                : undefined;
 
             if (editingAdminAuditObservationId) {
-                await updateAdminAuditObservation(editingAdminAuditObservationId, {
+                const updates: any = {
                     entityType: adminAuditObservationFormData.entityType,
                     facilityType: adminAuditObservationFormData.facilityType,
                     observation: adminAuditObservationFormData.observation,
-                    percentage: percentageValue,
                     month: adminAuditObservationFormData.month,
                     year: parseInt(year),
                     updatedBy: currentUser.id
-                });
+                };
+
+                if (percentageValue !== undefined) {
+                    updates.percentage = percentageValue;
+                } else {
+                    // To remove the field in Firestore use a sentinel or just don't include it if it's missing
+                    // Since it's a Partial, Firestore set(merge: true) won't delete it.
+                    // But for AdminAuditObservation interface it's optional.
+                    // We can use delete field if needed, but for now let's just use 0 if we must, 
+                    // but the user want NOTHING in the table. 
+                    // If I send null, it might work if I update the interface to allow null.
+                    updates.percentage = null;
+                }
+
+                await updateAdminAuditObservation(editingAdminAuditObservationId, updates);
                 setAdminAuditObservationSubmitted(true);
                 setTimeout(() => setAdminAuditObservationSubmitted(false), 3000);
                 resetAdminAuditObservationForm();
                 await loadAdminAuditObservations();
             } else {
-                const docId = await saveAdminAuditObservation({
+                const data: any = {
                     entityType: adminAuditObservationFormData.entityType,
                     facilityType: adminAuditObservationFormData.facilityType,
                     observation: adminAuditObservationFormData.observation,
-                    percentage: percentageValue,
                     month: adminAuditObservationFormData.month,
                     year: parseInt(year),
                     createdBy: currentUser.id,
                     updatedBy: currentUser.id
-                });
+                };
+
+                if (percentageValue !== undefined) {
+                    data.percentage = percentageValue;
+                }
+
+                const docId = await saveAdminAuditObservation(data);
 
                 if (docId) {
                     setAdminAuditObservationSubmitted(true);
@@ -1907,7 +1928,7 @@ export default function DepartmentPage() {
             entityType: observation.entityType,
             facilityType: observation.facilityType,
             observation: observation.observation,
-            percentage: observation.percentage.toString(),
+            percentage: observation.percentage?.toString() || '',
             month: observation.month
         });
         setEditingAdminAuditObservationId(observation.id || null);
@@ -10098,16 +10119,18 @@ export default function DepartmentPage() {
                                                                 {observation.observation}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.9rem',
-                                                                    fontWeight: 'bold',
-                                                                    backgroundColor: observation.percentage > 30 ? '#f8d7da' : observation.percentage >= 20 ? '#fff3cd' : '#d4edda',
-                                                                    color: observation.percentage > 30 ? '#721c24' : observation.percentage >= 20 ? '#856404' : '#155724'
-                                                                }}>
-                                                                    {observation.percentage}%
-                                                                </span>
+                                                                {observation.percentage !== undefined && observation.percentage !== null ? (
+                                                                    <span style={{
+                                                                        padding: '4px 12px',
+                                                                        borderRadius: '12px',
+                                                                        fontSize: '0.9rem',
+                                                                        fontWeight: 'bold',
+                                                                        backgroundColor: (observation.percentage || 0) > 30 ? '#f8d7da' : (observation.percentage || 0) >= 20 ? '#fff3cd' : '#d4edda',
+                                                                        color: (observation.percentage || 0) > 30 ? '#721c24' : (observation.percentage || 0) >= 20 ? '#856404' : '#155724'
+                                                                    }}>
+                                                                        {observation.percentage}%
+                                                                    </span>
+                                                                ) : '-'}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 {observation.month}
@@ -12540,16 +12563,18 @@ export default function DepartmentPage() {
                                                                 {observation.observation}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                <span style={{
-                                                                    padding: '4px 12px',
-                                                                    borderRadius: '12px',
-                                                                    fontSize: '0.9rem',
-                                                                    fontWeight: 'bold',
-                                                                    backgroundColor: observation.percentage > 30 ? '#f8d7da' : observation.percentage >= 20 ? '#fff3cd' : '#d4edda',
-                                                                    color: observation.percentage > 30 ? '#721c24' : observation.percentage >= 20 ? '#856404' : '#155724'
-                                                                }}>
-                                                                    {observation.percentage}%
-                                                                </span>
+                                                                {observation.percentage !== undefined && observation.percentage !== null ? (
+                                                                    <span style={{
+                                                                        padding: '4px 12px',
+                                                                        borderRadius: '12px',
+                                                                        fontSize: '0.9rem',
+                                                                        fontWeight: 'bold',
+                                                                        backgroundColor: (observation.percentage || 0) > 30 ? '#f8d7da' : (observation.percentage || 0) >= 20 ? '#fff3cd' : '#d4edda',
+                                                                        color: (observation.percentage || 0) > 30 ? '#721c24' : (observation.percentage || 0) >= 20 ? '#856404' : '#155724'
+                                                                    }}>
+                                                                        {observation.percentage}%
+                                                                    </span>
+                                                                ) : '-'}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 {observation.month}
