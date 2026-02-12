@@ -1938,7 +1938,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     { key: 'qpi', label: 'QPI', desc: 'تحسين الجودة والأداء' },
                     { key: 'mrs', label: 'MRS', desc: 'خدمات الأشعة الطبية' },
                     { key: 'scm', label: 'SCM', desc: 'إدارة سلاسل الإمداد' },
-                    { key: 'ems', label: 'EMS', desc: 'خدمات الطوارئ' }
+                    { key: 'ems', label: 'EMS', desc: 'إدارة خدمات الطوارئ والمرونة المؤسسية' },
+                    { key: 'pcs', label: 'PCS', desc: 'معايير العيادات الخاصة' },
+                    { key: 'cps', label: 'CPS', desc: 'معايير الصيدليات العامة' }
                 ];
 
                 const renderSmartTable = (title: string, color: string, rates: any[]) => {

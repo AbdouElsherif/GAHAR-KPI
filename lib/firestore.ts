@@ -336,7 +336,7 @@ export interface ObservationCorrectionRate {
     mrsTotal: number;
     scmTotal: number;
     emsTotal: number;
-    // Ø¨ÙŠØ§Ù†Ø§Øª ÙƒÙ„ Ù…Ø¹ÙŠØ§Ø± - Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØµØ­Ø­Ø©
+    // بيانات كل معيار - عدد الملاحظات المصححة
     pccCorrected: number;
     efsCorrected: number;
     ogmCorrected: number;
@@ -347,6 +347,10 @@ export interface ObservationCorrectionRate {
     mrsCorrected: number;
     scmCorrected: number;
     emsCorrected: number;
+    pcsTotal: number;
+    pcsCorrected: number;
+    cpsTotal: number;
+    cpsCorrected: number;
     createdAt?: Date;
     createdBy?: string;
     updatedAt?: Date;
@@ -2134,6 +2138,10 @@ export async function getObservationCorrectionRates(
                 mrsCorrected: data.mrsCorrected || 0,
                 scmCorrected: data.scmCorrected || 0,
                 emsCorrected: data.emsCorrected || 0,
+                pcsTotal: data.pcsTotal || 0,
+                pcsCorrected: data.pcsCorrected || 0,
+                cpsTotal: data.cpsTotal || 0,
+                cpsCorrected: data.cpsCorrected || 0,
                 createdAt: data.createdAt?.toDate(),
                 createdBy: data.createdBy,
                 updatedAt: data.updatedAt?.toDate(),
