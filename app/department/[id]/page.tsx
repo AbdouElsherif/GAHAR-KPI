@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
@@ -21,19 +22,53 @@ import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType, BorderStyle, HeadingLevel } from 'docx';
 import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
-import TrainingDashboard from '@/components/TrainingDashboard';
-import TechnicalSupportDashboard from '@/components/TechnicalSupportDashboard';
-import CustomerSatisfactionDashboard from '@/components/CustomerSatisfactionDashboard';
-import TechnicalClinicalDashboard from '@/components/TechnicalClinicalDashboard';
-import AdminAuditDashboard from '@/components/AdminAuditDashboard';
-import AccreditationDashboard from '@/components/AccreditationDashboard';
-import MedicalProfessionalsDashboard from '@/components/MedicalProfessionalsDashboard';
-import ReviewersDashboard from '@/components/ReviewersDashboard';
-import StandardsDashboard from '@/components/StandardsDashboard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { ProgramTypesSection } from '@/components/dept1';
 import { GovernorateCustomerSurveysSection } from '@/components/dept3';
 import { committeeDecisionTypes } from '@/constants/committeeDecisionTypes';
+
+// Dynamic Imports - Dashboards loaded only when opened (reduces initial bundle by ~750KB)
+const DashboardLoadingSpinner = () => (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '60px 0' }}>
+        <div style={{ textAlign: 'center' }}>
+            <div style={{
+                width: '40px', height: '40px', border: '4px solid #e0e0e0',
+                borderTop: '4px solid #1976d2', borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite', margin: '0 auto 12px'
+            }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <p style={{ color: '#666', fontSize: '14px' }}>جاري تحميل لوحة البيانات...</p>
+        </div>
+    </div>
+);
+
+const TrainingDashboard = dynamic(() => import('@/components/TrainingDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const TechnicalSupportDashboard = dynamic(() => import('@/components/TechnicalSupportDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const CustomerSatisfactionDashboard = dynamic(() => import('@/components/CustomerSatisfactionDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const TechnicalClinicalDashboard = dynamic(() => import('@/components/TechnicalClinicalDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const AdminAuditDashboard = dynamic(() => import('@/components/AdminAuditDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const AccreditationDashboard = dynamic(() => import('@/components/AccreditationDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const MedicalProfessionalsDashboard = dynamic(() => import('@/components/MedicalProfessionalsDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const ReviewersDashboard = dynamic(() => import('@/components/ReviewersDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
+const StandardsDashboard = dynamic(() => import('@/components/StandardsDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
 
 
 const departments: Record<string, string> = {
