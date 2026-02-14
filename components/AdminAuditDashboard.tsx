@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Cell } from 'recharts';
 
 import { AdminAuditFacility, AdminAuditObservation, ObservationCorrectionRate } from '@/lib/firestore';
 
@@ -717,59 +717,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--text-color)' }}>📈 الرسوم البيانية</h3>
 
-                <div style={{
-                    backgroundColor: 'var(--card-bg)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px',
-                    border: '1px solid var(--border-color)'
-                }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة إجمالي الزيارات الميدانية - رسم بياني خطي</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={prepareChartData()}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                            <XAxis dataKey="period" stroke="var(--text-color)" />
-                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey={`إجمالي زيارات ${targetYear}`}
-                                stroke="#0eacb8"
-                                strokeWidth={2}
-                                dot={{ fill: '#0eacb8', r: 4 }}
-                            >
-                                <LabelList
-                                    dataKey={`إجمالي زيارات ${targetYear}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Line>
-                            <Line
-                                type="monotone"
-                                dataKey={`إجمالي زيارات ${targetYear - 1}`}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={{ fill: '#999', r: 3 }}
-                            >
-                                <LabelList
-                                    dataKey={`إجمالي زيارات ${targetYear - 1}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Line>
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+
 
                 <div style={{
                     backgroundColor: 'var(--card-bg)',
@@ -946,15 +894,15 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
                                     {(() => {
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const year = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                        return `${monthNames[selectedMonth - 1]} ${year}`;
+                                        const yearRange = `${targetYear - 1} - ${targetYear}`;
+                                        return `${monthNames[selectedMonth - 1]} (${yearRange})`;
                                     })()}
                                 </th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
                                     {(() => {
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const year = selectedMonth >= 7 ? targetYear - 2 : targetYear - 1;
-                                        return `${monthNames[selectedMonth - 1]} ${year}`;
+                                        const yearRange = `${targetYear - 2} - ${targetYear - 1}`;
+                                        return `${monthNames[selectedMonth - 1]} (${yearRange})`;
                                     })()}
                                 </th>
                             </tr>

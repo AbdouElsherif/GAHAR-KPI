@@ -726,7 +726,7 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                         <BarChart data={chartData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                             <XAxis dataKey="period" stroke="var(--text-color)" />
-                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
+                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, 90]} />
                             <Tooltip
                                 contentStyle={{
                                     backgroundColor: 'var(--card-bg)',
