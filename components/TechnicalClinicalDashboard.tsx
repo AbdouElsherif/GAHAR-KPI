@@ -852,7 +852,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         border: '1px solid var(--border-color)',
                                                         borderRadius: '8px'
                                                     }}
-                                                    formatter={(value: number) => [`${value} زيارة`, 'العدد']}
+                                                    labelFormatter={() => ''}
+                                                    formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.name}: `]}
                                                 />
                                                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                                                     {assessmentData.map((entry, index) => (
@@ -887,7 +888,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                     backgroundColor: '#0d6a79',
                                                     borderRadius: '4px'
                                                 }}></div>
-                                                <span style={{ fontWeight: 'bold' }}>تدقيق فني: {technicalAudit}</span>
+                                                <span style={{ fontWeight: 'bold' }}>تدقيق فني</span>
                                             </div>
                                             <div style={{
                                                 display: 'flex',
@@ -900,7 +901,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                     backgroundColor: '#ffc658',
                                                     borderRadius: '4px'
                                                 }}></div>
-                                                <span style={{ fontWeight: 'bold' }}>تقييم فني: {technicalAssessment}</span>
+                                                <span style={{ fontWeight: 'bold' }}>تقييم فني</span>
                                             </div>
                                         </div>
                                     </div>
@@ -985,7 +986,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         border: '1px solid var(--border-color)',
                                                         borderRadius: '8px'
                                                     }}
-                                                    formatter={(value: number) => [`${value} زيارة`, 'العدد']}
+                                                    labelFormatter={() => ''}
+                                                    formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.name}: `]}
                                                 />
                                                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                                                     {facilityTypeData.map((entry, index) => (
@@ -1028,7 +1030,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         backgroundColor: item.color,
                                                         borderRadius: '3px'
                                                     }}></div>
-                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1101,21 +1103,14 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                     <div style={{ flex: 1 }}>
                                         <ResponsiveContainer width="100%" height={280}>
                                             <BarChart data={governorateData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                                                <XAxis
-                                                    dataKey="name"
-                                                    stroke="var(--text-color)"
-                                                    tick={false}
-                                                    axisLine={false}
-                                                />
-                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, 15]} />
                                                 <Tooltip
                                                     contentStyle={{
                                                         backgroundColor: 'var(--card-bg)',
                                                         border: '1px solid var(--border-color)',
                                                         borderRadius: '8px'
                                                     }}
-                                                    formatter={(value: number) => [`${value} زيارة`, 'العدد']}
+                                                    labelFormatter={() => ''}
+                                                    formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.name}: `]}
                                                 />
                                                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                                                     {governorateData.map((entry, index) => (
@@ -1159,7 +1154,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                     backgroundColor: item.color,
                                                     borderRadius: '3px'
                                                 }}></div>
-                                                <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                                <span style={{ fontSize: '0.85rem' }}>{item.name}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -1329,7 +1324,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         border: '1px solid var(--border-color)',
                                                         borderRadius: '8px'
                                                     }}
-                                                    formatter={(value: number) => [`${value} ملاحظة`, 'العدد']}
+                                                    labelFormatter={() => ''}
+                                                    formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.name}: `]}
                                                 />
                                                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                                                     {facilityTypeData.map((entry, index) => (
@@ -1372,7 +1368,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         backgroundColor: item.color,
                                                         borderRadius: '3px'
                                                     }}></div>
-                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1413,7 +1409,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         border: '1px solid var(--border-color)',
                                                         borderRadius: '8px'
                                                     }}
-                                                    formatter={(value: number, name: string, props: any) => [`${value} ملاحظة`, props.payload.fullName]}
+                                                    labelFormatter={() => ''}
+                                                    formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.fullName}: `]}
                                                 />
                                                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                                                     {entityTypeData.map((entry, index) => (
@@ -1456,7 +1453,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                         backgroundColor: item.color,
                                                         borderRadius: '3px'
                                                     }}></div>
-                                                    <span style={{ fontSize: '0.85rem' }}>{item.fullName}: {item.value}</span>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.fullName}</span>
                                                 </div>
                                             ))}
                                         </div>

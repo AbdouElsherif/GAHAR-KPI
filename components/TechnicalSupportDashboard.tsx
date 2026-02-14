@@ -1124,7 +1124,11 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                                         <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={50} />
                                         <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                                        <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number, name: string, props: any) => [`${value}`, props.payload.fullName]} />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                                            labelFormatter={() => ''}
+                                            formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.fullName}: `]}
+                                        />
                                         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                                             {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
                                             <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
@@ -1238,7 +1242,11 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                                         <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={50} />
                                         <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                                        <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number, name: string, props: any) => [`${value}`, props.payload.fullName]} />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                                            labelFormatter={() => ''}
+                                            formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.fullName}: `]}
+                                        />
                                         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                                             {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
                                             <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
@@ -1352,7 +1360,11 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                                         <XAxis dataKey="name" stroke="var(--text-color)" tick={{ fontSize: 10, dy: 5 }} interval={0} height={50} />
                                         <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                                        <Tooltip contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }} formatter={(value: number, name: string, props: any) => [`${value}`, props.payload.fullName]} />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
+                                            labelFormatter={() => ''}
+                                            formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.fullName}: `]}
+                                        />
                                         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                                             {data.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
                                             <LabelList dataKey="value" position="top" style={{ fontWeight: 'bold', fill: 'var(--text-color)', fontSize: '12px' }} />
