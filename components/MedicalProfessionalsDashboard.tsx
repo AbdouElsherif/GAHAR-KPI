@@ -607,7 +607,7 @@ export default function MedicalProfessionalsDashboard({
                 marginBottom: '35px'
             }}>
                 <KPICard
-                    title="أعضاء مسجلين"
+                    title="عدد أعضاء المهن الطبية المسجلين خلال الشهر"
                     icon="👨‍⚕️"
                     currentValue={currentTotalMembers}
                     previousValue={previousTotalMembers}
@@ -697,7 +697,7 @@ export default function MedicalProfessionalsDashboard({
                             {/* أعضاء مسجلين */}
                             <tr style={{ borderBottom: '1px solid #eee' }}>
                                 <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
-                                    👨‍⚕️ أعضاء مسجلين
+                                    👨‍⚕️ عدد أعضاء المهن الطبية المسجلين خلال الشهر
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
                                     {currentTotalMembers.toLocaleString('en-US')}
