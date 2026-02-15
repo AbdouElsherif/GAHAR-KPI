@@ -163,6 +163,8 @@ export default function MedicalProfessionalsDashboard({
     const aggregateData = useCallback((data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
         const aggregated: Record<string, {
             registeredMembers: number;
+            updatedMembers: number;
+            facilitiesRegistered: number;
             facilitiesUpdated: number;
             count: number;
         }> = {};
@@ -191,12 +193,16 @@ export default function MedicalProfessionalsDashboard({
             if (!aggregated[periodKey]) {
                 aggregated[periodKey] = {
                     registeredMembers: 0,
+                    updatedMembers: 0,
+                    facilitiesRegistered: 0,
                     facilitiesUpdated: 0,
                     count: 0
                 };
             }
 
             aggregated[periodKey].registeredMembers += parseFloat(sub.registeredMembers) || 0;
+            aggregated[periodKey].updatedMembers += parseFloat(sub.updatedMembers) || 0;
+            aggregated[periodKey].facilitiesRegistered += parseFloat(sub.facilitiesRegistered) || 0;
             aggregated[periodKey].facilitiesUpdated += parseFloat(sub.facilitiesUpdated) || 0;
             aggregated[periodKey].count += 1;
         });
@@ -250,9 +256,17 @@ export default function MedicalProfessionalsDashboard({
     const previousTotalMembers = useMemo(() => calculateFilteredTotal(previousAggregated, 'registeredMembers', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
     const membersChange = useMemo(() => calculateChange(currentTotalMembers, previousTotalMembers), [calculateChange, currentTotalMembers, previousTotalMembers]);
 
-    const currentTotalFacilities = useMemo(() => calculateFilteredTotal(currentAggregated, 'facilitiesUpdated', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
-    const previousTotalFacilities = useMemo(() => calculateFilteredTotal(previousAggregated, 'facilitiesUpdated', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
-    const facilitiesChange = useMemo(() => calculateChange(currentTotalFacilities, previousTotalFacilities), [calculateChange, currentTotalFacilities, previousTotalFacilities]);
+    const currentTotalUpdatedMembers = useMemo(() => calculateFilteredTotal(currentAggregated, 'updatedMembers', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalUpdatedMembers = useMemo(() => calculateFilteredTotal(previousAggregated, 'updatedMembers', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const updatedMembersChange = useMemo(() => calculateChange(currentTotalUpdatedMembers, previousTotalUpdatedMembers), [calculateChange, currentTotalUpdatedMembers, previousTotalUpdatedMembers]);
+
+    const currentTotalRegisteredFacilities = useMemo(() => calculateFilteredTotal(currentAggregated, 'facilitiesRegistered', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalRegisteredFacilities = useMemo(() => calculateFilteredTotal(previousAggregated, 'facilitiesRegistered', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const registeredFacilitiesChange = useMemo(() => calculateChange(currentTotalRegisteredFacilities, previousTotalRegisteredFacilities), [calculateChange, currentTotalRegisteredFacilities, previousTotalRegisteredFacilities]);
+
+    const currentTotalUpdatedFacilities = useMemo(() => calculateFilteredTotal(currentAggregated, 'facilitiesUpdated', comparisonType), [calculateFilteredTotal, currentAggregated, comparisonType]);
+    const previousTotalUpdatedFacilities = useMemo(() => calculateFilteredTotal(previousAggregated, 'facilitiesUpdated', comparisonType), [calculateFilteredTotal, previousAggregated, comparisonType]);
+    const updatedFacilitiesChange = useMemo(() => calculateChange(currentTotalUpdatedFacilities, previousTotalUpdatedFacilities), [calculateChange, currentTotalUpdatedFacilities, previousTotalUpdatedFacilities]);
 
 
     const formatPeriodLabel = useCallback((period: string): string => {
@@ -313,7 +327,7 @@ export default function MedicalProfessionalsDashboard({
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
-    const preparePieData = useCallback((metric: 'registeredMembers' | 'facilitiesUpdated') => {
+    const preparePieData = useCallback((metric: 'registeredMembers' | 'updatedMembers' | 'facilitiesRegistered' | 'facilitiesUpdated') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             let currentVal = 0;
             let previousVal = 0;
@@ -323,9 +337,17 @@ export default function MedicalProfessionalsDashboard({
                     currentVal = currentTotalMembers;
                     previousVal = previousTotalMembers;
                     break;
+                case 'updatedMembers':
+                    currentVal = currentTotalUpdatedMembers;
+                    previousVal = previousTotalUpdatedMembers;
+                    break;
+                case 'facilitiesRegistered':
+                    currentVal = currentTotalRegisteredFacilities;
+                    previousVal = previousTotalRegisteredFacilities;
+                    break;
                 case 'facilitiesUpdated':
-                    currentVal = currentTotalFacilities;
-                    previousVal = previousTotalFacilities;
+                    currentVal = currentTotalUpdatedFacilities;
+                    previousVal = previousTotalUpdatedFacilities;
                     break;
             }
 
@@ -352,10 +374,12 @@ export default function MedicalProfessionalsDashboard({
                 value: aggregated[period]?.[metric] || 0
             }));
         }
-    }, [comparisonType, currentTotalMembers, previousTotalMembers, currentTotalFacilities, previousTotalFacilities, targetYear, selectedQuarter, selectedHalf, currentYearData, previousYearData, aggregateData, formatPeriodLabel]);
+    }, [comparisonType, currentTotalMembers, previousTotalMembers, currentTotalUpdatedMembers, previousTotalUpdatedMembers, currentTotalRegisteredFacilities, previousTotalRegisteredFacilities, currentTotalUpdatedFacilities, previousTotalUpdatedFacilities, targetYear, selectedQuarter, selectedHalf, currentYearData, previousYearData, aggregateData, formatPeriodLabel]);
 
     const membersPieData = useMemo(() => preparePieData('registeredMembers'), [preparePieData]);
-    const facilitiesPieData = useMemo(() => preparePieData('facilitiesUpdated'), [preparePieData]);
+    const updatedMembersPieData = useMemo(() => preparePieData('updatedMembers'), [preparePieData]);
+    const registeredFacilitiesPieData = useMemo(() => preparePieData('facilitiesRegistered'), [preparePieData]);
+    const updatedFacilitiesPieData = useMemo(() => preparePieData('facilitiesUpdated'), [preparePieData]);
 
     const prepareChartData = useCallback(() => {
         const currentPeriods = Object.keys(currentAggregated);
@@ -407,10 +431,14 @@ export default function MedicalProfessionalsDashboard({
 
             return {
                 period: formatPeriodLabel(period),
-                [`أعضاء ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.registeredMembers || 0,
-                [`أعضاء ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.registeredMembers || 0,
-                [`منشآت ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.facilitiesUpdated || 0,
-                [`منشآت ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.facilitiesUpdated || 0,
+                [`أعضاء مسجلين ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.registeredMembers || 0,
+                [`أعضاء مسجلين ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.registeredMembers || 0,
+                [`أعضاء محدثين ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.updatedMembers || 0,
+                [`أعضاء محدثين ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.updatedMembers || 0,
+                [`منشآت مسجلة ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.facilitiesRegistered || 0,
+                [`منشآت مسجلة ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.facilitiesRegistered || 0,
+                [`منشآت محدثة ${targetYear - 1} - ${targetYear}`]: currentAggregated[period]?.facilitiesUpdated || 0,
+                [`منشآت محدثة ${targetYear - 2} - ${targetYear - 1}`]: previousAggregated[previousPeriodKey]?.facilitiesUpdated || 0,
             };
         });
     }, [currentAggregated, previousAggregated, comparisonType, selectedMonth, selectedQuarter, selectedHalf, targetYear, formatPeriodLabel]);
@@ -468,6 +496,10 @@ export default function MedicalProfessionalsDashboard({
                     <td style={{ padding: '12px', fontWeight: '500' }}>{formatPeriodLabel(period)}</td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.registeredMembers || 0}</td>
                     <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.registeredMembers || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.updatedMembers || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.updatedMembers || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.facilitiesRegistered || 0}</td>
+                    <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.facilitiesRegistered || 0}</td>
                     <td style={{ padding: '12px', textAlign: 'center' }}>{currentData?.facilitiesUpdated || 0}</td>
                     <td style={{ padding: '12px', textAlign: 'center', color: '#999' }}>{previousData?.facilitiesUpdated || 0}</td>
                 </tr>
@@ -618,14 +650,36 @@ export default function MedicalProfessionalsDashboard({
                     color="#0eacb8"
                 />
                 <KPICard
-                    title="منشآت محدثة"
-                    icon="🏥"
-                    currentValue={currentTotalFacilities}
-                    previousValue={previousTotalFacilities}
-                    changePercentage={facilitiesChange}
+                    title="عدد أعضاء المهن الطبية المحدث بياناتهم"
+                    icon="🔄"
+                    currentValue={currentTotalUpdatedMembers}
+                    previousValue={previousTotalUpdatedMembers}
+                    changePercentage={updatedMembersChange}
                     currentYear={targetYear}
                     previousYear={targetYear - 1}
-                    pieData={facilitiesPieData}
+                    pieData={updatedMembersPieData}
+                    color="#f4a261"
+                />
+                <KPICard
+                    title="عدد المنشآت التي تم تسجيل أعضاء المهن الطبية بها"
+                    icon="🏢"
+                    currentValue={currentTotalRegisteredFacilities}
+                    previousValue={previousTotalRegisteredFacilities}
+                    changePercentage={registeredFacilitiesChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={registeredFacilitiesPieData}
+                    color="#2a9d8f"
+                />
+                <KPICard
+                    title="عدد المنشآت التي تم تحديث أعضاء المهن الطبية بها"
+                    icon="🏥"
+                    currentValue={currentTotalUpdatedFacilities}
+                    previousValue={previousTotalUpdatedFacilities}
+                    changePercentage={updatedFacilitiesChange}
+                    currentYear={targetYear}
+                    previousYear={targetYear - 1}
+                    pieData={updatedFacilitiesPieData}
                     color="#8884d8"
                 />
             </div>
@@ -656,16 +710,30 @@ export default function MedicalProfessionalsDashboard({
                                 }}
                             />
                             <Legend />
-                            <Bar dataKey={`أعضاء ${targetYear - 1} - ${targetYear}`} fill="#0eacb8">
+                            <Bar dataKey={`أعضاء مسجلين ${targetYear - 1} - ${targetYear}`} fill="#0eacb8">
                                 <LabelList
-                                    dataKey={`أعضاء ${targetYear - 1} - ${targetYear}`}
+                                    dataKey={`أعضاء مسجلين ${targetYear - 1} - ${targetYear}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#0eacb8', fontSize: '14px' }}
                                 />
                             </Bar>
-                            <Bar dataKey={`أعضاء ${targetYear - 2} - ${targetYear - 1}`} fill="#a8e6cf">
+                            <Bar dataKey={`أعضاء مسجلين ${targetYear - 2} - ${targetYear - 1}`} fill="#a8e6cf">
                                 <LabelList
-                                    dataKey={`أعضاء ${targetYear - 2} - ${targetYear - 1}`}
+                                    dataKey={`أعضاء مسجلين ${targetYear - 2} - ${targetYear - 1}`}
+                                    position="top"
+                                    style={{ fontWeight: 'bold', fill: '#666', fontSize: '14px' }}
+                                />
+                            </Bar>
+                            <Bar dataKey={`أعضاء محدثين ${targetYear - 1} - ${targetYear}`} fill="#f4a261">
+                                <LabelList
+                                    dataKey={`أعضاء محدثين ${targetYear - 1} - ${targetYear}`}
+                                    position="top"
+                                    style={{ fontWeight: 'bold', fill: '#f4a261', fontSize: '14px' }}
+                                />
+                            </Bar>
+                            <Bar dataKey={`أعضاء محدثين ${targetYear - 2} - ${targetYear - 1}`} fill="#fbd29d">
+                                <LabelList
+                                    dataKey={`أعضاء محدثين ${targetYear - 2} - ${targetYear - 1}`}
                                     position="top"
                                     style={{ fontWeight: 'bold', fill: '#666', fontSize: '14px' }}
                                 />
@@ -723,16 +791,16 @@ export default function MedicalProfessionalsDashboard({
                                 </td>
                             </tr>
 
-                            {/* منشآت تم تسجيل وتحديث أعضاء المهن بها */}
-                            <tr>
+                            {/* أعضاء محدثين */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
                                 <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
-                                    🏥 منشآت تم تسجيل وتحديث أعضاء المهن بها
+                                    🔄 عدد أعضاء المهن الطبية المحدث بياناتهم
                                 </td>
-                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
-                                    {currentTotalFacilities.toLocaleString('en-US')}
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#f4a261' }}>
+                                    {currentTotalUpdatedMembers.toLocaleString('en-US')}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalFacilities.toLocaleString('en-US')}
+                                    {previousTotalUpdatedMembers.toLocaleString('en-US')}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -741,13 +809,71 @@ export default function MedicalProfessionalsDashboard({
                                     backgroundColor: 'rgba(0,0,0,0.02)'
                                 }}>
                                     <span style={{
-                                        color: facilitiesChange >= 0 ? '#28a745' : '#dc3545',
+                                        color: updatedMembersChange >= 0 ? '#28a745' : '#dc3545',
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '5px'
                                     }}>
-                                        {facilitiesChange >= 0 ? '⬆' : '⬇'}
-                                        {Math.abs(facilitiesChange).toFixed(1)}%
+                                        {updatedMembersChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(updatedMembersChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* منشآت تم تسجيل أعضاء المهن بها */}
+                            <tr style={{ borderBottom: '1px solid #eee' }}>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🏢 عدد المنشآت التي تم تسجيل أعضاء المهن الطبية بها
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#2a9d8f' }}>
+                                    {currentTotalRegisteredFacilities.toLocaleString('en-US')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalRegisteredFacilities.toLocaleString('en-US')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: registeredFacilitiesChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {registeredFacilitiesChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(registeredFacilitiesChange).toFixed(1)}%
+                                    </span>
+                                </td>
+                            </tr>
+
+                            {/* منشآت تم تحديث أعضاء المهن بها */}
+                            <tr>
+                                <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
+                                    🏥 عدد المنشآت التي تم تحديث أعضاء المهن الطبية بها
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
+                                    {currentTotalUpdatedFacilities.toLocaleString('en-US')}
+                                </td>
+                                <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
+                                    {previousTotalUpdatedFacilities.toLocaleString('en-US')}
+                                </td>
+                                <td style={{
+                                    padding: '15px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}>
+                                    <span style={{
+                                        color: updatedFacilitiesChange >= 0 ? '#28a745' : '#dc3545',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '5px'
+                                    }}>
+                                        {updatedFacilitiesChange >= 0 ? '⬆' : '⬇'}
+                                        {Math.abs(updatedFacilitiesChange).toFixed(1)}%
                                     </span>
                                 </td>
                             </tr>
@@ -1339,7 +1465,7 @@ export default function MedicalProfessionalsDashboard({
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                أنشطة إضافية - {(() => {
+                                ملخص التقرير الشهري - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
                                 })()} {targetYear}

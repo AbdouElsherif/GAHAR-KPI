@@ -169,10 +169,11 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'registeredMembers', label: 'عدد أعضاء المهن الطبية المسجلين خلال الشهر', type: 'number' },
         { name: 'updatedMembers', label: 'عدد أعضاء المهن الطبية المحدث بياناتهم', type: 'number' },
-        { name: 'facilitiesUpdated', label: 'عدد المنشآت التي تم تسجيل وتحديث أعضاء المهن الطبية بها', type: 'number' },
+        { name: 'facilitiesRegistered', label: 'عدد المنشآت التي تم تسجيل أعضاء المهن الطبية بها', type: 'number' },
+        { name: 'facilitiesUpdated', label: 'عدد المنشآت التي تم تحديث أعضاء المهن الطبية بها', type: 'number' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
-        { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },
+        { name: 'additionalActivities', label: 'ملخص التقرير الشهري', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept8': [
