@@ -317,6 +317,7 @@ export default function DepartmentPage() {
     const fields = departmentFields[id] || [];
 
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
     const [formData, setFormData] = useState<Record<string, string>>({});
 
     // Main data entry section expand/collapse state
@@ -807,6 +808,10 @@ export default function DepartmentPage() {
 
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
+                if (isFirstLoad) {
+                    // Firebase might still be restoring the session
+                    return;
+                }
                 router.push('/login');
                 return;
             }
@@ -815,6 +820,7 @@ export default function DepartmentPage() {
                 return;
             }
             setCurrentUser(user);
+            setIsFirstLoad(false);
 
             // Load KPI data from Firestore
             const kpiData = await getKPIData(id);
@@ -847,7 +853,7 @@ export default function DepartmentPage() {
         });
 
         return () => unsubscribe();
-    }, [id, router]);
+    }, [id, router, isFirstLoad]);
 
     useEffect(() => {
         if (id === 'dept2') {

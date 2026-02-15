@@ -45,18 +45,25 @@ export default function AdminPage() {
         departmentName: ''
     });
 
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
+
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user) => {
             if (!user || user.role !== 'super_admin') {
+                if (!user && isFirstLoad) {
+                    // Firebase might still be restoring the session
+                    return;
+                }
                 router.push('/login');
                 return;
             }
             setCurrentUser(user);
             await loadUsers();
+            setIsFirstLoad(false);
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, isFirstLoad]);
 
     const loadUsers = async () => {
         const usersList = await getUsers();

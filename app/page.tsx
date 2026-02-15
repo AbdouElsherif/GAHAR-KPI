@@ -22,15 +22,20 @@ export default function Home() {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
+
     useEffect(() => {
         // Listen to auth state changes
         const unsubscribe = onAuthChange((user: User | null) => {
             if (!user) {
+                // Only redirect if we've received at least one auth state (which is null)
+                // and it's not the initial state while Firebase is loading persistence
                 router.push('/login');
             } else {
                 setCurrentUser(user);
                 setLoading(false);
             }
+            setIsFirstLoad(false);
         });
 
         return () => unsubscribe();

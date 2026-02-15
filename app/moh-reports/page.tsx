@@ -224,6 +224,7 @@ KPITable.displayName = 'KPITable';
 export default function MOHReportsPage() {
     const router = useRouter();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
     const [loading, setLoading] = useState(true);
     const [kpis, setKPIs] = useState<MOHKPI[]>([]);
     const [selectedYear, setSelectedYear] = useState('2024-2025');
@@ -240,6 +241,10 @@ export default function MOHReportsPage() {
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
             if (!user) {
+                if (isFirstLoad) {
+                    // Firebase might still be restoring the session
+                    return;
+                }
                 router.push('/login');
             } else if (user.role !== 'super_admin') {
                 // Only super_admin can access MOH reports
@@ -249,11 +254,12 @@ export default function MOHReportsPage() {
                 setCurrentUser(user);
                 setLoading(false);
                 await loadKPIs(selectedYear);
+                setIsFirstLoad(false);
             }
         });
 
         return () => unsubscribe();
-    }, [router, loadKPIs, selectedYear]);
+    }, [router, loadKPIs, selectedYear, isFirstLoad]);
 
     useEffect(() => {
         if (currentUser) {

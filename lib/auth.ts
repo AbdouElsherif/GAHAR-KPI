@@ -207,6 +207,7 @@ export async function login(email: string, password: string, rememberMe: boolean
     try {
         // Set persistence before login
         await setRememberMe(rememberMe);
+        logger.log('Persistence set to:', rememberMe ? 'LOCAL' : 'SESSION');
 
         logger.log('Attempting login for:', email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
