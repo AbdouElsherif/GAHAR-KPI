@@ -22,12 +22,19 @@ interface ReportPresentedToCommittee {
     year: number;
 }
 
-
+interface ReportByFacilitySpecialty {
+    id?: string;
+    month: string;
+    facilitySpecialty: string;
+    numberOfReports: number;
+    year: number;
+}
 
 interface ReviewersDashboardProps {
     submissions: Array<Record<string, any>>;
     evaluationVisits: ReviewerEvaluationVisit[];
     reportsToCommitteeData?: ReportPresentedToCommittee[];
+    reportsBySpecialtyData?: ReportByFacilitySpecialty[];
     governorateVisits?: any[]; // Deprecated, computed from evaluationVisits
     visitTypeVisits?: any[]; // Deprecated, computed from evaluationVisits
 }
@@ -36,6 +43,7 @@ export default function ReviewersDashboard({
     submissions,
     evaluationVisits,
     reportsToCommitteeData = [],
+    reportsBySpecialtyData = [],
     governorateVisits,
     visitTypeVisits
 }: ReviewersDashboardProps) {
@@ -43,6 +51,8 @@ export default function ReviewersDashboard({
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
+    const [reportsChartView, setReportsChartView] = useState<'byDecisionType' | 'bySpecialty'>('byDecisionType');
+    const [visitsChartView, setVisitsChartView] = useState<'byFacilityType' | 'byGovernorate' | 'byVisitType'>('byFacilityType');
     const [selectedMonth, setSelectedMonth] = useState<number>(10);
 
     const getFiscalYear = (dateStr: string): number => {
@@ -70,7 +80,7 @@ export default function ReviewersDashboard({
         return month >= 7 ? 1 : 2;
     };
 
-    const filterReports = (reports: ReportPresentedToCommittee[], year: number) => {
+    const filterReports = (reports: any[], year: number) => {
         return reports.filter(report => {
             const fiscalYear = getFiscalYear(report.month);
             if (fiscalYear !== year) return false;
@@ -931,7 +941,7 @@ export default function ReviewersDashboard({
                 </div>
             )}
 
-            {/* Evaluation Visits by Facility Type Chart */}
+            {/* الزيارات التقييمية - قسم موحد مع أزرار تنقل */}
             {evaluationVisits && evaluationVisits.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
@@ -941,9 +951,11 @@ export default function ReviewersDashboard({
                         border: '2px solid #17a2b8',
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                     }}>
+                        {/* العنوان */}
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '10px',
                             marginBottom: '20px',
                             paddingBottom: '15px',
@@ -952,349 +964,485 @@ export default function ReviewersDashboard({
                             <span style={{ fontSize: '1.5rem' }}>📊</span>
                             <h3 style={{
                                 margin: 0,
-                                color: '#0c5460',
+                                color: 'var(--text-color)',
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                الزيارات التقييمية وفقا لنوع المنشأة
+                                الزيارات التقييمية
                             </h3>
                         </div>
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart
-                                data={(() => {
-                                    const filtered = filterEvaluationVisits(evaluationVisits);
-                                    const counts = filtered.reduce((acc, visit) => {
-                                        const type = visit.facilityType || 'غير محدد';
-                                        acc[type] = (acc[type] || 0) + 1;
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    return Object.entries(counts).map(([name, count]) => ({
-                                        name,
-                                        'عدد الزيارات': count
-                                    }));
-                                })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="name"
-                                    height={40}
-                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
-                                />
-                                <YAxis
-                                    label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
-                                    style={{ fontSize: '0.9rem' }}
-                                    tick={false}
-                                    axisLine={false}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #17a2b8',
-                                        borderRadius: '8px',
-                                        padding: '10px'
-                                    }}
-                                />
-                                <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
-                                    <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {Object.keys(evaluationVisits.reduce((acc, visit) => {
-                                        const type = visit.facilityType || 'غير محدد';
-                                        acc[type] = true;
-                                        return acc;
-                                    }, {} as Record<string, boolean>)).map((_, index) => {
-                                        const colors = ['#17a2b8', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
-                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                    })}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
+
+                        {/* أزرار التنقل */}
                         <div style={{
-                            marginTop: '15px',
-                            padding: '15px',
-                            backgroundColor: '#d1ecf1',
-                            borderRadius: '8px',
-                            textAlign: 'center'
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            marginBottom: '25px',
+                            flexWrap: 'wrap'
                         }}>
-                            <strong style={{ color: '#0c5460' }}>
-                                إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
-                            </strong>
+                            <button
+                                onClick={() => setVisitsChartView('byFacilityType')}
+                                style={{
+                                    padding: '10px 24px',
+                                    borderRadius: '25px',
+                                    border: '2px solid #17a2b8',
+                                    backgroundColor: visitsChartView === 'byFacilityType' ? '#17a2b8' : 'transparent',
+                                    color: visitsChartView === 'byFacilityType' ? 'white' : '#17a2b8',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                حسب نوع المنشأة
+                            </button>
+                            <button
+                                onClick={() => setVisitsChartView('byGovernorate')}
+                                style={{
+                                    padding: '10px 24px',
+                                    borderRadius: '25px',
+                                    border: '2px solid #17a2b8',
+                                    backgroundColor: visitsChartView === 'byGovernorate' ? '#17a2b8' : 'transparent',
+                                    color: visitsChartView === 'byGovernorate' ? 'white' : '#17a2b8',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                حسب المحافظة
+                            </button>
+                            <button
+                                onClick={() => setVisitsChartView('byVisitType')}
+                                style={{
+                                    padding: '10px 24px',
+                                    borderRadius: '25px',
+                                    border: '2px solid #17a2b8',
+                                    backgroundColor: visitsChartView === 'byVisitType' ? '#17a2b8' : 'transparent',
+                                    color: visitsChartView === 'byVisitType' ? 'white' : '#17a2b8',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                حسب نوع الزيارة
+                            </button>
                         </div>
+
+                        {/* الرسم البياني - حسب نوع المنشأة */}
+                        {visitsChartView === 'byFacilityType' && (
+                            <>
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <BarChart
+                                        data={(() => {
+                                            const filtered = filterEvaluationVisits(evaluationVisits);
+                                            const counts = filtered.reduce((acc, visit) => {
+                                                const type = visit.facilityType || 'غير محدد';
+                                                acc[type] = (acc[type] || 0) + (parseInt(visit.facilityName || '0') || 0);
+                                                return acc;
+                                            }, {} as Record<string, number>);
+                                            return Object.entries(counts).map(([name, count]) => ({
+                                                name,
+                                                'عدد الزيارات': count
+                                            }));
+                                        })()}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="name"
+                                            height={40}
+                                            style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                        />
+                                        <YAxis
+                                            label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
+                                            style={{ fontSize: '0.9rem' }}
+                                            tick={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #17a2b8',
+                                                borderRadius: '8px',
+                                                padding: '10px'
+                                            }}
+                                        />
+                                        <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
+                                            <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                            {Object.keys(evaluationVisits.reduce((acc, visit) => {
+                                                const type = visit.facilityType || 'غير محدد';
+                                                acc[type] = true;
+                                                return acc;
+                                            }, {} as Record<string, boolean>)).map((_, index) => {
+                                                const colors = ['#17a2b8', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                <div style={{
+                                    marginTop: '15px',
+                                    padding: '15px',
+                                    backgroundColor: '#d1ecf1',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <strong style={{ color: '#0c5460' }}>
+                                        إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).reduce((sum, v) => sum + (parseInt(v.facilityName || '0') || 0), 0)} زيارة
+                                    </strong>
+                                </div>
+                            </>
+                        )}
+
+                        {/* الرسم البياني - حسب المحافظة */}
+                        {visitsChartView === 'byGovernorate' && (
+                            <>
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <BarChart
+                                        data={(() => {
+                                            const filtered = filterEvaluationVisits(evaluationVisits);
+                                            const counts = filtered.reduce((acc, visit) => {
+                                                const gov = visit.governorate || 'غير محدد';
+                                                acc[gov] = (acc[gov] || 0) + (parseInt(visit.facilityName || '0') || 0);
+                                                return acc;
+                                            }, {} as Record<string, number>);
+                                            return Object.entries(counts).map(([name, count]) => ({
+                                                name,
+                                                'عدد الزيارات': count
+                                            }));
+                                        })()}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="name"
+                                            height={40}
+                                            style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                        />
+                                        <YAxis
+                                            label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
+                                            style={{ fontSize: '0.9rem' }}
+                                            tick={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #17a2b8',
+                                                borderRadius: '8px',
+                                                padding: '10px'
+                                            }}
+                                        />
+                                        <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
+                                            <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                            {Object.keys(evaluationVisits.reduce((acc, visit) => {
+                                                const gov = visit.governorate || 'غير محدد';
+                                                acc[gov] = true;
+                                                return acc;
+                                            }, {} as Record<string, boolean>)).map((_, index) => {
+                                                const colors = ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                <div style={{
+                                    marginTop: '15px',
+                                    padding: '15px',
+                                    backgroundColor: '#d1ecf1',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <strong style={{ color: '#0c5460' }}>
+                                        إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).reduce((sum, v) => sum + (parseInt(v.facilityName || '0') || 0), 0)} زيارة
+                                    </strong>
+                                </div>
+                            </>
+                        )}
+
+                        {/* الرسم البياني - حسب نوع الزيارة */}
+                        {visitsChartView === 'byVisitType' && (
+                            <>
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <BarChart
+                                        data={(() => {
+                                            const filtered = filterEvaluationVisits(evaluationVisits);
+                                            const counts = filtered.reduce((acc, visit) => {
+                                                const type = visit.visitType || 'غير محدد';
+                                                acc[type] = (acc[type] || 0) + (parseInt(visit.facilityName || '0') || 0);
+                                                return acc;
+                                            }, {} as Record<string, number>);
+                                            return Object.entries(counts).map(([type, count]) => ({
+                                                'نوع الزيارة': type,
+                                                'عدد الزيارات': count
+                                            }));
+                                        })()}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="نوع الزيارة"
+                                            height={40}
+                                            style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                        />
+                                        <YAxis
+                                            label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
+                                            style={{ fontSize: '0.9rem' }}
+                                            tick={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #17a2b8',
+                                                borderRadius: '8px',
+                                                padding: '10px'
+                                            }}
+                                        />
+                                        <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
+                                            <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                            {Object.keys(evaluationVisits.reduce((acc, visit) => {
+                                                const type = visit.visitType || 'غير محدد';
+                                                acc[type] = true;
+                                                return acc;
+                                            }, {} as Record<string, boolean>)).map((_, index) => {
+                                                const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                <div style={{
+                                    marginTop: '15px',
+                                    padding: '15px',
+                                    backgroundColor: '#d1ecf1',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <strong style={{ color: '#0c5460' }}>
+                                        إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).reduce((sum, v) => sum + (parseInt(v.facilityName || '0') || 0), 0)} زيارة
+                                    </strong>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* Governorate Visits Chart */}
-            {evaluationVisits && evaluationVisits.length > 0 && (
+            {/* التقارير المعروضة على اللجنة - قسم موحد مع أزرار تنقل */}
+            {((reportsToCommitteeData && reportsToCommitteeData.length > 0) || (reportsBySpecialtyData && reportsBySpecialtyData.length > 0)) && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
                         borderRadius: '12px',
                         padding: '25px',
-                        border: '2px solid #28a745',
+                        border: '2px solid #0eacb8',
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                     }}>
+                        {/* العنوان */}
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '10px',
                             marginBottom: '20px',
                             paddingBottom: '15px',
-                            borderBottom: '2px solid #28a745'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>📍</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#155724',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                الزيارات التقييمية وفقا للمحافظة
-                            </h3>
-                        </div>
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart
-                                data={(() => {
-                                    const filtered = filterEvaluationVisits(evaluationVisits);
-                                    const counts = filtered.reduce((acc, visit) => {
-                                        const gov = visit.governorate || 'غير محدد';
-                                        acc[gov] = (acc[gov] || 0) + 1;
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    return Object.entries(counts).map(([name, count]) => ({
-                                        name,
-                                        'عدد الزيارات': count
-                                    }));
-                                })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="name"
-                                    height={40}
-                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
-                                />
-                                <YAxis
-                                    label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
-                                    style={{ fontSize: '0.9rem' }}
-                                    tick={false}
-                                    axisLine={false}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #28a745',
-                                        borderRadius: '8px',
-                                        padding: '10px'
-                                    }}
-                                />
-                                <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
-                                    <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {Object.keys(evaluationVisits.reduce((acc, visit) => {
-                                        const gov = visit.governorate || 'غير محدد';
-                                        acc[gov] = true;
-                                        return acc;
-                                    }, {} as Record<string, boolean>)).map((_, index) => {
-                                        const colors = ['#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
-                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                    })}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                        <div style={{
-                            marginTop: '15px',
-                            padding: '15px',
-                            backgroundColor: '#d4edda',
-                            borderRadius: '8px',
-                            textAlign: 'center'
-                        }}>
-                            <strong style={{ color: '#155724' }}>
-                                إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
-                            </strong>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Evaluation Visits by Visit Type - الزيارات التقييمية وفقا لنوع الزيارة */}
-            {evaluationVisits && evaluationVisits.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #007bff',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #007bff'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>📊</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#0056b3',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                الزيارات التقييمية وفقا لنوع الزيارة
-                            </h3>
-                        </div>
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart
-                                data={(() => {
-                                    const filtered = filterEvaluationVisits(evaluationVisits);
-                                    const counts = filtered.reduce((acc, visit) => {
-                                        const type = visit.visitType || 'غير محدد';
-                                        acc[type] = (acc[type] || 0) + 1;
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    return Object.entries(counts).map(([type, count]) => ({
-                                        'نوع الزيارة': type,
-                                        'عدد الزيارات': count
-                                    }));
-                                })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="نوع الزيارة"
-                                    height={40}
-                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
-                                />
-                                <YAxis
-                                    label={{ value: 'عدد الزيارات', angle: -90, position: 'insideLeft' }}
-                                    style={{ fontSize: '0.9rem' }}
-                                    tick={false}
-                                    axisLine={false}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #007bff',
-                                        borderRadius: '8px',
-                                        padding: '10px'
-                                    }}
-                                />
-                                <Bar dataKey="عدد الزيارات" radius={[8, 8, 0, 0]}>
-                                    <LabelList dataKey="عدد الزيارات" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {Object.keys(evaluationVisits.reduce((acc, visit) => {
-                                        const type = visit.visitType || 'غير محدد';
-                                        acc[type] = true;
-                                        return acc;
-                                    }, {} as Record<string, boolean>)).map((_, index) => {
-                                        const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c'];
-                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                    })}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                        <div style={{
-                            marginTop: '15px',
-                            padding: '15px',
-                            backgroundColor: '#cfe2ff',
-                            borderRadius: '8px',
-                            textAlign: 'center'
-                        }}>
-                            <strong style={{ color: '#084298' }}>
-                                إجمالي الزيارات: {filterEvaluationVisits(evaluationVisits).length} زيارة
-                            </strong>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Reports Presented to Committee Chart - التقارير المعروضة على اللجنة وفقا لنوع القرار */}
-            {reportsToCommitteeData && reportsToCommitteeData.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #6c757d',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '20px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #6c757d'
+                            borderBottom: '2px solid #0eacb8'
                         }}>
                             <span style={{ fontSize: '1.5rem' }}>📑</span>
                             <h3 style={{
                                 margin: 0,
-                                color: '#343a40',
+                                color: 'var(--text-color)',
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                التقارير المعروضة على اللجنة وفقا لنوع القرار
+                                التقارير المعروضة على اللجنة
                             </h3>
                         </div>
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart
-                                data={(() => {
-                                    const filtered = filterReports(reportsToCommitteeData, targetYear);
-                                    const counts = filtered.reduce((acc: Record<string, number>, report: any) => {
-                                        const type = report.committeeDecisionType || 'غير محدد';
-                                        acc[type] = (acc[type] || 0) + (report.numberOfDecisions || 0);
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    return Object.entries(counts).map(([name, count]) => ({
-                                        name,
-                                        'عدد التقارير': count
-                                    }));
-                                })()}
-                                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="name"
-                                    height={40}
-                                    style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
-                                />
-                                <YAxis
-                                    label={{ value: 'عدد التقارير', angle: -90, position: 'insideLeft' }}
-                                    style={{ fontSize: '0.9rem' }}
-                                    tick={false}
-                                    axisLine={false}
-                                />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#fff',
-                                        border: '1px solid #6c757d',
-                                        borderRadius: '8px',
-                                        padding: '10px'
-                                    }}
-                                />
-                                <Bar dataKey="عدد التقارير" radius={[8, 8, 0, 0]}>
-                                    <LabelList dataKey="عدد التقارير" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
-                                    {Object.keys(reportsToCommitteeData.reduce((acc, report) => {
-                                        const type = report.committeeDecisionType || 'غير محدد';
-                                        acc[type] = true;
-                                        return acc;
-                                    }, {} as Record<string, boolean>)).map((_, index) => {
-                                        const colors = ['#6c757d', '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997'];
-                                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                    })}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
+
+                        {/* أزرار التنقل */}
                         <div style={{
-                            marginTop: '15px',
-                            padding: '15px',
-                            backgroundColor: '#e9ecef',
-                            borderRadius: '8px',
-                            textAlign: 'center'
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            marginBottom: '25px'
                         }}>
-                            <strong style={{ color: '#343a40' }}>
-                                إجمالي التقارير: {filterReports(reportsToCommitteeData, targetYear).reduce((sum: number, r: any) => sum + (r.numberOfDecisions || 0), 0)} تقرير
-                            </strong>
+                            <button
+                                onClick={() => setReportsChartView('byDecisionType')}
+                                style={{
+                                    padding: '10px 24px',
+                                    borderRadius: '25px',
+                                    border: '2px solid #0eacb8',
+                                    backgroundColor: reportsChartView === 'byDecisionType' ? '#0eacb8' : 'transparent',
+                                    color: reportsChartView === 'byDecisionType' ? 'white' : '#0eacb8',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                حسب نوع القرار
+                            </button>
+                            <button
+                                onClick={() => setReportsChartView('bySpecialty')}
+                                style={{
+                                    padding: '10px 24px',
+                                    borderRadius: '25px',
+                                    border: '2px solid #0eacb8',
+                                    backgroundColor: reportsChartView === 'bySpecialty' ? '#0eacb8' : 'transparent',
+                                    color: reportsChartView === 'bySpecialty' ? 'white' : '#0eacb8',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                حسب تخصص المنشآت
+                            </button>
                         </div>
+
+                        {/* الرسم البياني - حسب نوع القرار */}
+                        {reportsChartView === 'byDecisionType' && reportsToCommitteeData && reportsToCommitteeData.length > 0 && (
+                            <>
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <BarChart
+                                        data={(() => {
+                                            const filtered = filterReports(reportsToCommitteeData, targetYear);
+                                            const counts = filtered.reduce((acc: Record<string, number>, report: any) => {
+                                                const type = report.committeeDecisionType || 'غير محدد';
+                                                acc[type] = (acc[type] || 0) + (report.numberOfDecisions || 0);
+                                                return acc;
+                                            }, {} as Record<string, number>);
+                                            return Object.entries(counts).map(([name, count]) => ({
+                                                name,
+                                                'عدد التقارير': count
+                                            }));
+                                        })()}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="name"
+                                            height={40}
+                                            style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                        />
+                                        <YAxis
+                                            label={{ value: 'عدد التقارير', angle: -90, position: 'insideLeft' }}
+                                            style={{ fontSize: '0.9rem' }}
+                                            tick={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #0eacb8',
+                                                borderRadius: '8px',
+                                                padding: '10px'
+                                            }}
+                                        />
+                                        <Bar dataKey="عدد التقارير" radius={[8, 8, 0, 0]}>
+                                            <LabelList dataKey="عدد التقارير" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                            {Object.keys(reportsToCommitteeData.reduce((acc, report) => {
+                                                const type = report.committeeDecisionType || 'غير محدد';
+                                                acc[type] = true;
+                                                return acc;
+                                            }, {} as Record<string, boolean>)).map((_, index) => {
+                                                const colors = ['#0eacb8', '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                <div style={{
+                                    marginTop: '15px',
+                                    padding: '15px',
+                                    backgroundColor: '#d1ecf1',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <strong style={{ color: '#0c5460' }}>
+                                        إجمالي التقارير: {filterReports(reportsToCommitteeData, targetYear).reduce((sum: number, r: any) => sum + (r.numberOfDecisions || 0), 0)} تقرير
+                                    </strong>
+                                </div>
+                            </>
+                        )}
+
+                        {/* الرسم البياني - حسب تخصص المنشآت */}
+                        {reportsChartView === 'bySpecialty' && reportsBySpecialtyData && reportsBySpecialtyData.length > 0 && (
+                            <>
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <BarChart
+                                        data={(() => {
+                                            const filtered = filterReports(reportsBySpecialtyData, targetYear);
+                                            const counts = filtered.reduce((acc: Record<string, number>, report: any) => {
+                                                const type = report.facilitySpecialty || 'غير محدد';
+                                                acc[type] = (acc[type] || 0) + (report.numberOfReports || 0);
+                                                return acc;
+                                            }, {} as Record<string, number>);
+                                            return Object.entries(counts).map(([name, count]) => ({
+                                                name,
+                                                'عدد التقارير': count
+                                            }));
+                                        })()}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="name"
+                                            height={40}
+                                            style={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+                                        />
+                                        <YAxis
+                                            label={{ value: 'عدد التقارير', angle: -90, position: 'insideLeft' }}
+                                            style={{ fontSize: '0.9rem' }}
+                                            tick={false}
+                                            axisLine={false}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '1px solid #0eacb8',
+                                                borderRadius: '8px',
+                                                padding: '10px'
+                                            }}
+                                        />
+                                        <Bar dataKey="عدد التقارير" radius={[8, 8, 0, 0]}>
+                                            <LabelList dataKey="عدد التقارير" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                            {Object.keys(reportsBySpecialtyData.reduce((acc, report) => {
+                                                const type = report.facilitySpecialty || 'غير محدد';
+                                                acc[type] = true;
+                                                return acc;
+                                            }, {} as Record<string, boolean>)).map((_, index) => {
+                                                const colors = ['#e83e8c', '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#17a2b8'];
+                                                return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                            })}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                                <div style={{
+                                    marginTop: '15px',
+                                    padding: '15px',
+                                    backgroundColor: '#d1ecf1',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <strong style={{ color: '#0c5460' }}>
+                                        إجمالي التقارير: {filterReports(reportsBySpecialtyData, targetYear).reduce((sum: number, r: any) => sum + (r.numberOfReports || 0), 0)} تقرير
+                                    </strong>
+                                </div>
+                            </>
+                        )}
+
+                        {/* رسالة عدم وجود بيانات */}
+                        {((reportsChartView === 'byDecisionType' && (!reportsToCommitteeData || reportsToCommitteeData.length === 0)) ||
+                            (reportsChartView === 'bySpecialty' && (!reportsBySpecialtyData || reportsBySpecialtyData.length === 0))) && (
+                                <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                    لا توجد بيانات مسجلة لهذا التصنيف
+                                </div>
+                            )}
                     </div>
                 </div>
             )}

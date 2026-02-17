@@ -226,6 +226,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
+
+    // Reports By Facility Specialty (التقارير وفقا لتخصص المنشآت Dept 9)
+    match /reports_by_facility_specialty/{reportId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
+    }
   }
 }
 

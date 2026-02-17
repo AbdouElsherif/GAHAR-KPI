@@ -3255,3 +3255,95 @@ export async function deleteReportPresentedToCommittee(id: string): Promise<bool
         return false;
     }
 }
+
+// Reports By Facility Specialty (التقارير المعروضة على اللجنة وفقا لتخصص المنشآت)
+export interface ReportByFacilitySpecialty {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    facilitySpecialty: string;  // التخصص (Dropdown)
+    numberOfReports: number;  // عدد التقارير
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export async function saveReportByFacilitySpecialty(
+    reportData: Omit<ReportByFacilitySpecialty, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const reportsRef = collection(db, 'reports_by_facility_specialty');
+        const docRef = await addDoc(reportsRef, {
+            ...reportData,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving report by facility specialty:', error);
+        return null;
+    }
+}
+
+export async function getReportsByFacilitySpecialty(month?: string): Promise<ReportByFacilitySpecialty[]> {
+    try {
+        const reportsRef = collection(db, 'reports_by_facility_specialty');
+        let q;
+
+        if (month) {
+            q = query(reportsRef, where('month', '==', month));
+        } else {
+            q = query(reportsRef, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let reports = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as ReportByFacilitySpecialty));
+
+        if (month) {
+            reports.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return reports;
+    } catch (error) {
+        console.error('Error getting reports by facility specialty:', error);
+        return [];
+    }
+}
+
+export async function updateReportByFacilitySpecialty(
+    id: string,
+    updates: Partial<ReportByFacilitySpecialty> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const reportRef = doc(db, 'reports_by_facility_specialty', id);
+        await setDoc(reportRef, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating report by facility specialty:', error);
+        return false;
+    }
+}
+
+export async function deleteReportByFacilitySpecialty(id: string): Promise<boolean> {
+    try {
+        const reportRef = doc(db, 'reports_by_facility_specialty', id);
+        await deleteDoc(reportRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting report by facility specialty:', error);
+        return false;
+    }
+}

@@ -12,7 +12,8 @@ import {
     saveTotalMedProfByGovernorate, getTotalMedProfsByGovernorate, updateTotalMedProfByGovernorate, deleteTotalMedProfByGovernorate, type TotalMedicalProfessionalByGovernorate,
     saveCommitteePreparationFacility, getCommitteePreparationFacilities, updateCommitteePreparationFacility, deleteCommitteePreparationFacility, type CommitteePreparationFacility,
     saveCertificateIssuanceFacility, getCertificateIssuanceFacilities, updateCertificateIssuanceFacility, deleteCertificateIssuanceFacility, type CertificateIssuanceFacility,
-    saveReportPresentedToCommittee, getReportsPresentedToCommittee, updateReportPresentedToCommittee, deleteReportPresentedToCommittee, type ReportPresentedToCommittee
+    saveReportPresentedToCommittee, getReportsPresentedToCommittee, updateReportPresentedToCommittee, deleteReportPresentedToCommittee, type ReportPresentedToCommittee,
+    saveReportByFacilitySpecialty, getReportsByFacilitySpecialty, updateReportByFacilitySpecialty, deleteReportByFacilitySpecialty, type ReportByFacilitySpecialty
 } from '@/lib/firestore';
 
 
@@ -1600,6 +1601,134 @@ export default function DepartmentPage() {
 
         // Note: For a proper implementation, we would need to construct the Document object similar to other exports
         // For brevity, I'm skipping the full DOCX generation logic here as it's verbose, but the button and hook are ready.
+        alert('سيتم تنفيذ تصدير Word قريبًا');
+    };
+
+    // Reports By Facility Specialty handlers (التقارير المعروضة على اللجنة وفقا لتخصص المنشآت for dept9)
+    const [reportsByFacilitySpecialty, setReportsByFacilitySpecialty] = useState<ReportByFacilitySpecialty[]>([]);
+    const [reportsBySpecialtyFilterMonth, setReportsBySpecialtyFilterMonth] = useState('');
+    const [isReportsBySpecialtySectionExpanded, setIsReportsBySpecialtySectionExpanded] = useState(false);
+    const [reportsBySpecialtyFormData, setReportsBySpecialtyFormData] = useState({
+        month: '',
+        facilitySpecialty: '',
+        numberOfReports: ''
+    });
+    const [editingReportsBySpecialtyId, setEditingReportsBySpecialtyId] = useState<string | null>(null);
+    const [reportsBySpecialtySubmitted, setReportsBySpecialtySubmitted] = useState(false);
+
+    const facilitySpecialtyTypes = [
+        'المستشفيات',
+        'مراكز ووحدات الرعاية الأولية',
+        'المعامل الطبية',
+        'المراكز الطبية المتخصصة',
+        'دور النقاهة',
+        'مراكز الأشعة',
+        'العلاج الطبيعي',
+        'الصيدليات',
+        'المنشآت الخضراء'
+    ];
+
+    const loadReportsByFacilitySpecialty = async () => {
+        const data = await getReportsByFacilitySpecialty(globalFilterMonth || reportsBySpecialtyFilterMonth);
+        setReportsByFacilitySpecialty(data);
+    };
+
+    useEffect(() => {
+        if (id === 'dept9') {
+            loadReportsByFacilitySpecialty();
+        }
+    }, [id, globalFilterMonth, reportsBySpecialtyFilterMonth]);
+
+    const handleReportsBySpecialtySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year, month] = reportsBySpecialtyFormData.month.split('-');
+
+            if (editingReportsBySpecialtyId) {
+                await updateReportByFacilitySpecialty(editingReportsBySpecialtyId, {
+                    month: reportsBySpecialtyFormData.month,
+                    facilitySpecialty: reportsBySpecialtyFormData.facilitySpecialty,
+                    numberOfReports: parseInt(reportsBySpecialtyFormData.numberOfReports),
+                    year: parseInt(year),
+                    updatedBy: currentUser.id
+                });
+                setReportsBySpecialtySubmitted(true);
+                setTimeout(() => setReportsBySpecialtySubmitted(false), 3000);
+                resetReportsBySpecialtyForm();
+                await loadReportsByFacilitySpecialty();
+            } else {
+                const docId = await saveReportByFacilitySpecialty({
+                    month: reportsBySpecialtyFormData.month,
+                    facilitySpecialty: reportsBySpecialtyFormData.facilitySpecialty,
+                    numberOfReports: parseInt(reportsBySpecialtyFormData.numberOfReports),
+                    year: parseInt(year),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setReportsBySpecialtySubmitted(true);
+                    setTimeout(() => setReportsBySpecialtySubmitted(false), 3000);
+                    resetReportsBySpecialtyForm();
+                    await loadReportsByFacilitySpecialty();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting report by facility specialty:', error);
+        }
+    };
+
+    const handleEditReportsBySpecialty = (report: ReportByFacilitySpecialty) => {
+        setReportsBySpecialtyFormData({
+            month: report.month,
+            facilitySpecialty: report.facilitySpecialty,
+            numberOfReports: report.numberOfReports.toString()
+        });
+        setEditingReportsBySpecialtyId(report.id || null);
+    };
+
+    const handleDeleteReportsBySpecialty = async (id: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            const success = await deleteReportByFacilitySpecialty(id);
+            if (success) {
+                await loadReportsByFacilitySpecialty();
+            }
+        }
+    };
+
+    const resetReportsBySpecialtyForm = () => {
+        setReportsBySpecialtyFormData({
+            month: '',
+            facilitySpecialty: '',
+            numberOfReports: ''
+        });
+        setEditingReportsBySpecialtyId(null);
+    };
+
+    const exportReportsBySpecialtyToExcel = () => {
+        const dataToExport = reportsByFacilitySpecialty.filter(r => !(globalFilterMonth || reportsBySpecialtyFilterMonth) || r.month === (globalFilterMonth || reportsBySpecialtyFilterMonth));
+        if (dataToExport.length === 0) return;
+
+        const wb = XLSX.utils.book_new();
+        const wsData = [
+            ['الشهر', 'التخصص', 'عدد التقارير'],
+            ...dataToExport.map(r => [
+                r.month,
+                r.facilitySpecialty,
+                r.numberOfReports
+            ])
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, "التقارير وفقا لتخصص المنشآت");
+        XLSX.writeFile(wb, "التقارير_وفقا_لتخصص_المنشآت.xlsx");
+    };
+
+    const exportReportsBySpecialtyToWord = () => {
+        const dataToExport = reportsByFacilitySpecialty.filter(r => !(globalFilterMonth || reportsBySpecialtyFilterMonth) || r.month === (globalFilterMonth || reportsBySpecialtyFilterMonth));
+        if (dataToExport.length === 0) return;
+
         alert('سيتم تنفيذ تصدير Word قريبًا');
     };
 
@@ -14942,6 +15071,257 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT9-SECTION-ReportsBySpecialty: التقارير المعروضة على اللجنة وفقا لتخصص المنشآت ====== */}
+            {
+                id === 'dept9' && (
+                    <div className="card" style={{ marginTop: '30px', marginBottom: '20px' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                marginBottom: isReportsBySpecialtySectionExpanded ? '20px' : '0',
+                                paddingBottom: isReportsBySpecialtySectionExpanded ? '15px' : '0',
+                                borderBottom: isReportsBySpecialtySectionExpanded ? '2px solid var(--background-color)' : 'none',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onClick={() => setIsReportsBySpecialtySectionExpanded(!isReportsBySpecialtySectionExpanded)}
+                        >
+                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                                📑 التقارير المعروضة على اللجنة وفقا لتخصص المنشآت{(() => {
+                                    const activeFilter = globalFilterMonth || reportsBySpecialtyFilterMonth;
+                                    if (activeFilter) {
+                                        const [_, month] = activeFilter.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const count = reportsByFacilitySpecialty.filter(r => r.month === activeFilter).length;
+                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} سجل`;
+                                    }
+                                    return '';
+                                })()}
+                            </h2>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                color: 'var(--primary-color)',
+                                fontWeight: 'bold'
+                            }}>
+                                <span style={{ fontSize: '0.9rem' }}>
+                                    {isReportsBySpecialtySectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                </span>
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isReportsBySpecialtySectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s ease'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+
+                        {isReportsBySpecialtySectionExpanded && (
+                            <>
+                                {/* Form */}
+                                {userCanEdit && (
+                                    <form onSubmit={handleReportsBySpecialtySubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                        <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                            {editingReportsBySpecialtyId ? 'تعديل التقرير' : 'إضافة تقرير جديد'}
+                                        </h3>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر والسنة *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
+                                                    value={reportsBySpecialtyFormData.month}
+                                                    onChange={(e) => setReportsBySpecialtyFormData({ ...reportsBySpecialtyFormData, month: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">التخصص *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={reportsBySpecialtyFormData.facilitySpecialty}
+                                                    onChange={(e) => setReportsBySpecialtyFormData({ ...reportsBySpecialtyFormData, facilitySpecialty: e.target.value })}
+                                                >
+                                                    <option value="">اختر التخصص</option>
+                                                    {facilitySpecialtyTypes.map((type, idx) => (
+                                                        <option key={idx} value={type}>{type}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">عدد التقارير *</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    required
+                                                    min="0"
+                                                    value={reportsBySpecialtyFormData.numberOfReports}
+                                                    onChange={(e) => setReportsBySpecialtyFormData({ ...reportsBySpecialtyFormData, numberOfReports: e.target.value })}
+                                                    placeholder="أدخل عدد التقارير"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }} disabled={reportsBySpecialtySubmitted}>
+                                                {reportsBySpecialtySubmitted ? 'جاري الحفظ...' : (editingReportsBySpecialtyId ? 'تحديث التقرير' : 'إضافة التقرير')}
+                                            </button>
+                                            {editingReportsBySpecialtyId && (
+                                                <button
+                                                    type="button"
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                    onClick={resetReportsBySpecialtyForm}
+                                                >
+                                                    إلغاء التعديل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* Filter and Export Buttons */}
+                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                    <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                        <label className="form-label">فلترة حسب الشهر</label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            className="form-input"
+                                            value={globalFilterMonth || reportsBySpecialtyFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setReportsBySpecialtyFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
+                                        />
+                                    </div>
+                                    {reportsByFacilitySpecialty.length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportReportsBySpecialtyToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportReportsBySpecialtyToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#2b5797',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                📄 تصدير Word
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+
+
+                                {/* Table */}
+                                <div style={{ overflowX: 'auto' }}>
+                                    {reportsByFacilitySpecialty.length === 0 ? (
+                                        <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                            لا توجد بيانات مسجلة
+                                        </div>
+                                    ) : (
+                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>التخصص</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>عدد التقارير</th>
+                                                    {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {reportsByFacilitySpecialty.filter(r => !(globalFilterMonth || reportsBySpecialtyFilterMonth) || r.month === (globalFilterMonth || reportsBySpecialtyFilterMonth)).map((report, index) => {
+                                                    const [year, month] = report.month.split('-');
+                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                    const monthName = monthNames[parseInt(month) - 1];
+
+                                                    return (
+                                                        <tr key={report.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{monthName} {year}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{report.facilitySpecialty}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{report.numberOfReports}</td>
+                                                            {userCanEdit && (
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                        <button
+                                                                            onClick={() => handleEditReportsBySpecialty(report)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: 'var(--primary-color)',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            تعديل
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDeleteReportsBySpecialty(report.id!)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: '#dc3545',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            حذف
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )
+            }
+
 
 
 
@@ -15354,6 +15734,7 @@ export default function DepartmentPage() {
                             submissions={submissions}
                             evaluationVisits={reviewerEvaluationVisits}
                             reportsToCommitteeData={reportsPresentedToCommittee}
+                            reportsBySpecialtyData={reportsByFacilitySpecialty}
                         />
                     </DashboardModal>
                 )
