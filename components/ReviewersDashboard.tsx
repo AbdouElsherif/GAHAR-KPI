@@ -30,11 +30,21 @@ interface ReportByFacilitySpecialty {
     year: number;
 }
 
+interface AccreditationDecision {
+    id?: string;
+    month: string;
+    facilityCategory: string;
+    decisionType: string;
+    count: number;
+    year: number;
+}
+
 interface ReviewersDashboardProps {
     submissions: Array<Record<string, any>>;
     evaluationVisits: ReviewerEvaluationVisit[];
     reportsToCommitteeData?: ReportPresentedToCommittee[];
     reportsBySpecialtyData?: ReportByFacilitySpecialty[];
+    accreditationDecisionsData?: AccreditationDecision[];
     governorateVisits?: any[]; // Deprecated, computed from evaluationVisits
     visitTypeVisits?: any[]; // Deprecated, computed from evaluationVisits
 }
@@ -44,6 +54,7 @@ export default function ReviewersDashboard({
     evaluationVisits,
     reportsToCommitteeData = [],
     reportsBySpecialtyData = [],
+    accreditationDecisionsData = [],
     governorateVisits,
     visitTypeVisits
 }: ReviewersDashboardProps) {
@@ -53,7 +64,28 @@ export default function ReviewersDashboard({
     const [selectedHalf, setSelectedHalf] = useState<number>(1);
     const [reportsChartView, setReportsChartView] = useState<'byDecisionType' | 'bySpecialty'>('byDecisionType');
     const [visitsChartView, setVisitsChartView] = useState<'byFacilityType' | 'byGovernorate' | 'byVisitType'>('byFacilityType');
+    const [decisionsChartView, setDecisionsChartView] = useState('المستشفيات');
     const [selectedMonth, setSelectedMonth] = useState<number>(10);
+
+    const facilityCategoryTypes = [
+        'المستشفيات',
+        'مراكز ووحدات الرعاية الصحية',
+        'المعامل الطبية',
+        'مراكز الأشعة',
+        'المراكز الطبية المتخصصة والعيادات المجمعة ومراكز جراحات اليوم الواحد',
+        'الصيدليات',
+        'مراكز العلاج الطبيعي'
+    ];
+
+    const facilityCategoryShortNames: Record<string, string> = {
+        'المستشفيات': 'المستشفيات',
+        'مراكز ووحدات الرعاية الصحية': 'مراكز الرعاية',
+        'المعامل الطبية': 'المعامل',
+        'مراكز الأشعة': 'الأشعة',
+        'المراكز الطبية المتخصصة والعيادات المجمعة ومراكز جراحات اليوم الواحد': 'المراكز المتخصصة',
+        'الصيدليات': 'الصيدليات',
+        'مراكز العلاج الطبيعي': 'العلاج الطبيعي'
+    };
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
@@ -1443,6 +1475,145 @@ export default function ReviewersDashboard({
                                     لا توجد بيانات مسجلة لهذا التصنيف
                                 </div>
                             )}
+                    </div>
+                </div>
+            )}
+
+            {/* القرارات الصادرة - قسم موحد مع أزرار تنقل */}
+            {accreditationDecisionsData && accreditationDecisionsData.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #6f42c1',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        {/* العنوان */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            marginBottom: '20px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #6f42c1'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>🏛️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: 'var(--text-color)',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                القرارات الصادرة
+                            </h3>
+                        </div>
+
+                        {/* أزرار التنقل */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            marginBottom: '25px',
+                            flexWrap: 'wrap'
+                        }}>
+                            {facilityCategoryTypes.map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => setDecisionsChartView(category)}
+                                    style={{
+                                        padding: '8px 18px',
+                                        borderRadius: '25px',
+                                        border: '2px solid #6f42c1',
+                                        backgroundColor: decisionsChartView === category ? '#6f42c1' : 'transparent',
+                                        color: decisionsChartView === category ? 'white' : '#6f42c1',
+                                        fontWeight: 'bold',
+                                        fontSize: '0.85rem',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    {facilityCategoryShortNames[category] || category}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* الرسم البياني */}
+                        {(() => {
+                            const filteredByTime = filterReports(accreditationDecisionsData, targetYear);
+                            const filtered = filteredByTime.filter(d => d.facilityCategory === decisionsChartView);
+                            const counts = filtered.reduce((acc, d) => {
+                                acc[d.decisionType] = (acc[d.decisionType] || 0) + d.count;
+                                return acc;
+                            }, {} as Record<string, number>);
+                            const chartData = Object.entries(counts).map(([name, count]) => ({
+                                name,
+                                'العدد': count
+                            }));
+
+                            if (chartData.length === 0) {
+                                return (
+                                    <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                        لا توجد بيانات مسجلة لـ &quot;{facilityCategoryShortNames[decisionsChartView] || decisionsChartView}&quot;
+                                    </div>
+                                );
+                            }
+
+                            const colors = ['#6f42c1', '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#343a40', '#795548', '#009688', '#ff5722'];
+
+                            return (
+                                <>
+                                    <h4 style={{ textAlign: 'center', color: '#6f42c1', marginBottom: '15px', fontSize: '1.1rem' }}>
+                                        القرارات الصادرة لـ {decisionsChartView}
+                                    </h4>
+                                    <ResponsiveContainer width="100%" height={400}>
+                                        <BarChart
+                                            data={chartData}
+                                            margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis
+                                                dataKey="name"
+                                                height={40}
+                                                style={{ fontSize: '0.85rem', fontWeight: 'bold' }}
+                                            />
+                                            <YAxis
+                                                style={{ fontSize: '0.9rem' }}
+                                                tick={false}
+                                                axisLine={false}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: '#fff',
+                                                    border: '1px solid #6f42c1',
+                                                    borderRadius: '8px',
+                                                    padding: '10px'
+                                                }}
+                                            />
+                                            <Bar dataKey="العدد" radius={[8, 8, 0, 0]}>
+                                                <LabelList dataKey="العدد" position="top" style={{ fontSize: '0.9rem', fontWeight: 'bold' }} />
+                                                {chartData.map((_, index) => (
+                                                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    <div style={{
+                                        marginTop: '15px',
+                                        padding: '15px',
+                                        backgroundColor: '#e8dff5',
+                                        borderRadius: '8px',
+                                        textAlign: 'center'
+                                    }}>
+                                        <strong style={{ color: '#4a1d8e' }}>
+                                            إجمالي القرارات: {chartData.reduce((sum, d: any) => sum + d['العدد'], 0)} قرار
+                                        </strong>
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
             )}

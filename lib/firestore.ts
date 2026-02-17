@@ -3347,3 +3347,96 @@ export async function deleteReportByFacilitySpecialty(id: string): Promise<boole
         return false;
     }
 }
+
+// Accreditation Decisions (القرارات الصادرة)
+export interface AccreditationDecision {
+    id?: string;
+    month: string;  // الشهر YYYY-MM
+    facilityCategory: string;  // نوع المنشأة
+    decisionType: string;  // نوع القرار
+    count: number;  // العدد
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export async function saveAccreditationDecision(
+    data: Omit<AccreditationDecision, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const ref = collection(db, 'accreditation_decisions');
+        const docRef = await addDoc(ref, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving accreditation decision:', error);
+        return null;
+    }
+}
+
+export async function getAccreditationDecisions(month?: string): Promise<AccreditationDecision[]> {
+    try {
+        const ref = collection(db, 'accreditation_decisions');
+        let q;
+
+        if (month) {
+            q = query(ref, where('month', '==', month));
+        } else {
+            q = query(ref, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let decisions = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as AccreditationDecision));
+
+        if (month) {
+            decisions.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return decisions;
+    } catch (error) {
+        console.error('Error getting accreditation decisions:', error);
+        return [];
+    }
+}
+
+export async function updateAccreditationDecision(
+    id: string,
+    updates: Partial<AccreditationDecision> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const ref = doc(db, 'accreditation_decisions', id);
+        await setDoc(ref, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating accreditation decision:', error);
+        return false;
+    }
+}
+
+export async function deleteAccreditationDecision(id: string): Promise<boolean> {
+    try {
+        const ref = doc(db, 'accreditation_decisions', id);
+        await deleteDoc(ref);
+        return true;
+    } catch (error) {
+        console.error('Error deleting accreditation decision:', error);
+        return false;
+    }
+}

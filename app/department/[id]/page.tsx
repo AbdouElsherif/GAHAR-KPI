@@ -13,7 +13,8 @@ import {
     saveCommitteePreparationFacility, getCommitteePreparationFacilities, updateCommitteePreparationFacility, deleteCommitteePreparationFacility, type CommitteePreparationFacility,
     saveCertificateIssuanceFacility, getCertificateIssuanceFacilities, updateCertificateIssuanceFacility, deleteCertificateIssuanceFacility, type CertificateIssuanceFacility,
     saveReportPresentedToCommittee, getReportsPresentedToCommittee, updateReportPresentedToCommittee, deleteReportPresentedToCommittee, type ReportPresentedToCommittee,
-    saveReportByFacilitySpecialty, getReportsByFacilitySpecialty, updateReportByFacilitySpecialty, deleteReportByFacilitySpecialty, type ReportByFacilitySpecialty
+    saveReportByFacilitySpecialty, getReportsByFacilitySpecialty, updateReportByFacilitySpecialty, deleteReportByFacilitySpecialty, type ReportByFacilitySpecialty,
+    saveAccreditationDecision, getAccreditationDecisions, updateAccreditationDecision, deleteAccreditationDecision, type AccreditationDecision
 } from '@/lib/firestore';
 
 
@@ -1730,6 +1731,148 @@ export default function DepartmentPage() {
         if (dataToExport.length === 0) return;
 
         alert('سيتم تنفيذ تصدير Word قريبًا');
+    };
+
+    // Accreditation Decisions handlers (القرارات الصادرة for dept9)
+    const [accreditationDecisions, setAccreditationDecisions] = useState<AccreditationDecision[]>([]);
+    const [accreditationDecisionsFilterMonth, setAccreditationDecisionsFilterMonth] = useState('');
+    const [isAccreditationDecisionsSectionExpanded, setIsAccreditationDecisionsSectionExpanded] = useState(false);
+    const [accreditationDecisionsFormData, setAccreditationDecisionsFormData] = useState({
+        month: '',
+        facilityCategory: '',
+        decisionType: '',
+        count: ''
+    });
+    const [editingAccreditationDecisionId, setEditingAccreditationDecisionId] = useState<string | null>(null);
+    const [accreditationDecisionsSubmitted, setAccreditationDecisionsSubmitted] = useState(false);
+
+    const facilityCategoryTypes = [
+        'المستشفيات',
+        'مراكز ووحدات الرعاية الصحية',
+        'المعامل الطبية',
+        'مراكز الأشعة',
+        'المراكز الطبية المتخصصة والعيادات المجمعة ومراكز جراحات اليوم الواحد',
+        'الصيدليات',
+        'مراكز العلاج الطبيعي'
+    ];
+
+    const accreditationDecisionTypes = [
+        'تجديد اعتماد',
+        'تجديد اعتماد مبدئي',
+        'استكمال اعتماد',
+        'استكمال اعتماد مبدئي',
+        'استكمال اعتماد مبدئي مشروط',
+        'استكمال اعتماد مشروط',
+        'اعتماد',
+        'اعتماد مبدئي',
+        'اعتماد مشروط',
+        'اعتماد فرصة ثانية',
+        'اعتماد مبدئي مشروط',
+        'رفض اعتماد',
+        'رفض اعتماد مبدئي',
+        'رفض استكمال اعتماد'
+    ];
+
+    const loadAccreditationDecisions = async () => {
+        const data = await getAccreditationDecisions(globalFilterMonth || accreditationDecisionsFilterMonth);
+        setAccreditationDecisions(data);
+    };
+
+    useEffect(() => {
+        if (id === 'dept9') {
+            loadAccreditationDecisions();
+        }
+    }, [id, globalFilterMonth, accreditationDecisionsFilterMonth]);
+
+    const handleAccreditationDecisionsSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        try {
+            const [year] = accreditationDecisionsFormData.month.split('-');
+
+            if (editingAccreditationDecisionId) {
+                await updateAccreditationDecision(editingAccreditationDecisionId, {
+                    month: accreditationDecisionsFormData.month,
+                    facilityCategory: accreditationDecisionsFormData.facilityCategory,
+                    decisionType: accreditationDecisionsFormData.decisionType,
+                    count: parseInt(accreditationDecisionsFormData.count),
+                    year: parseInt(year),
+                    updatedBy: currentUser.id
+                });
+                setAccreditationDecisionsSubmitted(true);
+                setTimeout(() => setAccreditationDecisionsSubmitted(false), 3000);
+                resetAccreditationDecisionsForm();
+                await loadAccreditationDecisions();
+            } else {
+                const docId = await saveAccreditationDecision({
+                    month: accreditationDecisionsFormData.month,
+                    facilityCategory: accreditationDecisionsFormData.facilityCategory,
+                    decisionType: accreditationDecisionsFormData.decisionType,
+                    count: parseInt(accreditationDecisionsFormData.count),
+                    year: parseInt(year),
+                    createdBy: currentUser.id,
+                    updatedBy: currentUser.id
+                });
+
+                if (docId) {
+                    setAccreditationDecisionsSubmitted(true);
+                    setTimeout(() => setAccreditationDecisionsSubmitted(false), 3000);
+                    resetAccreditationDecisionsForm();
+                    await loadAccreditationDecisions();
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting accreditation decision:', error);
+        }
+    };
+
+    const handleEditAccreditationDecision = (decision: AccreditationDecision) => {
+        setAccreditationDecisionsFormData({
+            month: decision.month,
+            facilityCategory: decision.facilityCategory,
+            decisionType: decision.decisionType,
+            count: decision.count.toString()
+        });
+        setEditingAccreditationDecisionId(decision.id || null);
+    };
+
+    const handleDeleteAccreditationDecision = async (decisionId: string) => {
+        if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+            const success = await deleteAccreditationDecision(decisionId);
+            if (success) {
+                await loadAccreditationDecisions();
+            }
+        }
+    };
+
+    const resetAccreditationDecisionsForm = () => {
+        setAccreditationDecisionsFormData({
+            month: '',
+            facilityCategory: '',
+            decisionType: '',
+            count: ''
+        });
+        setEditingAccreditationDecisionId(null);
+    };
+
+    const exportAccreditationDecisionsToExcel = () => {
+        const dataToExport = accreditationDecisions.filter(d => !(globalFilterMonth || accreditationDecisionsFilterMonth) || d.month === (globalFilterMonth || accreditationDecisionsFilterMonth));
+        if (dataToExport.length === 0) return;
+
+        const wb = XLSX.utils.book_new();
+        const wsData = [
+            ['الشهر', 'نوع المنشأة', 'نوع القرار', 'العدد'],
+            ...dataToExport.map(d => [
+                d.month,
+                d.facilityCategory,
+                d.decisionType,
+                d.count
+            ])
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, "القرارات الصادرة");
+        XLSX.writeFile(wb, "القرارات_الصادرة.xlsx");
     };
 
     const handleEditTechnicalClinicalObservation = (observation: TechnicalClinicalObservation) => {
@@ -15324,6 +15467,257 @@ export default function DepartmentPage() {
 
 
 
+            {/* ====== DEPT9-SECTION-AccreditationDecisions: القرارات الصادرة ====== */}
+            {
+                id === 'dept9' && (
+                    <div className="card" style={{ marginTop: '30px', marginBottom: '20px' }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                marginBottom: isAccreditationDecisionsSectionExpanded ? '20px' : '0',
+                                paddingBottom: isAccreditationDecisionsSectionExpanded ? '15px' : '0',
+                                borderBottom: isAccreditationDecisionsSectionExpanded ? '2px solid var(--background-color)' : 'none',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onClick={() => setIsAccreditationDecisionsSectionExpanded(!isAccreditationDecisionsSectionExpanded)}
+                        >
+                            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
+                                🏛️ القرارات الصادرة{(() => {
+                                    const activeFilter = globalFilterMonth || accreditationDecisionsFilterMonth;
+                                    if (activeFilter) {
+                                        const [_, month] = activeFilter.split('-');
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const count = accreditationDecisions.filter(d => d.month === activeFilter).length;
+                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} سجل`;
+                                    }
+                                    return '';
+                                })()}
+                            </h2>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                color: 'var(--primary-color)',
+                                fontWeight: 'bold'
+                            }}>
+                                <span style={{ fontSize: '0.9rem' }}>
+                                    {isAccreditationDecisionsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
+                                </span>
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: isAccreditationDecisionsSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.3s ease'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+
+                        {isAccreditationDecisionsSectionExpanded && (
+                            <>
+                                {/* Form */}
+                                {userCanEdit && (
+                                    <form onSubmit={handleAccreditationDecisionsSubmit} style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                        <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
+                                            {editingAccreditationDecisionId ? 'تعديل القرار' : 'إضافة قرار جديد'}
+                                        </h3>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+                                            <div className="form-group">
+                                                <label className="form-label">الشهر والسنة *</label>
+                                                <input
+                                                    type="month"
+                                                    className="form-input"
+                                                    required
+                                                    min={MIN_MONTH}
+                                                    max={MAX_MONTH}
+                                                    value={accreditationDecisionsFormData.month}
+                                                    onChange={(e) => setAccreditationDecisionsFormData({ ...accreditationDecisionsFormData, month: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع المنشأة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={accreditationDecisionsFormData.facilityCategory}
+                                                    onChange={(e) => setAccreditationDecisionsFormData({ ...accreditationDecisionsFormData, facilityCategory: e.target.value })}
+                                                >
+                                                    <option value="">اختر نوع المنشأة</option>
+                                                    {facilityCategoryTypes.map((type, idx) => (
+                                                        <option key={idx} value={type}>{type}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">نوع القرار *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={accreditationDecisionsFormData.decisionType}
+                                                    onChange={(e) => setAccreditationDecisionsFormData({ ...accreditationDecisionsFormData, decisionType: e.target.value })}
+                                                >
+                                                    <option value="">اختر نوع القرار</option>
+                                                    {accreditationDecisionTypes.map((type, idx) => (
+                                                        <option key={idx} value={type}>{type}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">العدد *</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    required
+                                                    min="0"
+                                                    value={accreditationDecisionsFormData.count}
+                                                    onChange={(e) => setAccreditationDecisionsFormData({ ...accreditationDecisionsFormData, count: e.target.value })}
+                                                    placeholder="أدخل العدد"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                            <button type="submit" className="btn" style={{ backgroundColor: 'var(--primary-color)', color: 'white' }} disabled={accreditationDecisionsSubmitted}>
+                                                {accreditationDecisionsSubmitted ? 'جاري الحفظ...' : (editingAccreditationDecisionId ? 'تحديث القرار' : 'إضافة القرار')}
+                                            </button>
+                                            {editingAccreditationDecisionId && (
+                                                <button
+                                                    type="button"
+                                                    className="btn"
+                                                    style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                                    onClick={resetAccreditationDecisionsForm}
+                                                >
+                                                    إلغاء التعديل
+                                                </button>
+                                            )}
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* Filter and Export Buttons */}
+                                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                    <div className="form-group" style={{ margin: 0, maxWidth: '300px' }}>
+                                        <label className="form-label">فلترة حسب الشهر</label>
+                                        <input
+                                            type="month"
+                                            min={MIN_MONTH}
+                                            max={MAX_MONTH}
+                                            className="form-input"
+                                            value={globalFilterMonth || accreditationDecisionsFilterMonth}
+                                            onChange={(e) => !globalFilterMonth && setAccreditationDecisionsFilterMonth(e.target.value)}
+                                            disabled={!!globalFilterMonth}
+                                            style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : {}}
+                                        />
+                                    </div>
+                                    {accreditationDecisions.length > 0 && (
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                onClick={exportAccreditationDecisionsToExcel}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                📊 تصدير Excel
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Table */}
+                                <div style={{ overflowX: 'auto' }}>
+                                    {accreditationDecisions.length === 0 ? (
+                                        <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
+                                            لا توجد بيانات مسجلة
+                                        </div>
+                                    ) : (
+                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                            <thead>
+                                                <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>#</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
+                                                    <th style={{ padding: '12px', textAlign: 'right' }}>نوع القرار</th>
+                                                    <th style={{ padding: '12px', textAlign: 'center' }}>العدد</th>
+                                                    {userCanEdit && <th style={{ padding: '12px', textAlign: 'center' }}>الإجراءات</th>}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {accreditationDecisions.filter(d => !(globalFilterMonth || accreditationDecisionsFilterMonth) || d.month === (globalFilterMonth || accreditationDecisionsFilterMonth)).map((decision, index) => {
+                                                    const [year, month] = decision.month.split('-');
+                                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                    const monthName = monthNames[parseInt(month) - 1];
+
+                                                    return (
+                                                        <tr key={decision.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666' }}>{monthName} {year}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>{decision.facilityCategory}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'right' }}>{decision.decisionType}</td>
+                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>{decision.count}</td>
+                                                            {userCanEdit && (
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                        <button
+                                                                            onClick={() => handleEditAccreditationDecision(decision)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: 'var(--primary-color)',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            تعديل
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDeleteAccreditationDecision(decision.id!)}
+                                                                            style={{
+                                                                                padding: '6px 12px',
+                                                                                backgroundColor: '#dc3545',
+                                                                                color: 'white',
+                                                                                border: 'none',
+                                                                                borderRadius: '4px',
+                                                                                cursor: 'pointer',
+                                                                                fontSize: '0.85rem'
+                                                                            }}
+                                                                        >
+                                                                            حذف
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )
+            }
+
 
 
             {/* ====== DEPT4-SECTION-1: المؤشرات الرئيسية ====== */}
@@ -15735,6 +16129,7 @@ export default function DepartmentPage() {
                             evaluationVisits={reviewerEvaluationVisits}
                             reportsToCommitteeData={reportsPresentedToCommittee}
                             reportsBySpecialtyData={reportsByFacilitySpecialty}
+                            accreditationDecisionsData={accreditationDecisions}
                         />
                     </DashboardModal>
                 )
