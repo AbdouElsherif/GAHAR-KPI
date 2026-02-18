@@ -447,6 +447,20 @@ export interface ProgramType {
     updatedBy?: string;
 }
 
+// Collected Revenue (الإيرادات المحصلة for dept1)
+export interface CollectedRevenue {
+    id?: string;
+    departmentId: string;
+    month: string; // YYYY-MM
+    source: string; // مصدر الإيراد
+    value: number; // القيمة المالية
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 // Governorate Customer Survey (Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ø±Ø¶Ø§Ø¡ Ø§Ù„Ù…ØªØ¹Ø§Ù…Ù„ÙŠÙ† Ø­Ø³Ø¨ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© for dept3)
 export interface GovernorateCustomerSurvey {
     id?: string;
@@ -3441,3 +3455,60 @@ export async function deleteAccreditationDecision(id: string): Promise<boolean> 
         return false;
     }
 }
+
+// ============================================================================
+// Collected Revenues (الإيرادات المحصلة)
+// ============================================================================
+
+export const saveCollectedRevenue = async (data: any) => {
+    try {
+        const docRef = await addDoc(collection(db, 'collectedRevenues'), {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error adding collected revenue:', error);
+        return null;
+    }
+};
+
+export const getCollectedRevenues = async () => {
+    try {
+        const q = query(collection(db, 'collectedRevenues'), orderBy('month', 'desc'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        })) as CollectedRevenue[];
+    } catch (error) {
+        console.error('Error getting collected revenues:', error);
+        return [];
+    }
+};
+
+export const updateCollectedRevenue = async (id: string, data: any) => {
+    try {
+        const docRef = doc(db, 'collectedRevenues', id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating collected revenue:', error);
+        return false;
+    }
+};
+
+export const deleteCollectedRevenue = async (id: string) => {
+    try {
+        const docRef = doc(db, 'collectedRevenues', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting collected revenue:', error);
+        return false;
+    }
+};

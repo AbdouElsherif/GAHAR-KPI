@@ -4,3 +4,4 @@
 
 export { default as TrainingEntitiesSection } from './TrainingEntitiesSection';
 export { default as ProgramTypesSection } from './ProgramTypesSection';
+export { default as CollectedRevenuesSection } from './CollectedRevenuesSection';

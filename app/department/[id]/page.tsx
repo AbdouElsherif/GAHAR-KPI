@@ -25,7 +25,7 @@ import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, Ali
 import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
-import { ProgramTypesSection } from '@/components/dept1';
+import { ProgramTypesSection, CollectedRevenuesSection } from '@/components/dept1';
 import { GovernorateCustomerSurveysSection } from '@/components/dept3';
 import { committeeDecisionTypes } from '@/constants/committeeDecisionTypes';
 
@@ -6918,9 +6918,17 @@ export default function DepartmentPage() {
 
             {/* ====== DEPT1-SECTION-PROGRAMS: نوع البرنامج ====== */}
             {/* Program Types Section - نوع البرنامج (for dept1 only) */}
-            {/* Program Types Section - نوع البرنامج (for dept1 only) */}
             {id === 'dept1' && (
                 <ProgramTypesSection
+                    currentUser={currentUser}
+                    canEdit={canEdit}
+                    globalFilterMonth={globalFilterMonth}
+                />
+            )}
+
+            {/* ====== DEPT1-SECTION-REVENUES: الإيرادات المحصلة ====== */}
+            {id === 'dept1' && (
+                <CollectedRevenuesSection
                     currentUser={currentUser}
                     canEdit={canEdit}
                     globalFilterMonth={globalFilterMonth}
