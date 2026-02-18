@@ -96,6 +96,8 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'trainingPrograms', label: 'عدد البرامج التدريبية', type: 'number' },
         { name: 'trainees', label: 'عدد المتدربين', type: 'number' },
+        { name: 'activitySummary', label: 'ملخص نشاطات الإدارة', type: 'text' },
+        { name: 'activityDetails', label: 'تفاصيل أنشطة الإدارة', type: 'text' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },
@@ -6551,7 +6553,7 @@ export default function DepartmentPage() {
                                                     key={field.name}
                                                     className="form-group"
                                                     style={{
-                                                        ...(field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' ? { gridColumn: '1 / -1' } : {}),
+                                                        ...(field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' || field.name === 'activitySummary' || field.name === 'activityDetails' ? { gridColumn: '1 / -1' } : {}),
                                                         ...(isLocked ? { opacity: 0.6 } : {})
                                                     }}
                                                 >
@@ -6585,8 +6587,21 @@ export default function DepartmentPage() {
                                                             </button>
                                                         )}
                                                     </label>
-                                                    {field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' ? (
-                                                        <textarea className="form-input" rows={4} placeholder="ملاحظات إضافية..." value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)}></textarea>
+                                                    {field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' || field.name === 'activitySummary' || field.name === 'activityDetails' ? (
+                                                        <textarea
+                                                            className="form-input"
+                                                            rows={4}
+                                                            placeholder={
+                                                                field.name === 'activitySummary' ? '(الملخص)' :
+                                                                    field.name === 'activityDetails' ? '(التفاصيل)' :
+                                                                        field.name === 'obstacles' ? '(المعوقات)' :
+                                                                            field.name === 'developmentProposals' ? '(المقترحات)' :
+                                                                                field.name === 'additionalActivities' ? '(أنشطة إضافية)' :
+                                                                                    'ملاحظات إضافية...'
+                                                            }
+                                                            value={formData[field.name] || ''}
+                                                            onChange={(e) => handleChange(field.name, e.target.value)}
+                                                        ></textarea>
                                                     ) : (
                                                         <input
                                                             type={field.type}
