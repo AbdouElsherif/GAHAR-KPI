@@ -30,6 +30,7 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
     const [programTypeFormData, setProgramTypeFormData] = useState({
         trainingPrograms: '',
         awarenessPrograms: '',
+        workshops: '',
         month: ''
     });
 
@@ -54,16 +55,17 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
             return;
         }
 
-        if (!programTypeFormData.trainingPrograms || !programTypeFormData.awarenessPrograms || !programTypeFormData.month) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
+        if (!programTypeFormData.month) {
+            alert('يرجى اختيار الشهر');
             return;
         }
 
         const [year, month] = programTypeFormData.month.split('-');
 
         const programData = {
-            trainingPrograms: parseInt(programTypeFormData.trainingPrograms),
-            awarenessPrograms: parseInt(programTypeFormData.awarenessPrograms),
+            trainingPrograms: programTypeFormData.trainingPrograms ? parseInt(programTypeFormData.trainingPrograms) : 0,
+            awarenessPrograms: programTypeFormData.awarenessPrograms ? parseInt(programTypeFormData.awarenessPrograms) : 0,
+            workshops: programTypeFormData.workshops ? parseInt(programTypeFormData.workshops) : 0,
             month: programTypeFormData.month,
             year: parseInt(year),
             createdBy: currentUser.email,
@@ -104,6 +106,7 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
         setProgramTypeFormData({
             trainingPrograms: '',
             awarenessPrograms: '',
+            workshops: '',
             month: ''
         });
         setEditingProgramTypeId(null);
@@ -111,8 +114,9 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
 
     const handleEditProgramType = (program: ProgramType) => {
         setProgramTypeFormData({
-            trainingPrograms: program.trainingPrograms.toString(),
-            awarenessPrograms: program.awarenessPrograms.toString(),
+            trainingPrograms: program.trainingPrograms ? program.trainingPrograms.toString() : '',
+            awarenessPrograms: program.awarenessPrograms ? program.awarenessPrograms.toString() : '',
+            workshops: program.workshops ? program.workshops.toString() : '',
             month: program.month
         });
         setEditingProgramTypeId(program.id || null);
@@ -150,8 +154,9 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
             return {
                 '#': index + 1,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
-                'برامج تدريب': program.trainingPrograms,
-                'برامج توعية': program.awarenessPrograms
+                'برامج تدريب': program.trainingPrograms || 0,
+                'برامج توعية': program.awarenessPrograms || 0,
+                'ورش عمل': program.workshops || 0
             };
         });
 
@@ -182,12 +187,16 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
                         width: { size: 35, type: WidthType.PERCENTAGE }
                     }),
                     new TableCell({
-                        children: [new Paragraph({ text: program.trainingPrograms.toString(), alignment: AlignmentType.CENTER })],
-                        width: { size: 25, type: WidthType.PERCENTAGE }
+                        children: [new Paragraph({ text: (program.trainingPrograms || 0).toString(), alignment: AlignmentType.CENTER })],
+                        width: { size: 20, type: WidthType.PERCENTAGE }
                     }),
                     new TableCell({
-                        children: [new Paragraph({ text: program.awarenessPrograms.toString(), alignment: AlignmentType.CENTER })],
-                        width: { size: 25, type: WidthType.PERCENTAGE }
+                        children: [new Paragraph({ text: (program.awarenessPrograms || 0).toString(), alignment: AlignmentType.CENTER })],
+                        width: { size: 20, type: WidthType.PERCENTAGE }
+                    }),
+                    new TableCell({
+                        children: [new Paragraph({ text: (program.workshops || 0).toString(), alignment: AlignmentType.CENTER })],
+                        width: { size: 20, type: WidthType.PERCENTAGE }
                     })
                 ]
             });
@@ -207,11 +216,15 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
                         }),
                         new TableCell({
                             children: [new Paragraph({ text: 'برامج تدريب', alignment: AlignmentType.CENTER })],
-                            width: { size: 25, type: WidthType.PERCENTAGE }
+                            width: { size: 20, type: WidthType.PERCENTAGE }
                         }),
                         new TableCell({
                             children: [new Paragraph({ text: 'برامج توعية', alignment: AlignmentType.CENTER })],
-                            width: { size: 25, type: WidthType.PERCENTAGE }
+                            width: { size: 20, type: WidthType.PERCENTAGE }
+                        }),
+                        new TableCell({
+                            children: [new Paragraph({ text: 'ورش عمل', alignment: AlignmentType.CENTER })],
+                            width: { size: 20, type: WidthType.PERCENTAGE }
                         })
                     ]
                 }),
@@ -272,7 +285,7 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
                             <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
                                 {editingProgramTypeId ? 'تعديل بيانات' : 'إضافة بيانات جديدة'}
                             </h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
                                 <div className="form-group">
                                     <label className="form-label">الشهر *</label>
                                     <input
@@ -286,26 +299,50 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">برامج تدريب *</label>
+                                    <label className="form-label">برامج تدريب</label>
                                     <input
                                         type="number"
                                         className="form-input"
-                                        required
                                         min="0"
                                         value={programTypeFormData.trainingPrograms}
-                                        onChange={(e) => setProgramTypeFormData({ ...programTypeFormData, trainingPrograms: e.target.value })}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === '' || Number(val) >= 0) {
+                                                setProgramTypeFormData({ ...programTypeFormData, trainingPrograms: val });
+                                            }
+                                        }}
                                         placeholder="0"
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label className="form-label">برامج توعية *</label>
+                                    <label className="form-label">برامج توعية</label>
                                     <input
                                         type="number"
                                         className="form-input"
-                                        required
                                         min="0"
                                         value={programTypeFormData.awarenessPrograms}
-                                        onChange={(e) => setProgramTypeFormData({ ...programTypeFormData, awarenessPrograms: e.target.value })}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === '' || Number(val) >= 0) {
+                                                setProgramTypeFormData({ ...programTypeFormData, awarenessPrograms: val });
+                                            }
+                                        }}
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">ورش عمل</label>
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        min="0"
+                                        value={programTypeFormData.workshops}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === '' || Number(val) >= 0) {
+                                                setProgramTypeFormData({ ...programTypeFormData, workshops: val });
+                                            }
+                                        }}
                                         placeholder="0"
                                     />
                                 </div>
@@ -350,13 +387,14 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>الشهر</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>برامج تدريب</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>برامج توعية</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>ورش عمل</th>
                                     {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>إجراءات</th>}
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredPrograms.length === 0 ? (
                                     <tr>
-                                        <td colSpan={userCanEdit ? 5 : 4} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+                                        <td colSpan={userCanEdit ? 6 : 5} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
                                             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📊</div>
                                             لا توجد بيانات
                                         </td>
@@ -366,8 +404,9 @@ export default function ProgramTypesSection({ currentUser, canEdit, globalFilter
                                         <tr key={program.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? 'white' : '#f9f9f9' }}>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
                                             <td style={{ padding: '12px', textAlign: 'center' }}>{formatMonthYear(program.month)}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: '#0D6A79', fontWeight: 'bold' }}>{program.trainingPrograms}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: '#0D6A79', fontWeight: 'bold' }}>{program.awarenessPrograms}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#0D6A79', fontWeight: 'bold' }}>{program.trainingPrograms || 0}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#0D6A79', fontWeight: 'bold' }}>{program.awarenessPrograms || 0}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: '#0D6A79', fontWeight: 'bold' }}>{program.workshops || 0}</td>
                                             {userCanEdit && (
                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
                                                     <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>

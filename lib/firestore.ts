@@ -437,8 +437,9 @@ export interface TrainingEntity {
 export interface ProgramType {
     id?: string;
     month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
-    trainingPrograms: number;  // Ø¨Ø±Ø§Ù…Ø¬ ØªØ¯Ø±ÙŠØ¨
-    awarenessPrograms: number;  // Ø¨Ø±Ø§Ù…Ø¬ ØªÙˆØ¹ÙŠØ©
+    trainingPrograms?: number;  // Ø¨Ø±Ø§Ù…Ø¬ ØªØ¯Ø±ÙŠØ¨
+    awarenessPrograms?: number;  // Ø¨Ø±Ø§Ù…Ø¬ ØªÙˆØ¹ÙŠØ©
+    workshops?: number; // ورش عمل
     year: number;
     createdAt?: Date;
     createdBy?: string;
