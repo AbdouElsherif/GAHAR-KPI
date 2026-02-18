@@ -461,6 +461,22 @@ export interface CollectedRevenue {
     updatedBy?: string;
 }
 
+// Training Program By Governorate (البرامج التدريبية بالمحافظات for dept1)
+export interface TrainingProgramByGovernorate {
+    id?: string;
+    departmentId: string;
+    month: string; // YYYY-MM
+    governorate: string; // المحافظة
+    phase: string; // المرحلة (مرحلة أولى، مرحلة ثانية، ...)
+    programsCount: number; // عدد البرامج التدريبية
+    traineesCount: number; // عدد المتدربين
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 // Governorate Customer Survey (Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ø±Ø¶Ø§Ø¡ Ø§Ù„Ù…ØªØ¹Ø§Ù…Ù„ÙŠÙ† Ø­Ø³Ø¨ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© for dept3)
 export interface GovernorateCustomerSurvey {
     id?: string;
@@ -3509,6 +3525,63 @@ export const deleteCollectedRevenue = async (id: string) => {
         return true;
     } catch (error) {
         console.error('Error deleting collected revenue:', error);
+        return false;
+    }
+};
+
+// ============================================================================
+// Training Programs By Governorate (البرامج التدريبية بالمحافظات)
+// ============================================================================
+
+export const saveTrainingProgramByGovernorate = async (data: any) => {
+    try {
+        const docRef = await addDoc(collection(db, 'trainingProgramsByGovernorate'), {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error adding training program by governorate:', error);
+        return null;
+    }
+};
+
+export const getTrainingProgramsByGovernorate = async () => {
+    try {
+        const q = query(collection(db, 'trainingProgramsByGovernorate'), orderBy('month', 'desc'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        })) as TrainingProgramByGovernorate[];
+    } catch (error) {
+        console.error('Error getting training programs by governorate:', error);
+        return [];
+    }
+};
+
+export const updateTrainingProgramByGovernorate = async (id: string, data: any) => {
+    try {
+        const docRef = doc(db, 'trainingProgramsByGovernorate', id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating training program by governorate:', error);
+        return false;
+    }
+};
+
+export const deleteTrainingProgramByGovernorate = async (id: string) => {
+    try {
+        const docRef = doc(db, 'trainingProgramsByGovernorate', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting training program by governorate:', error);
         return false;
     }
 };

@@ -210,6 +210,12 @@ service cloud.firestore {
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
 
+    // Training Programs By Governorate (البرامج التدريبية بالمحافظات for dept1)
+    match /trainingProgramsByGovernorate/{programId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
+    }
+
     //Governorate Customer Surveys (استبيانات رضاء المتعاملين حسب المحافظة for dept3)
     match /governorate_customer_surveys/{surveyId} {
       allow read: if isAuthenticated();
