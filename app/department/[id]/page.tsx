@@ -6484,6 +6484,7 @@ export default function DepartmentPage() {
                             }}
                             onClick={() => setIsDataEntrySectionExpanded(!isDataEntrySectionExpanded)}
                         >
+                            {/* ====== DEPT1-SECTION-MAIN: المؤشرات الرئيسية ====== */}
                             {/* ====== DEPT3-SECTION-1: المؤشرات الرئيسية ====== */}
                             <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--primary-color)' }}>
                                 📝 المؤشرات الرئيسية
@@ -6631,6 +6632,7 @@ export default function DepartmentPage() {
 
             </div>
 
+            {/* ====== DEPT1-SECTION-ENTITIES: الجهات الحاصلة على التدريب ====== */}
             {/* Training Entities Section - الجهات الحاصلة على التدريب (for dept1 only) */}
             {id === 'dept1' && (
                 <div className="card" style={{ marginTop: '30px' }}>
@@ -6712,12 +6714,10 @@ export default function DepartmentPage() {
                                                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                                     الجهة الحاصلة على التدريب <span style={{ color: 'red' }}>*</span>
                                                 </label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={trainingEntityFormData.entityName}
                                                     onChange={(e) => setTrainingEntityFormData({ ...trainingEntityFormData, entityName: e.target.value })}
                                                     required
-                                                    placeholder="أدخل اسم الجهة"
                                                     style={{
                                                         width: '100%',
                                                         padding: '10px',
@@ -6725,7 +6725,17 @@ export default function DepartmentPage() {
                                                         borderRadius: '4px',
                                                         fontSize: '1rem'
                                                     }}
-                                                />
+                                                >
+                                                    <option value="">اختر الجهة</option>
+                                                    <option value="وزارة الصحة والهيئات التابعة لها">وزارة الصحة والهيئات التابعة لها</option>
+                                                    <option value="المستشفيات الجامعية">المستشفيات الجامعية</option>
+                                                    <option value="القطاع الطبي بالقوات المسلحة">القطاع الطبي بالقوات المسلحة</option>
+                                                    <option value="القطاع الطبي بوزارة الداخلية">القطاع الطبي بوزارة الداخلية</option>
+                                                    <option value="القطاع الخاص">القطاع الخاص</option>
+                                                    <option value="الجمعيات الأهلية">الجمعيات الأهلية</option>
+                                                    <option value="تدريب الأفراد">تدريب الأفراد</option>
+                                                    <option value="العاملون بالهيئة">العاملون بالهيئة</option>
+                                                </select>
                                             </div>
 
                                             <div>
@@ -6891,6 +6901,7 @@ export default function DepartmentPage() {
                 </div>
             )}
 
+            {/* ====== DEPT1-SECTION-PROGRAMS: نوع البرنامج ====== */}
             {/* Program Types Section - نوع البرنامج (for dept1 only) */}
             {/* Program Types Section - نوع البرنامج (for dept1 only) */}
             {id === 'dept1' && (
@@ -15996,6 +16007,7 @@ export default function DepartmentPage() {
                 )
             }
 
+            {/* ====== DEPT1-SECTION-DASHBOARD: لوحة البيانات (Dashboard) ====== */}
             {
                 id === 'dept1' && (
                     <DashboardModal
