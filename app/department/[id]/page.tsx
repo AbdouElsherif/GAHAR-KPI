@@ -96,7 +96,7 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'date', label: 'الشهر والسنة', type: 'month' },
         { name: 'trainingPrograms', label: 'عدد البرامج التدريبية', type: 'number' },
         { name: 'trainees', label: 'عدد المتدربين', type: 'number' },
-        { name: 'activitySummary', label: 'ملخص نشاطات الإدارة', type: 'text' },
+        { name: 'activitySummary', label: 'ملخص أنشطة الإدارة', type: 'text' },
         { name: 'activityDetails', label: 'تفاصيل أنشطة الإدارة', type: 'text' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
@@ -15918,7 +15918,7 @@ export default function DepartmentPage() {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails' && f.name !== 'activitySummary').map(field => (
                                             <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                                 <button
                                                     onClick={() => handleSort(field.name)}
@@ -15949,7 +15949,7 @@ export default function DepartmentPage() {
                                 <tbody>
                                     {paginatedSubmissions.map((sub, index) => (
                                         <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails' && f.name !== 'activitySummary').map(field => (
                                                 <td key={field.name} style={{ padding: '12px' }}>
                                                     {field.name === 'date' && sub[field.name] ? (
                                                         (() => {
@@ -16005,7 +16005,7 @@ export default function DepartmentPage() {
                                             borderTop: '2px solid var(--primary-color)',
                                             fontWeight: 'bold'
                                         }}>
-                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map((field, index) => (
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'activitySummary').map((field, index) => (
                                                 <td key={field.name} style={{
                                                     padding: '14px 12px',
                                                     color: 'var(--primary-color)',
@@ -17281,7 +17281,7 @@ export default function DepartmentPage() {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails' && f.name !== 'activitySummary').map(field => (
                                             <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                                 <button
                                                     onClick={() => handleSort(field.name)}
@@ -17312,7 +17312,7 @@ export default function DepartmentPage() {
                                 <tbody>
                                     {paginatedSubmissions.map((sub, index) => (
                                         <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails' && f.name !== 'activitySummary').map(field => (
                                                 <td key={field.name} style={{ padding: '12px' }}>
                                                     {field.name === 'date' && sub[field.name] ? (
                                                         (() => {
@@ -17366,7 +17366,7 @@ export default function DepartmentPage() {
                                             borderTop: '2px solid var(--primary-color)',
                                             fontWeight: 'bold'
                                         }}>
-                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles').map((field, index) => (
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'activitySummary').map((field, index) => (
                                                 <td key={field.name} style={{
                                                     padding: '14px 12px',
                                                     color: 'var(--primary-color)',

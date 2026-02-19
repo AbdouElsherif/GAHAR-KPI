@@ -211,6 +211,21 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
 
     const currentActivityDetails = getActivityDetailsForSelectedMonth();
 
+    const getActivitySummaryForSelectedMonth = (): string => {
+        if (comparisonType !== 'monthly') return '';
+
+        const monthData = currentYearData.find(sub => {
+            if (!sub.date) return false;
+            const month = getMonth(sub.date);
+            const year = getYear(sub.date);
+            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
+        });
+
+        return monthData?.activitySummary || '';
+    };
+
+    const currentActivitySummary = getActivitySummaryForSelectedMonth();
+
     const preparePieData = (metric: 'trainingPrograms' | 'trainees') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             const currentVal = metric === 'trainingPrograms' ? currentTotalPrograms : currentTotalTrainees;
@@ -749,14 +764,14 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                 </div>
             </div>
 
-            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentObstacles && (
+            {/* قسم ملخص أنشطة الإدارة - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && currentActivitySummary && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
                         borderRadius: '12px',
                         padding: '25px',
-                        border: '2px solid #ffc107',
+                        border: '2px solid #007bff',
                         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                     }}>
                         <div style={{
@@ -765,32 +780,32 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                             gap: '10px',
                             marginBottom: '15px',
                             paddingBottom: '15px',
-                            borderBottom: '2px solid #ffc107'
+                            borderBottom: '2px solid #007bff'
                         }}>
-                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                            <span style={{ fontSize: '1.5rem' }}>📝</span>
                             <h3 style={{
                                 margin: 0,
-                                color: '#856404',
+                                color: '#0056b3',
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المعوقات - {(() => {
+                                ملخص أنشطة الإدارة - {(() => {
                                     const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                     return monthNames[selectedMonth - 1];
                                 })()} {targetYear}
                             </h3>
                         </div>
                         <div style={{
-                            backgroundColor: '#fff3cd',
+                            backgroundColor: '#e7f3ff',
                             padding: '20px',
                             borderRadius: '8px',
                             fontSize: '1rem',
                             lineHeight: '1.6',
-                            color: '#856404',
+                            color: '#0056b3',
                             whiteSpace: 'pre-wrap',
                             wordBreak: 'break-word'
                         }}>
-                            {currentObstacles}
+                            {currentActivitySummary}
                         </div>
                     </div>
                 </div>
@@ -932,6 +947,53 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                             wordBreak: 'break-word'
                         }}>
                             {currentActivityDetails}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && currentObstacles && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #ffc107',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #ffc107'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#856404',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                المعوقات - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#fff3cd',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#856404',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentObstacles}
                         </div>
                     </div>
                 </div>
