@@ -477,6 +477,20 @@ export interface TrainingProgramByGovernorate {
     updatedBy?: string;
 }
 
+// Training Methodology (منهجية التدريب for dept1)
+export interface TrainingNature {
+    id?: string;
+    month: string; // YYYY-MM
+    physicalPrograms: number; // حضوري
+    onlinePrograms: number; // عن بعد
+    hybridPrograms: number; // مدمج
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 // Governorate Customer Survey (Ø§Ø³ØªØ¨ÙŠØ§Ù†Ø§Øª Ø±Ø¶Ø§Ø¡ Ø§Ù„Ù…ØªØ¹Ø§Ù…Ù„ÙŠÙ† Ø­Ø³Ø¨ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© for dept3)
 export interface GovernorateCustomerSurvey {
     id?: string;
@@ -3582,6 +3596,65 @@ export const deleteTrainingProgramByGovernorate = async (id: string) => {
         return true;
     } catch (error) {
         console.error('Error deleting training program by governorate:', error);
+        return false;
+    }
+};
+
+// ============================================================================
+// Training Methodology (منهجية التدريب)
+// ============================================================================
+
+export const saveTrainingNature = async (data: Omit<TrainingNature, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+        const docRef = await addDoc(collection(db, 'trainingNatures'), {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error adding training nature:', error);
+        return null;
+    }
+};
+
+export const getTrainingNatures = async () => {
+    try {
+        const q = query(collection(db, 'trainingNatures'), orderBy('month', 'desc'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        })) as TrainingNature[];
+    } catch (error) {
+        console.error('Error getting training natures:', error);
+        return [];
+    }
+};
+
+export const updateTrainingNature = async (id: string, data: Partial<TrainingNature>) => {
+    try {
+        const docRef = doc(db, 'trainingNatures', id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+        return true;
+    } catch (error) {
+        console.error('Error updating training nature:', error);
+        return false;
+    }
+};
+
+export const deleteTrainingNature = async (id: string) => {
+    try {
+        const docRef = doc(db, 'trainingNatures', id);
+        await deleteDoc(docRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting training nature:', error);
         return false;
     }
 };

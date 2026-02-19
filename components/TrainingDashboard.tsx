@@ -1,14 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, PieChart, Pie, Cell } from 'recharts';
+
+import { getTrainingNatures, type TrainingNature } from '@/lib/firestore';
 
 interface TrainingDashboardProps {
     submissions: Array<Record<string, any>>;
 }
 
 export default function TrainingDashboard({ submissions }: TrainingDashboardProps) {
+    useEffect(() => {
+        const loadNatures = async () => {
+            const data = await getTrainingNatures();
+            setTrainingNatures(data);
+        };
+        loadNatures();
+    }, []);
+
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -19,6 +29,7 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
     }>({
         trainees: true
     });
+    const [trainingNatures, setTrainingNatures] = useState<TrainingNature[]>([]);
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
@@ -210,6 +221,39 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
     };
 
     const currentActivityDetails = getActivityDetailsForSelectedMonth();
+
+    const getTrainingNatureData = () => {
+        if (comparisonType === 'monthly') {
+            const monthData = trainingNatures.find(n => {
+                const [y, m] = n.month.split('-');
+                return parseInt(m) === selectedMonth && getFiscalYear(n.month) === targetYear;
+            });
+
+            if (!monthData) return [];
+
+            return [
+                { name: 'حضوري', value: monthData.physicalPrograms || 0, color: '#0088FE' },
+                { name: 'عن بعد', value: monthData.onlinePrograms || 0, color: '#00C49F' },
+                { name: 'مدمج', value: monthData.hybridPrograms || 0, color: '#FFBB28' }
+            ].filter(d => d.value > 0);
+        } else {
+            // Aggregate for fiscal year
+            const yearData = trainingNatures.filter(n => getFiscalYear(n.month) === targetYear);
+            const totals = yearData.reduce((acc, curr) => ({
+                physical: acc.physical + (curr.physicalPrograms || 0),
+                online: acc.online + (curr.onlinePrograms || 0),
+                hybrid: acc.hybrid + (curr.hybridPrograms || 0)
+            }), { physical: 0, online: 0, hybrid: 0 });
+
+            return [
+                { name: 'حضوري', value: totals.physical, color: '#0088FE' },
+                { name: 'عن بعد', value: totals.online, color: '#00C49F' },
+                { name: 'مدمج', value: totals.hybrid, color: '#FFBB28' }
+            ].filter(d => d.value > 0);
+        }
+    };
+
+    const trainingNaturePieData = getTrainingNatureData();
 
     const getActivitySummaryForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
@@ -557,6 +601,42 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                     pieData={traineesPieData}
                     color="#8884d8"
                 />
+            </div>
+
+            <div style={{ marginBottom: '35px' }}>
+                <div className="card" style={{ padding: '20px', border: '1px solid var(--border-color)' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--primary-color)' }}>
+                        📊 منهجية التدريب
+                    </h3>
+                    {trainingNaturePieData.length > 0 ? (
+                        <div style={{ height: '350px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={trainingNaturePieData}
+                                        cx="50%"
+                                        cy="45%"
+                                        innerRadius={60}
+                                        outerRadius={100}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                        label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                                    >
+                                        {trainingNaturePieData.map((entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip formatter={(value) => [`${value} متدرب`, 'العدد']} />
+                                    <Legend verticalAlign="bottom" height={36} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    ) : (
+                        <div style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
+                            لا توجد بيانات طبيعة التنفيذ للفترة المختارة
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div style={{ marginBottom: '30px' }}>

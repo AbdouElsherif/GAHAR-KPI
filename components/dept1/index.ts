@@ -6,3 +6,4 @@ export { default as TrainingEntitiesSection } from './TrainingEntitiesSection';
 export { default as ProgramTypesSection } from './ProgramTypesSection';
 export { default as CollectedRevenuesSection } from './CollectedRevenuesSection';
 export { default as TrainingProgramsByGovernorateSection } from './TrainingProgramsByGovernorateSection';
+export { default as TrainingNatureSection } from './TrainingNatureSection';

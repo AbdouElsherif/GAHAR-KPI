@@ -9,9 +9,10 @@
 | 1 | **المؤشرات الرئيسية** (البيانات الشهرية) | `DEPT1-SECTION-MAIN` |
 | 2 | **الجهات الحاصلة على التدريب** | `DEPT1-SECTION-ENTITIES` |
 | 3 | **نوع البرنامج** (برامج تدريبية / توعية) | `DEPT1-SECTION-PROGRAMS` |
-| 4 | **الإيرادات المحصلة** | `DEPT1-SECTION-REVENUES` |
-| 5 | **تصنيف البرامج التدريبية حسب المحافظة** | `DEPT1-SECTION-TRAINING-PROGRAMS` |
-| 6 | **لوحة البيانات** (Dashboard) | `DEPT1-SECTION-DASHBOARD` |
+| 4 | **منهجية التدريب** | `DEPT1-SECTION-TRAINING-NATURE` |
+| 5 | **الإيرادات المحصلة** | `DEPT1-SECTION-REVENUES` |
+| 6 | **تصنيف البرامج التدريبية حسب المحافظة** | `DEPT1-SECTION-TRAINING-PROGRAMS` |
+| 7 | **لوحة البيانات** (Dashboard) | `DEPT1-SECTION-DASHBOARD` |
 
 ## مثال للبحث السريع
 
