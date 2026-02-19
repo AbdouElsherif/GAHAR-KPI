@@ -196,6 +196,21 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
+    const getActivityDetailsForSelectedMonth = (): string => {
+        if (comparisonType !== 'monthly') return '';
+
+        const monthData = currentYearData.find(sub => {
+            if (!sub.date) return false;
+            const month = getMonth(sub.date);
+            const year = getYear(sub.date);
+            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
+        });
+
+        return monthData?.activityDetails || '';
+    };
+
+    const currentActivityDetails = getActivityDetailsForSelectedMonth();
+
     const preparePieData = (metric: 'trainingPrograms' | 'trainees') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
             const currentVal = metric === 'trainingPrograms' ? currentTotalPrograms : currentTotalTrainees;
@@ -834,6 +849,53 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                             wordBreak: 'break-word'
                         }}>
                             {currentAdditionalActivities}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* قسم تفاصيل الأنشطة - يظهر فقط في حالة الفلترة الشهرية */}
+            {comparisonType === 'monthly' && currentActivityDetails && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #17a2b8',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #17a2b8'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>ℹ️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#117a8b',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                تفاصيل الأنشطة - {(() => {
+                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                    return monthNames[selectedMonth - 1];
+                                })()} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#d1ecf1',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#0c5460',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentActivityDetails}
                         </div>
                     </div>
                 </div>

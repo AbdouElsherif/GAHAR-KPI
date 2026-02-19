@@ -15918,7 +15918,7 @@ export default function DepartmentPage() {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
                                             <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                                 <button
                                                     onClick={() => handleSort(field.name)}
@@ -15949,7 +15949,7 @@ export default function DepartmentPage() {
                                 <tbody>
                                     {paginatedSubmissions.map((sub, index) => (
                                         <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities').map(field => (
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
                                                 <td key={field.name} style={{ padding: '12px' }}>
                                                     {field.name === 'date' && sub[field.name] ? (
                                                         (() => {
@@ -17281,7 +17281,7 @@ export default function DepartmentPage() {
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '2px solid var(--primary-color)' }}>
-                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities').map(field => (
+                                        {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
                                             <th key={field.name} style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold' }}>
                                                 <button
                                                     onClick={() => handleSort(field.name)}
@@ -17312,7 +17312,7 @@ export default function DepartmentPage() {
                                 <tbody>
                                     {paginatedSubmissions.map((sub, index) => (
                                         <tr key={index} style={{ borderBottom: '1px solid #eee', backgroundColor: sub.id === editingId ? '#f8f9fa' : 'transparent' }}>
-                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities').map(field => (
+                                            {activeFields.filter(f => f.name !== 'notes' && f.name !== 'obstacles' && f.name !== 'developmentProposals' && f.name !== 'additionalActivities' && f.name !== 'activityDetails').map(field => (
                                                 <td key={field.name} style={{ padding: '12px' }}>
                                                     {field.name === 'date' && sub[field.name] ? (
                                                         (() => {

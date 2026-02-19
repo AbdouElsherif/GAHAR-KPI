@@ -41,7 +41,7 @@ next-env.d.ts
 *~
 
 # Backups (optional, uncomment if you don't want to track backups)
-# backups/
+backups/
 
 # Python
 __pycache__/
