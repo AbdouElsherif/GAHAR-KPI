@@ -6926,18 +6926,18 @@ export default function DepartmentPage() {
                 />
             )}
 
-            {/* ====== DEPT1-SECTION-REVENUES: الإيرادات المحصلة ====== */}
+            {/* ====== DEPT1-SECTION-TRAINING-PROGRAMS: تصنيف البرامج التدريبية حسب المحافظة ====== */}
             {id === 'dept1' && (
-                <CollectedRevenuesSection
+                <TrainingProgramsByGovernorateSection
                     currentUser={currentUser}
                     canEdit={canEdit}
                     globalFilterMonth={globalFilterMonth}
                 />
             )}
 
-            {/* ====== DEPT1-SECTION-TRAINING-PROGRAMS: تصنيف البرامج التدريبية حسب المحافظة ====== */}
+            {/* ====== DEPT1-SECTION-REVENUES: الإيرادات المحصلة ====== */}
             {id === 'dept1' && (
-                <TrainingProgramsByGovernorateSection
+                <CollectedRevenuesSection
                     currentUser={currentUser}
                     canEdit={canEdit}
                     globalFilterMonth={globalFilterMonth}
