@@ -6935,7 +6935,7 @@ export default function DepartmentPage() {
                 />
             )}
 
-            {/* ====== DEPT1-SECTION-TRAINING-PROGRAMS: البرامج التدريبية بالمحافظات ====== */}
+            {/* ====== DEPT1-SECTION-TRAINING-PROGRAMS: تصنيف البرامج التدريبية حسب المحافظة ====== */}
             {id === 'dept1' && (
                 <TrainingProgramsByGovernorateSection
                     currentUser={currentUser}

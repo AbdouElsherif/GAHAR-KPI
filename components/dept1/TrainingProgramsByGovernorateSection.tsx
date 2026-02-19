@@ -255,7 +255,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
                 properties: {},
                 children: [
                     new Paragraph({
-                        text: 'البرامج التدريبية',
+                        text: 'تصنيف البرامج التدريبية حسب المحافظة',
                         alignment: AlignmentType.CENTER,
                         spacing: { after: 200 }
                     }),
@@ -287,7 +287,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
     return (
         <div className="card" style={{ marginTop: '30px' }}>
             <SectionHeader
-                title="البرامج التدريبية"
+                title="تصنيف البرامج التدريبية حسب المحافظة"
                 icon="🏫"
                 count={filteredPrograms.length}
                 isExpanded={isExpanded}
