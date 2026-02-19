@@ -679,35 +679,71 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                                     backgroundColor: 'var(--primary-color)',
                                     zIndex: 10
                                 }}>المؤشر</th>
-                                {(() => {
-                                    let periods = Object.keys(currentAggregated).sort();
-
-                                    if (comparisonType === 'monthly') {
-                                        periods = periods.filter(p => {
-                                            if (p.includes('-')) {
-                                                const month = parseInt(p.split('-')[1]);
-                                                return month === selectedMonth;
-                                            }
-                                            return false;
-                                        });
-                                    } else if (comparisonType === 'quarterly') {
-                                        const targetPeriod = `Q${selectedQuarter}`;
-                                        periods = periods.filter(p => p === targetPeriod);
-                                    } else if (comparisonType === 'halfYearly') {
-                                        const targetPeriod = `H${selectedHalf}`;
-                                        periods = periods.filter(p => p === targetPeriod);
-                                    }
-
-                                    return periods.map(period => (
-                                        <th key={period} style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
-                                            {formatPeriodLabel(period)}
-                                        </th>
-                                    ));
-                                })()}
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const monthName = monthNames[selectedMonth - 1];
+                                        return `${monthName} ${targetYear - 1} - ${targetYear}`;
+                                    })()}
+                                </th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        const monthName = monthNames[selectedMonth - 1];
+                                        return `${monthName} ${targetYear - 2} - ${targetYear - 1}`;
+                                    })()}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {renderTransposedTableRows()}
+                            {/* Row 1: Training Programs */}
+                            <tr style={{ borderBottom: '1px solid #eee', backgroundColor: 'transparent' }}>
+                                <td style={{
+                                    padding: '12px',
+                                    fontWeight: 'bold',
+                                    color: '#0eacb8',
+                                    position: 'sticky',
+                                    right: 0,
+                                    backgroundColor: 'var(--card-bg)',
+                                    borderLeft: '2px solid var(--border-color)'
+                                }}>عدد البرامج التدريبية</td>
+                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                                    {(() => {
+                                        const data = currentYearData.find(sub => sub.date && getMonth(sub.date) === selectedMonth);
+                                        return data?.trainingPrograms || 0;
+                                    })()}
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                                    {(() => {
+                                        const data = previousYearData.find(sub => sub.date && getMonth(sub.date) === selectedMonth);
+                                        return data?.trainingPrograms || 0;
+                                    })()}
+                                </td>
+                            </tr>
+                            {/* Row 2: Trainees */}
+                            <tr style={{ borderBottom: '1px solid #eee', backgroundColor: 'var(--background-color)' }}>
+                                <td style={{
+                                    padding: '12px',
+                                    fontWeight: 'bold',
+                                    color: '#8884d8',
+                                    position: 'sticky',
+                                    right: 0,
+                                    backgroundColor: 'var(--background-color)',
+                                    borderLeft: '2px solid var(--border-color)'
+                                }}>عدد المتدربين</td>
+                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                                    {(() => {
+                                        const data = currentYearData.find(sub => sub.date && getMonth(sub.date) === selectedMonth);
+                                        return data?.trainees || 0;
+                                    })()}
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: 'var(--text-color)' }}>
+                                    {(() => {
+                                        const data = previousYearData.find(sub => sub.date && getMonth(sub.date) === selectedMonth);
+                                        return data?.trainees || 0;
+                                    })()}
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
