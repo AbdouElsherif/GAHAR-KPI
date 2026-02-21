@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, PieChart, Pie, Cell } from 'recharts';
 
-import { getTrainingNatures, type TrainingNature } from '@/lib/firestore';
+import { getTrainingNatures, type TrainingNature, getCollectedRevenues, type CollectedRevenue } from '@/lib/firestore';
 
 interface TrainingDashboardProps {
     submissions: Array<Record<string, any>>;
@@ -17,6 +17,12 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
             setTrainingNatures(data);
         };
         loadNatures();
+
+        const loadRevenues = async () => {
+            const data = await getCollectedRevenues();
+            setCollectedRevenues(data);
+        };
+        loadRevenues();
     }, []);
 
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
@@ -30,6 +36,7 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
         trainees: true
     });
     const [trainingNatures, setTrainingNatures] = useState<TrainingNature[]>([]);
+    const [collectedRevenues, setCollectedRevenues] = useState<CollectedRevenue[]>([]);
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
@@ -232,9 +239,9 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
             if (!monthData) return [];
 
             return [
-                { name: 'حضوري', value: monthData.physicalPrograms || 0, color: '#0088FE' },
-                { name: 'عن بعد', value: monthData.onlinePrograms || 0, color: '#00C49F' },
-                { name: 'مدمج', value: monthData.hybridPrograms || 0, color: '#FFBB28' }
+                { name: 'حضوري', value: monthData.physicalPrograms || 0, color: '#6366f1' },
+                { name: 'عن بعد', value: monthData.onlinePrograms || 0, color: '#0ea5e9' },
+                { name: 'مدمج', value: monthData.hybridPrograms || 0, color: '#f59e0b' }
             ].filter(d => d.value > 0);
         } else {
             // Aggregate for fiscal year
@@ -246,9 +253,9 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
             }), { physical: 0, online: 0, hybrid: 0 });
 
             return [
-                { name: 'حضوري', value: totals.physical, color: '#0088FE' },
-                { name: 'عن بعد', value: totals.online, color: '#00C49F' },
-                { name: 'مدمج', value: totals.hybrid, color: '#FFBB28' }
+                { name: 'حضوري', value: totals.physical, color: '#6366f1' },
+                { name: 'عن بعد', value: totals.online, color: '#0ea5e9' },
+                { name: 'مدمج', value: totals.hybrid, color: '#f59e0b' }
             ].filter(d => d.value > 0);
         }
     };
@@ -603,98 +610,10 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                 />
             </div>
 
-            <div style={{ marginBottom: '35px' }}>
-                <div className="card" style={{ padding: '20px', border: '1px solid var(--border-color)' }}>
-                    <h3 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--primary-color)' }}>
-                        📊 منهجية التدريب
-                    </h3>
-                    {trainingNaturePieData.length > 0 ? (
-                        <div style={{ height: '350px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={trainingNaturePieData}
-                                        cx="50%"
-                                        cy="45%"
-                                        innerRadius={60}
-                                        outerRadius={100}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                        label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
-                                    >
-                                        {trainingNaturePieData.map((entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value) => [`${value} متدرب`, 'العدد']} />
-                                    <Legend verticalAlign="bottom" height={36} />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                    ) : (
-                        <div style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
-                            لا توجد بيانات طبيعة التنفيذ للفترة المختارة
-                        </div>
-                    )}
-                </div>
-            </div>
 
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--text-color)' }}>📈 الرسوم البيانية</h3>
 
-                <div style={{
-                    backgroundColor: 'var(--card-bg)',
-                    borderRadius: '12px',
-                    padding: '20px',
-                    marginBottom: '20px',
-                    border: '1px solid var(--border-color)'
-                }}>
-                    <h4 style={{ margin: '0 0 20px 0', color: 'var(--text-color)' }}>مقارنة الأداء - رسم بياني خطي</h4>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={prepareChartData()}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                            <XAxis dataKey="period" stroke="var(--text-color)" />
-                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '8px'
-                                }}
-                            />
-                            <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey={`برامج ${targetYear}`}
-                                stroke="#0eacb8"
-                                strokeWidth={2}
-                                dot={{ fill: '#0eacb8', r: 4 }}
-                            >
-                                <LabelList
-                                    dataKey={`برامج ${targetYear}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
-                                />
-                            </Line>
-                            <Line
-                                type="monotone"
-                                dataKey={`برامج ${targetYear - 1}`}
-                                stroke="#999"
-                                strokeWidth={2}
-                                strokeDasharray="5 5"
-                                dot={{ fill: '#999', r: 3 }}
-                            >
-                                <LabelList
-                                    dataKey={`برامج ${targetYear - 1}`}
-                                    position="top"
-                                    offset={10}
-                                    style={{ fontWeight: 'bold', fill: '#d32f2f', fontSize: '14px' }}
-                                />
-                            </Line>
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
 
                 <div style={{
                     backgroundColor: 'var(--card-bg)',
@@ -844,7 +763,155 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                 </div>
             </div>
 
-            {/* قسم ملخص أنشطة الإدارة - يظهر فقط في حالة الفلترة الشهرية */}
+            <div style={{ marginBottom: '35px', border: '2px solid var(--primary-color)', borderRadius: '16px', padding: '5px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <div className="card" style={{ padding: '25px', border: 'none', borderRadius: '12px' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '25px', color: 'var(--primary-color)', fontSize: '1.3rem', fontWeight: 'bold' }}>
+                        📊 منهجية التدريب
+                    </h3>
+                    {trainingNaturePieData.length > 0 ? (
+                        <div style={{ height: '320px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={trainingNaturePieData}
+                                        cx="50%"
+                                        cy="45%"
+                                        innerRadius={70}
+                                        outerRadius={120}
+                                        paddingAngle={4}
+                                        dataKey="value"
+                                        stroke="#fff"
+                                        strokeWidth={3}
+                                        label={({ x, y, value, percent }: any) => {
+                                            const text = `${value} (${((percent || 0) * 100).toFixed(0)}%)`;
+                                            const width = text.length * 8 + 16;
+                                            return (
+                                                <g>
+                                                    <rect x={x - width / 2} y={y - 12} width={width} height={24} rx={6} fill="#fff" stroke="#ccc" strokeWidth={1} opacity={0.95} />
+                                                    <text x={x} y={y} fill="#000" fontSize="13px" fontWeight="bold" textAnchor="middle" dominantBaseline="central">{text}</text>
+                                                </g>
+                                            );
+                                        }}
+                                        labelLine={false}
+                                    >
+                                        {trainingNaturePieData.map((entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        formatter={(value) => [`${value} متدرب`, 'العدد']}
+                                        contentStyle={{
+                                            backgroundColor: 'var(--card-bg)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: '10px',
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            padding: '10px 15px'
+                                        }}
+                                    />
+                                    <Legend
+                                        verticalAlign="bottom"
+                                        height={40}
+                                        iconSize={14}
+                                        iconType="circle"
+                                        formatter={(value) => <span style={{ color: 'var(--text-color)', fontSize: '14px', fontWeight: 'bold', marginRight: '5px' }}>{value}</span>}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    ) : (
+                        <div style={{ height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '1.1rem' }}>
+                            لا توجد بيانات طبيعة التنفيذ للفترة المختارة
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* ====== قسم الإيرادات المحصلة ====== */}
+            <div style={{ marginBottom: '35px', border: '2px solid var(--primary-color)', borderRadius: '16px', padding: '5px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <div className="card" style={{ padding: '25px', border: 'none', borderRadius: '12px' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--primary-color)', fontSize: '1.3rem', fontWeight: 'bold' }}>
+                        💰 الإيرادات المحصلة
+                    </h3>
+                    {comparisonType === 'monthly' || comparisonType === 'quarterly' ? (
+                        <div style={{
+                            backgroundColor: '#fff3cd',
+                            color: '#856404',
+                            padding: '20px',
+                            borderRadius: '10px',
+                            textAlign: 'center',
+                            fontSize: '1rem',
+                            fontWeight: 'bold',
+                            border: '1px solid #ffc107'
+                        }}>
+                            ⚠️ هذا المؤشر نصف سنوي - يرجى اختيار المقارنة النصف سنوية أو السنوية لعرض البيانات
+                        </div>
+                    ) : (
+                        (() => {
+                            const filteredRevenues = collectedRevenues.filter(r => {
+                                const rYear = r.year || parseInt(r.month.split('-')[0]);
+                                const rMonth = parseInt(r.month.split('-')[1]);
+                                const fiscalYear = rMonth >= 7 ? rYear + 1 : rYear;
+                                if (fiscalYear !== targetYear) return false;
+                                if (comparisonType === 'halfYearly') {
+                                    const half = (rMonth >= 7 && rMonth <= 12) ? 1 : 2;
+                                    return half === selectedHalf;
+                                }
+                                return true;
+                            });
+
+                            if (filteredRevenues.length === 0) {
+                                return (
+                                    <div style={{ textAlign: 'center', color: '#999', padding: '30px', fontSize: '1rem' }}>
+                                        💰 لا توجد بيانات إيرادات للفترة المختارة
+                                    </div>
+                                );
+                            }
+
+                            const totalRevenue = filteredRevenues.reduce((sum, r) => sum + (r.value || 0), 0);
+
+                            return (
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: '#0D6A79', color: 'white' }}>
+                                                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>#</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>الشهر</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>مصدر الإيراد</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>القيمة المالية</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredRevenues.map((revenue, index) => {
+                                                const [year, month] = revenue.month.split('-');
+                                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                                return (
+                                                    <tr key={revenue.id || index} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? 'white' : '#f9f9f9' }}>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{index + 1}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{`${monthNames[parseInt(month) - 1]} ${year}`}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>{revenue.source}</td>
+                                                        <td style={{ padding: '12px', textAlign: 'center', color: '#0D6A79', fontWeight: 'bold' }}>
+                                                            {typeof revenue.value === 'number' ? revenue.value.toLocaleString() : revenue.value}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                            <tr style={{ backgroundColor: '#e8f5e9', fontWeight: 'bold' }}>
+                                                <td colSpan={3} style={{ padding: '12px', textAlign: 'center', fontSize: '1.05rem' }}>الإجمالي</td>
+                                                <td style={{ padding: '12px', textAlign: 'center', color: '#2e7d32', fontSize: '1.1rem' }}>
+                                                    {totalRevenue.toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            );
+                        })()
+                    )}
+                </div>
+            </div>
+
+
             {comparisonType === 'monthly' && currentActivitySummary && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{

@@ -351,6 +351,20 @@ export default function CollectedRevenuesSection({ currentUser, canEdit, globalF
                         </div>
                     </div>
 
+                    {/* Notice */}
+                    <div style={{
+                        backgroundColor: '#fff3cd',
+                        color: '#856404',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        marginBottom: '15px',
+                        fontWeight: 'bold',
+                        fontSize: '0.95rem',
+                        border: '1px solid #ffc107'
+                    }}>
+                        ⚠️ تنويه: المؤشر نصف سنوي
+                    </div>
+
                     {/* Table */}
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
