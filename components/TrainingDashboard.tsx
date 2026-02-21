@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import KPICard from './KPICard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, PieChart, Pie, Cell } from 'recharts';
 
-import { getTrainingNatures, type TrainingNature, getCollectedRevenues, type CollectedRevenue } from '@/lib/firestore';
+import { getTrainingNatures, type TrainingNature, getCollectedRevenues, type CollectedRevenue, getProgramTypes, type ProgramType } from '@/lib/firestore';
 
 interface TrainingDashboardProps {
     submissions: Array<Record<string, any>>;
@@ -22,7 +22,12 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
             const data = await getCollectedRevenues();
             setCollectedRevenues(data);
         };
+        const loadProgramTypes = async () => {
+            const data = await getProgramTypes();
+            setProgramTypes(data);
+        };
         loadRevenues();
+        loadProgramTypes();
     }, []);
 
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
@@ -32,11 +37,14 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
     const [selectedMonth, setSelectedMonth] = useState<number>(10); // أكتوبر كقيمة افتراضية
     const [visibleMetrics, setVisibleMetrics] = useState<{
         trainees: boolean;
+        trainingPrograms: boolean;
     }>({
-        trainees: true
+        trainees: true,
+        trainingPrograms: true
     });
     const [trainingNatures, setTrainingNatures] = useState<TrainingNature[]>([]);
     const [collectedRevenues, setCollectedRevenues] = useState<CollectedRevenue[]>([]);
+    const [programTypes, setProgramTypes] = useState<ProgramType[]>([]);
 
     const getFiscalYear = (dateStr: string): number => {
         const year = parseInt(dateStr.split('-')[0]);
@@ -623,7 +631,7 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                 }}>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة المتدربين - رسم بياني عمودي</h4>
+                        <h4 style={{ margin: 0, color: 'var(--text-color)' }}>مقارنة البرامج التدريبية والمتدربين - رسم بياني عمودي</h4>
                         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
                                 <input
@@ -632,6 +640,14 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                                     onChange={(e) => setVisibleMetrics({ ...visibleMetrics, trainees: e.target.checked })}
                                 />
                                 <span>متدربين</span>
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={visibleMetrics.trainingPrograms}
+                                    onChange={(e) => setVisibleMetrics({ ...visibleMetrics, trainingPrograms: e.target.checked })}
+                                />
+                                <span>برامج تدريبية</span>
                             </label>
                         </div>
                     </div>
@@ -649,13 +665,32 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                             />
                             <Legend />
 
+                            {visibleMetrics.trainingPrograms && (
+                                <>
+                                    <Bar dataKey={`برامج ${targetYear}`} fill="#4caf50">
+                                        <LabelList
+                                            dataKey={`برامج ${targetYear}`}
+                                            position="center"
+                                            style={{ fontWeight: 'bold', fill: '#fff', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                    <Bar dataKey={`برامج ${targetYear - 1}`} fill="#81c784">
+                                        <LabelList
+                                            dataKey={`برامج ${targetYear - 1}`}
+                                            position="top"
+                                            style={{ fontWeight: 'bold', fill: '#2e7d32', fontSize: '14px' }}
+                                        />
+                                    </Bar>
+                                </>
+                            )}
+
                             {visibleMetrics.trainees && (
                                 <>
                                     <Bar dataKey={`متدربين ${targetYear}`} fill="#0eacb8">
                                         <LabelList
                                             dataKey={`متدربين ${targetYear}`}
-                                            position="top"
-                                            style={{ fontWeight: 'bold', fill: '#1976d2', fontSize: '14px' }}
+                                            position="center"
+                                            style={{ fontWeight: 'bold', fill: '#fff', fontSize: '14px' }}
                                         />
                                     </Bar>
                                     <Bar dataKey={`متدربين ${targetYear - 1}`} fill="#ff9800">
@@ -760,6 +795,97 @@ export default function TrainingDashboard({ submissions }: TrainingDashboardProp
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {/* ====== قسم نوع البرنامج ====== */}
+            <div style={{ marginBottom: '35px', border: '2px solid var(--primary-color)', borderRadius: '16px', padding: '5px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <div className="card" style={{ padding: '25px', border: 'none', borderRadius: '12px' }}>
+                    <h3 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--primary-color)', fontSize: '1.3rem', fontWeight: 'bold' }}>
+                        📊 نوع البرنامج
+                    </h3>
+                    {(() => {
+                        const filteredProgramTypes = programTypes.filter(p => {
+                            const pYear = p.year || parseInt(p.month.split('-')[0]);
+                            const pMonth = parseInt(p.month.split('-')[1]);
+                            const fiscalYear = pMonth >= 7 ? pYear + 1 : pYear;
+                            if (fiscalYear !== targetYear) return false;
+                            if (comparisonType === 'monthly') {
+                                return pMonth === selectedMonth;
+                            } else if (comparisonType === 'quarterly') {
+                                const quarter = pMonth >= 7 && pMonth <= 9 ? 1 : pMonth >= 10 && pMonth <= 12 ? 2 : pMonth >= 1 && pMonth <= 3 ? 3 : 4;
+                                return quarter === selectedQuarter;
+                            } else if (comparisonType === 'halfYearly') {
+                                const half = (pMonth >= 7 && pMonth <= 12) ? 1 : 2;
+                                return half === selectedHalf;
+                            }
+                            return true;
+                        });
+
+                        const totalTraining = filteredProgramTypes.reduce((sum, p) => sum + (p.trainingPrograms || 0), 0);
+                        const totalAwareness = filteredProgramTypes.reduce((sum, p) => sum + (p.awarenessPrograms || 0), 0);
+                        const totalWorkshops = filteredProgramTypes.reduce((sum, p) => sum + (p.workshops || 0), 0);
+
+                        if (filteredProgramTypes.length === 0 || (totalTraining === 0 && totalAwareness === 0 && totalWorkshops === 0)) {
+                            return (
+                                <div style={{ height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '1.1rem' }}>
+                                    لا توجد بيانات نوع البرنامج للفترة المختارة
+                                </div>
+                            );
+                        }
+
+                        const programTypePieData = [
+                            { name: 'برامج تدريب', value: totalTraining, color: '#0D6A79' },
+                            { name: 'برامج توعية', value: totalAwareness, color: '#0eacb8' },
+                            { name: 'ورش عمل', value: totalWorkshops, color: '#f59e0b' }
+                        ].filter(d => d.value > 0);
+
+                        return (
+                            <div style={{ height: '320px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={programTypePieData}
+                                            cx="50%"
+                                            cy="45%"
+                                            innerRadius={70}
+                                            outerRadius={120}
+                                            paddingAngle={4}
+                                            dataKey="value"
+                                            stroke="#fff"
+                                            strokeWidth={3}
+                                            label={({ x, y, value, percent }: any) => {
+                                                const text = `${value} (${((percent || 0) * 100).toFixed(0)}%)`;
+                                                const width = text.length * 8 + 16;
+                                                return (
+                                                    <g>
+                                                        <rect x={x - width / 2} y={y - 12} width={width} height={24} rx={6} fill="#fff" stroke="#ccc" strokeWidth={1} opacity={0.95} />
+                                                        <text x={x} y={y} fill="#000" fontSize="13px" fontWeight="bold" textAnchor="middle" dominantBaseline="central">{text}</text>
+                                                    </g>
+                                                );
+                                            }}
+                                            labelLine={false}
+                                        >
+                                            {programTypePieData.map((entry: any, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value) => [`${value} برنامج`, 'العدد']}
+                                            contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '10px', fontSize: '14px', fontWeight: 'bold', padding: '10px 15px' }}
+                                        />
+                                        <Legend
+                                            verticalAlign="bottom"
+                                            height={40}
+                                            iconSize={14}
+                                            iconType="circle"
+                                            formatter={(value) => <span style={{ color: 'var(--text-color)', fontSize: '14px', fontWeight: 'bold', marginRight: '5px' }}>{value}</span>}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
 
