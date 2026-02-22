@@ -14747,7 +14747,7 @@ export default function DepartmentPage() {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                         const count = reviewerEvaluationVisits.filter(v => v.month === activeFilter).length;
-                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`;
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`}</span>;
                                     }
                                     return '';
                                 })()}
@@ -15039,7 +15039,7 @@ export default function DepartmentPage() {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                         const count = reportsPresentedToCommittee.filter(r => r.month === activeFilter).length;
-                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} سجل`;
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} تقارير`}</span>;
                                     }
                                     return '';
                                 })()}
@@ -15290,7 +15290,7 @@ export default function DepartmentPage() {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                         const count = reportsByFacilitySpecialty.filter(r => r.month === activeFilter).length;
-                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} سجل`;
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} تقارير`}</span>;
                                     }
                                     return '';
                                 })()}
@@ -15543,7 +15543,7 @@ export default function DepartmentPage() {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                         const count = accreditationDecisions.filter(d => d.month === activeFilter).length;
-                                        return ` - ${monthNames[parseInt(month) - 1]} ${count} سجل`;
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} قرار`}</span>;
                                     }
                                     return '';
                                 })()}
