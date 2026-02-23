@@ -43,6 +43,24 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         return submissions.filter(sub => sub.date && getFiscalYear(sub.date) === fiscalYear);
     };
 
+    // النسب تراكمية: البحث عن آخر شهر فيه بيانات حتى الشهر المحدد
+    const getLatestDataUpToMonth = (aggregated: any, targetMonth: number): string => {
+        const fiscalOrder = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
+        const targetIndex = fiscalOrder.indexOf(targetMonth);
+
+        for (let i = targetIndex; i >= 0; i--) {
+            const month = fiscalOrder[i];
+            const found = Object.keys(aggregated).find(key => {
+                if (key.includes('-')) {
+                    return parseInt(key.split('-')[1]) === month;
+                }
+                return false;
+            });
+            if (found) return found;
+        }
+        return '';
+    };
+
     // Define all 16 standards
     const standardFields = [
         { name: 'standard1', label: 'معايير دور النقاهة والرعاية الممتدة' },
@@ -126,6 +144,7 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         if (compType === 'yearly') {
             periodKey = 'السنة الكاملة';
         } else if (compType === 'monthly') {
+            // أولاً: البحث عن بيانات الشهر المحدد
             const monthKey = Object.keys(aggregated).find(key => {
                 if (key.includes('-')) {
                     const month = parseInt(key.split('-')[1]);
@@ -133,7 +152,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
                 }
                 return false;
             });
-            periodKey = monthKey || '';
+            // إذا لم يوجد: استخدام آخر شهر فيه بيانات (النسب تراكمية)
+            periodKey = monthKey || getLatestDataUpToMonth(aggregated, selectedMonth);
         } else if (compType === 'quarterly') {
             periodKey = `Q${selectedQuarter}`;
         } else if (compType === 'halfYearly') {
@@ -310,6 +330,7 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         if (comparisonType === 'yearly') {
             periodKey = 'السنة الكاملة';
         } else if (comparisonType === 'monthly') {
+            // أولاً: البحث عن بيانات الشهر المحدد
             const monthKey = Object.keys(currentAggregated).find(key => {
                 if (key.includes('-')) {
                     const month = parseInt(key.split('-')[1]);
@@ -317,7 +338,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
                 }
                 return false;
             });
-            periodKey = monthKey || '';
+            // إذا لم يوجد: استخدام آخر شهر فيه بيانات (النسب تراكمية)
+            periodKey = monthKey || getLatestDataUpToMonth(currentAggregated, selectedMonth);
         } else if (comparisonType === 'quarterly') {
             periodKey = `Q${selectedQuarter}`;
         } else if (comparisonType === 'halfYearly') {

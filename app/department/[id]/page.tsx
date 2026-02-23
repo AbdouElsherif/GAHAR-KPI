@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getCurrentUser, canEdit, canAccessDepartment, User, onAuthChange } from '@/lib/auth';
 import {
-    saveKPIData, getKPIData, updateKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
+    saveKPIData, getKPIData, updateKPIData, deleteKPIData, saveAccreditationFacility, getAccreditationFacilities, updateAccreditationFacility, deleteAccreditationFacility, type AccreditationFacility, saveCompletionFacility, getCompletionFacilities, updateCompletionFacility, deleteCompletionFacility, type CompletionFacility, savePaymentFacility, getPaymentFacilities, updatePaymentFacility, deletePaymentFacility, type PaymentFacility, saveCorrectivePlanFacility, getCorrectivePlanFacilities, updateCorrectivePlanFacility, deleteCorrectivePlanFacility, type CorrectivePlanFacility, type BasicRequirementsFacility, saveBasicRequirementsFacility, getBasicRequirementsFacilities, updateBasicRequirementsFacility, deleteBasicRequirementsFacility, type AppealsFacility, saveAppealsFacility, getAppealsFacilities, updateAppealsFacility, deleteAppealsFacility, savePaidFacility, getPaidFacilities, updatePaidFacility, deletePaidFacility, type PaidFacility, saveMedicalProfessionalRegistration, getMedicalProfessionalRegistrations, updateMedicalProfessionalRegistration, deleteMedicalProfessionalRegistration, type MedicalProfessionalRegistration, saveTechnicalClinicalFacility, getTechnicalClinicalFacilities, updateTechnicalClinicalFacility, deleteTechnicalClinicalFacility, type TechnicalClinicalFacility, saveAdminAuditFacility, getAdminAuditFacilities, updateAdminAuditFacility, deleteAdminAuditFacility, type AdminAuditFacility, saveAdminAuditObservation, getAdminAuditObservations, updateAdminAuditObservation, deleteAdminAuditObservation, type AdminAuditObservation, saveObservationCorrectionRate, getObservationCorrectionRates, updateObservationCorrectionRate, deleteObservationCorrectionRate, type ObservationCorrectionRate, saveTechnicalClinicalObservation, getTechnicalClinicalObservations, updateTechnicalClinicalObservation, deleteTechnicalClinicalObservation, type TechnicalClinicalObservation, saveTechnicalClinicalCorrectionRate, getTechnicalClinicalCorrectionRates, updateTechnicalClinicalCorrectionRate, deleteTechnicalClinicalCorrectionRate, type TechnicalClinicalCorrectionRate, saveTechnicalSupportVisit, getTechnicalSupportVisits, updateTechnicalSupportVisit, deleteTechnicalSupportVisit, type TechnicalSupportVisit, saveRemoteTechnicalSupport, getRemoteTechnicalSupports, updateRemoteTechnicalSupport, deleteRemoteTechnicalSupport, type RemoteTechnicalSupport, saveIntroductorySupportVisit, getIntroductorySupportVisits, updateIntroductorySupportVisit, deleteIntroductorySupportVisit, type IntroductorySupportVisit, saveQueuedSupportVisit, getQueuedSupportVisits, updateQueuedSupportVisit, deleteQueuedSupportVisit, type QueuedSupportVisit, saveScheduledSupportVisit, getScheduledSupportVisits, updateScheduledSupportVisit, deleteScheduledSupportVisit, type ScheduledSupportVisit, saveAccreditedSupportedFacility, getAccreditedSupportedFacilities, updateAccreditedSupportedFacility, deleteAccreditedSupportedFacility, type AccreditedSupportedFacility, saveReviewerEvaluationVisit, getReviewerEvaluationVisits, updateReviewerEvaluationVisit, deleteReviewerEvaluationVisit, type ReviewerEvaluationVisit, saveMedicalProfessionalByCategory, getMedicalProfessionalsByCategory, updateMedicalProfessionalByCategory, deleteMedicalProfessionalByCategory, type MedicalProfessionalByCategory,
     saveMedicalProfessionalByGovernorate, getMedicalProfessionalsByGovernorate, updateMedicalProfessionalByGovernorate, deleteMedicalProfessionalByGovernorate, type MedicalProfessionalByGovernorate, saveTrainingEntity, getTrainingEntities, updateTrainingEntity, deleteTrainingEntity, type TrainingEntity, saveProgramType, getProgramTypes, updateProgramType, deleteProgramType, type ProgramType,
     saveTotalMedProfByCategory, getTotalMedProfsByCategory, updateTotalMedProfByCategory, deleteTotalMedProfByCategory, type TotalMedicalProfessionalByCategory,
     saveTotalMedProfByGovernorate, getTotalMedProfsByGovernorate, updateTotalMedProfByGovernorate, deleteTotalMedProfByGovernorate, type TotalMedicalProfessionalByGovernorate,
@@ -1206,6 +1206,16 @@ export default function DepartmentPage() {
         setFormData({});
     };
 
+    const handleDeleteSubmission = async (submissionId: string) => {
+        if (!confirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+        const success = await deleteKPIData(submissionId);
+        if (success) {
+            setSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
+        } else {
+            alert('حدث خطأ أثناء الحذف. يرجى المحاولة مرة أخرى.');
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -1243,17 +1253,42 @@ export default function DepartmentPage() {
             }
         }
 
+        // dept8: التحقق من عدم إدخال قيم أقل من أعلى قيمة سابقة للمعايير
+        if (id === 'dept8') {
+            let blocked = false;
+            previousMaxValues.forEach((maxVal, stdName) => {
+                if (blocked) return;
+                const enteredVal = parseFloat(formData[stdName]);
+                if (!isNaN(enteredVal) && enteredVal < maxVal && !unlockedStandards.has(stdName)) {
+                    const fieldLabel = fields.find(f => f.name === stdName)?.label || stdName;
+                    alert(`⚠️ لا يمكن إدخال قيمة أقل من القيمة السابقة لـ "${fieldLabel}"\nالقيمة السابقة: ${maxVal}%\nالقيمة المدخلة: ${enteredVal}%\nالنسب تراكمية ولا يمكن أن تنخفض.`);
+                    blocked = true;
+                }
+            });
+            if (blocked) return;
+        }
+
+        // dept8: تعبئة المعايير المقفلة (التي وصلت 100% سابقاً) بقيمة 100 تلقائياً
+        const submittedData = { ...formData };
+        if (id === 'dept8') {
+            previouslyCompletedStandards.forEach(stdName => {
+                if (!submittedData[stdName] && !unlockedStandards.has(stdName)) {
+                    submittedData[stdName] = '100';
+                }
+            });
+        }
+
         if (editingId) {
             // Update existing
             await updateKPIData(editingId, {
-                data: formData,
+                data: submittedData,
                 updatedBy: currentUser.id
             });
 
             // Update local state
             const newSubmissions = submissions.map(sub =>
                 sub.id === editingId
-                    ? { ...sub, ...formData }
+                    ? { ...sub, ...submittedData }
                     : sub
             );
             setSubmissions(newSubmissions);
@@ -1266,7 +1301,7 @@ export default function DepartmentPage() {
             const currentDate = new Date();
             const monthYear = formatMonthYear(currentDate);
             const dataWithTimestamp = {
-                ...formData,
+                ...submittedData,
                 submittedAt: monthYear
             };
 
@@ -1276,7 +1311,7 @@ export default function DepartmentPage() {
                 departmentName: departmentName,
                 month: new Date().getMonth().toString(),
                 year: new Date().getFullYear(),
-                data: formData,
+                data: submittedData,
                 createdBy: currentUser.id,
                 updatedBy: currentUser.id
             });
@@ -6163,6 +6198,47 @@ export default function DepartmentPage() {
         }
     }
 
+    // حساب المعايير التي وصلت 100% في أي شهر سابق (النسب تراكمية)
+    const previouslyCompletedStandards = (() => {
+        if (id !== 'dept8') return new Set<string>();
+        const completed = new Set<string>();
+        submissions.forEach(sub => {
+            fields.forEach(field => {
+                if (field.type === 'number' && field.name.startsWith('standard')) {
+                    if (parseFloat(sub[field.name]) >= 100) {
+                        completed.add(field.name);
+                    }
+                }
+            });
+        });
+        return completed;
+    })();
+
+    // حساب أعلى قيمة سابقة لكل معيار (لمنع إدخال قيم أقل) - فقط الأشهر السابقة
+    const previousMaxValues = (() => {
+        if (id !== 'dept8') return new Map<string, number>();
+        const maxVals = new Map<string, number>();
+        const currentDate = formData.date || ''; // YYYY-MM format
+        // استثناء السجل الحالي عند التعديل + فقط السجلات من أشهر سابقة
+        const relevantSubs = submissions.filter(s => {
+            if (editingId && s.id === editingId) return false;
+            // فقط السجلات التي تاريخها قبل الشهر الحالي المُدخل
+            if (currentDate && s.date) return s.date < currentDate;
+            return false;
+        });
+        relevantSubs.forEach(sub => {
+            fields.forEach(field => {
+                if (field.type === 'number' && field.name.startsWith('standard')) {
+                    const val = parseFloat(sub[field.name]);
+                    if (!isNaN(val) && val > (maxVals.get(field.name) || 0)) {
+                        maxVals.set(field.name, val);
+                    }
+                }
+            });
+        });
+        return maxVals;
+    })();
+
     const handleExportPDF = () => {
         const doc = new jsPDF();
 
@@ -6545,7 +6621,7 @@ export default function DepartmentPage() {
                                             // Check if this is a standard field at 100% (completed)
                                             const isStandardField = id === 'dept8' && field.type === 'number' && field.name.startsWith('standard');
                                             const fieldValue = Number(formData[field.name] || 0);
-                                            const isCompleted = isStandardField && fieldValue >= 100;
+                                            const isCompleted = isStandardField && (fieldValue >= 100 || previouslyCompletedStandards.has(field.name));
                                             const isLocked = isCompleted && !unlockedStandards.has(field.name);
 
                                             return (
@@ -6560,7 +6636,7 @@ export default function DepartmentPage() {
                                                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                         {isCompleted && <span style={{ color: '#28a745', fontSize: '1.1rem' }}>✓</span>}
                                                         {field.label}
-                                                        {isLocked && (
+                                                        {isLocked && currentUser?.role === 'super_admin' && (
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {
@@ -6607,7 +6683,7 @@ export default function DepartmentPage() {
                                                             type={field.type}
                                                             className="form-input"
                                                             required={field.type === 'month' || field.type === 'date' || field.name !== 'notes'}
-                                                            value={formData[field.name] || ''}
+                                                            value={isLocked && previouslyCompletedStandards.has(field.name) && !formData[field.name] ? '100' : (formData[field.name] || '')}
                                                             disabled={isLocked}
                                                             onChange={(e) => {
                                                                 let value = e.target.value;
@@ -16002,6 +16078,16 @@ export default function DepartmentPage() {
                                                             🔒 مقفل
                                                         </button>
                                                     )}
+                                                    {canEditRecord(sub) && (
+                                                        <button
+                                                            onClick={() => handleDeleteSubmission(sub.id)}
+                                                            style={{ padding: '8px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '500', transition: 'all 0.2s', marginTop: '5px' }}
+                                                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#c82333'}
+                                                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc3545'}
+                                                        >
+                                                            حذف
+                                                        </button>
+                                                    )}
                                                 </td>
                                             )}
                                         </tr>
@@ -17361,6 +17447,16 @@ export default function DepartmentPage() {
                                                             }}
                                                         >
                                                             🔒 مقفل
+                                                        </button>
+                                                    )}
+                                                    {canEditRecord(sub) && (
+                                                        <button
+                                                            onClick={() => handleDeleteSubmission(sub.id)}
+                                                            style={{ padding: '8px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '500', transition: 'all 0.2s', marginTop: '5px' }}
+                                                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#c82333'}
+                                                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc3545'}
+                                                        >
+                                                            حذف
                                                         </button>
                                                     )}
                                                 </td>

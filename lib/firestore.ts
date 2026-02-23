@@ -623,6 +623,17 @@ export async function updateKPIData(id: string, updates: Partial<KPIData>): Prom
     }
 }
 
+export async function deleteKPIData(id: string): Promise<boolean> {
+    try {
+        const kpiRef = doc(db, 'kpis', id);
+        await deleteDoc(kpiRef);
+        return true;
+    } catch (error) {
+        console.error('Error deleting KPI data:', error);
+        return false;
+    }
+}
+
 // MOH KPI Functions
 export async function saveMOHKPI(kpiData: Omit<MOHKPI, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<string | null> {
     try {
