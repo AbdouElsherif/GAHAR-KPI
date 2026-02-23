@@ -11256,7 +11256,7 @@ export default function DepartmentPage() {
                                                 className="form-input"
                                             />
                                         </div>
-                                        {techSupportVisits.filter(v => !techSupportVisitsFilter || v.month === techSupportVisitsFilter).length > 0 && (
+                                        {techSupportVisits.filter(v => !(globalFilterMonth || techSupportVisitsFilter) || v.month === (globalFilterMonth || techSupportVisitsFilter)).length > 0 && (
                                             <div style={{ display: 'flex', gap: '10px' }}>
                                                 <button
                                                     onClick={exportTechSupportVisitsToExcel}
@@ -11316,7 +11316,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {techSupportVisits
-                                                    .filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                    .filter(visit => !(globalFilterMonth || techSupportVisitsFilter) || visit.month === (globalFilterMonth || techSupportVisitsFilter))
                                                     .map((visit, index) => (
                                                         <tr key={visit.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -11359,7 +11359,7 @@ export default function DepartmentPage() {
                                                             </td>
                                                         </tr>
                                                     ))}
-                                                {techSupportVisits.filter(visit => !techSupportVisitsFilter || visit.month === techSupportVisitsFilter).length === 0 && (
+                                                {techSupportVisits.filter(visit => !(globalFilterMonth || techSupportVisitsFilter) || visit.month === (globalFilterMonth || techSupportVisitsFilter)).length === 0 && (
                                                     <tr>
                                                         <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                                                             لا توجد زيارات مسجلة
@@ -11591,7 +11591,7 @@ export default function DepartmentPage() {
                                             />
                                         </div>
                                         {/* Export buttons on the right */}
-                                        {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length > 0 && (
+                                        {remoteTechnicalSupports.filter(s => !(globalFilterMonth || remoteTechSupportFilter) || s.month === (globalFilterMonth || remoteTechSupportFilter)).length > 0 && (
                                             <div style={{ display: 'flex', gap: '10px' }}>
                                                 <button
                                                     onClick={exportRemoteTechSupportToExcel}
@@ -11651,7 +11651,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {remoteTechnicalSupports
-                                                    .filter(support => !remoteTechSupportFilter || support.month === remoteTechSupportFilter || (globalFilterMonth && support.month === globalFilterMonth))
+                                                    .filter(support => !(globalFilterMonth || remoteTechSupportFilter) || support.month === (globalFilterMonth || remoteTechSupportFilter))
                                                     .map((support, index) => (
                                                         <tr key={support.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -11694,7 +11694,7 @@ export default function DepartmentPage() {
                                                             </td>
                                                         </tr>
                                                     ))}
-                                                {remoteTechnicalSupports.filter(s => !remoteTechSupportFilter || s.month === remoteTechSupportFilter).length === 0 && (
+                                                {remoteTechnicalSupports.filter(s => !(globalFilterMonth || remoteTechSupportFilter) || s.month === (globalFilterMonth || remoteTechSupportFilter)).length === 0 && (
                                                     <tr>
                                                         <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                                                             لا يوجد دعم فني مسجل
@@ -11941,7 +11941,7 @@ export default function DepartmentPage() {
                                             />
                                         </div>
                                         {/* Export buttons on the right */}
-                                        {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length > 0 && (
+                                        {introSupportVisits.filter(v => !(globalFilterMonth || introSupportVisitsFilter) || v.month === (globalFilterMonth || introSupportVisitsFilter)).length > 0 && (
                                             <div style={{ display: 'flex', gap: '10px' }}>
                                                 <button
                                                     onClick={exportIntroSupportVisitsToExcel}
@@ -12001,7 +12001,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {introSupportVisits
-                                                    .filter(visit => !introSupportVisitsFilter || visit.month === introSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                    .filter(visit => !(globalFilterMonth || introSupportVisitsFilter) || visit.month === (globalFilterMonth || introSupportVisitsFilter))
                                                     .map((visit, index) => (
                                                         <tr key={visit.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -12044,7 +12044,7 @@ export default function DepartmentPage() {
                                                             </td>
                                                         </tr>
                                                     ))}
-                                                {introSupportVisits.filter(v => !introSupportVisitsFilter || v.month === introSupportVisitsFilter).length === 0 && (
+                                                {introSupportVisits.filter(v => !(globalFilterMonth || introSupportVisitsFilter) || v.month === (globalFilterMonth || introSupportVisitsFilter)).length === 0 && (
                                                     <tr>
                                                         <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                                                             لا يوجد زيارات مسجلة
@@ -12264,7 +12264,7 @@ export default function DepartmentPage() {
                                             />
                                         </div>
                                         {/* Export buttons on the right */}
-                                        {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length > 0 && (
+                                        {queuedSupportVisits.filter(v => !(globalFilterMonth || queuedSupportVisitsFilter) || v.month === (globalFilterMonth || queuedSupportVisitsFilter)).length > 0 && (
                                             <div style={{ display: 'flex', gap: '10px' }}>
                                                 <button
                                                     onClick={exportQueuedSupportVisitsToExcel}
@@ -12321,7 +12321,7 @@ export default function DepartmentPage() {
                                             </thead>
                                             <tbody>
                                                 {queuedSupportVisits
-                                                    .filter(visit => !queuedSupportVisitsFilter || visit.month === queuedSupportVisitsFilter || (globalFilterMonth && visit.month === globalFilterMonth))
+                                                    .filter(visit => !(globalFilterMonth || queuedSupportVisitsFilter) || visit.month === (globalFilterMonth || queuedSupportVisitsFilter))
                                                     .map((visit, index) => (
                                                         <tr key={visit.id} style={{
                                                             borderBottom: '1px solid #eee',
@@ -12374,7 +12374,7 @@ export default function DepartmentPage() {
                                                             </td>
                                                         </tr>
                                                     ))}
-                                                {queuedSupportVisits.filter(v => !queuedSupportVisitsFilter || v.month === queuedSupportVisitsFilter).length === 0 && (
+                                                {queuedSupportVisits.filter(v => !(globalFilterMonth || queuedSupportVisitsFilter) || v.month === (globalFilterMonth || queuedSupportVisitsFilter)).length === 0 && (
                                                     <tr>
                                                         <td colSpan={4} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                                                             لا يوجد زيارات مسجلة
