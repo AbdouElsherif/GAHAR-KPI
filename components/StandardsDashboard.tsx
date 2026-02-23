@@ -213,7 +213,7 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
     };
 
     const getTextFieldsForSelectedMonth = () => {
-        if (comparisonType !== 'monthly') return { obstacles: '', developmentProposals: '', additionalActivities: '', notes: '' };
+        if (comparisonType !== 'monthly') return { activitySummary: '', activityDetails: '', obstacles: '', developmentProposals: '', additionalActivities: '', notes: '' };
 
         const monthData = currentYearData.find(sub => {
             if (!sub.date) return false;
@@ -222,6 +222,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         });
 
         return {
+            activitySummary: monthData?.activitySummary || '',
+            activityDetails: monthData?.activityDetails || '',
             obstacles: monthData?.obstacles || '',
             developmentProposals: monthData?.developmentProposals || '',
             additionalActivities: monthData?.additionalActivities || '',
@@ -243,6 +245,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
                     year,
                     monthName: monthNames[month - 1],
                     date: sub.date,
+                    activitySummary: sub.activitySummary || '',
+                    activityDetails: sub.activityDetails || '',
                     obstacles: sub.obstacles || '',
                     developmentProposals: sub.developmentProposals || '',
                     additionalActivities: sub.additionalActivities || '',
@@ -250,6 +254,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
                 };
             })
             .filter(item =>
+                item.activitySummary ||
+                item.activityDetails ||
                 item.obstacles ||
                 item.developmentProposals ||
                 item.additionalActivities ||
@@ -488,6 +494,74 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
                 }
             </div>
 
+            {/* معايير مكتملة - يظهر دائماً بغض النظر عن الفلتر */}
+            {(() => {
+                // حساب المعايير المكتملة من كل السجلات
+                const completedStds = standardFields.filter(field => {
+                    return submissions.some(sub => {
+                        const val = parseFloat(sub[field.name]);
+                        return val >= 100;
+                    });
+                });
+                if (completedStds.length === 0) return null;
+                return (
+                    <div style={{
+                        marginBottom: '30px',
+                        padding: '20px',
+                        backgroundColor: '#e8f5e9',
+                        borderRadius: '12px',
+                        border: '1px solid #c8e6c9',
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+                            <div style={{
+                                width: '40px',
+                                height: '40px',
+                                backgroundColor: '#28a745',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white'
+                            }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, color: '#155724', fontSize: '1.2rem' }}>معايير مكتملة</h3>
+                                <p style={{ margin: '5px 0 0 0', color: '#155724', fontSize: '0.95rem' }}>
+                                    تم الانتهاء من <strong>{completedStds.length}</strong> معايير بنسبة 100%
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                            gap: '10px'
+                        }}>
+                            {completedStds.map(std => (
+                                <div key={std.name} style={{
+                                    backgroundColor: 'white',
+                                    padding: '10px 15px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #c8e6c9',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    fontSize: '0.9rem',
+                                    color: '#155724'
+                                }}>
+                                    <span style={{ color: '#28a745', fontWeight: 'bold' }}>✓</span>
+                                    {std.label}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })()}
+
             <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px', color: 'var(--text-color)' }}>📊 تحليل المعايير</h3>
 
@@ -617,6 +691,102 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
             </div>
 
             {/* Text Fields - Only show in monthly view */}
+            {
+                comparisonType === 'monthly' && textFields.activitySummary && (
+                    <div style={{ marginBottom: '30px' }}>
+                        <div style={{
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '2px solid #6f42c1',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                paddingBottom: '15px',
+                                borderBottom: '2px solid #6f42c1'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>📋</span>
+                                <h3 style={{
+                                    margin: 0,
+                                    color: '#4a1a8a',
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    ملخص أنشطة الإدارة - {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return monthNames[selectedMonth - 1];
+                                    })()} {targetYear}
+                                </h3>
+                            </div>
+                            <div style={{
+                                backgroundColor: '#f3e8ff',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                color: '#4a1a8a',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {textFields.activitySummary}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {
+                comparisonType === 'monthly' && textFields.activityDetails && (
+                    <div style={{ marginBottom: '30px' }}>
+                        <div style={{
+                            backgroundColor: 'var(--card-bg)',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            border: '2px solid #0d6efd',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                paddingBottom: '15px',
+                                borderBottom: '2px solid #0d6efd'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>📄</span>
+                                <h3 style={{
+                                    margin: 0,
+                                    color: '#084298',
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    تفاصيل أنشطة الإدارة - {(() => {
+                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                                        return monthNames[selectedMonth - 1];
+                                    })()} {targetYear}
+                                </h3>
+                            </div>
+                            <div style={{
+                                backgroundColor: '#e7f1ff',
+                                padding: '20px',
+                                borderRadius: '8px',
+                                fontSize: '1rem',
+                                lineHeight: '1.6',
+                                color: '#084298',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {textFields.activityDetails}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
             {
                 comparisonType === 'monthly' && textFields.obstacles && (
                     <div style={{ marginBottom: '30px' }}>
@@ -817,6 +987,78 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
                                 borderRadius: '0 0 10px 10px',
                                 marginTop: '-5px'
                             }}>
+                                {monthData.activitySummary && (
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            marginBottom: '10px',
+                                            paddingBottom: '8px',
+                                            borderBottom: '2px solid #6f42c1'
+                                        }}>
+                                            <span style={{ fontSize: '1.3rem' }}>📋</span>
+                                            <h4 style={{
+                                                margin: 0,
+                                                color: '#4a1a8a',
+                                                fontSize: '1.1rem',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                ملخص أنشطة الإدارة
+                                            </h4>
+                                        </div>
+                                        <div style={{
+                                            backgroundColor: '#f3e8ff',
+                                            padding: '15px',
+                                            borderRadius: '8px',
+                                            fontSize: '0.95rem',
+                                            lineHeight: '1.7',
+                                            color: '#4a1a8a',
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-word',
+                                            border: '1px solid #d8b4fe'
+                                        }}>
+                                            {monthData.activitySummary}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {monthData.activityDetails && (
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            marginBottom: '10px',
+                                            paddingBottom: '8px',
+                                            borderBottom: '2px solid #0d6efd'
+                                        }}>
+                                            <span style={{ fontSize: '1.3rem' }}>📄</span>
+                                            <h4 style={{
+                                                margin: 0,
+                                                color: '#084298',
+                                                fontSize: '1.1rem',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                تفاصيل أنشطة الإدارة
+                                            </h4>
+                                        </div>
+                                        <div style={{
+                                            backgroundColor: '#e7f1ff',
+                                            padding: '15px',
+                                            borderRadius: '8px',
+                                            fontSize: '0.95rem',
+                                            lineHeight: '1.7',
+                                            color: '#084298',
+                                            whiteSpace: 'pre-wrap',
+                                            wordBreak: 'break-word',
+                                            border: '1px solid #9ec5fe'
+                                        }}>
+                                            {monthData.activityDetails}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {monthData.obstacles && (
                                     <div style={{ marginBottom: '20px' }}>
                                         <div style={{

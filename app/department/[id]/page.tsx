@@ -15969,7 +15969,7 @@ export default function DepartmentPage() {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, color: '#155724', fontSize: '1.2rem' }}>إنجازات مكتملة</h3>
+                                        <h3 style={{ margin: 0, color: '#155724', fontSize: '1.2rem' }}>معايير مكتملة</h3>
                                         <p style={{ margin: '5px 0 0 0', color: '#155724', fontSize: '0.95rem' }}>
                                             تم الانتهاء من <strong>{completedStandards.length}</strong> معايير بنسبة 100%
                                         </p>
