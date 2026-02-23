@@ -198,6 +198,8 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'standard14', label: 'معايير التطبيب عن بعد', type: 'number' },
         { name: 'standard15', label: 'دليل المراجعين', type: 'number' },
         { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)', type: 'number' },
+        { name: 'activitySummary', label: 'ملخص أنشطة الإدارة', type: 'text' },
+        { name: 'activityDetails', label: 'تفاصيل أنشطة الإدارة', type: 'text' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },
