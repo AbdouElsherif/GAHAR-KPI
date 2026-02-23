@@ -6,9 +6,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 interface CustomerSatisfactionDashboardProps {
     submissions: Array<Record<string, any>>;
+    governorateSurveys?: any[];
 }
 
-export default function CustomerSatisfactionDashboard({ submissions }: CustomerSatisfactionDashboardProps) {
+export default function CustomerSatisfactionDashboard({ submissions, governorateSurveys = [] }: CustomerSatisfactionDashboardProps) {
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
     const [targetYear, setTargetYear] = useState(2025);
     const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
@@ -170,6 +171,59 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
     const currentTotalVisitedGovernorates = calculateFilteredTotal(currentAggregated, 'visitedGovernorates', comparisonType);
     const previousTotalVisitedGovernorates = calculateFilteredTotal(previousAggregated, 'visitedGovernorates', comparisonType);
     const visitedGovernoratesChange = calculateChange(currentTotalVisitedGovernorates, previousTotalVisitedGovernorates);
+
+    // معالجة بيانات استبيانات المحافظات
+    const getProcessedGovernorateData = () => {
+        const filteredSurveys = governorateSurveys.filter(survey => {
+            const yearStr = survey.month.split('-')[0];
+            const monthStr = survey.month.split('-')[1];
+            const year = parseInt(yearStr);
+            const month = parseInt(monthStr);
+            const fiscalYear = month >= 7 ? year + 1 : year;
+
+            if (fiscalYear !== targetYear) return false;
+
+            if (comparisonType === 'monthly') {
+                return month === selectedMonth;
+            } else if (comparisonType === 'quarterly') {
+                return getQuarter(month) === selectedQuarter;
+            } else if (comparisonType === 'halfYearly') {
+                return getHalf(month) === selectedHalf;
+            }
+            return true; // yearly
+        });
+
+        // تجميع البيانات حسب المحافظة (في حالة وجود أكثر من سجل لنفس المحافظة في الفترة المختارة)
+        const aggregated: Record<string, { governorate: string; patientSatisf: number; staffSatisf: number; facilitiesCount: number; implementationRate: number; count: number }> = {};
+
+        filteredSurveys.forEach(s => {
+            if (!aggregated[s.governorate]) {
+                aggregated[s.governorate] = {
+                    governorate: s.governorate,
+                    patientSatisf: 0,
+                    staffSatisf: 0,
+                    facilitiesCount: 0,
+                    implementationRate: 0,
+                    count: 0
+                };
+            }
+            aggregated[s.governorate].patientSatisf += s.patientSatisfactionRate || 0;
+            aggregated[s.governorate].staffSatisf += s.staffSatisfactionRate || 0;
+            aggregated[s.governorate].facilitiesCount += s.facilitiesCount || 0;
+            aggregated[s.governorate].implementationRate += s.visitImplementationRate || 0;
+            aggregated[s.governorate].count += 1;
+        });
+
+        return Object.values(aggregated).map(item => ({
+            governorate: item.governorate,
+            patientSatisf: parseFloat((item.patientSatisf / item.count).toFixed(1)),
+            staffSatisf: parseFloat((item.staffSatisf / item.count).toFixed(1)),
+            facilitiesCount: item.facilitiesCount,
+            implementationRate: parseFloat((item.implementationRate / item.count).toFixed(1))
+        })).sort((a, b) => b.patientSatisf - a.patientSatisf);
+    };
+
+    const processedGovData = getProcessedGovernorateData();
 
     const formatPeriodLabel = (period: string): string => {
         if (period.startsWith('Q')) return `الربع ${period.slice(1)}`;
@@ -734,10 +788,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                                     🩺 عينة تجربة المريض
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
-                                    {currentTotalPatientSample.toLocaleString('ar-EG')}
+                                    {currentTotalPatientSample.toLocaleString()}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalPatientSample.toLocaleString('ar-EG')}
+                                    {previousTotalPatientSample.toLocaleString()}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -763,10 +817,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                                     👨‍⚕️ عينة رضاء العاملين
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#8884d8' }}>
-                                    {currentTotalStaffSample.toLocaleString('ar-EG')}
+                                    {currentTotalStaffSample.toLocaleString()}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalStaffSample.toLocaleString('ar-EG')}
+                                    {previousTotalStaffSample.toLocaleString()}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -792,10 +846,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                                     🚶 الزيارات الميدانية
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#82ca9d' }}>
-                                    {currentTotalFieldVisits.toLocaleString('ar-EG')}
+                                    {currentTotalFieldVisits.toLocaleString()}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalFieldVisits.toLocaleString('ar-EG')}
+                                    {previousTotalFieldVisits.toLocaleString()}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -821,10 +875,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                                     🏥 المنشآت المستبانة
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#ffc658' }}>
-                                    {currentTotalSurveyedFacilities.toLocaleString('ar-EG')}
+                                    {currentTotalSurveyedFacilities.toLocaleString()}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalSurveyedFacilities.toLocaleString('ar-EG')}
+                                    {previousTotalSurveyedFacilities.toLocaleString()}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -850,10 +904,10 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                                     📍 محافظات تمت زيارتها
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#9b59b6' }}>
-                                    {currentTotalVisitedGovernorates.toLocaleString('ar-EG')}
+                                    {currentTotalVisitedGovernorates.toLocaleString()}
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', color: '#999' }}>
-                                    {previousTotalVisitedGovernorates.toLocaleString('ar-EG')}
+                                    {previousTotalVisitedGovernorates.toLocaleString()}
                                 </td>
                                 <td style={{
                                     padding: '15px',
@@ -876,6 +930,111 @@ export default function CustomerSatisfactionDashboard({ submissions }: CustomerS
                     </table>
                 </div>
             </div>
+
+            {/* قسم استبيانات رضاء المتعاملين حسب المحافظة */}
+            {processedGovData.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h3 style={{
+                            margin: '0 0 20px 0',
+                            color: 'var(--primary-color)',
+                            fontSize: '1.3rem',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px'
+                        }}>
+                            <span>📍</span>
+                            قسم استبيانات رضاء المتعاملين حسب المحافظة
+                        </h3>
+
+                        <div style={{ height: '400px', width: '100%' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={processedGovData}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis
+                                        dataKey="governorate"
+                                        interval={0}
+                                        tick={{ fill: '#333', fontSize: 14, fontWeight: 'bold' }}
+                                        dy={10} // إزاحة أسماء المحافظات عن المحور
+                                    />
+                                    <YAxis tick={false} axisLine={false} />
+                                    <Tooltip
+                                        content={({ active, payload, label }) => {
+                                            if (active && payload && payload.length) {
+                                                const data = payload[0].payload;
+                                                return (
+                                                    <div style={{
+                                                        backgroundColor: 'rgba(50, 50, 50, 0.95)',
+                                                        color: '#fff',
+                                                        padding: '12px 16px',
+                                                        borderRadius: '10px',
+                                                        border: 'none',
+                                                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                                        fontSize: '14px',
+                                                        textAlign: 'right',
+                                                        direction: 'rtl',
+                                                        minWidth: '200px'
+                                                    }}>
+                                                        <div style={{
+                                                            fontWeight: 'bold',
+                                                            fontSize: '16px',
+                                                            marginBottom: '10px',
+                                                            borderBottom: '1px solid rgba(255,255,255,0.2)',
+                                                            paddingBottom: '8px',
+                                                            color: '#0eacb8'
+                                                        }}>
+                                                            📍 {label}
+                                                        </div>
+                                                        <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                            <span style={{ opacity: 0.9 }}>🏥 عدد المنشآت:</span>
+                                                            <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{data.facilitiesCount?.toLocaleString()}</span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                            <span style={{ opacity: 0.9 }}>📊 نسبة التنفيذ:</span>
+                                                            <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{data.implementationRate?.toLocaleString()}%</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Legend verticalAlign="top" height={36} />
+                                    <Bar
+                                        name="رضاء المرضى"
+                                        dataKey="patientSatisf"
+                                        fill="#0eacb8"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={40}
+                                    >
+                                        <LabelList dataKey="patientSatisf" position="top" formatter={(val: any) => `${val.toLocaleString()}%`} style={{ fontSize: '13px', fontWeight: 'bold', fill: '#0eacb8' }} />
+                                    </Bar>
+                                    <Bar
+                                        name="رضاء العاملين"
+                                        dataKey="staffSatisf"
+                                        fill="#82ca9d"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={40}
+                                    >
+                                        <LabelList dataKey="staffSatisf" position="top" formatter={(val: any) => `${val.toLocaleString()}%`} style={{ fontSize: '13px', fontWeight: 'bold', fill: '#82ca9d' }} />
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && currentObstacles && (

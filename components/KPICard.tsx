@@ -124,7 +124,7 @@ export default function KPICard({
                         lineHeight: '1',
                         fontFamily: 'Segoe UI, sans-serif',
                     }}>
-                        {currentValue.toLocaleString('ar-EG')}
+                        {currentValue.toLocaleString()}
                     </div>
                     <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.95)', marginTop: '5px' }}>
                         {currentYear}
@@ -152,7 +152,7 @@ export default function KPICard({
                     <span>{formattedChange}%</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#999' }}>
-                    مقارنة بـ {previousYear} ({previousValue.toLocaleString('ar-EG')})
+                    مقارنة بـ {previousYear} ({previousValue.toLocaleString()})
                 </div>
             </div>
         </div>

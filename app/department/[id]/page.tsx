@@ -14,7 +14,8 @@ import {
     saveCertificateIssuanceFacility, getCertificateIssuanceFacilities, updateCertificateIssuanceFacility, deleteCertificateIssuanceFacility, type CertificateIssuanceFacility,
     saveReportPresentedToCommittee, getReportsPresentedToCommittee, updateReportPresentedToCommittee, deleteReportPresentedToCommittee, type ReportPresentedToCommittee,
     saveReportByFacilitySpecialty, getReportsByFacilitySpecialty, updateReportByFacilitySpecialty, deleteReportByFacilitySpecialty, type ReportByFacilitySpecialty,
-    saveAccreditationDecision, getAccreditationDecisions, updateAccreditationDecision, deleteAccreditationDecision, type AccreditationDecision
+    saveAccreditationDecision, getAccreditationDecisions, updateAccreditationDecision, deleteAccreditationDecision, type AccreditationDecision,
+    getGovernorateCustomerSurveys, type GovernorateCustomerSurvey
 } from '@/lib/firestore';
 
 
@@ -811,6 +812,9 @@ export default function DepartmentPage() {
     const [trainingEntityFilterMonth, setTrainingEntityFilterMonth] = useState('');
     const [isTrainingEntitiesSectionExpanded, setIsTrainingEntitiesSectionExpanded] = useState(false);
 
+    // Governorate Customer Surveys State (for dept3 dashboard)
+    const [governorateSurveys, setGovernorateSurveys] = useState<GovernorateCustomerSurvey[]>([]);
+
 
     useEffect(() => {
 
@@ -1048,6 +1052,22 @@ export default function DepartmentPage() {
             loadMedicalProfessionalsByGovernorate();
         }
     }, [id, currentUser, medProfByGovernorateFilterMonth, globalFilterMonth]);
+
+    // Load governorate surveys for dept3 dashboard
+    useEffect(() => {
+        if (id === 'dept3') {
+            loadGovernorateSurveys();
+        }
+    }, [id]);
+
+    const loadGovernorateSurveys = async () => {
+        try {
+            const data = await getGovernorateCustomerSurveys();
+            setGovernorateSurveys(data);
+        } catch (error) {
+            console.error('Error loading governorate surveys:', error);
+        }
+    };
 
     // Load Total Medical Professionals By Category for dept7
     useEffect(() => {
@@ -16172,7 +16192,10 @@ export default function DepartmentPage() {
                         isOpen={isCustomerSatisfactionDashboardOpen}
                         onClose={() => setIsCustomerSatisfactionDashboardOpen(false)}
                     >
-                        <CustomerSatisfactionDashboard submissions={submissions} />
+                        <CustomerSatisfactionDashboard
+                            submissions={submissions}
+                            governorateSurveys={governorateSurveys}
+                        />
                     </DashboardModal>
                 )
             }
