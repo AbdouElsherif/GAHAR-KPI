@@ -4641,6 +4641,447 @@ export default function DepartmentPage() {
         URL.revokeObjectURL(url);
     };
 
+    const exportMedProfsByCategoryToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const activeFilter = globalFilterMonth || medProfByCategoryFilterMonth;
+        const filteredData = medProfsByCategory.filter(item => !activeFilter || item.month === activeFilter);
+
+        // Group by branch
+        const branches = ['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس', 'أسوان', 'جنوب سيناء'];
+        const data = branches.map((branch, index) => {
+            const branchItems = filteredData.filter(item => item.branch === branch);
+            if (branchItems.length === 0 && !activeFilter) return null;
+
+            const totals = branchItems.reduce((acc, item) => ({
+                doctors: acc.doctors + (item.doctors || 0),
+                dentists: acc.dentists + (item.dentists || 0),
+                pharmacists: acc.pharmacists + (item.pharmacists || 0),
+                physiotherapy: acc.physiotherapy + (item.physiotherapy || 0),
+                veterinarians: acc.veterinarians + (item.veterinarians || 0),
+                seniorNursing: acc.seniorNursing + (item.seniorNursing || 0),
+                technicalNursing: acc.technicalNursing + (item.technicalNursing || 0),
+                healthTechnician: acc.healthTechnician + (item.healthTechnician || 0),
+                scientists: acc.scientists + (item.scientists || 0)
+            }), { doctors: 0, dentists: 0, pharmacists: 0, physiotherapy: 0, veterinarians: 0, seniorNursing: 0, technicalNursing: 0, healthTechnician: 0, scientists: 0 });
+
+            const branchTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+
+            return {
+                'الفرع': branch,
+                'أطباء بشريين': totals.doctors,
+                'أطباء أسنان': totals.dentists,
+                'صيادلة': totals.pharmacists,
+                'علاج طبيعي': totals.physiotherapy,
+                'بيطريين': totals.veterinarians,
+                'تمريض عالي': totals.seniorNursing,
+                'فني تمريض': totals.technicalNursing,
+                'فني صحي': totals.healthTechnician,
+                'علميين': totals.scientists,
+                'الإجمالي': branchTotal
+            };
+        }).filter(item => item !== null);
+
+        // Add Grand Total row
+        if (data.length > 0) {
+            const grandTotals = data.reduce((acc: any, item: any) => ({
+                doctors: acc.doctors + item['أطباء بشريين'],
+                dentists: acc.dentists + item['أطباء أسنان'],
+                pharmacists: acc.pharmacists + item['صيادلة'],
+                physiotherapy: acc.physiotherapy + item['علاج طبيعي'],
+                veterinarians: acc.veterinarians + item['بيطريين'],
+                seniorNursing: acc.seniorNursing + item['تمريض عالي'],
+                technicalNursing: acc.technicalNursing + item['فني تمريض'],
+                healthTechnician: acc.healthTechnician + item['فني صحي'],
+                scientists: acc.scientists + item['علميين'],
+                total: acc.total + item['الإجمالي']
+            }), { doctors: 0, dentists: 0, pharmacists: 0, physiotherapy: 0, veterinarians: 0, seniorNursing: 0, technicalNursing: 0, healthTechnician: 0, scientists: 0, total: 0 });
+
+            data.push({
+                'الفرع': 'الإجمالي',
+                'أطباء بشريين': grandTotals.doctors,
+                'أطباء أسنان': grandTotals.dentists,
+                'صيادلة': grandTotals.pharmacists,
+                'علاج طبيعي': grandTotals.physiotherapy,
+                'بيطريين': grandTotals.veterinarians,
+                'تمريض عالي': grandTotals.seniorNursing,
+                'فني تمريض': grandTotals.technicalNursing,
+                'فني صحي': grandTotals.healthTechnician,
+                'علميين': grandTotals.scientists,
+                'الإجمالي': grandTotals.total
+            });
+        }
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'المهن الطبية حسب الفئة');
+        const fileName = activeFilter ? `أعضاء_المهن_الطبية_حسب_الفئة_${activeFilter}.xlsx` : `أعضاء_المهن_الطبية_حسب_الفئة_جميع.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportMedProfsByGovernorateToExcel = () => {
+        const activeFilter = globalFilterMonth || medProfByGovernorateFilterMonth;
+        const filteredData = medProfsByGovernorate.filter(item => !activeFilter || item.month === activeFilter);
+
+        const data = filteredData.map(item => ({
+            'المحافظة': item.governorate,
+            'أطباء بشريين': item.doctors,
+            'أطباء أسنان': item.dentists,
+            'صيادلة': item.pharmacists,
+            'علاج طبيعي': item.physiotherapy,
+            'بيطريين': item.veterinarians,
+            'تمريض عالي': item.seniorNursing,
+            'فني تمريض': item.technicalNursing,
+            'فني صحي': item.healthTechnician,
+            'علميين': item.scientists,
+            'الإجمالي': item.total
+        }));
+
+        if (data.length > 0) {
+            const grandTotals = data.reduce((acc: any, item: any) => ({
+                doctors: acc.doctors + item['أطباء بشريين'],
+                dentists: acc.dentists + item['أطباء أسنان'],
+                pharmacists: acc.pharmacists + item['صيادلة'],
+                physiotherapy: acc.physiotherapy + item['علاج طبيعي'],
+                veterinarians: acc.veterinarians + item['بيطريين'],
+                seniorNursing: acc.seniorNursing + item['تمريض عالي'],
+                technicalNursing: acc.technicalNursing + item['فني تمريض'],
+                healthTechnician: acc.healthTechnician + item['فني صحي'],
+                scientists: acc.scientists + item['علميين'],
+                total: acc.total + item['الإجمالي']
+            }), { doctors: 0, dentists: 0, pharmacists: 0, physiotherapy: 0, veterinarians: 0, seniorNursing: 0, technicalNursing: 0, healthTechnician: 0, scientists: 0, total: 0 });
+
+            data.push({
+                'المحافظة': 'الإجمالي',
+                'أطباء بشريين': grandTotals.doctors,
+                'أطباء أسنان': grandTotals.dentists,
+                'صيادلة': grandTotals.pharmacists,
+                'علاج طبيعي': grandTotals.physiotherapy,
+                'بيطريين': grandTotals.veterinarians,
+                'تمريض عالي': grandTotals.seniorNursing,
+                'فني تمريض': grandTotals.technicalNursing,
+                'فني صحي': grandTotals.healthTechnician,
+                'علميين': grandTotals.scientists,
+                'الإجمالي': grandTotals.total
+            });
+        }
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'المهن الطبية بالمحافظات');
+        const fileName = activeFilter ? `إجمالي_أعضاء_المهن_الطبية_بالمحافظات_${activeFilter}.xlsx` : `إجمالي_أعضاء_المهن_الطبية_بالمحافظات_جميع.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportTotalMedProfsByCategoryToExcel = () => {
+        const activeFilter = totalMedProfByCategoryFilterMonth;
+        const filteredData = totalMedProfsByCategory.filter(item => !activeFilter || item.month === activeFilter);
+
+        const data = filteredData.map(item => ({
+            'الفرع': item.branch,
+            'أطباء بشريين': item.doctors,
+            'أطباء أسنان': item.dentists,
+            'صيادلة': item.pharmacists,
+            'علاج طبيعي': item.physiotherapy,
+            'بيطريين': item.veterinarians,
+            'تمريض عالي': item.seniorNursing,
+            'فني تمريض': item.technicalNursing,
+            'فني صحي': item.healthTechnician,
+            'علميين': item.scientists,
+            'الإجمالي': item.total
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الإجمالي الكلي حسب الفئة');
+        const fileName = activeFilter ? `الإجمالي_الكلي_للمهن_الطبية_حسب_الفئة_${activeFilter}.xlsx` : `الإجمالي_الكلي_للمهن_الطبية_حسب_الفئة_جميع.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportTotalMedProfsByGovernorateToExcel = () => {
+        const activeFilter = totalMedProfByGovernorateFilterMonth;
+        const filteredData = totalMedProfsByGovernorate.filter(item => !activeFilter || item.month === activeFilter);
+
+        const data = filteredData.map(item => ({
+            'المحافظة': item.governorate,
+            'أطباء بشريين': item.doctors,
+            'أطباء أسنان': item.dentists,
+            'صيادلة': item.pharmacists,
+            'علاج طبيعي': item.physiotherapy,
+            'بيطريين': item.veterinarians,
+            'تمريض عالي': item.seniorNursing,
+            'فني تمريض': item.technicalNursing,
+            'فني صحي': item.healthTechnician,
+            'علميين': item.scientists,
+            'الإجمالي': item.total
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'الإجمالي الكلي بالمحافظات');
+        const fileName = activeFilter ? `الإجمالي_الكلي_للمهن_الطبية_بالمحافظات_${activeFilter}.xlsx` : `الإجمالي_الكلي_للمهن_الطبية_بالمحافظات_جميع.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    };
+
+    const exportMedProfsByCategoryToWord = async () => {
+        const activeFilter = globalFilterMonth || medProfByCategoryFilterMonth;
+        const filteredData = medProfsByCategory.filter(item => !activeFilter || item.month === activeFilter);
+        const branches = ['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس', 'أسوان', 'جنوب سيناء'];
+
+        const tableRows = branches.map((branch) => {
+            const branchItems = filteredData.filter(item => item.branch === branch);
+            const totals = branchItems.reduce((acc, item) => ({
+                doctors: acc.doctors + (item.doctors || 0),
+                dentists: acc.dentists + (item.dentists || 0),
+                pharmacists: acc.pharmacists + (item.pharmacists || 0),
+                physiotherapy: acc.physiotherapy + (item.physiotherapy || 0),
+                veterinarians: acc.veterinarians + (item.veterinarians || 0),
+                seniorNursing: acc.seniorNursing + (item.seniorNursing || 0),
+                technicalNursing: acc.technicalNursing + (item.technicalNursing || 0),
+                healthTechnician: acc.healthTechnician + (item.healthTechnician || 0),
+                scientists: acc.scientists + (item.scientists || 0)
+            }), { doctors: 0, dentists: 0, pharmacists: 0, physiotherapy: 0, veterinarians: 0, seniorNursing: 0, technicalNursing: 0, healthTechnician: 0, scientists: 0 });
+
+            const branchTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: branchTotal.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.scientists.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.healthTechnician.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.technicalNursing.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.seniorNursing.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.veterinarians.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.physiotherapy.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.pharmacists.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.dentists.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: totals.doctors.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: branch, alignment: AlignmentType.RIGHT })] }),
+                ]
+            });
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+                children: [
+                    new Paragraph({ text: 'أعضاء المهن الطبية المسجلين (طبقا للفئة)', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({ children: [new Paragraph({ text: 'الإجمالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علميين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني صحي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني تمريض', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'تمريض عالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'بيطريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علاج طبيعي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'صيادلة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء أسنان', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء بشريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'الفرع', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                ]
+                            }),
+                            ...tableRows
+                        ]
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = activeFilter ? `أعضاء_المهن_الطبية_حسب_الفئة_${activeFilter}.docx` : `أعضاء_المهن_الطبية_حسب_الفئة_جميع.docx`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const exportMedProfsByGovernorateToWord = async () => {
+        const activeFilter = globalFilterMonth || medProfByGovernorateFilterMonth;
+        const filteredData = medProfsByGovernorate.filter(item => !activeFilter || item.month === activeFilter);
+
+        const tableRows = filteredData.map((item) => (
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (item.total || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.scientists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.healthTechnician || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.technicalNursing || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.seniorNursing || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.veterinarians || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.physiotherapy || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.pharmacists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.dentists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.doctors || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.governorate, alignment: AlignmentType.RIGHT })] }),
+                ]
+            })
+        ));
+
+        const doc = new Document({
+            sections: [{
+                properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+                children: [
+                    new Paragraph({ text: 'إجمالي أعضاء المهن الطبية المسجلين بالمحافظات', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({ children: [new Paragraph({ text: 'الإجمالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علميين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني صحي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني تمريض', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'تمريض عالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'بيطريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علاج طبيعي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'صيادلة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء أسنان', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء بشريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                ]
+                            }),
+                            ...tableRows
+                        ]
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = activeFilter ? `إجمالي_أعضاء_المهن_الطبية_بالمحافظات_${activeFilter}.docx` : `إجمالي_أعضاء_المهن_الطبية_بالمحافظات_جميع.docx`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const exportTotalMedProfsByCategoryToWord = async () => {
+        const activeFilter = totalMedProfByCategoryFilterMonth;
+        const filteredData = totalMedProfsByCategory.filter(item => !activeFilter || item.month === activeFilter);
+
+        const tableRows = filteredData.map((item) => (
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (item.total || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.scientists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.healthTechnician || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.technicalNursing || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.seniorNursing || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.veterinarians || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.physiotherapy || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.pharmacists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.dentists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.doctors || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.branch || 'الإجمالي', alignment: AlignmentType.RIGHT })] }),
+                ]
+            })
+        ));
+
+        const doc = new Document({
+            sections: [{
+                properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+                children: [
+                    new Paragraph({ text: 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({ children: [new Paragraph({ text: 'الإجمالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علميين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني صحي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني تمريض', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'تمريض عالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'بيطريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علاج طبيعي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'صيادلة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء أسنان', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء بشريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'الفرع/الفئة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                ]
+                            }),
+                            ...tableRows
+                        ]
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = activeFilter ? `الإجمالي_الكلي_حسب_الفئة_${activeFilter}.docx` : `الإجمالي_الكلي_حسب_الفئة_جميع.docx`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const exportTotalMedProfsByGovernorateToWord = async () => {
+        const activeFilter = totalMedProfByGovernorateFilterMonth;
+        const filteredData = totalMedProfsByGovernorate.filter(item => !activeFilter || item.month === activeFilter);
+
+        const tableRows = filteredData.map((item) => (
+            new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: (item.total || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.scientists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.healthTechnician || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.technicalNursing || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.seniorNursing || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.veterinarians || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.physiotherapy || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.pharmacists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.dentists || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (item.doctors || 0).toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: item.governorate, alignment: AlignmentType.RIGHT })] }),
+                ]
+            })
+        ));
+
+        const doc = new Document({
+            sections: [{
+                properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+                children: [
+                    new Paragraph({ text: 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Table({
+                        width: { size: 100, type: WidthType.PERCENTAGE },
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({ children: [new Paragraph({ text: 'الإجمالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علميين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني صحي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'فني تمريض', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'تمريض عالي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'بيطريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'علاج طبيعي', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'صيادلة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء أسنان', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'أطباء بشريين', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER, run: { bold: true } })], shading: { fill: 'f0f0f0' } }),
+                                ]
+                            }),
+                            ...tableRows
+                        ]
+                    })
+                ]
+            }]
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = activeFilter ? `الإجمالي_الكلي_حسب_المحافظة_${activeFilter}.docx` : `الإجمالي_الكلي_حسب_المحافظة_جميع.docx`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
     // Technical Support Visit handlers
     const handleTechSupportVisitSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -16866,6 +17307,22 @@ export default function DepartmentPage() {
                                             title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                         />
                                     </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportMedProfsByCategoryToExcel}
+                                            className="btn"
+                                            style={{ backgroundColor: '#28a745', color: 'white', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                        >
+                                            <span>تصدير Excel</span>
+                                        </button>
+                                        <button
+                                            onClick={exportMedProfsByCategoryToWord}
+                                            className="btn"
+                                            style={{ backgroundColor: '#007bff', color: 'white', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                                        >
+                                            <span>تصدير Word</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div style={{ overflowX: 'auto' }}>
@@ -17142,16 +17599,32 @@ export default function DepartmentPage() {
                                             title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                         />
                                     </div>
-                                    {medProfByGovernorateFilterMonth && (
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        {medProfByGovernorateFilterMonth && (
+                                            <button
+                                                type="button"
+                                                className="btn"
+                                                onClick={() => setMedProfByGovernorateFilterMonth('')}
+                                                style={{ backgroundColor: '#6c757d', color: 'white' }}
+                                            >
+                                                عرض الكل
+                                            </button>
+                                        )}
                                         <button
-                                            type="button"
+                                            onClick={exportMedProfsByGovernorateToExcel}
                                             className="btn"
-                                            onClick={() => setMedProfByGovernorateFilterMonth('')}
-                                            style={{ backgroundColor: '#6c757d', color: 'white', height: 'fit-content' }}
+                                            style={{ backgroundColor: '#28a745', color: 'white', fontSize: '0.9rem' }}
                                         >
-                                            عرض الكل
+                                            تصدير Excel
                                         </button>
-                                    )}
+                                        <button
+                                            onClick={exportMedProfsByGovernorateToWord}
+                                            className="btn"
+                                            style={{ backgroundColor: '#007bff', color: 'white', fontSize: '0.9rem' }}
+                                        >
+                                            تصدير Word
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div style={{ overflowX: 'auto' }}>
@@ -17375,6 +17848,22 @@ export default function DepartmentPage() {
                                         <label className="form-label">فلترة حسب الشهر</label>
                                         <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={totalMedProfByCategoryFilterMonth}
                                             onChange={(e) => setTotalMedProfByCategoryFilterMonth(e.target.value)} />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportTotalMedProfsByCategoryToExcel}
+                                            className="btn"
+                                            style={{ backgroundColor: '#28a745', color: 'white', fontSize: '0.9rem' }}
+                                        >
+                                            تصدير Excel
+                                        </button>
+                                        <button
+                                            onClick={exportTotalMedProfsByCategoryToWord}
+                                            className="btn"
+                                            style={{ backgroundColor: '#007bff', color: 'white', fontSize: '0.9rem' }}
+                                        >
+                                            تصدير Word
+                                        </button>
                                     </div>
                                 </div>
 
@@ -17618,6 +18107,22 @@ export default function DepartmentPage() {
                                         <label className="form-label">فلترة حسب الشهر</label>
                                         <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={totalMedProfByGovernorateFilterMonth}
                                             onChange={(e) => setTotalMedProfByGovernorateFilterMonth(e.target.value)} />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button
+                                            onClick={exportTotalMedProfsByGovernorateToExcel}
+                                            className="btn"
+                                            style={{ backgroundColor: '#28a745', color: 'white', fontSize: '0.9rem' }}
+                                        >
+                                            تصدير Excel
+                                        </button>
+                                        <button
+                                            onClick={exportTotalMedProfsByGovernorateToWord}
+                                            className="btn"
+                                            style={{ backgroundColor: '#007bff', color: 'white', fontSize: '0.9rem' }}
+                                        >
+                                            تصدير Word
+                                        </button>
                                     </div>
                                 </div>
 
