@@ -2220,6 +2220,97 @@ export default function DepartmentPage() {
         setEditingAdminAuditFacilityId(null);
     };
 
+    const exportAdminAuditFacilitiesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = adminAuditFacilities.filter(f => !(globalFilterMonth || adminAuditFacilityFilterMonth) || f.month === (globalFilterMonth || adminAuditFacilityFilterMonth));
+
+        const data = filteredData.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return {
+                'م': index + 1,
+                'الجهة التابعة': 'المنشآت الصحية التابعة لهيئة الرعاية الصحية', // Assuming it's the default or based on context
+                'نوع المنشأة': facility.facilityType,
+                'اسم المنشأة': facility.facilityName,
+                'المحافظة': facility.governorate,
+                'نوع الزيارة': facility.visitType,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "المنشآت التي تمت زيارتها");
+        const filterMonthText = (globalFilterMonth || adminAuditFacilityFilterMonth)
+            ? (globalFilterMonth || adminAuditFacilityFilterMonth)
+            : 'جميع_الأشهر';
+        XLSX.writeFile(wb, `المنشآت_التي_تمت_زيارتها_${filterMonthText}.xlsx`);
+    };
+
+    const exportAdminAuditFacilitiesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = adminAuditFacilities.filter(f => !(globalFilterMonth || adminAuditFacilityFilterMonth) || f.month === (globalFilterMonth || adminAuditFacilityFilterMonth));
+
+        const tableRows = filteredData.map((facility, index) => {
+            const [year, month] = facility.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: facility.visitType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: 'المنشآت الصحية التابعة لهيئة الرعاية الصحية', alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                ],
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: "نوع الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "المحافظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "اسم المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الجهة التابعة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الشهر", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "م", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                    ],
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: "تقرير المنشآت التي تمت زيارتها خلال الشهر",
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    table
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filterMonthText = (globalFilterMonth || adminAuditFacilityFilterMonth)
+            ? (globalFilterMonth || adminAuditFacilityFilterMonth)
+            : 'جميع_الأشهر';
+        link.download = `المنشآت_التي_تمت_زيارتها_${filterMonthText}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     // Admin Audit Observation handlers (الملاحظات المتكررة)
     const handleAdminAuditObservationInputChange = (field: string, value: string) => {
         setAdminAuditObservationFormData(prev => ({ ...prev, [field]: value }));
@@ -2328,6 +2419,94 @@ export default function DepartmentPage() {
             month: ''
         });
         setEditingAdminAuditObservationId(null);
+    };
+
+    const exportAdminAuditObservationsToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = adminAuditObservations.filter(f => !(globalFilterMonth || adminAuditObservationFilterMonth) || f.month === (globalFilterMonth || adminAuditObservationFilterMonth));
+
+        const data = filteredData.map((obs, index) => {
+            const [year, month] = obs.month.split('-');
+            return {
+                'م': index + 1,
+                'الجهة التابعة': obs.entityType,
+                'نوع المنشأة': obs.facilityType,
+                'الملاحظة': obs.observation,
+                'النسبة': obs.percentage !== undefined ? `${obs.percentage}%` : '-',
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "الملاحظات المتكررة");
+        const filterMonthText = (globalFilterMonth || adminAuditObservationFilterMonth)
+            ? (globalFilterMonth || adminAuditObservationFilterMonth)
+            : 'جميع_الأشهر';
+        XLSX.writeFile(wb, `الملاحظات_المتكررة_${filterMonthText}.xlsx`);
+    };
+
+    const exportAdminAuditObservationsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = adminAuditObservations.filter(f => !(globalFilterMonth || adminAuditObservationFilterMonth) || f.month === (globalFilterMonth || adminAuditObservationFilterMonth));
+
+        const tableRows = filteredData.map((obs, index) => {
+            const [year, month] = obs.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: obs.percentage !== undefined && obs.percentage !== null ? `${obs.percentage}%` : '-', alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: obs.observation, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: obs.facilityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: obs.entityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                ],
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: "النسبة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0A2540" } }),
+                        new TableCell({ children: [new Paragraph({ text: "دليل التطابق / الملاحظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0A2540" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0A2540" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الجهة التابعة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0A2540" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الشهر", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0A2540" } }),
+                        new TableCell({ children: [new Paragraph({ text: "م", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0A2540" } }),
+                    ],
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: "تقرير الملاحظات المتكررة خلال زيارات الرقابة الإدارية",
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    table
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filterMonthText = (globalFilterMonth || adminAuditObservationFilterMonth)
+            ? (globalFilterMonth || adminAuditObservationFilterMonth)
+            : 'جميع_الأشهر';
+        link.download = `الملاحظات_المتكررة_الرقابة_الإدارية_${filterMonthText}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     // Observation Correction Rate handlers (نسب تصحيح الملاحظات)
@@ -2474,6 +2653,121 @@ export default function DepartmentPage() {
             cpsTotal: '', cpsCorrected: ''
         });
         setEditingCorrectionRateId(null);
+    };
+
+    const exportCorrectionRatesToExcel = () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = correctionRates.filter(f => !(globalFilterMonth || correctionRateFilterMonth) || f.month === (globalFilterMonth || correctionRateFilterMonth));
+
+        const data = filteredData.map((rate, index) => {
+            const [year, month] = rate.month.split('-');
+            return {
+                'م': index + 1,
+                'الجهة': rate.entityType,
+                'نوع المنشأة': rate.facilityCategory,
+                'اسم المنشأة': rate.facilityName,
+                'المحافظة': rate.governorate,
+                'تاريخ الزيارة': rate.visitDate,
+                'نوع الزيارة': rate.visitType,
+                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
+                'PCC (واردة)': rate.pccTotal === -1 ? '-' : rate.pccTotal, 'PCC (مصححة)': rate.pccCorrected === -1 ? '-' : rate.pccCorrected,
+                'EFS (واردة)': rate.efsTotal === -1 ? '-' : rate.efsTotal, 'EFS (مصححة)': rate.efsCorrected === -1 ? '-' : rate.efsCorrected,
+                'OGM (واردة)': rate.ogmTotal === -1 ? '-' : rate.ogmTotal, 'OGM (مصححة)': rate.ogmCorrected === -1 ? '-' : rate.ogmCorrected,
+                'IMT (واردة)': rate.imtTotal === -1 ? '-' : rate.imtTotal, 'IMT (مصححة)': rate.imtCorrected === -1 ? '-' : rate.imtCorrected,
+                'WFM (واردة)': rate.wfmTotal === -1 ? '-' : rate.wfmTotal, 'WFM (مصححة)': rate.wfmCorrected === -1 ? '-' : rate.wfmCorrected,
+                'CAI (واردة)': rate.caiTotal === -1 ? '-' : rate.caiTotal, 'CAI (مصححة)': rate.caiCorrected === -1 ? '-' : rate.caiCorrected,
+                'QPI (واردة)': rate.qpiTotal === -1 ? '-' : rate.qpiTotal, 'QPI (مصححة)': rate.qpiCorrected === -1 ? '-' : rate.qpiCorrected,
+                'MRS (واردة)': (rate.mrsTotal || 0) === -1 ? '-' : (rate.mrsTotal || 0), 'MRS (مصححة)': (rate.mrsCorrected || 0) === -1 ? '-' : (rate.mrsCorrected || 0),
+                'SCM (واردة)': (rate.scmTotal || 0) === -1 ? '-' : (rate.scmTotal || 0), 'SCM (مصححة)': (rate.scmCorrected || 0) === -1 ? '-' : (rate.scmCorrected || 0),
+                'EMS (واردة)': (rate.emsTotal || 0) === -1 ? '-' : (rate.emsTotal || 0), 'EMS (مصححة)': (rate.emsCorrected || 0) === -1 ? '-' : (rate.emsCorrected || 0),
+                'PCS (واردة)': (rate.pcsTotal || 0) === -1 ? '-' : (rate.pcsTotal || 0), 'PCS (مصححة)': (rate.pcsCorrected || 0) === -1 ? '-' : (rate.pcsCorrected || 0),
+                'CPS (واردة)': (rate.cpsTotal || 0) === -1 ? '-' : (rate.cpsTotal || 0), 'CPS (مصححة)': (rate.cpsCorrected || 0) === -1 ? '-' : (rate.cpsCorrected || 0)
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "نسب تصحيح الملاحظات");
+        const filterMonthText = (globalFilterMonth || correctionRateFilterMonth)
+            ? (globalFilterMonth || correctionRateFilterMonth)
+            : 'جميع_الأشهر';
+        XLSX.writeFile(wb, `نسب_تصحيح_الملاحظات_${filterMonthText}.xlsx`);
+    };
+
+    const exportCorrectionRatesToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = correctionRates.filter(f => !(globalFilterMonth || correctionRateFilterMonth) || f.month === (globalFilterMonth || correctionRateFilterMonth));
+
+        const tableRows = filteredData.map((rate, index) => {
+            const [year, month] = rate.month.split('-');
+            const criteriaText = ['PCC', 'EFS', 'OGM', 'IMT', 'WFM', 'CAI', 'QPI', 'MRS', 'SCM', 'EMS', 'PCS', 'CPS']
+                .map(c => {
+                    const total = rate[`${c.toLowerCase()}Total` as keyof typeof rate];
+                    const corrected = rate[`${c.toLowerCase()}Corrected` as keyof typeof rate];
+                    return (total === -1 || corrected === -1) ? null : `${c}: ${corrected}/${total}`;
+                }).filter(t => t !== null).join('\n');
+
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: criteriaText, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.visitType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.visitDate, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.governorate, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.facilityName, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.facilityCategory, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: rate.entityType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                ],
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: "المعايير (مصححة/واردة)", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "تاريخ الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "المحافظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "اسم المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الجهة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الشهر", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "م", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                    ],
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: "تقرير نسب تصحيح الملاحظات للرقابة الإدارية",
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    table
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filterMonthText = (globalFilterMonth || correctionRateFilterMonth)
+            ? (globalFilterMonth || correctionRateFilterMonth)
+            : 'جميع_الأشهر';
+        link.download = `نسب_تصحيح_الملاحظات_الرقابة_الإدارية_${filterMonthText}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     // Technical Clinical Correction Rate handlers (نسب تصحيح الملاحظات for dept4)
@@ -12681,7 +12975,7 @@ export default function DepartmentPage() {
 
                                 {/* Filter and Table */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
                                         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                             <label className="form-label">فلترة حسب الشهر</label>
 
@@ -12697,6 +12991,44 @@ export default function DepartmentPage() {
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             />
                                         </div>
+                                        {adminAuditFacilities.filter(f => !(globalFilterMonth || adminAuditFacilityFilterMonth) || f.month === (globalFilterMonth || adminAuditFacilityFilterMonth)).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportAdminAuditFacilitiesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportAdminAuditFacilitiesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#2b5797',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -12960,7 +13292,7 @@ export default function DepartmentPage() {
 
                                 {/* Filter */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
                                         <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
                                             <label className="form-label">فلترة حسب الشهر</label>
 
@@ -12976,6 +13308,44 @@ export default function DepartmentPage() {
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             />
                                         </div>
+                                        {adminAuditObservations.filter(o => !(globalFilterMonth || adminAuditObservationFilterMonth) || o.month === (globalFilterMonth || adminAuditObservationFilterMonth)).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportAdminAuditObservationsToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportAdminAuditObservationsToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#2b5797',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -13297,10 +13667,50 @@ export default function DepartmentPage() {
 
                                 {/* Filter */}
                                 <div style={{ marginBottom: '20px' }}>
-                                    <div className="form-group" style={{ margin: 0, minWidth: '200px', display: 'inline-block' }}>
-                                        <label className="form-label">فلترة حسب الشهر</label>
-                                        <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={correctionRateFilterMonth}
-                                            onChange={(e) => setCorrectionRateFilterMonth(e.target.value)} />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '15px' }}>
+                                        <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                            <label className="form-label">فلترة حسب الشهر</label>
+                                            <input type="month" min={MIN_MONTH} max={MAX_MONTH} className="form-input" value={correctionRateFilterMonth}
+                                                onChange={(e) => setCorrectionRateFilterMonth(e.target.value)} />
+                                        </div>
+                                        {correctionRates.filter(r => !(globalFilterMonth || correctionRateFilterMonth) || r.month === (globalFilterMonth || correctionRateFilterMonth)).length > 0 && (
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={exportCorrectionRatesToExcel}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#28a745',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📊 تصدير Excel
+                                                </button>
+                                                <button
+                                                    onClick={exportCorrectionRatesToWord}
+                                                    style={{
+                                                        padding: '8px 16px',
+                                                        backgroundColor: '#2b5797',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.9rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '5px'
+                                                    }}
+                                                >
+                                                    📄 تصدير Word
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
