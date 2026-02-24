@@ -1934,6 +1934,69 @@ export default function DepartmentPage() {
         XLSX.writeFile(wb, "القرارات_الصادرة.xlsx");
     };
 
+    const exportAccreditationDecisionsToWord = async () => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const filteredData = accreditationDecisions.filter(d => !(globalFilterMonth || accreditationDecisionsFilterMonth) || d.month === (globalFilterMonth || accreditationDecisionsFilterMonth));
+
+        if (filteredData.length === 0) return;
+
+        const tableRows = filteredData.map((decision, index) => {
+            const [year, month] = decision.month.split('-');
+            return new TableRow({
+                children: [
+                    new TableCell({ children: [new Paragraph({ text: decision.count.toString(), alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: decision.decisionType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: decision.facilityCategory, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
+                ],
+            });
+        });
+
+        const table = new Table({
+            rows: [
+                new TableRow({
+                    children: [
+                        new TableCell({ children: [new Paragraph({ text: "العدد", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع القرار", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الشهر", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "م", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                    ],
+                }),
+                ...tableRows
+            ],
+            width: { size: 100, type: WidthType.PERCENTAGE },
+        });
+
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    new Paragraph({
+                        text: "تقرير قرارات الاعتماد",
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    }),
+                    table
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const filterMonthText = (globalFilterMonth || accreditationDecisionsFilterMonth)
+            ? (globalFilterMonth || accreditationDecisionsFilterMonth)
+            : 'جميع_الأشهر';
+        link.download = `قرارات_الاعتماد_${filterMonthText}.docx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const handleEditTechnicalClinicalObservation = (observation: TechnicalClinicalObservation) => {
         setTechnicalClinicalObservationFormData({
             entityType: observation.entityType,
@@ -16635,6 +16698,20 @@ export default function DepartmentPage() {
                                                 }}
                                             >
                                                 📊 تصدير Excel
+                                            </button>
+                                            <button
+                                                onClick={exportAccreditationDecisionsToWord}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#2b5797', // Word blue color
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                📄 تصدير Word
                                             </button>
                                         </div>
                                     )}
