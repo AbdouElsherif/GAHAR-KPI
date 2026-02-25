@@ -25,6 +25,7 @@ import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType, BorderStyle, HeadingLevel } from 'docx';
 import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
+import DepartmentExportButton from '@/components/DepartmentExportButton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { ProgramTypesSection, CollectedRevenuesSection, TrainingProgramsByGovernorateSection, TrainingNatureSection } from '@/components/dept1';
 import { GovernorateCustomerSurveysSection } from '@/components/dept3';
@@ -7220,6 +7221,7 @@ export default function DepartmentPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <h1 className="page-title" style={{ margin: 0, fontSize: '1.8rem' }}>لوحة مؤشرات {departmentName}</h1>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <DepartmentExportButton departmentId={id} departmentName={departmentName} />
                     {(id === 'dept6' || id === 'dept4' || id === 'dept5' || id === 'dept2' || id === 'dept1' || id === 'dept3' || id === 'dept7' || id === 'dept8' || id === 'dept9') && (
                         <button
                             onClick={() => {
