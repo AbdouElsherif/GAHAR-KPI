@@ -256,6 +256,18 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
+
+    // Safe Health Design - Received Projects (المشروعات المستلمة Dept 10)
+    match /dept10_received_projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept10');
+    }
+
+    // Safe Health Design - Completed Review Projects (المشروعات المنتهي مراجعتها Dept 10)
+    match /dept10_completed_projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept10');
+    }
   }
 }
 

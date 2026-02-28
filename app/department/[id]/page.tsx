@@ -29,6 +29,7 @@ import DepartmentExportButton from '@/components/DepartmentExportButton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { ProgramTypesSection, CollectedRevenuesSection, TrainingProgramsByGovernorateSection, TrainingNatureSection } from '@/components/dept1';
 import { GovernorateCustomerSurveysSection } from '@/components/dept3';
+import { ReceivedProjectsSection, CompletedProjectsSection } from '@/components/dept10';
 import { committeeDecisionTypes } from '@/constants/committeeDecisionTypes';
 
 // Dynamic Imports - Dashboards loaded only when opened (reduces initial bundle by ~750KB)
@@ -73,6 +74,9 @@ const ReviewersDashboard = dynamic(() => import('@/components/ReviewersDashboard
 const StandardsDashboard = dynamic(() => import('@/components/StandardsDashboard'), {
     loading: DashboardLoadingSpinner, ssr: false
 });
+const SafeHealthDesignDashboard = dynamic(() => import('@/components/SafeHealthDesignDashboard'), {
+    loading: DashboardLoadingSpinner, ssr: false
+});
 
 
 const departments: Record<string, string> = {
@@ -85,6 +89,7 @@ const departments: Record<string, string> = {
     'dept7': 'الإدارة العامة لتسجيل أعضاء المهن الطبية',
     'dept8': 'الإدارة العامة لأبحاث وتطوير المعايير',
     'dept9': 'الإدارة العامة لشئون المراجعين',
+    'dept10': 'الإدارة العامة للتصميم الصحي الآمن',
 };
 
 interface Field {
@@ -222,6 +227,19 @@ const departmentFields: Record<string, Field[]> = {
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },
+        { name: 'notes', label: 'ملاحظات', type: 'text' },
+    ],
+    'dept10': [
+        { name: 'date', label: 'الشهر والسنة', type: 'month' },
+        { name: 'firstTimeProjects', label: 'عدد المشروعات مراجعة أول مرة', type: 'number' },
+        { name: 'feedbackReviewProjects', label: 'عدد المستشفيات الجاري مراجعتها بعد ورود تقارير الرد على الملاحظات', type: 'number' },
+        { name: 'technicalSupportRequested', label: 'عدد المشروعات التي طلبت دعماً فنياً', type: 'number' },
+        { name: 'technicalSupportProvided', label: 'عدد المشروعات التي حصلت على دعم فني', type: 'number' },
+        { name: 'medicalEquipmentReview', label: 'عدد المشروعات طلبت مراجعة التجهيزات الطبية', type: 'number' },
+        { name: 'activitySummary', label: 'ملخص أنشطة الإدارة', type: 'text' },
+        { name: 'activityDetails', label: 'تفاصيل أنشطة الإدارة', type: 'text' },
+        { name: 'obstacles', label: 'المعوقات', type: 'text' },
+        { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
 };
@@ -364,6 +382,7 @@ export default function DepartmentPage() {
     const [isMedicalProfessionalsDashboardOpen, setIsMedicalProfessionalsDashboardOpen] = useState(false);
     const [isReviewersDashboardOpen, setIsReviewersDashboardOpen] = useState(false);
     const [isStandardsDashboardOpen, setIsStandardsDashboardOpen] = useState(false);
+    const [isSafeHealthDesignDashboardOpen, setIsSafeHealthDesignDashboardOpen] = useState(false);
 
     // Facilities tracking states (for dept6 only)
     const [facilities, setFacilities] = useState<AccreditationFacility[]>([]);
@@ -7222,7 +7241,7 @@ export default function DepartmentPage() {
                 <h1 className="page-title" style={{ margin: 0, fontSize: '1.8rem' }}>لوحة مؤشرات {departmentName}</h1>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <DepartmentExportButton departmentId={id} departmentName={departmentName} />
-                    {(id === 'dept6' || id === 'dept4' || id === 'dept5' || id === 'dept2' || id === 'dept1' || id === 'dept3' || id === 'dept7' || id === 'dept8' || id === 'dept9') && (
+                    {(id === 'dept6' || id === 'dept4' || id === 'dept5' || id === 'dept2' || id === 'dept1' || id === 'dept3' || id === 'dept7' || id === 'dept8' || id === 'dept9' || id === 'dept10') && (
                         <button
                             onClick={() => {
                                 if (id === 'dept6') setIsAccreditationDashboardOpen(true);
@@ -7234,6 +7253,7 @@ export default function DepartmentPage() {
                                 if (id === 'dept7') setIsMedicalProfessionalsDashboardOpen(true);
                                 if (id === 'dept8') setIsStandardsDashboardOpen(true);
                                 if (id === 'dept9') setIsReviewersDashboardOpen(true);
+                                if (id === 'dept10') setIsSafeHealthDesignDashboardOpen(true);
                             }}
                             className="btn"
                             style={{ backgroundColor: '#198754', color: 'white', fontSize: '0.95rem', padding: '10px 20px' }}
@@ -7854,6 +7874,24 @@ export default function DepartmentPage() {
             {/* ====== DEPT3-SECTION-2: استبيانات رضاء المتعاملين حسب المحافظة ====== */}
             {id === 'dept3' && (
                 <GovernorateCustomerSurveysSection
+                    currentUser={currentUser}
+                    canEdit={canEdit}
+                    globalFilterMonth={globalFilterMonth}
+                />
+            )}
+
+            {/* ====== DEPT10-SECTION-1: المشروعات المستلمة حسب الجهة المرسلة ====== */}
+            {id === 'dept10' && (
+                <ReceivedProjectsSection
+                    currentUser={currentUser}
+                    canEdit={canEdit}
+                    globalFilterMonth={globalFilterMonth}
+                />
+            )}
+
+            {/* ====== DEPT10-SECTION-2: المشروعات المنتهي مراجعتها حسب الجهة ====== */}
+            {id === 'dept10' && (
+                <CompletedProjectsSection
                     currentUser={currentUser}
                     canEdit={canEdit}
                     globalFilterMonth={globalFilterMonth}
@@ -18534,6 +18572,20 @@ export default function DepartmentPage() {
                         title="لوحة بيانات أبحاث وتطوير المعايير"
                     >
                         <StandardsDashboard submissions={submissions} />
+                    </DashboardModal>
+                )
+            }
+
+            {/* Safe Health Design Dashboard Modal for dept10 */}
+            {/* ====== DEPT10-SECTION-DASHBOARD: لوحة البيانات (Dashboard) ====== */}
+            {
+                id === 'dept10' && (
+                    <DashboardModal
+                        isOpen={isSafeHealthDesignDashboardOpen}
+                        onClose={() => setIsSafeHealthDesignDashboardOpen(false)}
+                        title="لوحة بيانات الإدارة العامة للتصميم الصحي الآمن"
+                    >
+                        <SafeHealthDesignDashboard submissions={submissions} />
                     </DashboardModal>
                 )
             }

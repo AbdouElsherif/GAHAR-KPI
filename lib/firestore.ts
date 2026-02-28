@@ -3669,3 +3669,193 @@ export const deleteTrainingNature = async (id: string) => {
         return false;
     }
 };
+
+// ============================================================================
+// Safe Health Design - Received Projects (المشروعات المستلمة حسب الجهة المرسلة for dept10)
+// ============================================================================
+
+export interface ReceivedProject {
+    id?: string;
+    month: string;
+    entityType: string;
+    projectCount: number;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export async function saveReceivedProject(
+    data: Omit<ReceivedProject, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const ref = collection(db, 'dept10_received_projects');
+        const docRef = await addDoc(ref, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving received project:', error);
+        return null;
+    }
+}
+
+export async function getReceivedProjects(month?: string): Promise<ReceivedProject[]> {
+    try {
+        const ref = collection(db, 'dept10_received_projects');
+        let q;
+
+        if (month) {
+            q = query(ref, where('month', '==', month));
+        } else {
+            q = query(ref, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as ReceivedProject));
+
+        if (month) {
+            items.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return items;
+    } catch (error) {
+        console.error('Error getting received projects:', error);
+        return [];
+    }
+}
+
+export async function updateReceivedProject(
+    id: string,
+    updates: Partial<ReceivedProject> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const ref = doc(db, 'dept10_received_projects', id);
+        await setDoc(ref, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating received project:', error);
+        return false;
+    }
+}
+
+export async function deleteReceivedProject(id: string): Promise<boolean> {
+    try {
+        const ref = doc(db, 'dept10_received_projects', id);
+        await deleteDoc(ref);
+        return true;
+    } catch (error) {
+        console.error('Error deleting received project:', error);
+        return false;
+    }
+}
+
+// ============================================================================
+// Safe Health Design - Completed Projects (المشروعات المنتهي مراجعتها حسب الجهة for dept10)
+// ============================================================================
+
+export interface CompletedReviewProject {
+    id?: string;
+    month: string;
+    entityType: string;
+    projectCount: number;
+    year: number;
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
+export async function saveCompletedReviewProject(
+    data: Omit<CompletedReviewProject, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }
+): Promise<string | null> {
+    try {
+        const ref = collection(db, 'dept10_completed_projects');
+        const docRef = await addDoc(ref, {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving completed review project:', error);
+        return null;
+    }
+}
+
+export async function getCompletedReviewProjects(month?: string): Promise<CompletedReviewProject[]> {
+    try {
+        const ref = collection(db, 'dept10_completed_projects');
+        let q;
+
+        if (month) {
+            q = query(ref, where('month', '==', month));
+        } else {
+            q = query(ref, orderBy('createdAt', 'desc'));
+        }
+
+        const snapshot = await getDocs(q);
+        let items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate(),
+            updatedAt: doc.data().updatedAt?.toDate()
+        } as CompletedReviewProject));
+
+        if (month) {
+            items.sort((a, b) => {
+                const aTime = a.createdAt?.getTime() || 0;
+                const bTime = b.createdAt?.getTime() || 0;
+                return bTime - aTime;
+            });
+        }
+
+        return items;
+    } catch (error) {
+        console.error('Error getting completed review projects:', error);
+        return [];
+    }
+}
+
+export async function updateCompletedReviewProject(
+    id: string,
+    updates: Partial<CompletedReviewProject> & { updatedBy: string }
+): Promise<boolean> {
+    try {
+        const ref = doc(db, 'dept10_completed_projects', id);
+        await setDoc(ref, {
+            ...updates,
+            updatedAt: Timestamp.now()
+        }, { merge: true });
+        return true;
+    } catch (error) {
+        console.error('Error updating completed review project:', error);
+        return false;
+    }
+}
+
+export async function deleteCompletedReviewProject(id: string): Promise<boolean> {
+    try {
+        const ref = doc(db, 'dept10_completed_projects', id);
+        await deleteDoc(ref);
+        return true;
+    } catch (error) {
+        console.error('Error deleting completed review project:', error);
+        return false;
+    }
+}
