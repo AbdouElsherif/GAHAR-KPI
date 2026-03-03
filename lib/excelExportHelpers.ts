@@ -873,6 +873,38 @@ const exportDept7Data = async (workbook: XLSX.WorkBook, filterString: string) =>
         XLSX.utils.book_append_sheet(workbook, ws, 'أعضاء المهن حسب المحافظة');
     }
 
+    // Helper for formatting medical professionals data
+    const formatMedData = (data: any[], locationKey: 'branch' | 'governorate', locationLabel: string) => data.map(row => ({
+        'الشهر': row.month || 'غير محدد',
+        [locationLabel]: row[locationKey] || 'غير محدد',
+        'أطباء بشريين': row.doctors || 0,
+        'أطباء أسنان': row.dentists || 0,
+        'صيادلة': row.pharmacists || 0,
+        'علاج طبيعي': row.physiotherapy || 0,
+        'بيطريين': row.veterinarians || 0,
+        'تمريض عالي': row.seniorNursing || 0,
+        'فني تمريض': row.technicalNursing || 0,
+        'فني صحي': row.healthTechnician || 0,
+        'علميين': row.scientists || 0,
+        'الإجمالي': row.total || 0,
+    }));
+
+    // Total Medical Professionals by Category
+    const totalMedCatRef = collection(db, 'total_med_profs_by_category');
+    const totalMedCatSnapshot = await getDocs(applyFilterToQuery(totalMedCatRef, filterString));
+    const totalMedCatFormatted = formatMedData(totalMedCatSnapshot.docs.map(d => d.data()), 'branch', 'الفرع');
+    if (totalMedCatFormatted.length > 0) {
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(totalMedCatFormatted), 'الإجمالي الكلي (فصل)');
+    }
+
+    // Total Medical Professionals by Governorate
+    const totalMedGovRef = collection(db, 'total_med_profs_by_governorate');
+    const totalMedGovSnapshot = await getDocs(applyFilterToQuery(totalMedGovRef, filterString));
+    const totalMedGovFormatted = formatMedData(totalMedGovSnapshot.docs.map(d => d.data()), 'governorate', 'المحافظة');
+    if (totalMedGovFormatted.length > 0) {
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(totalMedGovFormatted), 'الإجمالي الكلي (محافظات)');
+    }
+
     // Medical Professional Registrations
     const medRegRef = collection(db, 'medical_professional_registrations');
     const medRegQ = applyFilterToQuery(medRegRef, filterString);

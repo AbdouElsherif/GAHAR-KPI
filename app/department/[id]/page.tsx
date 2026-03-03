@@ -4856,8 +4856,18 @@ export default function DepartmentPage() {
     };
 
     const exportTotalMedProfsByCategoryToExcel = () => {
-        const activeFilter = totalMedProfByCategoryFilterMonth;
-        const filteredData = totalMedProfsByCategory.filter(item => !activeFilter || item.month === activeFilter);
+        const activeFilter = globalFilterMonth || totalMedProfByCategoryFilterMonth;
+        const filteredData = activeFilter
+            ? totalMedProfsByCategory
+            : Object.values(totalMedProfsByCategory.reduce((acc, curr) => {
+                if (!acc[curr.branch]) acc[curr.branch] = { ...curr };
+                else {
+                    ['doctors', 'dentists', 'pharmacists', 'physiotherapy', 'veterinarians', 'seniorNursing', 'technicalNursing', 'healthTechnician', 'scientists', 'total'].forEach(p => {
+                        (acc[curr.branch] as any)[p] = ((acc[curr.branch] as any)[p] || 0) + ((curr as any)[p] || 0);
+                    });
+                }
+                return acc;
+            }, {} as Record<string, any>));
 
         const data = filteredData.map(item => ({
             'الفرع': item.branch,
@@ -5044,8 +5054,18 @@ export default function DepartmentPage() {
     };
 
     const exportTotalMedProfsByCategoryToWord = async () => {
-        const activeFilter = totalMedProfByCategoryFilterMonth;
-        const filteredData = totalMedProfsByCategory.filter(item => !activeFilter || item.month === activeFilter);
+        const activeFilter = globalFilterMonth || totalMedProfByCategoryFilterMonth;
+        const filteredData = activeFilter
+            ? totalMedProfsByCategory
+            : Object.values(totalMedProfsByCategory.reduce((acc, curr) => {
+                if (!acc[curr.branch]) acc[curr.branch] = { ...curr };
+                else {
+                    ['doctors', 'dentists', 'pharmacists', 'physiotherapy', 'veterinarians', 'seniorNursing', 'technicalNursing', 'healthTechnician', 'scientists', 'total'].forEach(p => {
+                        (acc[curr.branch] as any)[p] = ((acc[curr.branch] as any)[p] || 0) + ((curr as any)[p] || 0);
+                    });
+                }
+                return acc;
+            }, {} as Record<string, any>));
 
         const tableRows = filteredData.map((item) => (
             new TableRow({
@@ -17985,93 +18005,122 @@ export default function DepartmentPage() {
                                 </div>
 
                                 <div style={{ overflowX: 'auto' }}>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                                        <thead>
-                                            <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الفرع</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>أطباء بشريين</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>أطباء أسنان</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>صيادلة</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>علاج طبيعي</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>بيطريين</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>تمريض عالي</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>فني تمريض</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>فني صحي</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>علميين</th>
-                                                <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الإجمالي</th>
-                                                {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الإجراءات</th>}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {totalMedProfsByCategory.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan={userCanEdit ? 12 : 11} style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                                                        لا توجد بيانات لعرضها
-                                                    </td>
-                                                </tr>
-                                            ) : (
-                                                <>
-                                                    {totalMedProfsByCategory.map((item, index) => (
-                                                        <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.branch}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button onClick={() => handleEditTotalMedProfByCategory(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
-                                                                        <button onClick={() => handleDeleteTotalMedProfByCategory(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    ))}
-                                                    <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.doctors, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.dentists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.pharmacists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.physiotherapy, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.veterinarians, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.seniorNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.technicalNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.healthTechnician, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.scientists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByCategory.reduce((sum, item) => sum + item.total, 0)}
-                                                        </td>
-                                                        {userCanEdit && <td></td>}
+                                    {(() => {
+                                        const activeTotalMedFilter = globalFilterMonth || totalMedProfByCategoryFilterMonth;
+                                        const displayTotalMedProfsByCategory = activeTotalMedFilter
+                                            ? totalMedProfsByCategory
+                                            : Object.values(totalMedProfsByCategory.reduce((acc, curr) => {
+                                                if (!acc[curr.branch]) {
+                                                    acc[curr.branch] = { ...curr };
+                                                } else {
+                                                    acc[curr.branch].doctors = (acc[curr.branch].doctors || 0) + (curr.doctors || 0);
+                                                    acc[curr.branch].dentists = (acc[curr.branch].dentists || 0) + (curr.dentists || 0);
+                                                    acc[curr.branch].pharmacists = (acc[curr.branch].pharmacists || 0) + (curr.pharmacists || 0);
+                                                    acc[curr.branch].physiotherapy = (acc[curr.branch].physiotherapy || 0) + (curr.physiotherapy || 0);
+                                                    acc[curr.branch].veterinarians = (acc[curr.branch].veterinarians || 0) + (curr.veterinarians || 0);
+                                                    acc[curr.branch].seniorNursing = (acc[curr.branch].seniorNursing || 0) + (curr.seniorNursing || 0);
+                                                    acc[curr.branch].technicalNursing = (acc[curr.branch].technicalNursing || 0) + (curr.technicalNursing || 0);
+                                                    acc[curr.branch].healthTechnician = (acc[curr.branch].healthTechnician || 0) + (curr.healthTechnician || 0);
+                                                    acc[curr.branch].scientists = (acc[curr.branch].scientists || 0) + (curr.scientists || 0);
+                                                    acc[curr.branch].total = (acc[curr.branch].total || 0) + (curr.total || 0);
+                                                }
+                                                return acc;
+                                            }, {} as any));
+
+                                        return (
+                                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                                                <thead>
+                                                    <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الفرع</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>أطباء بشريين</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>أطباء أسنان</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>صيادلة</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>علاج طبيعي</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>بيطريين</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>تمريض عالي</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>فني تمريض</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>فني صحي</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>علميين</th>
+                                                        <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الإجمالي</th>
+                                                        {userCanEdit && <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)' }}>الإجراءات</th>}
                                                     </tr>
-                                                </>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                                </thead>
+                                                <tbody>
+                                                    {displayTotalMedProfsByCategory.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan={userCanEdit ? 12 : 11} style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                                                                لا توجد بيانات لعرضها
+                                                            </td>
+                                                        </tr>
+                                                    ) : (
+                                                        <>
+                                                            {displayTotalMedProfsByCategory.map((item: any, index: number) => (
+                                                                <tr key={item.id || item.branch} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.branch}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
+                                                                    {userCanEdit && (
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                            {activeTotalMedFilter ? (
+                                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                    <button onClick={() => handleEditTotalMedProfByCategory(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
+                                                                                    <button onClick={() => handleDeleteTotalMedProfByCategory(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <span style={{ fontSize: '0.8rem', color: '#888' }}>اختر شهراً للتعديل</span>
+                                                                            )}
+                                                                        </td>
+                                                                    )}
+                                                                </tr>
+                                                            ))}
+                                                            <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.doctors || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.dentists || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.pharmacists || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.physiotherapy || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.veterinarians || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.seniorNursing || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.technicalNursing || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.healthTechnician || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.scientists || 0), 0)}
+                                                                </td>
+                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.total || 0), 0)}
+                                                                </td>
+                                                                {userCanEdit && <td style={{ padding: '12px', textAlign: 'center' }}></td>}
+                                                            </tr>
+                                                        </>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        );
+                                    })()}
                                 </div>
                             </>
                         )}
