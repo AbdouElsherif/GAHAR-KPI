@@ -187,7 +187,7 @@ const exportDept9Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     }
 
     // 2. Reviewer Evaluation Visits (الزيارات التقييمية للمراجعين)
-    const reviewerVisitsRef = collection(db, 'reviewerEvaluationVisits');
+    const reviewerVisitsRef = collection(db, 'reviewer_evaluation_visits');
     const reviewerVisitsQ = applyFilterToQuery(reviewerVisitsRef, filterString);
     const reviewerVisitsSnapshot = await getDocs(reviewerVisitsQ);
 
@@ -195,9 +195,9 @@ const exportDept9Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     const reviewerVisitsFormatted = reviewerVisitsData.map((row: any) => ({
         'الشهر': row.month || 'غير محدد',
         'نوع المنشأة': row.facilityType || 'غير محدد',
-        'نوع الزيارة التقييمية': row.visitType || 'غير محدد',
-        'اسم المنشأة': row.facilityName || 'غير محدد',
+        'عدد المنشآت': row.facilityName || '0',
         'المحافظة': row.governorate || 'غير محدد',
+        'نوع الزيارة التقييمية': row.visitType || 'غير محدد',
     }));
 
     if (reviewerVisitsFormatted.length > 0) {
@@ -206,15 +206,15 @@ const exportDept9Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     }
 
     // 3. Reports Presented to Committee (تقارير الزيارات المعروضة على اللجنة)
-    const reportsToCommitteeRef = collection(db, 'reportsPresentedToCommittee');
+    const reportsToCommitteeRef = collection(db, 'reports_presented_to_committee');
     const reportsToCommitteeQ = applyFilterToQuery(reportsToCommitteeRef, filterString);
     const reportsToCommitteeSnapshot = await getDocs(reportsToCommitteeQ);
 
     const reportsToCommitteeData = reportsToCommitteeSnapshot.docs.map(doc => doc.data() as any);
     const reportsToCommitteeFormatted = reportsToCommitteeData.map((row: any) => ({
         'الشهر': row.month || 'غير محدد',
-        'نوع المنشأة': row.facilityType || 'غير محدد',
-        'عدد الزيارات المعروضة': row.reportsCount || 0,
+        'نوع القرار': row.committeeDecisionType || 'غير محدد',
+        'عدد القرارات': row.numberOfDecisions || 0,
     }));
 
     if (reportsToCommitteeFormatted.length > 0) {
@@ -223,15 +223,15 @@ const exportDept9Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     }
 
     // 4. Reports By Facility Specialty (تقارير الزيارات حسب تخصص المنشأة)
-    const reportsBySpecialtyRef = collection(db, 'reportsByFacilitySpecialty');
+    const reportsBySpecialtyRef = collection(db, 'reports_by_facility_specialty');
     const reportsBySpecialtyQ = applyFilterToQuery(reportsBySpecialtyRef, filterString);
     const reportsBySpecialtySnapshot = await getDocs(reportsBySpecialtyQ);
 
     const reportsBySpecialtyData = reportsBySpecialtySnapshot.docs.map(doc => doc.data() as any);
     const reportsBySpecialtyFormatted = reportsBySpecialtyData.map((row: any) => ({
         'الشهر': row.month || 'غير محدد',
-        'التخصص الدقيق': row.specialty || 'غير محدد',
-        'عدد التقارير': row.reportsCount || 0,
+        'التخصص': row.facilitySpecialty || 'غير محدد',
+        'عدد التقارير': row.numberOfReports || 0,
     }));
 
     if (reportsBySpecialtyFormatted.length > 0) {
@@ -240,20 +240,16 @@ const exportDept9Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     }
 
     // 5. Accreditation Decisions (قرارات اللجنة العليا للاعتماد)
-    const accreditationDecisionsRef = collection(db, 'accreditationDecisions');
-    const accreditationDecisionsQ = applyFilterToQuery(accreditationDecisionsRef, filterString, 'decisionMonth'); // Note: Date field is decisionMonth here
+    const accreditationDecisionsRef = collection(db, 'accreditation_decisions');
+    const accreditationDecisionsQ = applyFilterToQuery(accreditationDecisionsRef, filterString);
     const accreditationDecisionsSnapshot = await getDocs(accreditationDecisionsQ);
 
-    // Fallback parsing for `decisionDate` if `decisionMonth` (YYYY-MM) is missing or needs checking? They both exist but `decisionMonth` is what we added earlier.
     const accreditationDecisionsData = accreditationDecisionsSnapshot.docs.map(doc => doc.data() as any);
     const accreditationDecisionsFormatted = accreditationDecisionsData.map((row: any) => ({
-        'شهر القرار': row.decisionMonth || 'غير محدد',
-        'تاريخ التقييم / القرار': row.decisionDate || 'غير محدد',
-        'القرار': row.decisionType || 'غير محدد',
-        'نوع المنشأة': row.facilityType || 'غير محدد',
-        'اسم المنشأة': row.facilityName || 'غير محدد',
-        'رقم القرار': row.decisionNumber || 'غير محدد',
-        'المحافظة': row.governorate || 'غير محدد',
+        'الشهر': row.month || 'غير محدد',
+        'نوع المنشأة': row.facilityCategory || 'غير محدد',
+        'نوع القرار': row.decisionType || 'غير محدد',
+        'العدد': row.count || 0,
     }));
 
     if (accreditationDecisionsFormatted.length > 0) {
