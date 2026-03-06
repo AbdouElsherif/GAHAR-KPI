@@ -636,6 +636,7 @@ export default function DepartmentPage() {
     const [adminAuditFacilityFormData, setAdminAuditFacilityFormData] = useState({
         facilityType: '',
         facilityName: '',
+        affiliation: '',
         visitType: '',
         governorate: '',
         month: ''
@@ -2276,6 +2277,7 @@ export default function DepartmentPage() {
         setAdminAuditFacilityFormData({
             facilityType: facility.facilityType,
             facilityName: facility.facilityName,
+            affiliation: facility.affiliation || '', // التبعية
             visitType: facility.visitType,
             governorate: facility.governorate,
             month: facility.month
@@ -2296,6 +2298,7 @@ export default function DepartmentPage() {
         setAdminAuditFacilityFormData({
             facilityType: '',
             facilityName: '',
+            affiliation: '',
             visitType: '',
             governorate: '',
             month: ''
@@ -2314,6 +2317,7 @@ export default function DepartmentPage() {
                 'الجهة التابعة': 'المنشآت الصحية التابعة لهيئة الرعاية الصحية', // Assuming it's the default or based on context
                 'نوع المنشأة': facility.facilityType,
                 'اسم المنشأة': facility.facilityName,
+                'التبعية': facility.affiliation,
                 'المحافظة': facility.governorate,
                 'نوع الزيارة': facility.visitType,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
@@ -2339,6 +2343,7 @@ export default function DepartmentPage() {
                 children: [
                     new TableCell({ children: [new Paragraph({ text: facility.visitType, alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: facility.affiliation || '', alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: 'المنشآت الصحية التابعة لهيئة الرعاية الصحية', alignment: AlignmentType.RIGHT })] }),
@@ -2354,6 +2359,7 @@ export default function DepartmentPage() {
                     children: [
                         new TableCell({ children: [new Paragraph({ text: "نوع الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "المحافظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "التبعية", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "اسم المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "الجهة التابعة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
@@ -13451,6 +13457,33 @@ export default function DepartmentPage() {
                                                 </div>
 
                                                 <div className="form-group">
+                                                    <label className="form-label">التبعية *</label>
+                                                    <select
+                                                        className="form-input"
+                                                        required
+                                                        value={adminAuditFacilityFormData.affiliation}
+                                                        onChange={(e) => handleAdminAuditFacilityInputChange('affiliation', e.target.value)}
+                                                    >
+                                                        <option value="">اختر التبعية</option>
+                                                        <option value="هيئة الرعاية الصحية">هيئة الرعاية الصحية</option>
+                                                        <option value="وزارة الصحة">وزارة الصحة</option>
+                                                        <option value="قطاع خاص">قطاع خاص</option>
+                                                        <option value="القوات المسلحة">القوات المسلحة</option>
+                                                        <option value="جمعيات أهلية">جمعيات أهلية</option>
+                                                        <option value="هيئة قناة السويس">هيئة قناة السويس</option>
+                                                        <option value="جامعي">جامعي</option>
+                                                        <option value="وزار الداخلية قطاع الخدمات الطبية">وزار الداخلية قطاع الخدمات الطبية</option>
+                                                        <option value="قطاع أعمال">قطاع أعمال</option>
+                                                        <option value="حكومي">حكومي</option>
+                                                        <option value="الهيئة العامة للمستشفيات والمعاهد التعليمية">الهيئة العامة للمستشفيات والمعاهد التعليمية</option>
+                                                        <option value="الهيئة القومية لسكك حديد مصر">الهيئة القومية لسكك حديد مصر</option>
+                                                        <option value="الهيئة العامة للتأمين الصحي">الهيئة العامة للتأمين الصحي</option>
+                                                        <option value="أمانة المراكز الطبية المتخصصة">أمانة المراكز الطبية المتخصصة</option>
+                                                        <option value="جهات سيادية">جهات سيادية</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="form-group">
                                                     <label className="form-label">نوع الزيارة *</label>
                                                     <select
                                                         className="form-input"
@@ -13602,6 +13635,7 @@ export default function DepartmentPage() {
                                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>التبعية</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
@@ -13613,7 +13647,7 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {adminAuditFacilities.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={userCanEdit ? 6 : 5} style={{
+                                                    <td colSpan={userCanEdit ? 7 : 6} style={{
                                                         padding: '40px',
                                                         textAlign: 'center',
                                                         color: '#999'
@@ -13635,6 +13669,9 @@ export default function DepartmentPage() {
                                                             </td>
                                                             <td style={{ padding: '12px', fontWeight: '500' }}>
                                                                 {facility.facilityName}
+                                                            </td>
+                                                            <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                {facility.affiliation}
                                                             </td>
                                                             <td style={{ padding: '12px', fontWeight: '500' }}>
                                                                 {facility.visitType}
@@ -13793,6 +13830,7 @@ export default function DepartmentPage() {
                                                         <option value="مراكز علاج طبيعي">مراكز علاج طبيعي</option>
                                                         <option value="مستشفيات صحة نفسية">مستشفيات صحة نفسية</option>
                                                         <option value="صيدليات">صيدليات</option>
+                                                        <option value="عيادات خاصة">عيادات خاصة</option>
                                                     </select>
                                                 </div>
 

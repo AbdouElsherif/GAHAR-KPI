@@ -276,6 +276,7 @@ export interface AdminAuditFacility {
     id?: string;
     facilityType: string;
     facilityName: string;
+    affiliation: string; // التبعية
     visitType: string;
     governorate: string;
     month: string;
