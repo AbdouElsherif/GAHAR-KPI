@@ -32,6 +32,7 @@ import { GovernorateCustomerSurveysSection } from '@/components/dept3';
 import { ReceivedProjectsSection, CompletedProjectsSection } from '@/components/dept10';
 import { committeeDecisionTypes } from '@/constants/committeeDecisionTypes';
 import { departments, departmentFields, months, formatMonthYear, egyptGovernorates, reviewerFacilityTypes, reviewerEvaluationVisitTypes, techSupportFacilityTypes, MIN_MONTH, MIN_DATE, type Field } from '@/constants/departments';
+import { validMonth, notFutureMonth, requiredField, positiveNumber, percentage, validateAndAlert, type ValidationError } from '@/lib/validation';
 
 // Date constraints - maximum is current month (computed at runtime)
 const MAX_MONTH = new Date().toISOString().slice(0, 7); // Current month (YYYY-MM)
@@ -977,6 +978,29 @@ export default function DepartmentPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // Generic validation for section forms - checks month and required fields
+    const validateSectionForm = (formData: Record<string, any>, sectionName: string): boolean => {
+        const errors: (ValidationError | null)[] = [];
+
+        // Validate month if present
+        if ('month' in formData) {
+            errors.push(validMonth(formData.month, 'الشهر'));
+            errors.push(notFutureMonth(formData.month, 'الشهر'));
+        }
+
+        // Validate all string fields are not empty (skip 'month' since already validated)
+        for (const [key, value] of Object.entries(formData)) {
+            if (key === 'month') continue;
+            if (typeof value === 'string' && value.trim() === '') {
+                // Convert camelCase to readable label
+                const label = key;
+                errors.push(requiredField(value, label));
+            }
+        }
+
+        return validateAndAlert(errors);
+    };
+
     const handleEdit = (submission: any) => {
         setEditingId(submission.id);
         // Filter out non-form fields
@@ -1194,6 +1218,7 @@ export default function DepartmentPage() {
     const handleTechnicalClinicalFacilitySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(technicalClinicalFacilityFormData, 'المنشآت')) return;
 
         try {
             if (editingTechnicalClinicalFacilityId) {
@@ -1270,6 +1295,7 @@ export default function DepartmentPage() {
     const handleTechnicalClinicalObservationSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(technicalClinicalObservationFormData, 'الملاحظات')) return;
 
         try {
             const [year, month] = technicalClinicalObservationFormData.month.split('-');
@@ -1340,6 +1366,7 @@ export default function DepartmentPage() {
     const handleReportsPresentedSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(reportsPresentedFormData, 'التقارير')) return;
 
         try {
             const [year, month] = reportsPresentedFormData.month.split('-');
@@ -1471,6 +1498,7 @@ export default function DepartmentPage() {
     const handleReportsBySpecialtySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(reportsBySpecialtyFormData, 'التقارير')) return;
 
         try {
             const [year, month] = reportsBySpecialtyFormData.month.split('-');
@@ -1615,6 +1643,7 @@ export default function DepartmentPage() {
     const handleAccreditationDecisionsSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(accreditationDecisionsFormData, 'قرارات الاعتماد')) return;
 
         try {
             const [year] = accreditationDecisionsFormData.month.split('-');
@@ -1893,6 +1922,7 @@ export default function DepartmentPage() {
     const handleMedProfByCategorySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(medProfByCategoryFormData, 'المهن الطبية')) return;
 
         const [year, month] = medProfByCategoryFormData.month.split('-');
         const total =
@@ -1986,6 +2016,7 @@ export default function DepartmentPage() {
     const handleAdminAuditFacilitySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(adminAuditFacilityFormData, 'المنشآت')) return;
 
         try {
             if (editingAdminAuditFacilityId) {
@@ -2156,6 +2187,7 @@ export default function DepartmentPage() {
     const handleAdminAuditObservationSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(adminAuditObservationFormData, 'الملاحظات')) return;
 
         try {
             const [year, month] = adminAuditObservationFormData.month.split('-');
@@ -2354,6 +2386,7 @@ export default function DepartmentPage() {
     const handleCorrectionRateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(correctionRateFormData, 'نسب التصحيح')) return;
 
         try {
             const [year] = correctionRateFormData.month.split('-');
@@ -2615,6 +2648,7 @@ export default function DepartmentPage() {
     const handleTcCorrectionRateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
+        if (!validateSectionForm(tcCorrectionRateFormData, 'نسب التصحيح')) return;
 
         try {
             const [year] = tcCorrectionRateFormData.month.split('-');
