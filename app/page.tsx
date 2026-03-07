@@ -4,19 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, logout, User, onAuthChange } from '@/lib/auth';
-
-const departments = [
-    { id: 'dept1', name: 'الإدارة العامة للتدريب للغير' },
-    { id: 'dept2', name: 'الإدارة العامة للدعم الفني' },
-    { id: 'dept3', name: 'الإدارة العامة لرضاء المتعاملين' },
-    { id: 'dept4', name: 'الإدارة العامة للرقابة الفنية والإكلينيكية' },
-    { id: 'dept5', name: 'الإدارة العامة للرقابة الإدارية على المنشآت الصحية' },
-    { id: 'dept6', name: 'الإدارة العامة للاعتماد والتسجيل' },
-    { id: 'dept7', name: 'الإدارة العامة لتسجيل أعضاء المهن الطبية' },
-    { id: 'dept8', name: 'الإدارة العامة لأبحاث وتطوير المعايير' },
-    { id: 'dept9', name: 'الإدارة العامة لشئون المراجعين' },
-    { id: 'dept10', name: 'الإدارة العامة للتصميم الصحي الآمن' },
-];
+import { departmentsList as departments } from '@/constants/departments';
 
 export default function Home() {
     const router = useRouter();
