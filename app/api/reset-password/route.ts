@@ -4,15 +4,17 @@ import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
     try {
-        // Parse request body
-        const { userId, newPassword = 'Gahar@123' } = await request.json();
-
-        if (!userId) {
+        // --- Authentication & Authorization Check ---
+        // Verify that the caller is a super_admin before allowing password reset
+        const authHeader = request.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return NextResponse.json(
-                { success: false, error: 'معرف المستخدم مطلوب' },
-                { status: 400 }
+                { success: false, error: 'غير مصرح - يجب تسجيل الدخول' },
+                { status: 401 }
             );
         }
+
+        const idToken = authHeader.split('Bearer ')[1];
 
         // Get Admin Auth and Firestore instances safely
         let adminAuth, adminDb;
@@ -24,6 +26,39 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { success: false, error: 'خطأ في إعدادات السيرفر: ' + error.message },
                 { status: 500 }
+            );
+        }
+
+        // Verify the Firebase ID token
+        let callerUid: string;
+        try {
+            const decodedToken = await adminAuth.verifyIdToken(idToken);
+            callerUid = decodedToken.uid;
+        } catch (error: any) {
+            return NextResponse.json(
+                { success: false, error: 'رمز المصادقة غير صالح أو منتهي الصلاحية' },
+                { status: 401 }
+            );
+        }
+
+        // Check that the caller is a super_admin
+        const callerDoc = await adminDb.collection('users').doc(callerUid).get();
+        if (!callerDoc.exists || callerDoc.data()?.role !== 'super_admin') {
+            return NextResponse.json(
+                { success: false, error: 'غير مصرح - هذا الإجراء متاح للمدير العام فقط' },
+                { status: 403 }
+            );
+        }
+
+        // --- End Authentication Check ---
+
+        // Parse request body
+        const { userId, newPassword = 'Gahar@123' } = await request.json();
+
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, error: 'معرف المستخدم مطلوب' },
+                { status: 400 }
             );
         }
 

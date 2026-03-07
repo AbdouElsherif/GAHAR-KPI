@@ -56,125 +56,125 @@ service cloud.firestore {
     
     match /accreditation_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /completion_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /payment_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /paid_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /corrective_plan_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     match /basic_requirements_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     match /appeals_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     
     match /medical_professional_registrations/{registrationId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     // Committee Preparation Facilities (التجهيز للعرض على اللجنة for dept6)
     match /committee_preparation_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     // Certificate Issuance Facilities (إصدار الشهادات for dept6)
     match /certificate_issuance_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     match /technical_clinical_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept4');
     }
 
     match /admin_audit_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept5');
     }
 
     match /admin_audit_observations/{observationId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept5');
     }
 
     match /technical_clinical_observations/{observationId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept4');
     }
 
     match /observation_correction_rates/{rateId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept5');
     }
 
     match /technical_clinical_correction_rates/{rateId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept4');
     }
 
     match /technical_support_visits/{visitId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /remote_technical_supports/{supportId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /introductory_support_visits/{visitId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /queued_support_visits/{visitId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /scheduled_support_visits/{visitId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /accredited_supported_facilities/{facilityId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /reviewer_evaluation_visits/{visitId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     match /reviewer_evaluation_visits_by_governorate/{visitId} {
       allow read: if isAuthenticated();
-      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     match /reviewer_evaluation_visits_by_type/{visitId} {

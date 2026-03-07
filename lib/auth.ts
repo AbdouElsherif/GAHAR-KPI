@@ -156,11 +156,19 @@ export async function deleteUser(id: string) {
 
 export async function resetUserPassword(userId: string, newPassword: string = 'Gahar@' + Math.random().toString(36).slice(-8) + '123'): Promise<{ success: boolean; error?: string; newPassword?: string }> {
     try {
+        // Get the current user's ID token for authentication
+        const currentFirebaseUser = auth.currentUser;
+        if (!currentFirebaseUser) {
+            return { success: false, error: 'يجب تسجيل الدخول أولاً' };
+        }
+        const idToken = await currentFirebaseUser.getIdToken();
+
         // Call the API route to reset password using Firebase Admin SDK
         const response = await fetch('/api/reset-password', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`,
             },
             body: JSON.stringify({ userId, newPassword }),
         });
@@ -323,36 +331,7 @@ export function validatePassword(password: string): { isValid: boolean; error?: 
     return { isValid: true };
 }
 
-export async function initializeUsers() {
-    try {
-        // Check if super admin exists in Firestore
-        const adminEmail = 'admin@gahar.gov.eg';
-        const q = query(collection(db, 'users'), where('email', '==', adminEmail));
-        const querySnapshot = await getDocs(q);
+// initializeUsers function was removed for security reasons.
+// The admin account already exists and should not be recreated from code.
+// To create new admin accounts, use the admin panel in the application.
 
-        if (querySnapshot.empty) {
-
-
-            try {
-                // Try to create the user (Auth + Firestore)
-                await addUser({
-                    username: 'Admin',
-                    email: adminEmail,
-                    password: 'admin123',
-                    role: 'super_admin'
-                });
-
-            } catch (error: any) {
-                // If Auth user already exists but Firestore profile is missing
-                if (error.message === 'البريد الإلكتروني مستخدم بالفعل') {
-                    // Admin Auth exists but Firestore profile missing
-                    // The login function has emergency recovery logic
-                } else {
-                    console.error('Error creating admin:', error);
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Error initializing users:', error);
-    }
-}
