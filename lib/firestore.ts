@@ -726,8 +726,8 @@ const medProfCategoryCRUD = createCRUD<MedicalProfessionalByCategory>('medical_p
 const medProfGovernorateCRUD = createCRUD<MedicalProfessionalByGovernorate>('medical_professionals_by_governorate');
 const trainingEntityCRUD = createCRUD<TrainingEntity>('training_entities');
 const programTypeCRUD = createCRUD<ProgramType>('program_types');
-const totalMedProfCategoryCRUD = createCRUD<TotalMedicalProfessionalByCategory>('total_medical_professionals_by_category');
-const totalMedProfGovernorateCRUD = createCRUD<TotalMedicalProfessionalByGovernorate>('total_medical_professionals_by_governorate');
+const totalMedProfCategoryCRUD = createCRUD<TotalMedicalProfessionalByCategory>('total_med_profs_by_category');
+const totalMedProfGovernorateCRUD = createCRUD<TotalMedicalProfessionalByGovernorate>('total_med_profs_by_governorate');
 const govCustomerSurveyCRUD = createCRUD<GovernorateCustomerSurvey>('governorate_customer_surveys');
 
 // ============================================================
