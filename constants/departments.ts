@@ -215,7 +215,8 @@ export const reviewerFacilityTypes = [
     'مراكز طبية',
     'عيادات طبية',
     'مراكز علاج طبيعي',
-    'مراكز جراحات اليوم الواحد'
+    'مراكز جراحات اليوم الواحد',
+    'دور النقاهة'
 ];
 
 // Visit Types for Reviewer Evaluation Visits (dept9)
