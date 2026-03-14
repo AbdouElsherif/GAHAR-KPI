@@ -979,7 +979,7 @@ export default function DepartmentPage() {
     };
 
     // Generic validation for section forms - checks month and required fields
-    const validateSectionForm = (formData: Record<string, any>, sectionName: string): boolean => {
+    const validateSectionForm = (formData: Record<string, any>, sectionName: string, optionalFields: string[] = []): boolean => {
         const errors: (ValidationError | null)[] = [];
 
         // Validate month if present
@@ -990,7 +990,7 @@ export default function DepartmentPage() {
 
         // Validate all string fields are not empty (skip 'month' since already validated)
         for (const [key, value] of Object.entries(formData)) {
-            if (key === 'month') continue;
+            if (key === 'month' || optionalFields.includes(key)) continue;
             if (typeof value === 'string' && value.trim() === '') {
                 // Convert camelCase to readable label
                 const label = key;
@@ -2386,7 +2386,15 @@ export default function DepartmentPage() {
     const handleCorrectionRateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
-        if (!validateSectionForm(correctionRateFormData, 'نسب التصحيح')) return;
+        
+        const criteriaFields = [
+            'pccTotal', 'pccCorrected', 'efsTotal', 'efsCorrected', 'ogmTotal', 'ogmCorrected', 
+            'imtTotal', 'imtCorrected', 'wfmTotal', 'wfmCorrected', 'caiTotal', 'caiCorrected', 
+            'qpiTotal', 'qpiCorrected', 'mrsTotal', 'mrsCorrected', 'scmTotal', 'scmCorrected', 
+            'emsTotal', 'emsCorrected', 'pcsTotal', 'pcsCorrected', 'cpsTotal', 'cpsCorrected'
+        ];
+        
+        if (!validateSectionForm(correctionRateFormData, 'نسب التصحيح', criteriaFields)) return;
 
         try {
             const [year] = correctionRateFormData.month.split('-');
@@ -2540,18 +2548,18 @@ export default function DepartmentPage() {
                 'تاريخ الزيارة': rate.visitDate,
                 'نوع الزيارة': rate.visitType,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
-                'PCC (واردة)': rate.pccTotal === -1 ? '-' : rate.pccTotal, 'PCC (مصححة)': rate.pccCorrected === -1 ? '-' : rate.pccCorrected,
-                'EFS (واردة)': rate.efsTotal === -1 ? '-' : rate.efsTotal, 'EFS (مصححة)': rate.efsCorrected === -1 ? '-' : rate.efsCorrected,
-                'OGM (واردة)': rate.ogmTotal === -1 ? '-' : rate.ogmTotal, 'OGM (مصححة)': rate.ogmCorrected === -1 ? '-' : rate.ogmCorrected,
-                'IMT (واردة)': rate.imtTotal === -1 ? '-' : rate.imtTotal, 'IMT (مصححة)': rate.imtCorrected === -1 ? '-' : rate.imtCorrected,
-                'WFM (واردة)': rate.wfmTotal === -1 ? '-' : rate.wfmTotal, 'WFM (مصححة)': rate.wfmCorrected === -1 ? '-' : rate.wfmCorrected,
-                'CAI (واردة)': rate.caiTotal === -1 ? '-' : rate.caiTotal, 'CAI (مصححة)': rate.caiCorrected === -1 ? '-' : rate.caiCorrected,
-                'QPI (واردة)': rate.qpiTotal === -1 ? '-' : rate.qpiTotal, 'QPI (مصححة)': rate.qpiCorrected === -1 ? '-' : rate.qpiCorrected,
-                'MRS (واردة)': (rate.mrsTotal || 0) === -1 ? '-' : (rate.mrsTotal || 0), 'MRS (مصححة)': (rate.mrsCorrected || 0) === -1 ? '-' : (rate.mrsCorrected || 0),
-                'SCM (واردة)': (rate.scmTotal || 0) === -1 ? '-' : (rate.scmTotal || 0), 'SCM (مصححة)': (rate.scmCorrected || 0) === -1 ? '-' : (rate.scmCorrected || 0),
-                'EMS (واردة)': (rate.emsTotal || 0) === -1 ? '-' : (rate.emsTotal || 0), 'EMS (مصححة)': (rate.emsCorrected || 0) === -1 ? '-' : (rate.emsCorrected || 0),
-                'PCS (واردة)': (rate.pcsTotal || 0) === -1 ? '-' : (rate.pcsTotal || 0), 'PCS (مصححة)': (rate.pcsCorrected || 0) === -1 ? '-' : (rate.pcsCorrected || 0),
-                'CPS (واردة)': (rate.cpsTotal || 0) === -1 ? '-' : (rate.cpsTotal || 0), 'CPS (مصححة)': (rate.cpsCorrected || 0) === -1 ? '-' : (rate.cpsCorrected || 0)
+                'PCC (واردة)': (rate.pccTotal <= 0) ? 'N/A' : rate.pccTotal, 'PCC (مصححة)': (rate.pccTotal <= 0) ? 'N/A' : rate.pccCorrected,
+                'EFS (واردة)': (rate.efsTotal <= 0) ? 'N/A' : rate.efsTotal, 'EFS (مصححة)': (rate.efsTotal <= 0) ? 'N/A' : rate.efsCorrected,
+                'OGM (واردة)': (rate.ogmTotal <= 0) ? 'N/A' : rate.ogmTotal, 'OGM (مصححة)': (rate.ogmTotal <= 0) ? 'N/A' : rate.ogmCorrected,
+                'IMT (واردة)': (rate.imtTotal <= 0) ? 'N/A' : rate.imtTotal, 'IMT (مصححة)': (rate.imtTotal <= 0) ? 'N/A' : rate.imtCorrected,
+                'WFM (واردة)': (rate.wfmTotal <= 0) ? 'N/A' : rate.wfmTotal, 'WFM (مصححة)': (rate.wfmTotal <= 0) ? 'N/A' : rate.wfmCorrected,
+                'CAI (واردة)': (rate.caiTotal <= 0) ? 'N/A' : rate.caiTotal, 'CAI (مصححة)': (rate.caiTotal <= 0) ? 'N/A' : rate.caiCorrected,
+                'QPI (واردة)': (rate.qpiTotal <= 0) ? 'N/A' : rate.qpiTotal, 'QPI (مصححة)': (rate.qpiTotal <= 0) ? 'N/A' : rate.qpiCorrected,
+                'MRS (واردة)': ((rate.mrsTotal || 0) <= 0) ? 'N/A' : (rate.mrsTotal || 0), 'MRS (مصححة)': ((rate.mrsTotal || 0) <= 0) ? 'N/A' : (rate.mrsCorrected || 0),
+                'SCM (واردة)': ((rate.scmTotal || 0) <= 0) ? 'N/A' : (rate.scmTotal || 0), 'SCM (مصححة)': ((rate.scmTotal || 0) <= 0) ? 'N/A' : (rate.scmCorrected || 0),
+                'EMS (واردة)': ((rate.emsTotal || 0) <= 0) ? 'N/A' : (rate.emsTotal || 0), 'EMS (مصححة)': ((rate.emsTotal || 0) <= 0) ? 'N/A' : (rate.emsCorrected || 0),
+                'PCS (واردة)': ((rate.pcsTotal || 0) <= 0) ? 'N/A' : (rate.pcsTotal || 0), 'PCS (مصححة)': ((rate.pcsTotal || 0) <= 0) ? 'N/A' : (rate.pcsCorrected || 0),
+                'CPS (واردة)': ((rate.cpsTotal || 0) <= 0) ? 'N/A' : (rate.cpsTotal || 0), 'CPS (مصححة)': ((rate.cpsTotal || 0) <= 0) ? 'N/A' : (rate.cpsCorrected || 0)
             };
         });
 
@@ -2572,9 +2580,9 @@ export default function DepartmentPage() {
             const [year, month] = rate.month.split('-');
             const criteriaText = ['PCC', 'EFS', 'OGM', 'IMT', 'WFM', 'CAI', 'QPI', 'MRS', 'SCM', 'EMS', 'PCS', 'CPS']
                 .map(c => {
-                    const total = rate[`${c.toLowerCase()}Total` as keyof typeof rate];
-                    const corrected = rate[`${c.toLowerCase()}Corrected` as keyof typeof rate];
-                    return (total === -1 || corrected === -1) ? null : `${c}: ${corrected}/${total}`;
+                    const total = rate[`${c.toLowerCase()}Total` as keyof typeof rate] as number;
+                    const corrected = rate[`${c.toLowerCase()}Corrected` as keyof typeof rate] as number;
+                    return (total <= 0) ? null : `${c}: ${corrected}/${total}`;
                 }).filter(t => t !== null).join('\n');
 
             return new TableRow({
@@ -11602,7 +11610,7 @@ export default function DepartmentPage() {
                                                                                                     if (item.t === 0 && item.c === 0) {
                                                                                                         return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                     }
-                                                                                                    const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                    const pct = Math.round((item.c / item.t) * 100);
                                                                                                     return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
                                                                                                 })}
                                                                                             </tr>
@@ -11674,7 +11682,7 @@ export default function DepartmentPage() {
                                                                                                         if (item.t === 0 && item.c === 0) {
                                                                                                             return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                         }
-                                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                        const pct = Math.round((item.c / item.t) * 100);
                                                                                                         return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
                                                                                                     })}
                                                                                                 </tr>
@@ -11746,7 +11754,7 @@ export default function DepartmentPage() {
                                                                                                         if (item.t === 0 && item.c === 0) {
                                                                                                             return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                         }
-                                                                                                        const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                        const pct = Math.round((item.c / item.t) * 100);
                                                                                                         return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ padding: '2px 6px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: pct >= 80 ? '#d4edda' : pct >= 50 ? '#fff3cd' : '#f8d7da', color: pct >= 80 ? '#155724' : pct >= 50 ? '#856404' : '#721c24' }}>{pct}%</span></td>);
                                                                                                     })}
                                                                                                 </tr>
@@ -13811,7 +13819,7 @@ export default function DepartmentPage() {
                                                                 {observation.month}
                                                             </td>
                                                             {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                   <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                     <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
                                                                         <button
                                                                             onClick={() => handleEditAdminAuditObservation(observation)}
@@ -14178,26 +14186,26 @@ export default function DepartmentPage() {
                                                                                         <tr style={{ backgroundColor: 'white' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{item.t <= 0 ? 'N/A' : item.t}</td>
                                                                                             ))}
                                                                                         </tr>
                                                                                         <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{item.t <= 0 ? 'N/A' : item.c}</td>
                                                                                             ))}
                                                                                         </tr>
                                                                                         <tr style={{ backgroundColor: 'white' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => {
-                                                                                                if (item.t < 0 && item.c < 0) {
+                                                                                                if (item.t <= 0) {
                                                                                                     return (
                                                                                                         <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                             <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
                                                                                                         </td>
                                                                                                     );
                                                                                                 }
-                                                                                                const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                const pct = Math.round((item.c / item.t) * 100);
                                                                                                 return (
                                                                                                     <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                         <span style={{
@@ -14269,26 +14277,26 @@ export default function DepartmentPage() {
                                                                                         <tr style={{ backgroundColor: 'white' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{item.t <= 0 ? 'N/A' : item.t}</td>
                                                                                             ))}
                                                                                         </tr>
                                                                                         <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{item.t <= 0 ? 'N/A' : item.c}</td>
                                                                                             ))}
                                                                                         </tr>
                                                                                         <tr style={{ backgroundColor: 'white' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => {
-                                                                                                if (item.t < 0 && item.c < 0) {
+                                                                                                if (item.t <= 0) {
                                                                                                     return (
                                                                                                         <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                             <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
                                                                                                         </td>
                                                                                                     );
                                                                                                 }
-                                                                                                const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                const pct = Math.round((item.c / item.t) * 100);
                                                                                                 return (
                                                                                                     <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                         <span style={{
@@ -14360,26 +14368,26 @@ export default function DepartmentPage() {
                                                                                         <tr style={{ backgroundColor: 'white' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: '500' }}>عدد الملاحظات الواردة</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.t}</td>
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{item.t <= 0 ? 'N/A' : item.t}</td>
                                                                                             ))}
                                                                                         </tr>
                                                                                         <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: '500' }}>عدد المصححة</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => (
-                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{(item.t < 0 && item.c < 0) ? 'N/A' : item.c}</td>
+                                                                                                <td key={i} style={{ padding: '8px', textAlign: 'center' }}>{item.t <= 0 ? 'N/A' : item.c}</td>
                                                                                             ))}
                                                                                         </tr>
                                                                                         <tr style={{ backgroundColor: 'white' }}>
                                                                                             <td style={{ padding: '8px', fontWeight: 'bold' }}>نسبة التصحيح</td>
                                                                                             {[{ t: rate.pccTotal, c: rate.pccCorrected }, { t: rate.efsTotal, c: rate.efsCorrected }, { t: rate.ogmTotal, c: rate.ogmCorrected }, { t: rate.imtTotal, c: rate.imtCorrected }, { t: rate.wfmTotal, c: rate.wfmCorrected }, { t: rate.caiTotal, c: rate.caiCorrected }, { t: rate.qpiTotal, c: rate.qpiCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.emsTotal, c: rate.emsCorrected }, { t: rate.pcsTotal, c: rate.pcsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }].map((item, i) => {
-                                                                                                if (item.t < 0 && item.c < 0) {
+                                                                                                if (item.t <= 0) {
                                                                                                     return (
                                                                                                         <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                             <span style={{ padding: '3px 8px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 'bold', backgroundColor: '#e9ecef', color: '#6c757d' }}>N/A</span>
                                                                                                         </td>
                                                                                                     );
                                                                                                 }
-                                                                                                const pct = item.t > 0 ? Math.round((item.c / item.t) * 100) : 0;
+                                                                                                const pct = Math.round((item.c / item.t) * 100);
                                                                                                 return (
                                                                                                     <td key={i} style={{ padding: '8px', textAlign: 'center' }}>
                                                                                                         <span style={{
