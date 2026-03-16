@@ -149,7 +149,7 @@ const exportDept9Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     const kpiRef = collection(db, 'kpis');
     // Fetch all and filter client-side since 'month' field is not reliable (stored as number string "0","1"...)
     // The correct date is stored in data.date as YYYY-MM
-    const kpiSnapshot = await getDocs(query(kpiRef));
+    const kpiSnapshot = await getDocs(query(kpiRef, where('departmentId', '==', 'dept9')));
 
     const kpiDataRaw = kpiSnapshot.docs
         .map(doc => doc.data() as any)
@@ -264,7 +264,7 @@ const exportDept2Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     // 1. KPI Data (البيانات الرئيسية للإدارة 2)
     const kpiRef = collection(db, 'kpis');
     // Fetch all and filter client-side since 'month' field is not reliable
-    const kpiSnapshot = await getDocs(query(kpiRef));
+    const kpiSnapshot = await getDocs(query(kpiRef, where('departmentId', '==', 'dept2')));
 
     const kpiDataRaw = kpiSnapshot.docs
         .map(doc => doc.data() as any)
@@ -426,7 +426,7 @@ const exportGenericKpiData = async (
 ) => {
     const kpiRef = collection(db, 'kpis');
     // Fetch all and filter client-side since 'month' field is stored as a number string, not YYYY-MM
-    const kpiSnapshot = await getDocs(query(kpiRef));
+    const kpiSnapshot = await getDocs(query(kpiRef, where('departmentId', '==', departmentId)));
 
     const kpiDataRaw = kpiSnapshot.docs
         .map(doc => doc.data() as any)
