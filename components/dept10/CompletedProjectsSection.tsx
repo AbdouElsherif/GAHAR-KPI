@@ -273,7 +273,7 @@ export default function CompletedProjectsSection({ currentUser, canEdit, globalF
             <SectionHeader
                 title="المشروعات المنتهي مراجعتها حسب الجهة"
                 icon="✅"
-                count={filteredProjects.length}
+                count={filteredProjects.reduce((sum, p) => sum + (p.projectCount || 0), 0)}
                 isExpanded={isExpanded}
                 onToggle={() => setIsExpanded(!isExpanded)}
             />

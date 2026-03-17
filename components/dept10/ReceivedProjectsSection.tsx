@@ -273,7 +273,7 @@ export default function ReceivedProjectsSection({ currentUser, canEdit, globalFi
             <SectionHeader
                 title="المشروعات المستلمة حسب الجهة المرسلة"
                 icon="📥"
-                count={filteredProjects.length}
+                count={filteredProjects.reduce((sum, p) => sum + (p.projectCount || 0), 0)}
                 isExpanded={isExpanded}
                 onToggle={() => setIsExpanded(!isExpanded)}
             />
