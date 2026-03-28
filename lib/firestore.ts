@@ -1,4 +1,4 @@
-﻿import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc, limit } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, Timestamp, addDoc, deleteDoc, updateDoc, limit } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface KPIData {
@@ -261,6 +261,7 @@ export interface TechnicalClinicalFacility {
     id?: string;
     facilityType: string;
     facilityName: string;
+    governingAuthority: string;
     visitType: string;
     assessmentType?: string;  // Ù†ÙˆØ¹ Ø§Ù„ØªÙ‚ÙŠÙŠÙ… - Ø­Ù‚Ù„ Ù†ØµÙŠ Ø­Ø±
     governorate: string;

@@ -356,6 +356,7 @@ export default function DepartmentPage() {
     const [technicalClinicalFacilityFormData, setTechnicalClinicalFacilityFormData] = useState({
         facilityType: '',
         facilityName: '',
+        governingAuthority: '',
         visitType: '',
         assessmentType: '',
         governorate: '',
@@ -1258,6 +1259,7 @@ export default function DepartmentPage() {
         setTechnicalClinicalFacilityFormData({
             facilityType: facility.facilityType,
             facilityName: facility.facilityName,
+            governingAuthority: facility.governingAuthority || '',
             visitType: facility.visitType || '',
             assessmentType: facility.assessmentType || '',
             governorate: facility.governorate,
@@ -1279,6 +1281,7 @@ export default function DepartmentPage() {
         setTechnicalClinicalFacilityFormData({
             facilityType: '',
             facilityName: '',
+            governingAuthority: '',
             visitType: '',
             assessmentType: '',
             governorate: '',
@@ -3127,6 +3130,7 @@ export default function DepartmentPage() {
                 '#': index + 1,
                 'نوع المنشأة': facility.facilityType,
                 'اسم المنشأة': facility.facilityName,
+                'الجهة الحاكمة': facility.governingAuthority,
                 'المحافظة': facility.governorate,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
             };
@@ -3150,10 +3154,11 @@ export default function DepartmentPage() {
             new TableRow({
                 children: [
                     new TableCell({ children: [new Paragraph({ text: '#', alignment: AlignmentType.CENTER })], width: { size: 8, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 20, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 30, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 25, type: WidthType.PERCENTAGE } }),
-                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 17, type: WidthType.PERCENTAGE } })
+                    new TableCell({ children: [new Paragraph({ text: 'نوع المنشأة', alignment: AlignmentType.CENTER })], width: { size: 16, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'اسم المنشأة', alignment: AlignmentType.CENTER })], width: { size: 26, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الجهة الحاكمة', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'المحافظة', alignment: AlignmentType.CENTER })], width: { size: 18, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })], width: { size: 14, type: WidthType.PERCENTAGE } })
                 ]
             }),
             ...technicalClinicalFacilities.map((facility, index) => {
@@ -3163,6 +3168,7 @@ export default function DepartmentPage() {
                         new TableCell({ children: [new Paragraph({ text: (index + 1).toString(), alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.facilityType, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
+                        new TableCell({ children: [new Paragraph({ text: facility.governingAuthority || '-', alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
                         new TableCell({ children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })] })
                     ]
@@ -10666,6 +10672,32 @@ export default function DepartmentPage() {
                                             </div>
 
                                             <div className="form-group">
+                                                <label className="form-label">الجهة الحاكمة *</label>
+                                                <select
+                                                    className="form-input"
+                                                    required
+                                                    value={technicalClinicalFacilityFormData.governingAuthority}
+                                                    onChange={(e) => handleTechnicalClinicalFacilityInputChange('governingAuthority', e.target.value)}
+                                                >
+                                                    <option value="">اختر الجهة الحاكمة</option>
+                                                    <option value="هيئة الرعاية الصحية">هيئة الرعاية الصحية</option>
+                                                    <option value="وزارة الصحة">وزارة الصحة</option>
+                                                    <option value="قطاع خاص">قطاع خاص</option>
+                                                    <option value="الهيئة العامة للمستشفيات والمعاهد التعليمية">الهيئة العامة للمستشفيات والمعاهد التعليمية</option>
+                                                    <option value="هيئة قناة السويس">هيئة قناة السويس</option>
+                                                    <option value="جامعية">جامعية</option>
+                                                    <option value="جمعيات أهلية">جمعيات أهلية</option>
+                                                    <option value="أمانة المراكز الطبية المتخصصة">أمانة المراكز الطبية المتخصصة</option>
+                                                    <option value="الهيئة العامة للتأمين الصحي">الهيئة العامة للتأمين الصحي</option>
+                                                    <option value="الهيئة القومية لسكك حديد مصر">الهيئة القومية لسكك حديد مصر</option>
+                                                    <option value="قطاع أعمال">قطاع أعمال</option>
+                                                    <option value="وزارة الداخلية قطاع الخدمات الطبية">وزارة الداخلية قطاع الخدمات الطبية</option>
+                                                    <option value="القوات المسلحة">القوات المسلحة</option>
+                                                    <option value="جهات سيادية">جهات سيادية</option>
+                                                </select>
+                                            </div>
+
+                                            <div className="form-group">
                                                 <label className="form-label">نوع الزيارة *</label>
                                                 <select
                                                     className="form-input"
@@ -10863,6 +10895,7 @@ export default function DepartmentPage() {
                                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الجهة الحاكمة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع التقييم</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
@@ -10875,7 +10908,7 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {technicalClinicalFacilities.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={userCanEdit ? 7 : 6} style={{
+                                                    <td colSpan={userCanEdit ? 8 : 7} style={{
                                                         padding: '40px',
                                                         textAlign: 'center',
                                                         color: '#999'
@@ -10897,6 +10930,9 @@ export default function DepartmentPage() {
                                                             </td>
                                                             <td style={{ padding: '12px', fontWeight: '500' }}>
                                                                 {facility.facilityName}
+                                                            </td>
+                                                            <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                {facility.governingAuthority}
                                                             </td>
                                                             <td style={{ padding: '12px', fontWeight: '500' }}>
                                                                 {facility.visitType}
