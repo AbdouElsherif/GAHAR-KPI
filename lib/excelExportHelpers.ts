@@ -26,6 +26,8 @@ export const exportDepartmentDataToExcel = async (departmentId: string, departme
             await exportDept7Data(workbook, filterString);
         } else if (departmentId === 'dept8') {
             await exportDept8Data(workbook, filterString);
+        } else if (departmentId === 'dept10') {
+            await exportDept10Data(workbook, filterString);
         } else {
             alert(`التصدير غير مدعوم حالياً لهذه الإدارة.`);
             return;
@@ -950,3 +952,48 @@ const exportDept8Data = async (workbook: XLSX.WorkBook, filterString: string) =>
     });
 };
 
+// --- Department 10 (الإدارة العامة للتصميم الصحي الآمن) ---
+const exportDept10Data = async (workbook: XLSX.WorkBook, filterString: string) => {
+    await exportGenericKpiData(workbook, filterString, 'dept10', 'المؤشرات الرئيسية', {
+        firstTimeProjects: 'عدد المشروعات مراجعة أول مرة',
+        feedbackReviewProjects: 'عدد المستشفيات الجاري مراجعتها بعد ورود تقارير الرد على الملاحظات',
+        technicalSupportRequested: 'عدد المشروعات التي طلبت دعماً فنياً',
+        technicalSupportProvided: 'عدد المشروعات التي حصلت على دعم فني',
+        medicalEquipmentReview: 'عدد المشروعات طلبت مراجعة التجهيزات الطبية',
+        activitySummary: 'ملخص أنشطة الإدارة',
+        activityDetails: 'تفاصيل أنشطة الإدارة',
+        obstacles: 'المعوقات',
+        developmentProposals: 'مقترحات التطوير',
+        notes: 'ملاحظات',
+    });
+
+    // Received Projects
+    const receivedProjectsRef = collection(db, 'dept10_received_projects');
+    const receivedProjectsQ = applyFilterToQuery(receivedProjectsRef, filterString);
+    const receivedProjectsSnapshot = await getDocs(receivedProjectsQ);
+    const receivedProjectsData = receivedProjectsSnapshot.docs.map(doc => doc.data() as any);
+    const receivedProjectsFormatted = receivedProjectsData.map((row: any) => ({
+        'الشهر': row.month || 'غير محدد',
+        'الجهة المرسلة': row.entityType || 'غير محدد',
+        'عدد المشروعات': row.projectCount || 0,
+    }));
+    if (receivedProjectsFormatted.length > 0) {
+        const ws = XLSX.utils.json_to_sheet(receivedProjectsFormatted);
+        XLSX.utils.book_append_sheet(workbook, ws, 'المشروعات المستلمة');
+    }
+
+    // Completed Projects
+    const completedProjectsRef = collection(db, 'dept10_completed_projects');
+    const completedProjectsQ = applyFilterToQuery(completedProjectsRef, filterString);
+    const completedProjectsSnapshot = await getDocs(completedProjectsQ);
+    const completedProjectsData = completedProjectsSnapshot.docs.map(doc => doc.data() as any);
+    const completedProjectsFormatted = completedProjectsData.map((row: any) => ({
+        'الشهر': row.month || 'غير محدد',
+        'الجهة': row.entityType || 'غير محدد',
+        'عدد المشروعات': row.projectCount || 0,
+    }));
+    if (completedProjectsFormatted.length > 0) {
+        const ws = XLSX.utils.json_to_sheet(completedProjectsFormatted);
+        XLSX.utils.book_append_sheet(workbook, ws, 'المشروعات المنتهي مراجعتها');
+    }
+};
