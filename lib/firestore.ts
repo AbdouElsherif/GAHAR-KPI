@@ -644,7 +644,7 @@ function createCRUD<T extends { id?: string; createdAt?: Date; updatedAt?: Date 
                 if (month) {
                     q = query(colRef, where('month', '==', month));
                 } else {
-                    q = query(colRef, orderBy('createdAt', 'desc'));
+                    q = query(colRef);
                 }
 
                 const snapshot = await getDocs(q);
@@ -655,13 +655,11 @@ function createCRUD<T extends { id?: string; createdAt?: Date; updatedAt?: Date 
                     updatedAt: doc.data().updatedAt?.toDate()
                 } as T));
 
-                if (month) {
-                    items.sort((a, b) => {
-                        const aTime = (a.createdAt as any)?.getTime() || 0;
-                        const bTime = (b.createdAt as any)?.getTime() || 0;
-                        return bTime - aTime;
-                    });
-                }
+                items.sort((a, b) => {
+                    const aTime = (a.createdAt as any)?.getTime() || 0;
+                    const bTime = (b.createdAt as any)?.getTime() || 0;
+                    return bTime - aTime;
+                });
 
                 return items;
             } catch (error) {
@@ -1109,7 +1107,7 @@ export async function getReportsPresentedToCommittee(month?: string): Promise<Re
         if (month) {
             q = query(reportsRef, where('month', '==', month));
         } else {
-            q = query(reportsRef, orderBy('createdAt', 'desc'));
+            q = query(reportsRef);
         }
 
         const snapshot = await getDocs(q);
@@ -1120,13 +1118,11 @@ export async function getReportsPresentedToCommittee(month?: string): Promise<Re
             updatedAt: doc.data().updatedAt?.toDate()
         } as ReportPresentedToCommittee));
 
-        if (month) {
-            reports.sort((a, b) => {
-                const aTime = a.createdAt?.getTime() || 0;
-                const bTime = b.createdAt?.getTime() || 0;
-                return bTime - aTime;
-            });
-        }
+        reports.sort((a, b) => {
+            const aTime = a.createdAt?.getTime() || 0;
+            const bTime = b.createdAt?.getTime() || 0;
+            return bTime - aTime;
+        });
 
         return reports;
     } catch (error) {
@@ -1201,7 +1197,7 @@ export async function getReportsByFacilitySpecialty(month?: string): Promise<Rep
         if (month) {
             q = query(reportsRef, where('month', '==', month));
         } else {
-            q = query(reportsRef, orderBy('createdAt', 'desc'));
+            q = query(reportsRef);
         }
 
         const snapshot = await getDocs(q);
@@ -1212,13 +1208,11 @@ export async function getReportsByFacilitySpecialty(month?: string): Promise<Rep
             updatedAt: doc.data().updatedAt?.toDate()
         } as ReportByFacilitySpecialty));
 
-        if (month) {
-            reports.sort((a, b) => {
-                const aTime = a.createdAt?.getTime() || 0;
-                const bTime = b.createdAt?.getTime() || 0;
-                return bTime - aTime;
-            });
-        }
+        reports.sort((a, b) => {
+            const aTime = a.createdAt?.getTime() || 0;
+            const bTime = b.createdAt?.getTime() || 0;
+            return bTime - aTime;
+        });
 
         return reports;
     } catch (error) {
@@ -1294,7 +1288,7 @@ export async function getAccreditationDecisions(month?: string): Promise<Accredi
         if (month) {
             q = query(ref, where('month', '==', month));
         } else {
-            q = query(ref, orderBy('createdAt', 'desc'));
+            q = query(ref);
         }
 
         const snapshot = await getDocs(q);
@@ -1305,13 +1299,11 @@ export async function getAccreditationDecisions(month?: string): Promise<Accredi
             updatedAt: doc.data().updatedAt?.toDate()
         } as AccreditationDecision));
 
-        if (month) {
-            decisions.sort((a, b) => {
-                const aTime = a.createdAt?.getTime() || 0;
-                const bTime = b.createdAt?.getTime() || 0;
-                return bTime - aTime;
-            });
-        }
+        decisions.sort((a, b) => {
+            const aTime = a.createdAt?.getTime() || 0;
+            const bTime = b.createdAt?.getTime() || 0;
+            return bTime - aTime;
+        });
 
         return decisions;
     } catch (error) {
@@ -1562,7 +1554,7 @@ export async function getReceivedProjects(month?: string): Promise<ReceivedProje
         if (month) {
             q = query(ref, where('month', '==', month));
         } else {
-            q = query(ref, orderBy('createdAt', 'desc'));
+            q = query(ref);
         }
 
         const snapshot = await getDocs(q);
@@ -1573,13 +1565,11 @@ export async function getReceivedProjects(month?: string): Promise<ReceivedProje
             updatedAt: doc.data().updatedAt?.toDate()
         } as ReceivedProject));
 
-        if (month) {
-            items.sort((a, b) => {
-                const aTime = a.createdAt?.getTime() || 0;
-                const bTime = b.createdAt?.getTime() || 0;
-                return bTime - aTime;
-            });
-        }
+        items.sort((a, b) => {
+            const aTime = a.createdAt?.getTime() || 0;
+            const bTime = b.createdAt?.getTime() || 0;
+            return bTime - aTime;
+        });
 
         return items;
     } catch (error) {
@@ -1657,7 +1647,7 @@ export async function getCompletedReviewProjects(month?: string): Promise<Comple
         if (month) {
             q = query(ref, where('month', '==', month));
         } else {
-            q = query(ref, orderBy('createdAt', 'desc'));
+            q = query(ref);
         }
 
         const snapshot = await getDocs(q);
@@ -1668,13 +1658,11 @@ export async function getCompletedReviewProjects(month?: string): Promise<Comple
             updatedAt: doc.data().updatedAt?.toDate()
         } as CompletedReviewProject));
 
-        if (month) {
-            items.sort((a, b) => {
-                const aTime = a.createdAt?.getTime() || 0;
-                const bTime = b.createdAt?.getTime() || 0;
-                return bTime - aTime;
-            });
-        }
+        items.sort((a, b) => {
+            const aTime = a.createdAt?.getTime() || 0;
+            const bTime = b.createdAt?.getTime() || 0;
+            return bTime - aTime;
+        });
 
         return items;
     } catch (error) {
