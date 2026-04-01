@@ -7761,6 +7761,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['accreditation_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -8296,6 +8305,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['completion_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadCompletionFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isCompletionFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -8642,6 +8660,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['payment_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadPaymentFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isPaymentFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -8988,6 +9015,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['paid_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadPaidFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isPaidFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -9331,6 +9367,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['medical_professional_registrations']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadMedicalProfessionalRegistrations}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isMedicalProfessionalSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -9677,6 +9722,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['committee_preparation_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadCommitteePreparationFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isCommitteePreparationSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -9996,6 +10050,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['certificate_issuance_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadCertificateIssuanceFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isCertificateIssuanceSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -10313,6 +10376,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['corrective_plan_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadCorrectivePlanFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isCorrectivePlanFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -14509,6 +14581,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['basic_requirements_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadBasicRequirementsFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isBasicRequirementsFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -14802,6 +14883,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept6']['appeals_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadAppealsFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isAppealsFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>

@@ -4,6 +4,16 @@ import {
     saveTechnicalClinicalFacility,
     saveTechnicalClinicalObservation,
     saveTechnicalClinicalCorrectionRate,
+    saveAccreditationFacility,
+    saveCompletionFacility,
+    savePaymentFacility,
+    savePaidFacility,
+    saveMedicalProfessionalRegistration,
+    saveCommitteePreparationFacility,
+    saveCertificateIssuanceFacility,
+    saveCorrectivePlanFacility,
+    saveBasicRequirementsFacility,
+    saveAppealsFacility,
 } from '@/lib/firestore';
 
 // ============================================================
@@ -167,11 +177,185 @@ export const dept4Sections: Record<string, SectionDefinition> = {
 };
 
 // ============================================================
+// Section Definitions for dept6 (الإدارة العامة للاعتماد والتسجيل)
+// ============================================================
+
+const dept6AffiliationOptions = [
+    'هيئة الرعاية الصحية', 'وزارة الصحة', 'قطاع خاص', 'القوات المسلحة',
+    'جمعيات أهلية', 'هيئة قناة السويس', 'جامعي',
+    'وزارة الداخلية قطاع الخدمات الطبية', 'قطاع أعمال', 'حكومي',
+    'الهيئة العامة للمستشفيات والمعاهد التعليمية',
+    'الهيئة القومية لسكك حديد مصر',
+    'الهيئة العامة للتأمين الصحي',
+    'أمانة المراكز الطبية المتخصصة', 'جهات سيادية'
+];
+
+const dept6Section1AccreditationStatus = [
+    'منشأة جديدة', 'تجديد / استكمال اعتماد'
+];
+
+const dept6Section1Standards = [
+    'معايير اعتماد المستشفيات', 'الاعتماد المبدئي للمستشفيات',
+    'معايير اعتماد مراكز ووحدات الرعاية الأولية',
+    'الاعتماد المبدئي لمراكز ووحدات الرعاية الأولية',
+    'معايير اعتماد معامل التحاليل الطبية',
+    'معايير اعتماد مستشفيات الصحة النفسية',
+    'معايير اعتماد مراكز الاشعة التشخيصية والعلاجية',
+    'معايير اعتماد مراكز جراحات اليوم الواحد',
+    'معايير اعتماد العيادات المجمعة',
+    'معايير اعتماد مراكز الغسيل الكلوي',
+    'معايير اعتماد مركز الاسنان',
+    'معايير اعتماد العيادات الخاصة/ الأسنان',
+    'معايير اعتماد الصيدليات العامة',
+    'معايير اعتماد التميز الأخضر',
+    'معايير اعتماد العلاج الطبيعي',
+    'معايير دور النقاهة ومنشآت الرعاية الصحية الممتدة',
+    'معايير منشآت الاستشفاء الطبي',
+    'لم يتم التحديد'
+];
+
+const dept6Section3AccreditationStatus = [
+    'منشأة جديدة', 'تجديد اعتماد / اعتماد مبدئي'
+];
+
+const dept6Section4AccreditationStatus = [
+    'اعتماد مبدئي', 'تجديد اعتماد مبدئي',
+    'اعتماد بعد اعتماد مبدئي', 'اعتماد', 'تجديد اعتماد'
+];
+
+const dept6Section5AccreditationStatus = [
+    'منشأة جديدة', 'تجديد / اعتماد واعتماد مبدئي'
+];
+
+const dept6Section6AccreditationStatus = [
+    'منشأة جديدة', 'تجديد الاعتماد',
+    'استكمال الاعتماد واعتماد مبدئي', 'فرصة ثانية'
+];
+
+const dept6Section7AccreditationStatus = [
+    'منشأة جديدة', 'تجديد / اعتماد واعتماد مبدئي'
+];
+
+export const dept6Sections: Record<string, SectionDefinition> = {
+    'accreditation_facilities': {
+        name: '📋 المنشآت المتقدمة خلال الشهر',
+        collection: 'accreditation_facilities',
+        saveFnName: 'saveAccreditationFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'التبعية', field: 'affiliation', required: true, type: 'string', validValues: dept6AffiliationOptions },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section1AccreditationStatus },
+            { header: 'المعايير', field: 'standards', required: false, type: 'string', validValues: dept6Section1Standards },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'completion_facilities': {
+        name: '📋 مرحلة استكمال الطلب',
+        collection: 'completion_facilities',
+        saveFnName: 'saveCompletionFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section1AccreditationStatus },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'payment_facilities': {
+        name: '💰 جاري سداد رسوم الزيارة التقييمية',
+        collection: 'payment_facilities',
+        saveFnName: 'savePaymentFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section3AccreditationStatus },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'paid_facilities': {
+        name: '✅ المنشآت التي قامت بسداد رسوم الزيارة',
+        collection: 'paid_facilities',
+        saveFnName: 'savePaidFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section4AccreditationStatus },
+            { header: 'القيمة المالية', field: 'amount', required: true, type: 'number' },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'medical_professional_registrations': {
+        name: '👨‍⚕️ التحويل إلى مرحلة تسجيل عضو مهن طبية',
+        collection: 'medical_professional_registrations',
+        saveFnName: 'saveMedicalProfessionalRegistration',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section5AccreditationStatus },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'committee_preparation_facilities': {
+        name: '📋 التجهيز للعرض على اللجنة',
+        collection: 'committee_preparation_facilities',
+        saveFnName: 'saveCommitteePreparationFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section6AccreditationStatus },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'certificate_issuance_facilities': {
+        name: '🎓 إصدار الشهادات',
+        collection: 'certificate_issuance_facilities',
+        saveFnName: 'saveCertificateIssuanceFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'حالة الاعتماد', field: 'accreditationStatus', required: true, type: 'string', validValues: dept6Section7AccreditationStatus },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'corrective_plan_facilities': {
+        name: '📋 متابعة الخطط التصحيحية',
+        collection: 'corrective_plan_facilities',
+        saveFnName: 'saveCorrectivePlanFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'basic_requirements_facilities': {
+        name: '📝 متابعة استكمال المتطلبات الأساسية',
+        collection: 'basic_requirements_facilities',
+        saveFnName: 'saveBasicRequirementsFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'appeals_facilities': {
+        name: '📋 دراسة الالتماسات',
+        collection: 'appeals_facilities',
+        saveFnName: 'saveAppealsFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+};
+
+// ============================================================
 // All sections registry (will grow as we add more departments)
 // ============================================================
 
 export const allSectionDefinitions: Record<string, Record<string, SectionDefinition>> = {
     'dept4': dept4Sections,
+    'dept6': dept6Sections,
 };
 
 // ============================================================
@@ -498,6 +682,16 @@ const saveFunctions: Record<string, SaveFunctionType> = {
     'saveTechnicalClinicalFacility': saveTechnicalClinicalFacility,
     'saveTechnicalClinicalObservation': saveTechnicalClinicalObservation,
     'saveTechnicalClinicalCorrectionRate': saveTechnicalClinicalCorrectionRate,
+    'saveAccreditationFacility': saveAccreditationFacility,
+    'saveCompletionFacility': saveCompletionFacility,
+    'savePaymentFacility': savePaymentFacility,
+    'savePaidFacility': savePaidFacility,
+    'saveMedicalProfessionalRegistration': saveMedicalProfessionalRegistration,
+    'saveCommitteePreparationFacility': saveCommitteePreparationFacility,
+    'saveCertificateIssuanceFacility': saveCertificateIssuanceFacility,
+    'saveCorrectivePlanFacility': saveCorrectivePlanFacility,
+    'saveBasicRequirementsFacility': saveBasicRequirementsFacility,
+    'saveAppealsFacility': saveAppealsFacility,
 };
 
 export interface BatchSaveResult {
