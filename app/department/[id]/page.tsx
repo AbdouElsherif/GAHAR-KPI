@@ -27,6 +27,8 @@ import Pagination from '@/components/Pagination';
 import DashboardModal from '@/components/DashboardModal';
 import DepartmentExportButton from '@/components/DepartmentExportButton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
+import ExcelImportButton from '@/components/ExcelImportButton';
+import { allSectionDefinitions } from '@/lib/excelImportHelpers';
 import { ProgramTypesSection, CollectedRevenuesSection, TrainingProgramsByGovernorateSection, TrainingNatureSection } from '@/components/dept1';
 import { GovernorateCustomerSurveysSection } from '@/components/dept3';
 import { ReceivedProjectsSection, CompletedProjectsSection } from '@/components/dept10';
@@ -1219,7 +1221,7 @@ export default function DepartmentPage() {
     const handleTechnicalClinicalFacilitySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
-        if (!validateSectionForm(technicalClinicalFacilityFormData, 'المنشآت')) return;
+        if (!validateSectionForm(technicalClinicalFacilityFormData, 'المنشآت', ['assessmentType'])) return;
 
         try {
             if (editingTechnicalClinicalFacilityId) {
@@ -10606,6 +10608,15 @@ export default function DepartmentPage() {
                             color: 'var(--primary-color)',
                             fontWeight: 'bold'
                         }}>
+                            {userCanEdit && currentUser && (
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <ExcelImportButton 
+                                        sectionDef={allSectionDefinitions['dept4']['technical_clinical_facilities']}
+                                        userId={currentUser.id}
+                                        onImportComplete={loadTechnicalClinicalFacilities}
+                                    />
+                                </div>
+                            )}
                             <span style={{ fontSize: '0.9rem' }}>
                                 {isTechnicalClinicalFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                             </span>
@@ -11037,6 +11048,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept4']['technical_clinical_observations']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadTechnicalClinicalObservations}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isTechnicalClinicalObservationsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -11388,6 +11408,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept4']['technical_clinical_correction_rates']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadTcCorrectionRates}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isTcCorrectionRateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
