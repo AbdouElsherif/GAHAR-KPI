@@ -11048,15 +11048,7 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
-                                {userCanEdit && currentUser && (
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        <ExcelImportButton 
-                                            sectionDef={allSectionDefinitions['dept4']['technical_clinical_observations']}
-                                            userId={currentUser.id}
-                                            onImportComplete={loadTechnicalClinicalObservations}
-                                        />
-                                    </div>
-                                )}
+
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isTechnicalClinicalObservationsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -11408,15 +11400,7 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
-                                {userCanEdit && currentUser && (
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        <ExcelImportButton 
-                                            sectionDef={allSectionDefinitions['dept4']['technical_clinical_correction_rates']}
-                                            userId={currentUser.id}
-                                            onImportComplete={loadTcCorrectionRates}
-                                        />
-                                    </div>
-                                )}
+
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isTcCorrectionRateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
