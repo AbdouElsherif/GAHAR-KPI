@@ -102,8 +102,8 @@ export default function AdminPage() {
             await loadUsers();
             resetForm();
             setTimeout(() => setMessage(null), 3000);
-        } catch (error) {
-            setMessage({ type: 'error', text: 'حدث خطأ أثناء حفظ البيانات' });
+        } catch (error: any) {
+            setMessage({ type: 'error', text: error.message || 'حدث خطأ أثناء حفظ البيانات' });
         }
     };
 

@@ -14,6 +14,7 @@ import {
     saveCorrectivePlanFacility,
     saveBasicRequirementsFacility,
     saveAppealsFacility,
+    saveAdminAuditFacility,
 } from '@/lib/firestore';
 
 // ============================================================
@@ -350,11 +351,53 @@ export const dept6Sections: Record<string, SectionDefinition> = {
 };
 
 // ============================================================
+// Section Definitions for dept5 (الإدارة العامة للرقابة الإدارية على المنشآت الصحية)
+// ============================================================
+
+const dept5FacilityTypes = [
+    'مستشفى', 'صيدلية', 'مراكز الرعاية الأولية', 'معمل', 'مركز أشعة', 
+    'مراكز طبية', 'مستشفى صحة نفسية', 'عيادات طبية', 'مراكز علاج طبيعي'
+];
+
+const dept5AffiliationOptions = [
+    'هيئة الرعاية الصحية', 'وزارة الصحة', 'قطاع خاص', 'القوات المسلحة',
+    'جمعيات أهلية', 'هيئة قناة السويس', 'جامعي',
+    'وزار الداخلية قطاع الخدمات الطبية', 'قطاع أعمال', 'حكومي',
+    'الهيئة العامة للمستشفيات والمعاهد التعليمية',
+    'الهيئة القومية لسكك حديد مصر',
+    'الهيئة العامة للتأمين الصحي',
+    'أمانة المراكز الطبية المتخصصة', 'جهات سيادية'
+];
+
+const dept5VisitTypes = [
+    'زيارة متابعة', 'تفتيش إداري', 'تدقيق إداري وسلامة بيئية', 
+    'متابعة خطة تصحيحية لحدث جسيم', 'فحص شكوى - إحالة', 
+    'تخطيط صحي', 'تدقيق على السلامة البيئية', 'فحص حدث جسيم'
+];
+
+export const dept5Sections: Record<string, SectionDefinition> = {
+    'admin_audit_facilities': {
+        name: '🏥 منشآت الرقابة الإدارية',
+        collection: 'admin_audit_facilities',
+        saveFnName: 'saveAdminAuditFacility',
+        columns: [
+            { header: 'نوع المنشأة', field: 'facilityType', required: true, type: 'string', validValues: dept5FacilityTypes },
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'التبعية', field: 'affiliation', required: true, type: 'string', validValues: dept5AffiliationOptions },
+            { header: 'نوع الزيارة', field: 'visitType', required: true, type: 'string', validValues: dept5VisitTypes },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    }
+};
+
+// ============================================================
 // All sections registry (will grow as we add more departments)
 // ============================================================
 
 export const allSectionDefinitions: Record<string, Record<string, SectionDefinition>> = {
     'dept4': dept4Sections,
+    'dept5': dept5Sections,
     'dept6': dept6Sections,
 };
 
@@ -692,6 +735,7 @@ const saveFunctions: Record<string, SaveFunctionType> = {
     'saveCorrectivePlanFacility': saveCorrectivePlanFacility,
     'saveBasicRequirementsFacility': saveBasicRequirementsFacility,
     'saveAppealsFacility': saveAppealsFacility,
+    'saveAdminAuditFacility': saveAdminAuditFacility,
 };
 
 export interface BatchSaveResult {

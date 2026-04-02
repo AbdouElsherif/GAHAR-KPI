@@ -126,12 +126,16 @@ export async function addUser(userData: {
             }
         }
 
-        // Handle "email already in use" specifically for recovery scenarios
+        // Handle specific errors
         if (error.code === 'auth/email-already-in-use') {
             throw new Error('البريد الإلكتروني مستخدم بالفعل');
+        } else if (error.code === 'auth/invalid-email') {
+            throw new Error('البريد الإلكتروني غير صالح');
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error('كلمة المرور ضعيفة جداً');
         }
 
-        return null;
+        throw new Error(error.message || 'حدث خطأ أثناء إضافة المستخدم');
     }
 }
 
@@ -141,6 +145,7 @@ export async function updateUser(id: string, updates: Partial<User>) {
         await updateDoc(userRef, updates);
     } catch (error) {
         console.error('Error updating user:', error);
+        throw new Error('حدث خطأ أثناء تحديث بيانات المستخدم');
     }
 }
 
@@ -151,6 +156,7 @@ export async function deleteUser(id: string) {
         // You may need Firebase Admin SDK for that or a cloud function
     } catch (error) {
         console.error('Error deleting user:', error);
+        throw new Error('حدث خطأ أثناء حذف المستخدم');
     }
 }
 

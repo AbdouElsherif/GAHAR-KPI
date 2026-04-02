@@ -13302,6 +13302,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept5']['admin_audit_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadAdminAuditFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isAdminAuditFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
