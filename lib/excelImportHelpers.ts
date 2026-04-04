@@ -15,6 +15,12 @@ import {
     saveBasicRequirementsFacility,
     saveAppealsFacility,
     saveAdminAuditFacility,
+    saveTechnicalSupportVisit,
+    saveRemoteTechnicalSupport,
+    saveIntroductorySupportVisit,
+    saveQueuedSupportVisit,
+    saveScheduledSupportVisit,
+    saveAccreditedSupportedFacility,
 } from '@/lib/firestore';
 
 // ============================================================
@@ -392,10 +398,98 @@ export const dept5Sections: Record<string, SectionDefinition> = {
 };
 
 // ============================================================
+// Section Definitions for dept2 (الإدارة العامة للدعم الفني)
+// ============================================================
+
+const dept2FacilityTypes = [
+    'مستشفيات', 'مستشفيات الصحة النفسية', 'عيادات خاصة', 'معامل', 
+    'صيدليات', 'مراكز جراحات اليوم الواحد', 'مراكز علاج طبيعي', 
+    'مراكز أشعة', 'مراكز ووحدات الرعاية الأولية'
+];
+
+export const dept2Sections: Record<string, SectionDefinition> = {
+    'technical_support_visits': {
+        name: '🚗 زيارات الدعم الفني الميداني',
+        collection: 'technical_support_visits',
+        saveFnName: 'saveTechnicalSupportVisit',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
+            { header: 'نوع الزيارة', field: 'visitType', required: false, type: 'string' },
+            { header: 'الجهة التابعة', field: 'affiliatedEntity', required: false, type: 'string' },
+            { header: 'نوع المنشأة', field: 'facilityType', required: false, type: 'string', validValues: dept2FacilityTypes },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'remote_technical_supports': {
+        name: '📞 الدعم الفني عن بعد',
+        collection: 'remote_technical_supports',
+        saveFnName: 'saveRemoteTechnicalSupport',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
+            { header: 'نوع الزيارة', field: 'visitType', required: false, type: 'string' },
+            { header: 'الجهة التابعة', field: 'affiliatedEntity', required: false, type: 'string' },
+            { header: 'نوع المنشأة', field: 'facilityType', required: false, type: 'string', validValues: dept2FacilityTypes },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'introductory_support_visits': {
+        name: '🆕 زيارات الدعم الفني التمهيدية',
+        collection: 'introductory_support_visits',
+        saveFnName: 'saveIntroductorySupportVisit',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
+            { header: 'نوع الزيارة', field: 'visitType', required: false, type: 'string' },
+            { header: 'الجهة التابعة', field: 'affiliatedEntity', required: false, type: 'string' },
+            { header: 'نوع المنشأة', field: 'facilityType', required: false, type: 'string', validValues: dept2FacilityTypes },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'queued_support_visits': {
+        name: '⏳ زيارات بقائمة الانتظار',
+        collection: 'queued_support_visits',
+        saveFnName: 'saveQueuedSupportVisit',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'scheduled_support_visits': {
+        name: '📅 الزيارات المجدولة',
+        collection: 'scheduled_support_visits',
+        saveFnName: 'saveScheduledSupportVisit',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
+            { header: 'نوع الزيارة', field: 'visitType', required: false, type: 'string' },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    },
+    'accredited_supported_facilities': {
+        name: '🏆 المنشآت المعتمدة المدعومة',
+        collection: 'accredited_supported_facilities',
+        saveFnName: 'saveAccreditedSupportedFacility',
+        columns: [
+            { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
+            { header: 'رقم القرار', field: 'decisionNumber', required: false, type: 'string' },
+            { header: 'تاريخ القرار', field: 'decisionDate', required: false, type: 'date' },
+            { header: 'نوع الدعم', field: 'supportType', required: false, type: 'string' },
+            { header: 'موقف الاعتماد', field: 'accreditationStatus', required: false, type: 'string' },
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+        ]
+    }
+};
+
+// ============================================================
 // All sections registry (will grow as we add more departments)
 // ============================================================
 
 export const allSectionDefinitions: Record<string, Record<string, SectionDefinition>> = {
+    'dept2': dept2Sections,
     'dept4': dept4Sections,
     'dept5': dept5Sections,
     'dept6': dept6Sections,

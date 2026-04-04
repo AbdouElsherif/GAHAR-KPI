@@ -11940,6 +11940,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton
+                                            sectionDef={allSectionDefinitions['dept2']['technical_support_visits']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadTechSupportVisits}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isTechSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -12286,6 +12295,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton
+                                            sectionDef={allSectionDefinitions['dept2']['remote_technical_supports']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadRemoteTechnicalSupports}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isRemoteTechSupportSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -12623,6 +12641,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton
+                                            sectionDef={allSectionDefinitions['dept2']['introductory_support_visits']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadIntroSupportVisits}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isIntroSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -12973,6 +13000,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton
+                                            sectionDef={allSectionDefinitions['dept2']['queued_support_visits']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadQueuedSupportVisits}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isQueuedSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -15195,6 +15231,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton
+                                            sectionDef={allSectionDefinitions['dept2']['scheduled_support_visits']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadScheduledSupportVisits}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isScheduledSupportVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -15489,6 +15534,15 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton
+                                            sectionDef={allSectionDefinitions['dept2']['accredited_supported_facilities']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadAccreditedSupportedFacilities}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isAccreditedSupportedFacilitiesSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>

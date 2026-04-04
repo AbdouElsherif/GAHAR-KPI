@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType } from 'docx';
 import { SectionHeader, ExportButtons, MonthFilter } from '../shared';
+import ExcelImportButton from '../ExcelImportButton';
+import { allSectionDefinitions } from '@/lib/excelImportHelpers';
 import {
     QueuedSupportVisit,
     saveQueuedSupportVisit,
@@ -165,7 +167,19 @@ export default function QueuedSupportVisitsSection({ currentUser, canEdit }: Que
                             <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}><button type="submit" className="btn btn-primary">{editingId ? 'تحديث' : 'حفظ'}</button>{editingId && <button type="button" className="btn btn-secondary" onClick={resetForm}>إلغاء</button>}</div>
                         </form>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}><MonthFilter value={filterMonth} onChange={setFilterMonth} /><ExportButtons onExportExcel={exportToExcel} onExportWord={exportToWord} /></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                        <MonthFilter value={filterMonth} onChange={setFilterMonth} />
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <ExportButtons onExportExcel={exportToExcel} onExportWord={exportToWord} />
+                            {userCanEdit && (
+                                <ExcelImportButton
+                                    sectionDef={allSectionDefinitions['dept2']['queued_support_visits']}
+                                    userId={currentUser.email || currentUser.uid || 'unknown'}
+                                    onImportComplete={loadData}
+                                />
+                            )}
+                        </div>
+                    </div>
                     <div style={{ overflowX: 'auto' }}>
                         <table className="data-table">
                             <thead><tr><th>#</th><th>اسم المنشأة</th><th>المحافظة</th><th>الشهر</th>{userCanEdit && <th>إجراءات</th>}</tr></thead>

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType } from 'docx';
 import { SectionHeader, ExportButtons, MonthFilter } from '../shared';
+import ExcelImportButton from '../ExcelImportButton';
+import { allSectionDefinitions } from '@/lib/excelImportHelpers';
 import {
     RemoteTechnicalSupport,
     saveRemoteTechnicalSupport,
@@ -323,7 +325,16 @@ export default function RemoteTechSupportSection({ currentUser, canEdit }: Remot
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
                         <MonthFilter value={filterMonth} onChange={setFilterMonth} />
-                        <ExportButtons onExportExcel={exportToExcel} onExportWord={exportToWord} />
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <ExportButtons onExportExcel={exportToExcel} onExportWord={exportToWord} />
+                            {userCanEdit && (
+                                <ExcelImportButton
+                                    sectionDef={allSectionDefinitions['dept2']['remote_technical_supports']}
+                                    userId={currentUser.email || currentUser.uid || 'unknown'}
+                                    onImportComplete={loadData}
+                                />
+                            )}
+                        </div>
                     </div>
 
                     <div style={{ overflowX: 'auto' }}>
