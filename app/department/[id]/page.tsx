@@ -1038,6 +1038,14 @@ export default function DepartmentPage() {
         e.preventDefault();
 
         if (!currentUser) return;
+        
+        // التحقق من الحقول الإلزامية
+        const missingRequiredFields = fields.filter(f => f.required && !formData[f.name]);
+        if (missingRequiredFields.length > 0) {
+            const firstMissing = missingRequiredFields[0];
+            alert(`⚠️ يرجى ملء الحقل الإلزامي: ${firstMissing.label}`);
+            return;
+        }
 
         // التحقق من التاريخ - منع التواريخ المستقبلية
         if (formData.date) {
@@ -7302,6 +7310,7 @@ export default function DepartmentPage() {
                                                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                         {isCompleted && <span style={{ color: '#28a745', fontSize: '1.1rem' }}>✓</span>}
                                                         {field.label}
+                                                        {field.required && <span style={{ color: '#dc3545', fontWeight: 'bold' }}>*</span>}
                                                         {isLocked && currentUser?.role === 'super_admin' && (
                                                             <button
                                                                 type="button"
@@ -7332,6 +7341,7 @@ export default function DepartmentPage() {
                                                     {field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' || field.name === 'activitySummary' || field.name === 'activityDetails' ? (
                                                         <textarea
                                                             className="form-input"
+                                                            required={field.required}
                                                             rows={4}
                                                             placeholder={
                                                                 field.name === 'activitySummary' ? '(الملخص)' :
@@ -7348,7 +7358,7 @@ export default function DepartmentPage() {
                                                         <input
                                                             type={field.type}
                                                             className="form-input"
-                                                            required={field.type === 'month' || field.type === 'date' || field.name !== 'notes'}
+                                                            required={field.required || field.type === 'month' || field.type === 'date'}
                                                             value={isLocked && previouslyCompletedStandards.has(field.name) && !formData[field.name] ? '100' : (formData[field.name] || '')}
                                                             disabled={isLocked}
                                                             onChange={(e) => {

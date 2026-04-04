@@ -4,6 +4,7 @@ export interface Field {
     name: string;
     label: string;
     type: 'number' | 'text' | 'date' | 'month';
+    required?: boolean;
 }
 
 export const departments: Record<string, string> = {
@@ -88,13 +89,13 @@ export const departmentFields: Record<string, Field[]> = {
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
     'dept6': [
-        { name: 'date', label: 'الشهر والسنة', type: 'month' },
-        { name: 'newFacilities', label: 'عدد المنشآت الجديدة المتقدمة للتسجيل', type: 'number' },
-        { name: 'reviewedAppeals', label: 'عدد الالتماسات التي تمت مراجعتها', type: 'number' },
-        { name: 'reviewedPlans', label: 'عدد الخطط التصحيحية التي تمت مراجعتها', type: 'number' },
-        { name: 'accreditation', label: 'الاعتماد/ الاعتماد المبدئي', type: 'number' },
-        { name: 'renewal', label: 'تجديد الاعتماد', type: 'number' },
-        { name: 'completion', label: 'استكمال الاعتماد', type: 'number' },
+        { name: 'date', label: 'الشهر والسنة', type: 'month', required: true },
+        { name: 'newFacilities', label: 'عدد المنشآت الجديدة المتقدمة للتسجيل', type: 'number', required: true },
+        { name: 'reviewedAppeals', label: 'عدد الالتماسات التي تمت مراجعتها', type: 'number', required: true },
+        { name: 'reviewedPlans', label: 'عدد الخطط التصحيحية التي تمت مراجعتها', type: 'number', required: true },
+        { name: 'accreditation', label: 'الاعتماد/ الاعتماد المبدئي', type: 'number', required: true },
+        { name: 'renewal', label: 'تجديد الاعتماد', type: 'number', required: true },
+        { name: 'completion', label: 'استكمال الاعتماد', type: 'number', required: true },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'additionalActivities', label: 'أنشطة إضافية', type: 'text' },
