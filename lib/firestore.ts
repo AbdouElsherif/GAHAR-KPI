@@ -615,6 +615,25 @@ export interface TechnicalClinicalCorrectionRate {
 
 
 
+// Helper to normalize affiliation field values
+function normalizeAffiliation(data: any): any {
+    if (!data) return data;
+    const newData = { ...data };
+    const fieldsToNormalize = ['affiliatedEntity', 'affiliation', 'governingAuthority'];
+    
+    for (const field of fieldsToNormalize) {
+        if (typeof newData[field] === 'string') {
+            const val = newData[field].trim();
+            if (val === 'جامعة' || val === 'جامعية') {
+                newData[field] = 'جامعي';
+            } else if (val === 'خاص') {
+                newData[field] = 'قطاع خاص';
+            }
+        }
+    }
+    return newData;
+}
+
 // ============================================================
 // CRUD Factory Function - generates save/getAll/update/delete
 // for any Firestore collection with the standard pattern
@@ -623,9 +642,10 @@ function createCRUD<T extends { id?: string; createdAt?: Date; updatedAt?: Date 
     return {
         async save(data: Omit<T, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<string | null> {
             try {
+                const normalizedData = normalizeAffiliation(data);
                 const colRef = collection(db, collectionName);
                 const docRef = await addDoc(colRef, {
-                    ...data,
+                    ...normalizedData,
                     createdAt: Timestamp.now(),
                     updatedAt: Timestamp.now()
                 });
@@ -670,9 +690,10 @@ function createCRUD<T extends { id?: string; createdAt?: Date; updatedAt?: Date 
 
         async update(id: string, updates: Partial<T> & { updatedBy: string }): Promise<boolean> {
             try {
+                const normalizedUpdates = normalizeAffiliation(updates);
                 const docRef = doc(db, collectionName, id);
                 await setDoc(docRef, {
-                    ...updates,
+                    ...normalizedUpdates,
                     updatedAt: Timestamp.now()
                 }, { merge: true });
                 return true;

@@ -831,6 +831,12 @@ const saveFunctions: Record<string, SaveFunctionType> = {
     'saveBasicRequirementsFacility': saveBasicRequirementsFacility,
     'saveAppealsFacility': saveAppealsFacility,
     'saveAdminAuditFacility': saveAdminAuditFacility,
+    'saveTechnicalSupportVisit': saveTechnicalSupportVisit,
+    'saveRemoteTechnicalSupport': saveRemoteTechnicalSupport,
+    'saveIntroductorySupportVisit': saveIntroductorySupportVisit,
+    'saveQueuedSupportVisit': saveQueuedSupportVisit,
+    'saveScheduledSupportVisit': saveScheduledSupportVisit,
+    'saveAccreditedSupportedFacility': saveAccreditedSupportedFacility,
 };
 
 export interface BatchSaveResult {
