@@ -9108,6 +9108,8 @@ export default function DepartmentPage() {
                                                         <option value="اعتماد بعد اعتماد مبدئي">اعتماد بعد اعتماد مبدئي</option>
                                                         <option value="اعتماد">اعتماد</option>
                                                         <option value="تجديد اعتماد">تجديد اعتماد</option>
+                                                        <option value="رسوم تأجيل زيارة">رسوم تأجيل زيارة</option>
+                                                        <option value="رسوم شهادات إضافية">رسوم شهادات إضافية</option>
                                                     </select>
                                                 </div>
 

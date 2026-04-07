@@ -227,7 +227,8 @@ const dept6Section3AccreditationStatus = [
 
 const dept6Section4AccreditationStatus = [
     'اعتماد مبدئي', 'تجديد اعتماد مبدئي',
-    'اعتماد بعد اعتماد مبدئي', 'اعتماد', 'تجديد اعتماد'
+    'اعتماد بعد اعتماد مبدئي', 'اعتماد', 'تجديد اعتماد',
+    'رسوم تأجيل زيارة', 'رسوم شهادات إضافية'
 ];
 
 const dept6Section5AccreditationStatus = [

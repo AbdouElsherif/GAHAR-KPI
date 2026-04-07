@@ -478,14 +478,20 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             'إيرادات اعتماد بعد اعتماد مبدئي': { value: 0, count: 0 },
             'إيرادات الاعتماد المبدئي': { value: 0, count: 0 },
             'إيرادات تجديد الاعتماد': { value: 0, count: 0 },
-            'إيرادات تجديد الاعتماد المبدئي': { value: 0, count: 0 }
+            'إيرادات تجديد الاعتماد المبدئي': { value: 0, count: 0 },
+            'إيرادات رسوم تأجيل': { value: 0, count: 0 },
+            'إيرادات شهادات إضافية': { value: 0, count: 0 }
         };
 
         filteredPaidFacilities.forEach(f => {
             const status = f.accreditationStatus;
             let categoryKey: keyof typeof categories | null = null;
 
-            if (status.includes('تجديد') && status.includes('مبدئي')) {
+            if (status.includes('تأجيل')) {
+                categoryKey = 'إيرادات رسوم تأجيل';
+            } else if (status.includes('شهادات')) {
+                categoryKey = 'إيرادات شهادات إضافية';
+            } else if (status.includes('تجديد') && status.includes('مبدئي')) {
                 categoryKey = 'إيرادات تجديد الاعتماد المبدئي';
             } else if (status.includes('تجديد')) {
                 categoryKey = 'إيرادات تجديد الاعتماد';
