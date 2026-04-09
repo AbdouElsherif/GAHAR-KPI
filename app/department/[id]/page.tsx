@@ -2670,10 +2670,21 @@ export default function DepartmentPage() {
     const handleTcCorrectionRateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
-        if (!validateSectionForm(tcCorrectionRateFormData, 'نسب التصحيح')) return;
+        const tcCriteriaFields = [
+            'actTotal', 'actCorrected', 'icdTotal', 'icdCorrected', 'dasTotal', 'dasCorrected',
+            'mmsTotal', 'mmsCorrected', 'sipTotal', 'sipCorrected', 'ipcTotal', 'ipcCorrected',
+            'scmTotal', 'scmCorrected', 'texTotal', 'texCorrected', 'teqTotal', 'teqCorrected',
+            'tpoTotal', 'tpoCorrected', 'nsrTotal', 'nsrCorrected', 'sasTotal', 'sasCorrected',
+            'irsTotal', 'irsCorrected', 'mrsTotal', 'mrsCorrected', 'cpsTotal', 'cpsCorrected',
+            'lprTotal', 'lprCorrected', 'lepTotal', 'lepCorrected', 'lpoTotal', 'lpoCorrected',
+            'lqcTotal', 'lqcCorrected', 'cssTotal', 'cssCorrected'
+        ];
+        if (!validateSectionForm(tcCorrectionRateFormData, 'نسب التصحيح', tcCriteriaFields)) return;
 
         try {
             const [year] = tcCorrectionRateFormData.month.split('-');
+
+            const parseNullableInt = (val: string) => (val === '' || val === null || val === undefined) ? null : parseInt(val);
 
             const dataToSave = {
                 entityType: tcCorrectionRateFormData.entityType,
@@ -2684,46 +2695,46 @@ export default function DepartmentPage() {
                 visitType: tcCorrectionRateFormData.visitType,
                 month: tcCorrectionRateFormData.month,
                 year: parseInt(year),
-                actTotal: parseInt(tcCorrectionRateFormData.actTotal) || 0,
-                actCorrected: parseInt(tcCorrectionRateFormData.actCorrected) || 0,
-                icdTotal: parseInt(tcCorrectionRateFormData.icdTotal) || 0,
-                icdCorrected: parseInt(tcCorrectionRateFormData.icdCorrected) || 0,
-                dasTotal: parseInt(tcCorrectionRateFormData.dasTotal) || 0,
-                dasCorrected: parseInt(tcCorrectionRateFormData.dasCorrected) || 0,
-                mmsTotal: parseInt(tcCorrectionRateFormData.mmsTotal) || 0,
-                mmsCorrected: parseInt(tcCorrectionRateFormData.mmsCorrected) || 0,
-                sipTotal: parseInt(tcCorrectionRateFormData.sipTotal) || 0,
-                sipCorrected: parseInt(tcCorrectionRateFormData.sipCorrected) || 0,
-                ipcTotal: parseInt(tcCorrectionRateFormData.ipcTotal) || 0,
-                ipcCorrected: parseInt(tcCorrectionRateFormData.ipcCorrected) || 0,
-                scmTotal: parseInt(tcCorrectionRateFormData.scmTotal) || 0,
-                scmCorrected: parseInt(tcCorrectionRateFormData.scmCorrected) || 0,
-                texTotal: parseInt(tcCorrectionRateFormData.texTotal) || 0,
-                texCorrected: parseInt(tcCorrectionRateFormData.texCorrected) || 0,
-                teqTotal: parseInt(tcCorrectionRateFormData.teqTotal) || 0,
-                teqCorrected: parseInt(tcCorrectionRateFormData.teqCorrected) || 0,
-                tpoTotal: parseInt(tcCorrectionRateFormData.tpoTotal) || 0,
-                tpoCorrected: parseInt(tcCorrectionRateFormData.tpoCorrected) || 0,
-                nsrTotal: parseInt(tcCorrectionRateFormData.nsrTotal) || 0,
-                nsrCorrected: parseInt(tcCorrectionRateFormData.nsrCorrected) || 0,
-                sasTotal: parseInt(tcCorrectionRateFormData.sasTotal) || 0,
-                sasCorrected: parseInt(tcCorrectionRateFormData.sasCorrected) || 0,
-                irsTotal: parseInt(tcCorrectionRateFormData.irsTotal) || 0,
-                irsCorrected: parseInt(tcCorrectionRateFormData.irsCorrected) || 0,
-                mrsTotal: parseInt(tcCorrectionRateFormData.mrsTotal) || 0,
-                mrsCorrected: parseInt(tcCorrectionRateFormData.mrsCorrected) || 0,
-                cpsTotal: parseInt(tcCorrectionRateFormData.cpsTotal) || 0,
-                cpsCorrected: parseInt(tcCorrectionRateFormData.cpsCorrected) || 0,
-                lprTotal: parseInt(tcCorrectionRateFormData.lprTotal) || 0,
-                lprCorrected: parseInt(tcCorrectionRateFormData.lprCorrected) || 0,
-                lepTotal: parseInt(tcCorrectionRateFormData.lepTotal) || 0,
-                lepCorrected: parseInt(tcCorrectionRateFormData.lepCorrected) || 0,
-                lpoTotal: parseInt(tcCorrectionRateFormData.lpoTotal) || 0,
-                lpoCorrected: parseInt(tcCorrectionRateFormData.lpoCorrected) || 0,
-                lqcTotal: parseInt(tcCorrectionRateFormData.lqcTotal) || 0,
-                lqcCorrected: parseInt(tcCorrectionRateFormData.lqcCorrected) || 0,
-                cssTotal: parseInt(tcCorrectionRateFormData.cssTotal) || 0,
-                cssCorrected: parseInt(tcCorrectionRateFormData.cssCorrected) || 0
+                actTotal: parseNullableInt(tcCorrectionRateFormData.actTotal),
+                actCorrected: parseNullableInt(tcCorrectionRateFormData.actCorrected),
+                icdTotal: parseNullableInt(tcCorrectionRateFormData.icdTotal),
+                icdCorrected: parseNullableInt(tcCorrectionRateFormData.icdCorrected),
+                dasTotal: parseNullableInt(tcCorrectionRateFormData.dasTotal),
+                dasCorrected: parseNullableInt(tcCorrectionRateFormData.dasCorrected),
+                mmsTotal: parseNullableInt(tcCorrectionRateFormData.mmsTotal),
+                mmsCorrected: parseNullableInt(tcCorrectionRateFormData.mmsCorrected),
+                sipTotal: parseNullableInt(tcCorrectionRateFormData.sipTotal),
+                sipCorrected: parseNullableInt(tcCorrectionRateFormData.sipCorrected),
+                ipcTotal: parseNullableInt(tcCorrectionRateFormData.ipcTotal),
+                ipcCorrected: parseNullableInt(tcCorrectionRateFormData.ipcCorrected),
+                scmTotal: parseNullableInt(tcCorrectionRateFormData.scmTotal),
+                scmCorrected: parseNullableInt(tcCorrectionRateFormData.scmCorrected),
+                texTotal: parseNullableInt(tcCorrectionRateFormData.texTotal),
+                texCorrected: parseNullableInt(tcCorrectionRateFormData.texCorrected),
+                teqTotal: parseNullableInt(tcCorrectionRateFormData.teqTotal),
+                teqCorrected: parseNullableInt(tcCorrectionRateFormData.teqCorrected),
+                tpoTotal: parseNullableInt(tcCorrectionRateFormData.tpoTotal),
+                tpoCorrected: parseNullableInt(tcCorrectionRateFormData.tpoCorrected),
+                nsrTotal: parseNullableInt(tcCorrectionRateFormData.nsrTotal),
+                nsrCorrected: parseNullableInt(tcCorrectionRateFormData.nsrCorrected),
+                sasTotal: parseNullableInt(tcCorrectionRateFormData.sasTotal),
+                sasCorrected: parseNullableInt(tcCorrectionRateFormData.sasCorrected),
+                irsTotal: parseNullableInt(tcCorrectionRateFormData.irsTotal),
+                irsCorrected: parseNullableInt(tcCorrectionRateFormData.irsCorrected),
+                mrsTotal: parseNullableInt(tcCorrectionRateFormData.mrsTotal),
+                mrsCorrected: parseNullableInt(tcCorrectionRateFormData.mrsCorrected),
+                cpsTotal: parseNullableInt(tcCorrectionRateFormData.cpsTotal),
+                cpsCorrected: parseNullableInt(tcCorrectionRateFormData.cpsCorrected),
+                lprTotal: parseNullableInt(tcCorrectionRateFormData.lprTotal),
+                lprCorrected: parseNullableInt(tcCorrectionRateFormData.lprCorrected),
+                lepTotal: parseNullableInt(tcCorrectionRateFormData.lepTotal),
+                lepCorrected: parseNullableInt(tcCorrectionRateFormData.lepCorrected),
+                lpoTotal: parseNullableInt(tcCorrectionRateFormData.lpoTotal),
+                lpoCorrected: parseNullableInt(tcCorrectionRateFormData.lpoCorrected),
+                lqcTotal: parseNullableInt(tcCorrectionRateFormData.lqcTotal),
+                lqcCorrected: parseNullableInt(tcCorrectionRateFormData.lqcCorrected),
+                cssTotal: parseNullableInt(tcCorrectionRateFormData.cssTotal),
+                cssCorrected: parseNullableInt(tcCorrectionRateFormData.cssCorrected)
             };
 
 
@@ -2764,46 +2775,46 @@ export default function DepartmentPage() {
             visitDate: rate.visitDate,
             visitType: rate.visitType,
             month: rate.month,
-            actTotal: rate.actTotal.toString(),
-            actCorrected: rate.actCorrected.toString(),
-            icdTotal: rate.icdTotal.toString(),
-            icdCorrected: rate.icdCorrected.toString(),
-            dasTotal: rate.dasTotal.toString(),
-            dasCorrected: rate.dasCorrected.toString(),
-            mmsTotal: rate.mmsTotal.toString(),
-            mmsCorrected: rate.mmsCorrected.toString(),
-            sipTotal: rate.sipTotal.toString(),
-            sipCorrected: rate.sipCorrected.toString(),
-            ipcTotal: rate.ipcTotal.toString(),
-            ipcCorrected: rate.ipcCorrected.toString(),
-            scmTotal: rate.scmTotal.toString(),
-            scmCorrected: rate.scmCorrected.toString(),
-            texTotal: rate.texTotal.toString(),
-            texCorrected: rate.texCorrected.toString(),
-            teqTotal: rate.teqTotal.toString(),
-            teqCorrected: rate.teqCorrected.toString(),
-            tpoTotal: rate.tpoTotal.toString(),
-            tpoCorrected: rate.tpoCorrected.toString(),
-            nsrTotal: rate.nsrTotal.toString(),
-            nsrCorrected: rate.nsrCorrected.toString(),
-            sasTotal: rate.sasTotal.toString(),
-            sasCorrected: rate.sasCorrected.toString(),
-            irsTotal: rate.irsTotal.toString(),
-            irsCorrected: rate.irsCorrected.toString(),
-            mrsTotal: rate.mrsTotal.toString(),
-            mrsCorrected: rate.mrsCorrected.toString(),
-            cpsTotal: rate.cpsTotal.toString(),
-            cpsCorrected: rate.cpsCorrected.toString(),
-            lprTotal: rate.lprTotal.toString(),
-            lprCorrected: rate.lprCorrected.toString(),
-            lepTotal: rate.lepTotal.toString(),
-            lepCorrected: rate.lepCorrected.toString(),
-            lpoTotal: rate.lpoTotal.toString(),
-            lpoCorrected: rate.lpoCorrected.toString(),
-            lqcTotal: rate.lqcTotal.toString(),
-            lqcCorrected: rate.lqcCorrected.toString(),
-            cssTotal: rate.cssTotal.toString(),
-            cssCorrected: rate.cssCorrected.toString()
+            actTotal: rate.actTotal?.toString() ?? '',
+            actCorrected: rate.actCorrected?.toString() ?? '',
+            icdTotal: rate.icdTotal?.toString() ?? '',
+            icdCorrected: rate.icdCorrected?.toString() ?? '',
+            dasTotal: rate.dasTotal?.toString() ?? '',
+            dasCorrected: rate.dasCorrected?.toString() ?? '',
+            mmsTotal: rate.mmsTotal?.toString() ?? '',
+            mmsCorrected: rate.mmsCorrected?.toString() ?? '',
+            sipTotal: rate.sipTotal?.toString() ?? '',
+            sipCorrected: rate.sipCorrected?.toString() ?? '',
+            ipcTotal: rate.ipcTotal?.toString() ?? '',
+            ipcCorrected: rate.ipcCorrected?.toString() ?? '',
+            scmTotal: rate.scmTotal?.toString() ?? '',
+            scmCorrected: rate.scmCorrected?.toString() ?? '',
+            texTotal: rate.texTotal?.toString() ?? '',
+            texCorrected: rate.texCorrected?.toString() ?? '',
+            teqTotal: rate.teqTotal?.toString() ?? '',
+            teqCorrected: rate.teqCorrected?.toString() ?? '',
+            tpoTotal: rate.tpoTotal?.toString() ?? '',
+            tpoCorrected: rate.tpoCorrected?.toString() ?? '',
+            nsrTotal: rate.nsrTotal?.toString() ?? '',
+            nsrCorrected: rate.nsrCorrected?.toString() ?? '',
+            sasTotal: rate.sasTotal?.toString() ?? '',
+            sasCorrected: rate.sasCorrected?.toString() ?? '',
+            irsTotal: rate.irsTotal?.toString() ?? '',
+            irsCorrected: rate.irsCorrected?.toString() ?? '',
+            mrsTotal: rate.mrsTotal?.toString() ?? '',
+            mrsCorrected: rate.mrsCorrected?.toString() ?? '',
+            cpsTotal: rate.cpsTotal?.toString() ?? '',
+            cpsCorrected: rate.cpsCorrected?.toString() ?? '',
+            lprTotal: rate.lprTotal?.toString() ?? '',
+            lprCorrected: rate.lprCorrected?.toString() ?? '',
+            lepTotal: rate.lepTotal?.toString() ?? '',
+            lepCorrected: rate.lepCorrected?.toString() ?? '',
+            lpoTotal: rate.lpoTotal?.toString() ?? '',
+            lpoCorrected: rate.lpoCorrected?.toString() ?? '',
+            lqcTotal: rate.lqcTotal?.toString() ?? '',
+            lqcCorrected: rate.lqcCorrected?.toString() ?? '',
+            cssTotal: rate.cssTotal?.toString() ?? '',
+            cssCorrected: rate.cssCorrected?.toString() ?? ''
         });
         setEditingTcCorrectionRateId(rate.id || null);
     };
@@ -11729,19 +11740,22 @@ export default function DepartmentPage() {
                                                                                             <tr style={{ backgroundColor: 'white' }}>
                                                                                                 <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
                                                                                                 {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => (
-                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === null || item.t === undefined) ? 'N/A' : item.t}</td>
                                                                                                 ))}
                                                                                             </tr>
                                                                                             <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                                 <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
                                                                                                 {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => (
-                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                                    <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.c === null || item.c === undefined) ? 'N/A' : item.c}</td>
                                                                                                 ))}
                                                                                             </tr>
                                                                                             <tr style={{ backgroundColor: 'white' }}>
                                                                                                 <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
                                                                                                 {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => {
-                                                                                                    if (item.t === 0 && item.c === 0) {
+                                                                                                    if (item.t === null || item.c === null || item.t === undefined || item.c === undefined) {
+                                                                                                        return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>N/A</span></td>);
+                                                                                                    }
+                                                                                                    if (item.t === 0) {
                                                                                                         return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                     }
                                                                                                     const pct = Math.round((item.c / item.t) * 100);
@@ -11801,19 +11815,22 @@ export default function DepartmentPage() {
                                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                                     <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
                                                                                                     {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => (
-                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === null || item.t === undefined) ? 'N/A' : item.t}</td>
                                                                                                     ))}
                                                                                                 </tr>
                                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                                     <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
                                                                                                     {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => (
-                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.c === null || item.c === undefined) ? 'N/A' : item.c}</td>
                                                                                                     ))}
                                                                                                 </tr>
                                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                                     <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
                                                                                                     {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => {
-                                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                                        if (item.t === null || item.c === null || item.t === undefined || item.c === undefined) {
+                                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>N/A</span></td>);
+                                                                                                        }
+                                                                                                        if (item.t === 0) {
                                                                                                             return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                         }
                                                                                                         const pct = Math.round((item.c / item.t) * 100);
@@ -11873,19 +11890,22 @@ export default function DepartmentPage() {
                                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                                     <td style={{ padding: '6px', fontWeight: '500' }}>الواردة</td>
                                                                                                     {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => (
-                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.t}</td>
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === null || item.t === undefined) ? 'N/A' : item.t}</td>
                                                                                                     ))}
                                                                                                 </tr>
                                                                                                 <tr style={{ backgroundColor: '#f1f1f1' }}>
                                                                                                     <td style={{ padding: '6px', fontWeight: '500' }}>المصححة</td>
                                                                                                     {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => (
-                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.t === 0 && item.c === 0) ? '-' : item.c}</td>
+                                                                                                        <td key={i} style={{ padding: '6px', textAlign: 'center' }}>{(item.c === null || item.c === undefined) ? 'N/A' : item.c}</td>
                                                                                                     ))}
                                                                                                 </tr>
                                                                                                 <tr style={{ backgroundColor: 'white' }}>
                                                                                                     <td style={{ padding: '6px', fontWeight: 'bold' }}>النسبة</td>
                                                                                                     {[{ t: rate.actTotal, c: rate.actCorrected }, { t: rate.icdTotal, c: rate.icdCorrected }, { t: rate.dasTotal, c: rate.dasCorrected }, { t: rate.mmsTotal, c: rate.mmsCorrected }, { t: rate.sipTotal, c: rate.sipCorrected }, { t: rate.ipcTotal, c: rate.ipcCorrected }, { t: rate.scmTotal, c: rate.scmCorrected }, { t: rate.texTotal, c: rate.texCorrected }, { t: rate.teqTotal, c: rate.teqCorrected }, { t: rate.tpoTotal, c: rate.tpoCorrected }, { t: rate.nsrTotal, c: rate.nsrCorrected }, { t: rate.sasTotal, c: rate.sasCorrected }, { t: rate.irsTotal, c: rate.irsCorrected }, { t: rate.mrsTotal, c: rate.mrsCorrected }, { t: rate.cpsTotal, c: rate.cpsCorrected }, { t: rate.lprTotal, c: rate.lprCorrected }, { t: rate.lepTotal, c: rate.lepCorrected }, { t: rate.lpoTotal, c: rate.lpoCorrected }, { t: rate.lqcTotal, c: rate.lqcCorrected }, { t: rate.cssTotal, c: rate.cssCorrected }].map((item, i) => {
-                                                                                                        if (item.t === 0 && item.c === 0) {
+                                                                                                        if (item.t === null || item.c === null || item.t === undefined || item.c === undefined) {
+                                                                                                            return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>N/A</span></td>);
+                                                                                                        }
+                                                                                                        if (item.t === 0) {
                                                                                                             return (<td key={i} style={{ padding: '6px', textAlign: 'center' }}><span style={{ fontSize: '0.75rem', color: '#6c757d' }}>-</span></td>);
                                                                                                         }
                                                                                                         const pct = Math.round((item.c / item.t) * 100);
