@@ -15331,6 +15331,9 @@ export default function DepartmentPage() {
                                                     <option value="زيارة ميدانية متابعة">زيارة ميدانية متابعة</option>
                                                     <option value="زيارة ميدانية (ورشة عمل)">زيارة ميدانية (ورشة عمل)</option>
                                                     <option value="زيارة ميدانية (مراجعة وثائق)">زيارة ميدانية (مراجعة وثائق)</option>
+                                                    <option value="زيارات ميدانية متقدمة">زيارات ميدانية متقدمة</option>
+                                                    <option value="زيارات ميدانية متقدمة - متابعة">زيارات ميدانية متقدمة - متابعة</option>
+                                                    <option value="زيارات ميدانية - مرور فقط">زيارات ميدانية - مرور فقط</option>
                                                 </select>
                                             </div>
                                             <div className="form-group">

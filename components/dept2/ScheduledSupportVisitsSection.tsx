@@ -27,6 +27,12 @@ const egyptGovernorates = [
     'كفر الشيخ', 'سوهاج'
 ];
 
+const visitTypes = [
+    'زيارات ميدانية متقدمة',
+    'زيارات ميدانية متقدمة - متابعة',
+    'زيارات ميدانية - مرور فقط'
+];
+
 export default function ScheduledSupportVisitsSection({ currentUser, canEdit }: ScheduledSupportVisitsSectionProps) {
     const [visits, setVisits] = useState<ScheduledSupportVisit[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -167,7 +173,7 @@ export default function ScheduledSupportVisitsSection({ currentUser, canEdit }: 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
                                 <div className="form-group"><label>اسم المنشأة *</label><input className="form-input" required value={formData.facilityName} onChange={e => setFormData({ ...formData, facilityName: e.target.value })} /></div>
                                 <div className="form-group"><label>المحافظة</label><select className="form-input" value={formData.governorate} onChange={e => setFormData({ ...formData, governorate: e.target.value })}><option value="">اختر</option>{egyptGovernorates.map(g => <option key={g} value={g}>{g}</option>)}</select></div>
-                                <div className="form-group"><label>نوع الزيارة</label><input className="form-input" value={formData.visitType} onChange={e => setFormData({ ...formData, visitType: e.target.value })} /></div>
+                                <div className="form-group"><label>نوع الزيارة</label><select className="form-input" value={formData.visitType} onChange={e => setFormData({ ...formData, visitType: e.target.value })}><option value="">اختر</option>{visitTypes.map(v => <option key={v} value={v}>{v}</option>)}</select></div>
                                 <div className="form-group"><label>الشهر *</label><input type="month" className="form-input" required value={formData.month} onChange={e => setFormData({ ...formData, month: e.target.value })} /></div>
                             </div>
                             <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}><button type="submit" className="btn btn-primary">{editingId ? 'تحديث' : 'حفظ'}</button>{editingId && <button type="button" className="btn btn-secondary" onClick={resetForm}>إلغاء</button>}</div>

@@ -408,6 +408,17 @@ const dept2FacilityTypes = [
     'مراكز أشعة', 'مراكز ووحدات الرعاية الأولية'
 ];
 
+const scheduledVisitTypes = [
+    'زيارة ميدانية أساسية',
+    'زيارة ميدانية أساسية (اعتماد)',
+    'زيارة ميدانية متابعة',
+    'زيارة ميدانية (ورشة عمل)',
+    'زيارة ميدانية (مراجعة وثائق)',
+    'زيارات ميدانية متقدمة',
+    'زيارات ميدانية متقدمة - متابعة',
+    'زيارات ميدانية - مرور فقط'
+];
+
 export const dept2Sections: Record<string, SectionDefinition> = {
     'technical_support_visits': {
         name: '🚗 زيارات الدعم الفني الميداني',
@@ -465,7 +476,7 @@ export const dept2Sections: Record<string, SectionDefinition> = {
         columns: [
             { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
             { header: 'المحافظة', field: 'governorate', required: false, type: 'string', validValues: egyptGovernorates },
-            { header: 'نوع الزيارة', field: 'visitType', required: false, type: 'string' },
+            { header: 'نوع الزيارة', field: 'visitType', required: false, type: 'string', validValues: scheduledVisitTypes },
             { header: 'الشهر', field: 'month', required: true, type: 'month' },
         ]
     },
