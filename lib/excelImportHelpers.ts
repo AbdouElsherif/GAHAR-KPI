@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { egyptGovernorates } from '@/constants/departments';
+import { egyptGovernorates, reviewerFacilityTypes, reviewerEvaluationVisitTypes } from '@/constants/departments';
 import {
     saveTechnicalClinicalFacility,
     saveTechnicalClinicalObservation,
@@ -21,6 +21,10 @@ import {
     saveQueuedSupportVisit,
     saveScheduledSupportVisit,
     saveAccreditedSupportedFacility,
+    saveReviewerEvaluationVisit,
+    saveReportPresentedToCommittee,
+    saveReportByFacilitySpecialty,
+    saveAccreditationDecision,
 } from '@/lib/firestore';
 
 // ============================================================
@@ -497,6 +501,56 @@ export const dept2Sections: Record<string, SectionDefinition> = {
 };
 
 // ============================================================
+// Section Definitions for dept9 (الإدارة العامة لشئون المراجعين)
+// ============================================================
+
+export const dept9Sections: Record<string, SectionDefinition> = {
+    'reviewer_evaluation_visits': {
+        name: '📊 الزيارات التقييمية وفقا لنوع المنشأة',
+        collection: 'reviewer_evaluation_visits',
+        saveFnName: 'saveReviewerEvaluationVisit',
+        columns: [
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+            { header: 'نوع المنشأة', field: 'facilityType', required: true, type: 'string', validValues: reviewerFacilityTypes },
+            { header: 'عدد المنشآت', field: 'facilityName', required: true, type: 'string' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'نوع الزيارة', field: 'visitType', required: true, type: 'string', validValues: reviewerEvaluationVisitTypes },
+        ]
+    },
+    'reports_presented_to_committee': {
+        name: '📑 التقارير المعروضة على اللجنة وفقا لنوع القرار',
+        collection: 'reports_presented_to_committee',
+        saveFnName: 'saveReportPresentedToCommittee',
+        columns: [
+            { header: 'الشهر والسنة', field: 'month', required: true, type: 'month' },
+            { header: 'نوع القرار', field: 'committeeDecisionType', required: true, type: 'string' },
+            { header: 'عدد القرارات', field: 'numberOfDecisions', required: true, type: 'string' },
+        ]
+    },
+    'reports_by_facility_specialty': {
+        name: '🏥 التقارير المعروضة على اللجنة وفقا لتخصص المنشآت',
+        collection: 'reports_by_facility_specialty',
+        saveFnName: 'saveReportByFacilitySpecialty',
+        columns: [
+            { header: 'الشهر والسنة', field: 'month', required: true, type: 'month' },
+            { header: 'التخصص', field: 'facilitySpecialty', required: true, type: 'string' },
+            { header: 'عدد التقارير', field: 'numberOfReports', required: true, type: 'string' },
+        ]
+    },
+    'accreditation_decisions': {
+        name: '⚖️ القرارات الصادرة',
+        collection: 'accreditation_decisions',
+        saveFnName: 'saveAccreditationDecision',
+        columns: [
+            { header: 'الشهر والسنة', field: 'month', required: true, type: 'month' },
+            { header: 'نوع المنشأة', field: 'facilityCategory', required: true, type: 'string' },
+            { header: 'نوع القرار', field: 'decisionType', required: true, type: 'string' },
+            { header: 'العدد', field: 'count', required: true, type: 'string' },
+        ]
+    }
+};
+
+// ============================================================
 // All sections registry (will grow as we add more departments)
 // ============================================================
 
@@ -505,6 +559,7 @@ export const allSectionDefinitions: Record<string, Record<string, SectionDefinit
     'dept4': dept4Sections,
     'dept5': dept5Sections,
     'dept6': dept6Sections,
+    'dept9': dept9Sections,
 };
 
 // ============================================================
@@ -1019,7 +1074,10 @@ export const generateTemplate = (sectionDef: SectionDefinition): void => {
     }
 
     // Add the main data sheet
-    const sheetName = sectionDef.name.replace(/[^\u0600-\u06FF\s]/g, '').trim() || 'البيانات';
+    let sheetName = sectionDef.name.replace(/[^\u0600-\u06FF\s]/g, '').trim() || 'البيانات';
+    if (sheetName.length > 31) {
+        sheetName = sheetName.substring(0, 31).trim();
+    }
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
     // Create a hints/values sheet

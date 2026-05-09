@@ -32,17 +32,10 @@ async function backupFirestore() {
 
     console.log('🔄 Starting Firestore backup...');
 
-    const collections = [
-        'users',
-        'kpi_data',
-        'moh_kpis',
-        'accreditation_facilities',
-        'completion_facilities',
-        'payment_facilities',
-        'paid_facilities',
-        'medical_professional_registrations'
-    ];
-
+    const collectionsRef = await db.listCollections();
+    const collections = collectionsRef.map(col => col.id);
+    
+    console.log(`📋 Found ${collections.length} collections to backup.`);
     for (const collectionName of collections) {
         console.log(`📦 Backing up collection: ${collectionName}`);
 

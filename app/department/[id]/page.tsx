@@ -15897,6 +15897,18 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept9']['reviewer_evaluation_visits']}
+                                            userId={currentUser.id}
+                                            onImportComplete={() => {
+                                                loadReviewerEvaluationVisits();
+                                                alert('تم استيراد البيانات بنجاح!');
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isReviewerEvaluationVisitsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -16189,6 +16201,18 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept9']['reports_presented_to_committee']}
+                                            userId={currentUser.id}
+                                            onImportComplete={() => {
+                                                loadReportsPresentedToCommittee();
+                                                alert('تم استيراد البيانات بنجاح!');
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isReportsPresentedSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -16440,6 +16464,18 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept9']['reports_by_facility_specialty']}
+                                            userId={currentUser.id}
+                                            onImportComplete={() => {
+                                                loadReportsByFacilitySpecialty();
+                                                alert('تم استيراد البيانات بنجاح!');
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isReportsBySpecialtySectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -16693,6 +16729,18 @@ export default function DepartmentPage() {
                                 color: 'var(--primary-color)',
                                 fontWeight: 'bold'
                             }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()} style={{ marginLeft: '10px' }}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept9']['accreditation_decisions']}
+                                            userId={currentUser.id}
+                                            onImportComplete={() => {
+                                                loadAccreditationDecisions();
+                                                alert('تم استيراد البيانات بنجاح!');
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isAccreditationDecisionsSectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
