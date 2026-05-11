@@ -976,14 +976,23 @@ export async function getKPIData(departmentId: string, year?: number): Promise<K
 export async function getAllKPIData(): Promise<KPIData[]> {
     try {
         const kpiRef = collection(db, 'kpis');
-        const q = query(kpiRef, orderBy('year', 'desc'), orderBy('month', 'desc'));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
+        const snapshot = await getDocs(kpiRef);
+        const kpis = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
             createdAt: doc.data().createdAt?.toDate(),
             updatedAt: doc.data().updatedAt?.toDate()
         } as KPIData));
+
+        // Sort client-side by year desc, then month desc to avoid Firestore composite index requirement
+        kpis.sort((a, b) => {
+            if (b.year !== a.year) {
+                return b.year - a.year;
+            }
+            return b.month.localeCompare(a.month);
+        });
+
+        return kpis;
     } catch (error) {
         console.error('Error getting all KPI data:', error);
         return [];
