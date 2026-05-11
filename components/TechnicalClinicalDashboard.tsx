@@ -56,9 +56,63 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
         return month >= 7 ? 1 : 2;
     }, []);
 
+    const computedSubmissions = useMemo(() => {
+        const aggregated: Record<string, any> = {};
+        
+        // 1. Calculate from facilities
+        facilities.forEach(fac => {
+            if (!fac.month) return;
+            const dateStr = fac.month;
+            
+            if (!aggregated[dateStr]) {
+                aggregated[dateStr] = {
+                    date: dateStr,
+                    totalFieldVisits: 0,
+                    auditVisits: 0,
+                    assessmentVisits: 0,
+                    visitedFacilities: 0,
+                    _uniqueFacilities: new Set()
+                };
+            }
+            
+            aggregated[dateStr].totalFieldVisits += 1;
+            
+            if (fac.visitType === 'التدقيق الفني والإكلينيكي' || fac.visitType?.includes('تدقيق')) {
+                aggregated[dateStr].auditVisits += 1;
+            } else if (fac.visitType === 'التقييم الفني والإكلينيكي' || fac.visitType?.includes('تقييم')) {
+                aggregated[dateStr].assessmentVisits += 1;
+            }
+            
+            if (fac.facilityName) {
+                aggregated[dateStr]._uniqueFacilities.add(fac.facilityName);
+            }
+            
+            aggregated[dateStr].visitedFacilities = aggregated[dateStr]._uniqueFacilities.size;
+        });
+
+        // 2. Merge with explicit submissions (Use submission data if provided, fallback to computed)
+        submissions.forEach(sub => {
+            if (!sub.date) return;
+            
+            if (!aggregated[sub.date]) {
+                aggregated[sub.date] = { ...sub };
+            } else {
+                aggregated[sub.date].totalFieldVisits = Math.max(parseFloat(sub.totalFieldVisits) || 0, aggregated[sub.date].totalFieldVisits);
+                aggregated[sub.date].auditVisits = Math.max(parseFloat(sub.auditVisits) || 0, aggregated[sub.date].auditVisits);
+                aggregated[sub.date].assessmentVisits = Math.max(parseFloat(sub.assessmentVisits) || 0, aggregated[sub.date].assessmentVisits);
+                aggregated[sub.date].visitedFacilities = Math.max(parseFloat(sub.visitedFacilities) || 0, aggregated[sub.date].visitedFacilities);
+            }
+        });
+
+        return Object.values(aggregated).map((item: any) => {
+            const { _uniqueFacilities, ...rest } = item;
+            return rest;
+        });
+    }, [submissions, facilities]);
+
     const filterByYear = useCallback((fiscalYear: number) => {
-        return submissions.filter(sub => sub.date && getFiscalYear(sub.date) === fiscalYear);
-    }, [submissions, getFiscalYear]);
+        return computedSubmissions.filter(sub => sub.date && getFiscalYear(sub.date) === fiscalYear);
+    }, [computedSubmissions, getFiscalYear]);
 
     const aggregateData = useCallback((data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
         const aggregated: Record<string, {
