@@ -17434,6 +17434,15 @@ export default function DepartmentPage() {
                                 })()}
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept7']['medical_professionals_by_category']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadMedicalProfessionalsByCategory}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>
                                     {isMedProfByCategorySectionExpanded ? 'طي القسم' : 'توسيع القسم'}
                                 </span>
@@ -17732,6 +17741,15 @@ export default function DepartmentPage() {
                                 })()}
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept7']['medical_professionals_by_governorate']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadMedicalProfessionalsByGovernorate}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>{isMedProfByGovernorateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                                     style={{ transform: isMedProfByGovernorateSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
@@ -17987,6 +18005,15 @@ export default function DepartmentPage() {
                                 📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept7']['total_med_profs_by_category']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadTotalMedProfsByCategory}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>{isTotalMedProfByCategorySectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                                     style={{ transform: isTotalMedProfByCategorySectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
@@ -18255,6 +18282,15 @@ export default function DepartmentPage() {
                                 🏛️ الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
+                                {userCanEdit && currentUser && (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <ExcelImportButton 
+                                            sectionDef={allSectionDefinitions['dept7']['total_med_profs_by_governorate']}
+                                            userId={currentUser.id}
+                                            onImportComplete={loadTotalMedProfsByGovernorate}
+                                        />
+                                    </div>
+                                )}
                                 <span style={{ fontSize: '0.9rem' }}>{isTotalMedProfByGovernorateSectionExpanded ? 'طي القسم' : 'توسيع القسم'}</span>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                                     style={{ transform: isTotalMedProfByGovernorateSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>

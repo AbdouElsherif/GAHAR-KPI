@@ -25,6 +25,10 @@ import {
     saveReportPresentedToCommittee,
     saveReportByFacilitySpecialty,
     saveAccreditationDecision,
+    saveMedicalProfessionalByCategory,
+    saveMedicalProfessionalByGovernorate,
+    saveTotalMedProfByCategory,
+    saveTotalMedProfByGovernorate,
 } from '@/lib/firestore';
 
 // ============================================================
@@ -551,6 +555,87 @@ export const dept9Sections: Record<string, SectionDefinition> = {
 };
 
 // ============================================================
+// Section Definitions for dept7 (الإدارة العامة لتسجيل أعضاء المهن الطبية)
+// ============================================================
+
+export const dept7Branches = ['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس', 'أسوان', 'جنوب سيناء'];
+
+export const dept7Sections: Record<string, SectionDefinition> = {
+    'medical_professionals_by_category': {
+        name: '👥 أعضاء المهن الطبية المسجلين (طبقا للفئة)',
+        collection: 'medical_professionals_by_category',
+        saveFnName: 'saveMedicalProfessionalByCategory',
+        columns: [
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+            { header: 'الفرع', field: 'branch', required: true, type: 'string', validValues: dept7Branches },
+            { header: 'أطباء بشريين', field: 'doctors', required: true, type: 'number' },
+            { header: 'أطباء أسنان', field: 'dentists', required: true, type: 'number' },
+            { header: 'صيادلة', field: 'pharmacists', required: true, type: 'number' },
+            { header: 'علاج طبيعي', field: 'physiotherapy', required: true, type: 'number' },
+            { header: 'بيطريين', field: 'veterinarians', required: true, type: 'number' },
+            { header: 'تمريض عالي', field: 'seniorNursing', required: true, type: 'number' },
+            { header: 'فني تمريض', field: 'technicalNursing', required: true, type: 'number' },
+            { header: 'فني صحي', field: 'healthTechnician', required: true, type: 'number' },
+            { header: 'علميين', field: 'scientists', required: true, type: 'number' },
+        ]
+    },
+    'medical_professionals_by_governorate': {
+        name: '🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات',
+        collection: 'medical_professionals_by_governorate',
+        saveFnName: 'saveMedicalProfessionalByGovernorate',
+        columns: [
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'أطباء بشريين', field: 'doctors', required: true, type: 'number' },
+            { header: 'أطباء أسنان', field: 'dentists', required: true, type: 'number' },
+            { header: 'صيادلة', field: 'pharmacists', required: true, type: 'number' },
+            { header: 'علاج طبيعي', field: 'physiotherapy', required: true, type: 'number' },
+            { header: 'بيطريين', field: 'veterinarians', required: true, type: 'number' },
+            { header: 'تمريض عالي', field: 'seniorNursing', required: true, type: 'number' },
+            { header: 'فني تمريض', field: 'technicalNursing', required: true, type: 'number' },
+            { header: 'فني صحي', field: 'healthTechnician', required: true, type: 'number' },
+            { header: 'علميين', field: 'scientists', required: true, type: 'number' },
+        ]
+    },
+    'total_med_profs_by_category': {
+        name: '📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)',
+        collection: 'total_med_profs_by_category',
+        saveFnName: 'saveTotalMedProfByCategory',
+        columns: [
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+            { header: 'الفرع', field: 'branch', required: true, type: 'string', validValues: dept7Branches },
+            { header: 'أطباء بشريين', field: 'doctors', required: true, type: 'number' },
+            { header: 'أطباء أسنان', field: 'dentists', required: true, type: 'number' },
+            { header: 'صيادلة', field: 'pharmacists', required: true, type: 'number' },
+            { header: 'علاج طبيعي', field: 'physiotherapy', required: true, type: 'number' },
+            { header: 'بيطريين', field: 'veterinarians', required: true, type: 'number' },
+            { header: 'تمريض عالي', field: 'seniorNursing', required: true, type: 'number' },
+            { header: 'فني تمريض', field: 'technicalNursing', required: true, type: 'number' },
+            { header: 'فني صحي', field: 'healthTechnician', required: true, type: 'number' },
+            { header: 'علميين', field: 'scientists', required: true, type: 'number' },
+        ]
+    },
+    'total_med_profs_by_governorate': {
+        name: '🏛️ الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات',
+        collection: 'total_med_profs_by_governorate',
+        saveFnName: 'saveTotalMedProfByGovernorate',
+        columns: [
+            { header: 'الشهر', field: 'month', required: true, type: 'month' },
+            { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
+            { header: 'أطباء بشريين', field: 'doctors', required: true, type: 'number' },
+            { header: 'أطباء أسنان', field: 'dentists', required: true, type: 'number' },
+            { header: 'صيادلة', field: 'pharmacists', required: true, type: 'number' },
+            { header: 'علاج طبيعي', field: 'physiotherapy', required: true, type: 'number' },
+            { header: 'بيطريين', field: 'veterinarians', required: true, type: 'number' },
+            { header: 'تمريض عالي', field: 'seniorNursing', required: true, type: 'number' },
+            { header: 'فني تمريض', field: 'technicalNursing', required: true, type: 'number' },
+            { header: 'فني صحي', field: 'healthTechnician', required: true, type: 'number' },
+            { header: 'علميين', field: 'scientists', required: true, type: 'number' },
+        ]
+    }
+};
+
+// ============================================================
 // All sections registry (will grow as we add more departments)
 // ============================================================
 
@@ -559,6 +644,7 @@ export const allSectionDefinitions: Record<string, Record<string, SectionDefinit
     'dept4': dept4Sections,
     'dept5': dept5Sections,
     'dept6': dept6Sections,
+    'dept7': dept7Sections,
     'dept9': dept9Sections,
 };
 
@@ -903,6 +989,10 @@ const saveFunctions: Record<string, SaveFunctionType> = {
     'saveQueuedSupportVisit': saveQueuedSupportVisit,
     'saveScheduledSupportVisit': saveScheduledSupportVisit,
     'saveAccreditedSupportedFacility': saveAccreditedSupportedFacility,
+    'saveMedicalProfessionalByCategory': saveMedicalProfessionalByCategory,
+    'saveMedicalProfessionalByGovernorate': saveMedicalProfessionalByGovernorate,
+    'saveTotalMedProfByCategory': saveTotalMedProfByCategory,
+    'saveTotalMedProfByGovernorate': saveTotalMedProfByGovernorate,
 };
 
 export interface BatchSaveResult {
