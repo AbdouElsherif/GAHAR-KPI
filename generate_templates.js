@@ -176,12 +176,12 @@ createTemplate('الملاحظات_المتكررة', [
 ]);
 
 // 3. نسب تصحيح الملاحظات
-const tcStandardCodes = ['act', 'icd', 'das', 'mms', 'sip', 'ipc', 'scm', 'tex', 'teq', 'tpo', 'nsr', 'sas', 'irs', 'mrs', 'cps', 'lpr', 'lep', 'lpo', 'lqc', 'css'];
+const tcStandardCodes = ['act', 'icd', 'das', 'mms', 'sip', 'ipc', 'scm', 'tex', 'teq', 'tpo', 'nsr', 'sas', 'irs', 'mrs', 'cps', 'lpr', 'lep', 'lpo', 'lqc', 'css', 'gsr'];
 const tcStandardNames = {
     act: 'ACT', icd: 'ICD', das: 'DAS', mms: 'MMS', sip: 'SIP',
     ipc: 'IPC', scm: 'SCM', tex: 'TEX', teq: 'TEQ', tpo: 'TPO',
     nsr: 'NSR', sas: 'SAS', irs: 'IRS', mrs: 'MRS', cps: 'CPS',
-    lpr: 'LPR', lep: 'LEP', lpo: 'LPO', lqc: 'LQC', css: 'CSS'
+    lpr: 'LPR', lep: 'LEP', lpo: 'LPO', lqc: 'LQC', css: 'CSS', gsr: 'GSR'
 };
 
 let tcCols = [

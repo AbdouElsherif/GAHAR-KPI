@@ -1576,7 +1576,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                 { key: 'lep', label: 'LEP', desc: 'إدارة المخلفات' },
                                 { key: 'lpo', label: 'LPO', desc: 'سياسات المختبر' },
                                 { key: 'lqc', label: 'LQC', desc: 'مراقبة الجودة' },
-                                { key: 'css', label: 'CSS', desc: 'التعقيم المركزي' }
+                                { key: 'css', label: 'CSS', desc: 'التعقيم المركزي' },
+                                { key: 'gsr', label: 'GSR', desc: 'متطلبات جهار للسلامة' }
                             ];
 
                             const renderSmartTable = (title: string, color: string, rates: any[]) => (

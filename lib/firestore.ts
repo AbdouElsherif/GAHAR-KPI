@@ -607,6 +607,8 @@ export interface TechnicalClinicalCorrectionRate {
     lqcCorrected: number | null;
     cssTotal: number | null;
     cssCorrected: number | null;
+    gsrTotal: number | null;
+    gsrCorrected: number | null;
     createdAt?: Date;
     createdBy?: string;
     updatedAt?: Date;

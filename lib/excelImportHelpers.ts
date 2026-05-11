@@ -115,14 +115,14 @@ const technicalClinicalCorrectionVisitTypes = [
 // Correction rate standard codes for dept4
 const tcStandardCodes = [
     'act', 'icd', 'das', 'mms', 'sip', 'ipc', 'scm', 'tex', 'teq', 'tpo',
-    'nsr', 'sas', 'irs', 'mrs', 'cps', 'lpr', 'lep', 'lpo', 'lqc', 'css'
+    'nsr', 'sas', 'irs', 'mrs', 'cps', 'lpr', 'lep', 'lpo', 'lqc', 'css', 'gsr'
 ];
 
 const tcStandardNames: Record<string, string> = {
     act: 'ACT', icd: 'ICD', das: 'DAS', mms: 'MMS', sip: 'SIP',
     ipc: 'IPC', scm: 'SCM', tex: 'TEX', teq: 'TEQ', tpo: 'TPO',
     nsr: 'NSR', sas: 'SAS', irs: 'IRS', mrs: 'MRS', cps: 'CPS',
-    lpr: 'LPR', lep: 'LEP', lpo: 'LPO', lqc: 'LQC', css: 'CSS'
+    lpr: 'LPR', lep: 'LEP', lpo: 'LPO', lqc: 'LQC', css: 'CSS', gsr: 'GSR'
 };
 
 // Build correction rate columns dynamically
