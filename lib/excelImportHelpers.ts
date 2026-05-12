@@ -845,7 +845,7 @@ export const validateExcelData = (
             }
 
             if (!cellValue) {
-                record[colDef.field] = '';
+                record[colDef.field] = colDef.type === 'number' || colDef.type === 'percentage' ? null : '';
                 continue;
             }
 

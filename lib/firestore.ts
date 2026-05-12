@@ -293,7 +293,7 @@ export interface AdminAuditObservation {
     entityType: string;  // Ø§Ù„Ø¬Ù‡Ø© Ø§Ù„ØªØ§Ø¨Ø¹Ø©: Ù‡ÙŠØ¦Ø© Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„ØµØ­ÙŠØ© / ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø©
     facilityType: string;  // Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø´Ø£Ø©: Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ© / ÙˆØ­Ø¯Ø§Øª Ø§Ù„Ø±Ø¹Ø§ÙŠØ© Ø§Ù„Ø£ÙˆÙ„ÙŠØ©
     observation: string;  // Ù†Øµ Ø¯Ù„ÙŠÙ„ Ø§Ù„ØªØ·Ø§Ø¨Ù‚/Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø©
-    percentage?: number;  // Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª
+    percentage?: number | null;  // Ù†Ø³Ø¨Ø© Ø§Ù„Ù…Ù„Ø§Ø­Ø¸Ø§Øª
     month: string;  // Ø§Ù„Ø´Ù‡Ø± YYYY-MM
     year: number;
     createdAt?: Date;

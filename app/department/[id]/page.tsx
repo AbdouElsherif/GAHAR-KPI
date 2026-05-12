@@ -2202,16 +2202,10 @@ export default function DepartmentPage() {
     const handleAdminAuditObservationSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
-        if (!validateSectionForm(adminAuditObservationFormData, 'الملاحظات')) return;
+        if (!validateSectionForm(adminAuditObservationFormData, 'الملاحظات', ['percentage'])) return;
 
         try {
             const [year, month] = adminAuditObservationFormData.month.split('-');
-            const isQuarterEnd = ['03', '06', '09', '12'].includes(month);
-
-            if (isQuarterEnd && !adminAuditObservationFormData.percentage) {
-                alert('يرجى إدخال نسبة الملاحظات، حيث أنها إلزامية في نهاية كل ربع سنوي (مارس، يونيو، سبتمبر، ديسمبر).');
-                return;
-            }
 
             const percentageRaw = adminAuditObservationFormData.percentage;
             const percentageValue = (percentageRaw !== '' && percentageRaw !== undefined)
@@ -13845,12 +13839,11 @@ export default function DepartmentPage() {
 
                                                 <div className="form-group">
                                                     <label className="form-label">
-                                                        نسبة الملاحظات (%) {['03', '06', '09', '12'].includes(adminAuditObservationFormData.month.split('-')[1]) && '*'}
+                                                        نسبة الملاحظات (%)
                                                     </label>
                                                     <input
                                                         type="number"
                                                         className="form-input"
-                                                        required={['03', '06', '09', '12'].includes(adminAuditObservationFormData.month.split('-')[1])}
                                                         min="0"
                                                         max="100"
                                                         step="0.1"
