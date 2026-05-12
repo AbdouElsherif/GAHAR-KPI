@@ -6940,7 +6940,8 @@ export default function DepartmentPage() {
                 if (f.name === 'date' && sub[f.name]) {
                     // Handle both YYYY-MM and YYYY-MM-DD
                     const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
-                    return formatMonthYear(new Date(dateVal));
+                    const parsedDate = new Date(dateVal);
+                    return isNaN(parsedDate.getTime()) ? sub[f.name] : formatMonthYear(parsedDate);
                 }
                 if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
                     return `${sub[f.name]}%`;
@@ -6982,7 +6983,8 @@ export default function DepartmentPage() {
                 if (f.name === 'date' && sub[f.name]) {
                     // Handle both YYYY-MM and YYYY-MM-DD
                     const dateVal = sub[f.name].length === 7 ? sub[f.name] + '-01' : sub[f.name];
-                    row[f.label] = formatMonthYear(new Date(dateVal));
+                    const parsedDate = new Date(dateVal);
+                    row[f.label] = isNaN(parsedDate.getTime()) ? sub[f.name] : formatMonthYear(parsedDate);
                 } else if (f.type === 'number' && id === 'dept8' && sub[f.name]) {
                     row[f.label] = `${sub[f.name]}%`;
                 } else {
@@ -17164,7 +17166,8 @@ export default function DepartmentPage() {
                                                         (() => {
                                                             // Handle both YYYY-MM and YYYY-MM-DD
                                                             const dateVal = sub[field.name].length === 7 ? sub[field.name] + '-01' : sub[field.name];
-                                                            return formatMonthYear(new Date(dateVal));
+                                                            const parsedDate = new Date(dateVal);
+                                                            return isNaN(parsedDate.getTime()) ? sub[field.name] : formatMonthYear(parsedDate);
                                                         })()
                                                     ) : field.type === 'number' && id === 'dept8' && sub[field.name] ? (
                                                         `${sub[field.name]}%`
@@ -18669,7 +18672,8 @@ export default function DepartmentPage() {
                                                         (() => {
                                                             // Handle both YYYY-MM and YYYY-MM-DD
                                                             const dateVal = sub[field.name].length === 7 ? sub[field.name] + '-01' : sub[field.name];
-                                                            return formatMonthYear(new Date(dateVal));
+                                                            const parsedDate = new Date(dateVal);
+                                                            return isNaN(parsedDate.getTime()) ? sub[field.name] : formatMonthYear(parsedDate);
                                                         })()
                                                     ) : (
                                                         sub[field.name] || '-'
