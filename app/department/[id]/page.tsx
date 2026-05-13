@@ -17616,90 +17616,97 @@ export default function DepartmentPage() {
                                                 </tr>
                                             ) : (
                                                 <>
-                                                    {['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس', 'أسوان', 'جنوب سيناء'].map(branch => {
-                                                        const branchData = medProfsByCategory.filter(item => item.branch === branch && (!(globalFilterMonth || medProfByCategoryFilterMonth) || item.month === (globalFilterMonth || medProfByCategoryFilterMonth)));
-                                                        if (branchData.length === 0) return null;
-                                                        const totals = branchData.reduce((acc, item) => ({
-                                                            doctors: acc.doctors + item.doctors,
-                                                            dentists: acc.dentists + item.dentists,
-                                                            pharmacists: acc.pharmacists + item.pharmacists,
-                                                            physiotherapy: acc.physiotherapy + item.physiotherapy,
-                                                            veterinarians: acc.veterinarians + item.veterinarians,
-                                                            seniorNursing: acc.seniorNursing + item.seniorNursing,
-                                                            technicalNursing: acc.technicalNursing + item.technicalNursing,
-                                                            healthTechnician: acc.healthTechnician + item.healthTechnician,
-                                                            scientists: acc.scientists + item.scientists
-                                                        }), {
-                                                            doctors: 0, dentists: 0, pharmacists: 0, physiotherapy: 0,
-                                                            veterinarians: 0, seniorNursing: 0, technicalNursing: 0,
-                                                            healthTechnician: 0, scientists: 0
-                                                        });
-                                                        const branchTotal = Object.values(totals).reduce((a, b) => a + b, 0);
+                                                    {(() => {
+                                                        const filterMonth = globalFilterMonth || medProfByCategoryFilterMonth;
+                                                        let activeData = medProfsByCategory;
+                                                        if (filterMonth) {
+                                                            activeData = medProfsByCategory.filter(item => item.month === filterMonth);
+                                                        } else {
+                                                            const branchMap = new Map<string, any>();
+                                                            medProfsByCategory.forEach(item => {
+                                                                const existing = branchMap.get(item.branch);
+                                                                if (!existing || item.month > existing.month) {
+                                                                    branchMap.set(item.branch, item);
+                                                                }
+                                                            });
+                                                            activeData = Array.from(branchMap.values());
+                                                        }
 
                                                         return (
-                                                            <tr key={branch} style={{ borderBottom: '1px solid #eee' }}>
-                                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>{branch}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.doctors}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.dentists}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.pharmacists}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.physiotherapy}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.veterinarians}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.seniorNursing}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.technicalNursing}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.healthTechnician}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>{totals.scientists}</td>
-                                                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', backgroundColor: '#FFF3E0' }}>{branchTotal}</td>
-                                                                {userCanEdit && (
+                                                            <>
+                                                                {['رئاسة الهيئة', 'بورسعيد', 'الأقصر', 'الإسماعيلية', 'السويس', 'أسوان', 'جنوب سيناء'].map(branch => {
+                                                                    const branchData = activeData.filter(item => item.branch === branch);
+                                                                    if (branchData.length === 0) return null;
+                                                                    const item = branchData[0];
+                                                                    const branchTotal = (item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0);
+
+                                                                    return (
+                                                                        <tr key={branch} style={{ borderBottom: '1px solid #eee' }}>
+                                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>{branch}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: '700', backgroundColor: '#FFF3E0' }}>{branchTotal}</td>
+                                                                            {userCanEdit && (
+                                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                        <button onClick={() => handleEditMedProfByCategory(item)}
+                                                                                            style={{ padding: '6px 12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                                                                                            تعديل
+                                                                                        </button>
+                                                                                        <button onClick={() => handleDeleteMedProfByCategory(item.id!)}
+                                                                                            style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                                                                                            حذف
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </td>
+                                                                            )}
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                                <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
                                                                     <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                            <button onClick={() => handleEditMedProfByCategory(branchData[0])}
-                                                                                style={{ padding: '6px 12px', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                                                                                تعديل
-                                                                            </button>
-                                                                            <button onClick={() => handleDeleteMedProfByCategory(branchData[0].id!)}
-                                                                                style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                                                                                حذف
-                                                                            </button>
-                                                                        </div>
+                                                                        {activeData.reduce((sum, item) => sum + (item.doctors || 0), 0)}
                                                                     </td>
-                                                                )}
-                                                            </tr>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.dentists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.pharmacists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.physiotherapy || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.veterinarians || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.seniorNursing || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.technicalNursing || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.healthTechnician || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.scientists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + ((item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0)), 0)}
+                                                                    </td>
+                                                                    {userCanEdit && <td></td>}
+                                                                </tr>
+                                                            </>
                                                         );
-                                                    })}
-                                                    <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.filter(item => !(globalFilterMonth || medProfByCategoryFilterMonth) || item.month === (globalFilterMonth || medProfByCategoryFilterMonth)).reduce((sum, item) => sum + item.doctors, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.dentists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.pharmacists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.physiotherapy, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.veterinarians, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.seniorNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.technicalNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.healthTechnician, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.scientists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByCategory.reduce((sum, item) => sum + item.total, 0)}
-                                                        </td>
-                                                        {userCanEdit && <td></td>}
-                                                    </tr>
+                                                    })()}
                                                 </>
                                             )}
                                         </tbody>
@@ -17927,63 +17934,87 @@ export default function DepartmentPage() {
                                                 </tr>
                                             ) : (
                                                 <>
-                                                    {medProfsByGovernorate.filter(item => !(globalFilterMonth || medProfByGovernorateFilterMonth) || item.month === (globalFilterMonth || medProfByGovernorateFilterMonth)).map((item, index) => (
-                                                        <tr key={item.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>{item.governorate}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button onClick={() => handleEditMedProfByGovernorate(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
-                                                                        <button onClick={() => handleDeleteMedProfByGovernorate(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    ))}
-                                                    <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.doctors, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.dentists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.pharmacists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.physiotherapy, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.veterinarians, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.seniorNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.technicalNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.healthTechnician, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.scientists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {medProfsByGovernorate.reduce((sum, item) => sum + item.total, 0)}
-                                                        </td>
-                                                        {userCanEdit && <td></td>}
-                                                    </tr>
+                                                    {(() => {
+                                                        const filterMonth = globalFilterMonth || medProfByGovernorateFilterMonth;
+                                                        let activeData = medProfsByGovernorate;
+                                                        if (filterMonth) {
+                                                            activeData = medProfsByGovernorate.filter(item => item.month === filterMonth);
+                                                        } else {
+                                                            const govMap = new Map<string, any>();
+                                                            medProfsByGovernorate.forEach(item => {
+                                                                const existing = govMap.get(item.governorate);
+                                                                if (!existing || item.month > existing.month) {
+                                                                    govMap.set(item.governorate, item);
+                                                                }
+                                                            });
+                                                            activeData = Array.from(govMap.values());
+                                                        }
+
+                                                        return (
+                                                            <>
+                                                                {activeData.map((item, index) => {
+                                                                    const itemTotal = (item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0);
+                                                                    return (
+                                                                        <tr key={item.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
+                                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>{item.governorate}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{itemTotal}</td>
+                                                                            {userCanEdit && (
+                                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                        <button onClick={() => handleEditMedProfByGovernorate(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
+                                                                                        <button onClick={() => handleDeleteMedProfByGovernorate(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
+                                                                                    </div>
+                                                                                </td>
+                                                                            )}
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                                <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.doctors || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.dentists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.pharmacists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.physiotherapy || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.veterinarians || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.seniorNursing || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.technicalNursing || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.healthTechnician || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.scientists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + ((item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0)), 0)}
+                                                                    </td>
+                                                                    {userCanEdit && <td></td>}
+                                                                </tr>
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </>
                                             )}
                                         </tbody>
@@ -18152,24 +18183,17 @@ export default function DepartmentPage() {
                                     {(() => {
                                         const activeTotalMedFilter = globalFilterMonth || totalMedProfByCategoryFilterMonth;
                                         const displayTotalMedProfsByCategory = activeTotalMedFilter
-                                            ? totalMedProfsByCategory
-                                            : Object.values(totalMedProfsByCategory.reduce((acc, curr) => {
-                                                if (!acc[curr.branch]) {
-                                                    acc[curr.branch] = { ...curr };
-                                                } else {
-                                                    acc[curr.branch].doctors = (acc[curr.branch].doctors || 0) + (curr.doctors || 0);
-                                                    acc[curr.branch].dentists = (acc[curr.branch].dentists || 0) + (curr.dentists || 0);
-                                                    acc[curr.branch].pharmacists = (acc[curr.branch].pharmacists || 0) + (curr.pharmacists || 0);
-                                                    acc[curr.branch].physiotherapy = (acc[curr.branch].physiotherapy || 0) + (curr.physiotherapy || 0);
-                                                    acc[curr.branch].veterinarians = (acc[curr.branch].veterinarians || 0) + (curr.veterinarians || 0);
-                                                    acc[curr.branch].seniorNursing = (acc[curr.branch].seniorNursing || 0) + (curr.seniorNursing || 0);
-                                                    acc[curr.branch].technicalNursing = (acc[curr.branch].technicalNursing || 0) + (curr.technicalNursing || 0);
-                                                    acc[curr.branch].healthTechnician = (acc[curr.branch].healthTechnician || 0) + (curr.healthTechnician || 0);
-                                                    acc[curr.branch].scientists = (acc[curr.branch].scientists || 0) + (curr.scientists || 0);
-                                                    acc[curr.branch].total = (acc[curr.branch].total || 0) + (curr.total || 0);
-                                                }
-                                                return acc;
-                                            }, {} as any));
+                                            ? totalMedProfsByCategory.filter(item => item.month === activeTotalMedFilter)
+                                            : (() => {
+                                                const branchMap = new Map<string, any>();
+                                                totalMedProfsByCategory.forEach(item => {
+                                                    const existing = branchMap.get(item.branch);
+                                                    if (!existing || item.month > existing.month) {
+                                                        branchMap.set(item.branch, item);
+                                                    }
+                                                });
+                                                return Array.from(branchMap.values());
+                                            })();
 
                                         return (
                                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
@@ -18198,33 +18222,36 @@ export default function DepartmentPage() {
                                                         </tr>
                                                     ) : (
                                                         <>
-                                                            {displayTotalMedProfsByCategory.map((item: any, index: number) => (
-                                                                <tr key={item.id || item.branch} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.branch}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
-                                                                    <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
-                                                                    {userCanEdit && (
-                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                            {activeTotalMedFilter ? (
-                                                                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                                    <button onClick={() => handleEditTotalMedProfByCategory(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
-                                                                                    <button onClick={() => handleDeleteTotalMedProfByCategory(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
-                                                                                </div>
-                                                                            ) : (
-                                                                                <span style={{ fontSize: '0.8rem', color: '#888' }}>اختر شهراً للتعديل</span>
-                                                                            )}
-                                                                        </td>
-                                                                    )}
-                                                                </tr>
-                                                            ))}
+                                                            {displayTotalMedProfsByCategory.map((item: any, index: number) => {
+                                                                const itemTotal = (item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0);
+                                                                return (
+                                                                    <tr key={item.id || item.branch} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.branch}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists || 0}</td>
+                                                                        <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{itemTotal}</td>
+                                                                        {userCanEdit && (
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                                {activeTotalMedFilter ? (
+                                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                        <button onClick={() => handleEditTotalMedProfByCategory(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
+                                                                                        <button onClick={() => handleDeleteTotalMedProfByCategory(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <span style={{ fontSize: '0.8rem', color: '#888' }}>اختر شهراً للتعديل</span>
+                                                                                )}
+                                                                            </td>
+                                                                        )}
+                                                                    </tr>
+                                                                );
+                                                            })}
                                                             <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
                                                                 <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
                                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
@@ -18255,7 +18282,7 @@ export default function DepartmentPage() {
                                                                     {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.scientists || 0), 0)}
                                                                 </td>
                                                                 <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + (item.total || 0), 0)}
+                                                                    {displayTotalMedProfsByCategory.reduce((sum: number, item: any) => sum + ((item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0)), 0)}
                                                                 </td>
                                                                 {userCanEdit && <td style={{ padding: '12px', textAlign: 'center' }}></td>}
                                                             </tr>
@@ -18472,63 +18499,87 @@ export default function DepartmentPage() {
                                                 </tr>
                                             ) : (
                                                 <>
-                                                    {totalMedProfsByGovernorate.map((item, index) => (
-                                                        <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.governorate}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists}</td>
-                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{item.total}</td>
-                                                            {userCanEdit && (
-                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                                                                        <button onClick={() => handleEditTotalMedProfByGovernorate(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
-                                                                        <button onClick={() => handleDeleteTotalMedProfByGovernorate(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
-                                                                    </div>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    ))}
-                                                    <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.doctors, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.dentists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.pharmacists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.physiotherapy, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.veterinarians, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.seniorNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.technicalNursing, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.healthTechnician, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.scientists, 0)}
-                                                        </td>
-                                                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                                                            {totalMedProfsByGovernorate.reduce((sum, item) => sum + item.total, 0)}
-                                                        </td>
-                                                        {userCanEdit && <td></td>}
-                                                    </tr>
+                                                    {(() => {
+                                                        const filterMonth = globalFilterMonth || totalMedProfByGovernorateFilterMonth;
+                                                        let activeData = totalMedProfsByGovernorate;
+                                                        if (filterMonth) {
+                                                            activeData = totalMedProfsByGovernorate.filter(item => item.month === filterMonth);
+                                                        } else {
+                                                            const govMap = new Map<string, any>();
+                                                            totalMedProfsByGovernorate.forEach(item => {
+                                                                const existing = govMap.get(item.governorate);
+                                                                if (!existing || item.month > existing.month) {
+                                                                    govMap.set(item.governorate, item);
+                                                                }
+                                                            });
+                                                            activeData = Array.from(govMap.values());
+                                                        }
+
+                                                        return (
+                                                            <>
+                                                                {activeData.map((item, index) => {
+                                                                    const itemTotal = (item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0);
+                                                                    return (
+                                                                        <tr key={item.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.governorate}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.doctors || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.dentists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.pharmacists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.physiotherapy || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.veterinarians || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.seniorNursing || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.technicalNursing || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.healthTechnician || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.scientists || 0}</td>
+                                                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#FFA726' }}>{itemTotal}</td>
+                                                                            {userCanEdit && (
+                                                                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                                        <button onClick={() => handleEditTotalMedProfByGovernorate(item)} style={{ padding: '6px 12px', backgroundColor: '#0eacb8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>تعديل</button>
+                                                                                        <button onClick={() => handleDeleteTotalMedProfByGovernorate(item.id!)} style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>حذف</button>
+                                                                                    </div>
+                                                                                </td>
+                                                                            )}
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                                <tr style={{ backgroundColor: '#FFA726', color: 'white', fontWeight: 'bold' }}>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>الإجمالي</td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.doctors || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.dentists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.pharmacists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.physiotherapy || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.veterinarians || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.seniorNursing || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.technicalNursing || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.healthTechnician || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + (item.scientists || 0), 0)}
+                                                                    </td>
+                                                                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                                        {activeData.reduce((sum, item) => sum + ((item.doctors || 0) + (item.dentists || 0) + (item.pharmacists || 0) + (item.physiotherapy || 0) + (item.veterinarians || 0) + (item.seniorNursing || 0) + (item.technicalNursing || 0) + (item.healthTechnician || 0) + (item.scientists || 0)), 0)}
+                                                                    </td>
+                                                                    {userCanEdit && <td></td>}
+                                                                </tr>
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </>
                                             )}
                                         </tbody>
