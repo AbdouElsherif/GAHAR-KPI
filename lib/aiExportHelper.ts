@@ -40,6 +40,12 @@ export interface ExportDataPayload {
     exportedAt: string;
     systemName: string;
     dataDescription: string;
+    fiscalYearSettings?: {
+        fiscalYearStartMonth: number;
+        fiscalYearEndMonth: number;
+        descriptionAr: string;
+        descriptionEn: string;
+    };
     collections: {
         accreditation_facilities: any[];
         completion_facilities: any[];
@@ -158,6 +164,12 @@ export async function exportAllDataForAI(): Promise<ExportDataPayload> {
         exportedAt: new Date().toISOString(),
         systemName: "GAHAR Performance Indicators Portal (بوابة مؤشرات الأداء)",
         dataDescription: "This JSON file contains all KPI collections, support visits, correction rates, registration, training, surveys, and decisions data for all departments of GAHAR (General Authority for Healthcare Accreditation and Regulation). It is structured for easy parsing by LLMs (Claude, ChatGPT, Gemini) to generate custom reports, statistical analysis, and comparisons.",
+        fiscalYearSettings: {
+            fiscalYearStartMonth: 7, // July
+            fiscalYearEndMonth: 6, // June
+            descriptionAr: "العام المالي في الهيئة العامة للاعتماد والرقابة الصحية (GAHAR) وفي الحكومة المصرية يبدأ في 1 يوليو وينتهي في 30 يونيو من العام التالي. على سبيل المثال، العام المالي 2025 - 2026 يبدأ في 1 يوليو 2025 وينتهي في 30 يونيو 2026. أي بيانات أو فلاتر أو مقارنات سنوية يجب أن تتبع هذا التقسيم الزمني للعام المالي.",
+            descriptionEn: "The Fiscal Year for GAHAR (and the Egyptian government) starts on July 1st and ends on June 30th of the following year. For example, Fiscal Year 2025-2026 starts on July 1st, 2025 and ends on June 30th, 2026. Any financial or performance annual comparisons or queries should strictly group data according to this fiscal cycle."
+        },
         collections: {
             accreditation_facilities: accreditationFacilities,
             completion_facilities: completionFacilities,
