@@ -4782,7 +4782,7 @@ export default function DepartmentPage() {
             sections: [{
                 properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
                 children: [
-                    new Paragraph({ text: 'أعضاء المهن الطبية المسجلين (طبقا للفئة)', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Paragraph({ text: 'أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
                     new Table({
                         width: { size: 100, type: WidthType.PERCENTAGE },
                         rows: [
@@ -4843,7 +4843,7 @@ export default function DepartmentPage() {
             sections: [{
                 properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
                 children: [
-                    new Paragraph({ text: 'إجمالي أعضاء المهن الطبية المسجلين بالمحافظات', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Paragraph({ text: 'إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
                     new Table({
                         width: { size: 100, type: WidthType.PERCENTAGE },
                         rows: [
@@ -4914,7 +4914,7 @@ export default function DepartmentPage() {
             sections: [{
                 properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
                 children: [
-                    new Paragraph({ text: 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+                    new Paragraph({ text: 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة) - محافظات مرحلة أولى', alignment: AlignmentType.CENTER, heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
                     new Table({
                         width: { size: 100, type: WidthType.PERCENTAGE },
                         rows: [
@@ -17423,7 +17423,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedProfByCategorySectionExpanded(!isMedProfByCategorySectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                👥 أعضاء المهن الطبية المسجلين (طبقا للفئة) {(() => {
+                                👥 أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر {(() => {
                                     const filterMonth = globalFilterMonth || medProfByCategoryFilterMonth;
                                     if (filterMonth) {
                                         const [year, month] = filterMonth.split('-');
@@ -17737,7 +17737,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedProfByGovernorateSectionExpanded(!isMedProfByGovernorateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات {(() => {
+                                🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر {(() => {
                                     const filterMonth = globalFilterMonth || medProfByGovernorateFilterMonth;
                                     if (filterMonth) {
                                         const [year, month] = filterMonth.split('-');
@@ -18036,7 +18036,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsTotalMedProfByCategorySectionExpanded(!isTotalMedProfByCategorySectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)
+                                📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة) - محافظات مرحلة أولى
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                                 {userCanEdit && currentUser && (

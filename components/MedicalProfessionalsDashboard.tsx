@@ -907,7 +907,9 @@ export default function MedicalProfessionalsDashboard({
                             fontSize: '1.4rem'
                         }}>
                             <span style={{ fontSize: '1.8rem' }}>📊</span>
-                            أعضاء المهن الطبية المسجلين (طبقا للفئة)
+                            {activeCategoryView === 'monthly' 
+                                ? 'أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر' 
+                                : 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة) - محافظات مرحلة أولى'}
                         </h3>
 
                         {/* أزرار التنقل - نمط كبسولة */}
@@ -1136,7 +1138,9 @@ export default function MedicalProfessionalsDashboard({
                     }}>
                         <h3 style={{ margin: 0, color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.4rem' }}>
                             <span style={{ fontSize: '1.8rem' }}>🗺️</span>
-                            أعضاء المهن الطبية المسجلين بالمحافظات
+                            {activeGovernorateView === 'monthly' 
+                                ? 'إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر' 
+                                : 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات'}
                         </h3>
 
                         {/* أزرار التنقل - نمط الكبسولة */}

@@ -562,7 +562,7 @@ export const dept7Branches = ['رئاسة الهيئة', 'بورسعيد', 'ال
 
 export const dept7Sections: Record<string, SectionDefinition> = {
     'medical_professionals_by_category': {
-        name: '👥 أعضاء المهن الطبية المسجلين (طبقا للفئة)',
+        name: '👥 أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر',
         collection: 'medical_professionals_by_category',
         saveFnName: 'saveMedicalProfessionalByCategory',
         columns: [
@@ -580,7 +580,7 @@ export const dept7Sections: Record<string, SectionDefinition> = {
         ]
     },
     'medical_professionals_by_governorate': {
-        name: '🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات',
+        name: '🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر',
         collection: 'medical_professionals_by_governorate',
         saveFnName: 'saveMedicalProfessionalByGovernorate',
         columns: [
@@ -598,7 +598,7 @@ export const dept7Sections: Record<string, SectionDefinition> = {
         ]
     },
     'total_med_profs_by_category': {
-        name: '📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة)',
+        name: '📊 الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة) - محافظات مرحلة أولى',
         collection: 'total_med_profs_by_category',
         saveFnName: 'saveTotalMedProfByCategory',
         columns: [
