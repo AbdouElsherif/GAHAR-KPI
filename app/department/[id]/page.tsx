@@ -17380,7 +17380,7 @@ export default function DepartmentPage() {
                             medProfsByGovernorate={medProfsByGovernorate}
                             totalMedProfsByCategory={totalMedProfsByCategory}
                             totalMedProfsByGovernorate={totalMedProfsByGovernorate}
-                            globalFilterMonth={globalFilterMonth}
+                            globalFilterMonth={globalFilterMonth || medProfByGovernorateFilterMonth || medProfByCategoryFilterMonth || totalMedProfByGovernorateFilterMonth || totalMedProfByCategoryFilterMonth}
                         />
                     </DashboardModal>
                 )

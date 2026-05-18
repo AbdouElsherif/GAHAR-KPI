@@ -1038,6 +1038,18 @@ export const batchSaveToFirestore = async (
             record.createdBy = userId;
             record.updatedBy = userId;
 
+            // Calculate total for dept7 medical professionals sections
+            const numericFields = ['doctors', 'dentists', 'pharmacists', 'physiotherapy', 'veterinarians', 'seniorNursing', 'technicalNursing', 'healthTechnician', 'scientists'];
+            if (numericFields.some(field => field in record)) {
+                let total = 0;
+                for (const field of numericFields) {
+                    if (record[field] !== undefined && record[field] !== null) {
+                        total += Number(record[field]);
+                    }
+                }
+                record.total = total;
+            }
+
             const docId = await saveFn(record);
             if (docId) {
                 savedCount++;
