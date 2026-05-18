@@ -17423,18 +17423,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedProfByCategorySectionExpanded(!isMedProfByCategorySectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                👥 أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر {(() => {
-                                    const filterMonth = globalFilterMonth || medProfByCategoryFilterMonth;
-                                    if (filterMonth) {
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const total = medProfsByCategory
-                                            .filter(item => item.month === filterMonth)
-                                            .reduce((sum, item) => sum + (item.total || 0), 0);
-                                        return `- ${monthNames[parseInt(month) - 1]} ${year} - ${total}`;
-                                    }
-                                    return '';
-                                })()}
+                                👥 أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                                 {userCanEdit && currentUser && (
@@ -17737,18 +17726,7 @@ export default function DepartmentPage() {
                             onClick={() => setIsMedProfByGovernorateSectionExpanded(!isMedProfByGovernorateSectionExpanded)}
                         >
                             <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary-color)' }}>
-                                🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر {(() => {
-                                    const filterMonth = globalFilterMonth || medProfByGovernorateFilterMonth;
-                                    if (filterMonth) {
-                                        const [year, month] = filterMonth.split('-');
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const total = medProfsByGovernorate
-                                            .filter(item => item.month === filterMonth)
-                                            .reduce((sum, item) => sum + (item.total || 0), 0);
-                                        return `- ${monthNames[parseInt(month) - 1]} ${year} - ${total}`;
-                                    }
-                                    return '';
-                                })()}
+                                🏛️ إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary-color)', fontWeight: 'bold' }}>
                                 {userCanEdit && currentUser && (
