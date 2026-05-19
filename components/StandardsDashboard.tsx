@@ -61,7 +61,7 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         return '';
     };
 
-    // Define all 16 standards
+    // Define all standards
     const standardFields = [
         { name: 'standard1', label: 'معايير دور النقاهة والرعاية الممتدة' },
         { name: 'standard2', label: 'معايير السياحة الاستشفائية' },
@@ -78,7 +78,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         { name: 'standard13', label: 'معايير بنوك الدم' },
         { name: 'standard14', label: 'معايير التطبيب عن بعد' },
         { name: 'standard15', label: 'دليل المراجعين' },
-        { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)' }
+        { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)' },
+        { name: 'standard17', label: 'معايير مراكز التجميل والليزر' }
     ];
 
     const aggregateData = (data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {
