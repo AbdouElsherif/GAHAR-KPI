@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, AlignmentType } from 'docx';
-import { SectionHeader, ExportButtons, MonthFilter } from '../shared';
+import { SectionHeader, ExportButtons } from '../shared';
 import {
     TrainingProgramByGovernorate,
     saveTrainingProgramByGovernorate,
@@ -20,19 +20,49 @@ interface TrainingProgramsByGovernorateSectionProps {
 }
 
 /**
- * مكون قسم "البرامج التدريبية" لـ dept1
+ * Converts a monthly string (YYYY-MM) to a quarterly string (YYYY-QX).
+ */
+const getQuarterFromMonth = (monthStr: string): string => {
+    if (!monthStr || !monthStr.includes('-')) return '';
+    const [year, monthNum] = monthStr.split('-');
+    const m = parseInt(monthNum);
+    if (isNaN(m)) return monthStr; // Already in Q format or invalid
+    let q = '';
+    if (m >= 7 && m <= 9) q = 'Q1';
+    else if (m >= 10 && m <= 12) q = 'Q2';
+    else if (m >= 1 && m <= 3) q = 'Q3';
+    else if (m >= 4 && m <= 6) q = 'Q4';
+    return q ? `${year}-${q}` : monthStr;
+};
+
+/**
+ * Matches two periods (could be YYYY-MM or YYYY-QX) by normalizing them to QX.
+ */
+const matchRecordPeriod = (recordMonth: string, filterMonth: string) => {
+    if (!recordMonth || !filterMonth) return true;
+    
+    // Normalize both to quarter format if possible
+    const recordQuarter = recordMonth.includes('-Q') ? recordMonth : getQuarterFromMonth(recordMonth);
+    const filterQuarter = filterMonth.includes('-Q') ? filterMonth : getQuarterFromMonth(filterMonth);
+    
+    return recordQuarter === filterQuarter;
+};
+
+/**
+ * مكون قسم "البرامج التدريبية" لـ dept1 (معدل لاختيار الفترة ربع سنوية)
  */
 export default function TrainingProgramsByGovernorateSection({ currentUser, canEdit, globalFilterMonth }: TrainingProgramsByGovernorateSectionProps) {
     // State
     const [programs, setPrograms] = useState<TrainingProgramByGovernorate[]>([]);
     const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
-    const [programFilterMonth, setProgramFilterMonth] = useState('');
+    const [filterQuarter, setFilterQuarter] = useState('');
+    const [filterYear, setFilterYear] = useState('');
     const [isExpanded, setIsExpanded] = useState(false);
     const [programFormData, setProgramFormData] = useState({
         governorate: '',
         programsCount: '',
         traineesCount: '',
-        month: ''
+        month: '' // will store YYYY-QX
     });
 
     const userCanEdit = currentUser && canEdit(currentUser);
@@ -47,6 +77,41 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
         setPrograms(data);
     };
 
+    // Parse the current form value of month (YYYY-QX) into year and quarter
+    const getYearAndQuarterFromValue = (value: string) => {
+        if (!value) return { year: '', quarter: '' };
+        
+        const [year, part] = value.split('-');
+        if (part && part.startsWith('Q')) {
+            return { year, quarter: part };
+        }
+        
+        // Handle legacy monthly strings (YYYY-MM)
+        if (part) {
+            const monthVal = parseInt(part);
+            if (!isNaN(monthVal)) {
+                if (monthVal >= 7 && monthVal <= 9) return { year, quarter: 'Q1' };
+                if (monthVal >= 10 && monthVal <= 12) return { year, quarter: 'Q2' };
+                if (monthVal >= 1 && monthVal <= 3) return { year, quarter: 'Q3' };
+                if (monthVal >= 4 && monthVal <= 6) return { year, quarter: 'Q4' };
+            }
+        }
+        
+        return { year, quarter: '' };
+    };
+
+    const { year: selectedFormYear, quarter: selectedFormQuarter } = getYearAndQuarterFromValue(programFormData.month);
+
+    const handleFormYearChange = (year: string) => {
+        const newMonthValue = year && selectedFormQuarter ? `${year}-${selectedFormQuarter}` : year;
+        setProgramFormData({ ...programFormData, month: newMonthValue });
+    };
+
+    const handleFormQuarterChange = (quarter: string) => {
+        const newMonthValue = selectedFormYear && quarter ? `${selectedFormYear}-${quarter}` : '';
+        setProgramFormData({ ...programFormData, month: newMonthValue });
+    };
+
     // Form handlers
     const handleProgramSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,8 +121,8 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
             return;
         }
 
-        if (!programFormData.month) {
-            alert('يرجى اختيار الشهر');
+        if (!programFormData.month || !programFormData.month.includes('-')) {
+            alert('يرجى اختيار السنة والربع المالي');
             return;
         }
 
@@ -66,7 +131,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
             return;
         }
 
-        const [year, month] = programFormData.month.split('-');
+        const [year] = programFormData.month.split('-');
 
         const programData = {
             departmentId: 'dept1',
@@ -149,19 +214,54 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
     };
 
     // Filtering
-    const filteredPrograms = (globalFilterMonth || programFilterMonth)
-        ? programs.filter(p => p.month === (globalFilterMonth || programFilterMonth))
-        : programs;
+    const filteredPrograms = programs.filter(p => {
+        if (globalFilterMonth) {
+            return matchRecordPeriod(p.month, globalFilterMonth);
+        }
+        
+        // Local filters
+        if (filterYear && filterQuarter) {
+            const target = `${filterYear}-${filterQuarter}`;
+            return matchRecordPeriod(p.month, target);
+        }
+        if (filterYear) {
+            const [pYear] = p.month.split('-');
+            return pYear === filterYear;
+        }
+        if (filterQuarter) {
+            const pQuarter = p.month.includes('-Q') ? p.month.split('-')[1] : getQuarterFromMonth(p.month).split('-')[1];
+            return pQuarter === filterQuarter;
+        }
+        
+        return true;
+    });
+
+    // Format month/quarter for display
+    const formatMonthYear = (month: string) => {
+        if (!month) return '';
+        const [year, monthNum] = month.split('-');
+        if (!monthNum) return month;
+        if (monthNum.startsWith('Q')) {
+            const quarterNames: Record<string, string> = {
+                'Q1': 'الربع الأول (يوليو - سبتمبر)',
+                'Q2': 'الربع الثاني (أكتوبر - ديسمبر)',
+                'Q3': 'الربع الثالث (يناير - مارس)',
+                'Q4': 'الربع الرابع (أبريل - يونيو)'
+            };
+            return `${quarterNames[monthNum] || monthNum} ${year}`;
+        }
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        const parsedMonth = parseInt(monthNum);
+        if (isNaN(parsedMonth) || parsedMonth < 1 || parsedMonth > 12) return month;
+        return `${monthNames[parsedMonth - 1]} ${year}`;
+    };
 
     // Export functions
     const exportToExcel = () => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
         const data = filteredPrograms.map((program, index) => {
-            const [year, month] = program.month.split('-');
             return {
                 '#': index + 1,
-                'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`,
+                'الفترة / الربع': formatMonthYear(program.month),
                 'المحافظة': program.governorate,
                 'المرحلة': program.phase,
                 'عدد البرامج التدريبية': program.programsCount,
@@ -173,18 +273,17 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'البرامج التدريبية');
 
-        const filterMonthText = (globalFilterMonth || programFilterMonth)
-            ? `_${(globalFilterMonth || programFilterMonth).replace('-', '_')}`
-            : '';
+        const filterMonthText = (globalFilterMonth)
+            ? `_${globalFilterMonth.replace('-', '_')}`
+            : (filterYear || filterQuarter)
+                ? `_${filterYear}_${filterQuarter}`
+                : '';
 
         XLSX.writeFile(workbook, `البرامج_التدريبية_${filterMonthText}.xlsx`);
     };
 
     const exportToWord = async () => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-
         const tableRows = filteredPrograms.map((program, index) => {
-            const [year, month] = program.month.split('-');
             return new TableRow({
                 children: [
                     new TableCell({
@@ -192,7 +291,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
                         width: { size: 10, type: WidthType.PERCENTAGE }
                     }),
                     new TableCell({
-                        children: [new Paragraph({ text: `${monthNames[parseInt(month) - 1]} ${year}`, alignment: AlignmentType.CENTER })],
+                        children: [new Paragraph({ text: formatMonthYear(program.month), alignment: AlignmentType.CENTER })],
                         width: { size: 20, type: WidthType.PERCENTAGE }
                     }),
                     new TableCell({
@@ -224,7 +323,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
                             width: { size: 10, type: WidthType.PERCENTAGE }
                         }),
                         new TableCell({
-                            children: [new Paragraph({ text: 'الشهر', alignment: AlignmentType.CENTER })],
+                            children: [new Paragraph({ text: 'الفترة / الربع', alignment: AlignmentType.CENTER })],
                             width: { size: 20, type: WidthType.PERCENTAGE }
                         }),
                         new TableCell({
@@ -269,20 +368,17 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
         const link = document.createElement('a');
         link.href = url;
 
-        const filterMonthText = (globalFilterMonth || programFilterMonth)
-            ? `_${(globalFilterMonth || programFilterMonth).replace('-', '_')}`
-            : '';
+        const filterMonthText = (globalFilterMonth)
+            ? `_${globalFilterMonth.replace('-', '_')}`
+            : (filterYear || filterQuarter)
+                ? `_${filterYear}_${filterQuarter}`
+                : '';
 
         link.download = `البرامج_التدريبية_${filterMonthText}.docx`;
         link.click();
     };
 
-    // Format month for display
-    const formatMonthYear = (month: string) => {
-        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-        const [year, monthNum] = month.split('-');
-        return `${monthNames[parseInt(monthNum) - 1]} ${year}`;
-    };
+    const availableYears = [2026, 2027, 2028, 2029, 2030];
 
     return (
         <div className="card" style={{ marginTop: '30px' }}>
@@ -302,18 +398,35 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
                             <h3 style={{ marginTop: 0, marginBottom: '20px', color: 'var(--secondary-color)' }}>
                                 {editingProgramId ? 'تعديل بيانات' : 'إضافة بيانات جديدة'}
                             </h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '15px' }}>
                                 <div className="form-group">
-                                    <label className="form-label">الشهر *</label>
-                                    <input
-                                        type="month"
+                                    <label className="form-label">السنة المالية *</label>
+                                    <select
                                         className="form-input"
                                         required
-                                        value={programFormData.month}
-                                        onChange={(e) => setProgramFormData({ ...programFormData, month: e.target.value })}
-                                        min="2019-01"
-                                        max={new Date().toISOString().split('T')[0].slice(0, 7)}
-                                    />
+                                        value={selectedFormYear}
+                                        onChange={(e) => handleFormYearChange(e.target.value)}
+                                    >
+                                        <option value="">اختر السنة</option>
+                                        {availableYears.map(y => (
+                                            <option key={y} value={y}>{y - 1} / {y}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">الربع المالي *</label>
+                                    <select
+                                        className="form-input"
+                                        required
+                                        value={selectedFormQuarter}
+                                        onChange={(e) => handleFormQuarterChange(e.target.value)}
+                                    >
+                                        <option value="">اختر الربع</option>
+                                        <option value="Q1">الربع الأول (يوليو - سبتمبر)</option>
+                                        <option value="Q2">الربع الثاني (أكتوبر - ديسمبر)</option>
+                                        <option value="Q3">الربع الثالث (يناير - مارس)</option>
+                                        <option value="Q4">الربع الرابع (أبريل - يونيو)</option>
+                                    </select>
                                 </div>
                                 <div className="form-group">
                                     <label className="form-label">المحافظة *</label>
@@ -389,13 +502,72 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
 
                     {/* Filter and Export */}
                     <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '15px' }}>
-                        <MonthFilter
-                            value={globalFilterMonth || programFilterMonth}
-                            onChange={(val) => !globalFilterMonth && setProgramFilterMonth(val)}
-                            label="فلترة حسب الشهر"
-                            minWidth="250px"
-                            disabled={!!globalFilterMonth}
-                        />
+                        {globalFilterMonth ? (
+                            <div className="form-group" style={{ margin: 0, minWidth: '250px' }}>
+                                <label className="form-label">الفلترة النشطة (من القائمة العلوية)</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={`${formatMonthYear(globalFilterMonth)} (مفعّل عالمياً)`}
+                                    disabled
+                                    style={{
+                                        backgroundColor: '#e9ecef',
+                                        color: '#495057',
+                                        cursor: 'not-allowed',
+                                        fontWeight: 'bold',
+                                        width: '100%',
+                                        padding: '8px 12px',
+                                        fontSize: '0.9rem',
+                                        borderRadius: '6px',
+                                        border: '1px solid #ddd'
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                <div className="form-group" style={{ margin: 0, minWidth: '150px' }}>
+                                    <label className="form-label">فلترة حسب السنة</label>
+                                    <select
+                                        className="form-input"
+                                        value={filterYear}
+                                        onChange={(e) => setFilterYear(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            fontSize: '0.9rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #ddd'
+                                        }}
+                                    >
+                                        <option value="">كل السنوات</option>
+                                        {availableYears.map(y => (
+                                            <option key={y} value={y.toString()}>{y - 1} / {y}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ margin: 0, minWidth: '200px' }}>
+                                    <label className="form-label">فلترة حسب الربع</label>
+                                    <select
+                                        className="form-input"
+                                        value={filterQuarter}
+                                        onChange={(e) => setFilterQuarter(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            fontSize: '0.9rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #ddd'
+                                        }}
+                                    >
+                                        <option value="">كل الأرباع</option>
+                                        <option value="Q1">الربع الأول (يوليو - سبتمبر)</option>
+                                        <option value="Q2">الربع الثاني (أكتوبر - ديسمبر)</option>
+                                        <option value="Q3">الربع الثالث (يناير - مارس)</option>
+                                        <option value="Q4">الربع الرابع (أبريل - يونيو)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        )}
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <ExportButtons
                                 onExportExcel={exportToExcel}
@@ -425,7 +597,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
                             <thead>
                                 <tr style={{ backgroundColor: '#0D6A79', color: 'white' }}>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>#</th>
-                                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>الشهر</th>
+                                    <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>الفترة / الربع</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>المحافظة</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>المرحلة</th>
                                     <th style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>عدد البرامج</th>
@@ -438,7 +610,7 @@ export default function TrainingProgramsByGovernorateSection({ currentUser, canE
                                     <tr>
                                         <td colSpan={userCanEdit ? 7 : 6} style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
                                             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🏫</div>
-                                            لا توجد بيانات
+                                            لا توجد بيانات للفترة المحددة
                                         </td>
                                     </tr>
                                 ) : (
