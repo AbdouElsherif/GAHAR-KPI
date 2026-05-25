@@ -12,7 +12,9 @@ import {
     getReviewerEvaluationVisits,
     getTechnicalClinicalFacilities,
     getTechnicalClinicalObservations,
-    getTotalMedProfsByCategory
+    getTotalMedProfsByCategory,
+    getTrainingEntities,
+    getTrainingNatures
 } from '@/lib/firestore';
 
 interface MetricItem {
@@ -160,6 +162,26 @@ const buildComparison = (currentValue: number, previousValue: number, periodLabe
 
 const metricAccentColor = '#0d6a79';
 
+const standardFields = [
+    { name: 'standard1', label: 'معايير دور النقاهة والرعاية الممتدة' },
+    { name: 'standard2', label: 'معايير السياحة الاستشفائية' },
+    { name: 'standard3', label: 'معايير الرعاية الأولية (إصدار 2025)' },
+    { name: 'standard4', label: 'الدليل الاسترشادي للتجهيزات الطبية للمستشفيات' },
+    { name: 'standard5', label: 'معايير المستشفيات (إصدار 2025)' },
+    { name: 'standard6', label: 'معايير التميز للمنشآت الصديقة للأم والطفل' },
+    { name: 'standard7', label: 'معايير المعامل الإكلينيكية' },
+    { name: 'standard8', label: 'معايير المراكز الطبية المتخصصة وجراحات اليوم الواحد' },
+    { name: 'standard9', label: 'معايير الأشعة العلاجية التداخلية والتشخيصية' },
+    { name: 'standard10', label: 'معايير مكاتب الصحة المستقلة' },
+    { name: 'standard11', label: 'معايير مكاتب الصحة النفسية (الإصدار الثاني)' },
+    { name: 'standard12', label: 'معايير التميز الإكلينيكي' },
+    { name: 'standard13', label: 'معايير بنوك الدم' },
+    { name: 'standard14', label: 'معايير التطبيب عن بعد' },
+    { name: 'standard15', label: 'دليل المراجعين' },
+    { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)' },
+    { name: 'standard17', label: 'معايير مراكز التجميل والليزر' }
+];
+
 export default function AchievementHighlightsButton() {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -188,6 +210,8 @@ export default function AchievementHighlightsButton() {
                 reportsPresentedToCommittee,
                 accreditationDecisions,
                 totalMedProfsByCategory,
+                trainingEntities,
+                trainingNatures,
                 allKpiData
             ] = await Promise.all([
                 getTechnicalClinicalFacilities(),
@@ -200,6 +224,8 @@ export default function AchievementHighlightsButton() {
                 getReportsPresentedToCommittee(),
                 getAccreditationDecisions(),
                 getTotalMedProfsByCategory(),
+                getTrainingEntities(),
+                getTrainingNatures(),
                 getAllKPIData()
             ]);
 
@@ -214,6 +240,8 @@ export default function AchievementHighlightsButton() {
                 ...reportsPresentedToCommittee,
                 ...accreditationDecisions,
                 ...totalMedProfsByCategory,
+                ...trainingEntities,
+                ...trainingNatures,
                 ...allKpiData.map(record => ({ month: record.data?.date || record.month }))
             ]);
             const reportMonth = monthOverride || selectedMonth || latestAvailableMonth;
@@ -247,6 +275,14 @@ export default function AchievementHighlightsButton() {
                 record.departmentId === 'dept2' && normalizeMonth(record.data?.date || record.month) === reportMonth
             );
             const technicalSupportKpiData = technicalSupportKpi?.data || {};
+            const trainingKpi = allKpiData.find(record =>
+                record.departmentId === 'dept1' && normalizeMonth(record.data?.date || record.month) === reportMonth
+            );
+            const trainingKpiData = trainingKpi?.data || {};
+            const standardsKpi = allKpiData.find(record =>
+                record.departmentId === 'dept8' && normalizeMonth(record.data?.date || record.month) === reportMonth
+            );
+            const standardsKpiData = standardsKpi?.data || {};
 
             const monthTechnicalClinicalFacilities = technicalClinicalFacilities.filter(record => isWithinMonth(record, reportMonth));
             const monthTechnicalClinicalObservations = technicalClinicalObservations.filter(record => isWithinMonth(record, reportMonth));
@@ -258,6 +294,8 @@ export default function AchievementHighlightsButton() {
             const monthReportsPresentedToCommittee = reportsPresentedToCommittee.filter(record => isWithinMonth(record, reportMonth));
             const monthAccreditationDecisions = accreditationDecisions.filter(record => isWithinMonth(record, reportMonth));
             const monthTotalMedProfsByCategory = totalMedProfsByCategory.filter(record => isWithinMonth(record, reportMonth));
+            const monthTrainingEntities = trainingEntities.filter(record => isWithinMonth(record, reportMonth));
+            const monthTrainingNatures = trainingNatures.filter(record => isWithinMonth(record, reportMonth));
             const fiscalYearPaidFacilities = paidFacilities.filter(record => isWithinFiscalYear(record, fiscalYear));
             const previousYearMonth = getPreviousYearMonth(reportMonth);
             const previousFiscalYear = getFiscalYearRange(previousYearMonth);
@@ -285,6 +323,14 @@ export default function AchievementHighlightsButton() {
                 record.departmentId === 'dept2' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
             );
             const previousTechnicalSupportKpiData = previousTechnicalSupportKpi?.data || {};
+            const previousTrainingKpi = allKpiData.find(record =>
+                record.departmentId === 'dept1' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
+            );
+            const previousTrainingKpiData = previousTrainingKpi?.data || {};
+            const previousStandardsKpi = allKpiData.find(record =>
+                record.departmentId === 'dept8' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
+            );
+            const previousStandardsKpiData = previousStandardsKpi?.data || {};
             const previousMonthTechnicalClinicalFacilities = technicalClinicalFacilities.filter(record => isWithinMonth(record, previousYearMonth));
             const previousMonthTechnicalClinicalObservations = technicalClinicalObservations.filter(record => isWithinMonth(record, previousYearMonth));
             const previousMonthAdminAuditFacilities = adminAuditFacilities.filter(record => isWithinMonth(record, previousYearMonth));
@@ -295,6 +341,7 @@ export default function AchievementHighlightsButton() {
             const previousMonthReportsPresentedToCommittee = reportsPresentedToCommittee.filter(record => isWithinMonth(record, previousYearMonth));
             const previousMonthAccreditationDecisions = accreditationDecisions.filter(record => isWithinMonth(record, previousYearMonth));
             const previousMonthTotalMedProfsByCategory = totalMedProfsByCategory.filter(record => isWithinMonth(record, previousYearMonth));
+            const previousMonthTrainingNatures = trainingNatures.filter(record => isWithinMonth(record, previousYearMonth));
             const previousFiscalYearPaidFacilities = paidFacilities.filter(record => isWithinFiscalYear(record, previousFiscalYear));
             const monthDecisionCounts = groupDecisionCounts(monthAccreditationDecisions);
             const previousMonthDecisionCounts = groupDecisionCounts(previousMonthAccreditationDecisions);
@@ -330,6 +377,44 @@ export default function AchievementHighlightsButton() {
                         suffix: '%'
                     }
                 ]
+            }));
+            const trainingEntityMetrics: MetricItem[] = monthTrainingEntities.map(entity => ({
+                label: 'الجهة الحاصلة على التدريب',
+                titleHighlight: String(entity.entityName || 'غير محدد'),
+                value: 0,
+                details: [
+                    {
+                        label: 'متدربين',
+                        value: Number(entity.traineesCount) || 0
+                    }
+                ]
+            }));
+            const trainingMethodologyMetric: MetricItem = {
+                label: 'منهجية التدريب',
+                value: 0,
+                details: [
+                    {
+                        label: 'حضوري',
+                        value: sumField(monthTrainingNatures, 'physicalPrograms')
+                    },
+                    {
+                        label: 'عن بعد',
+                        value: sumField(monthTrainingNatures, 'onlinePrograms')
+                    },
+                    {
+                        label: 'مدمج',
+                        value: sumField(monthTrainingNatures, 'hybridPrograms')
+                    }
+                ]
+            };
+            const incompleteStandardFields = standardFields.filter(field => {
+                const value = Number(standardsKpiData[field.name]) || 0;
+                return value < 100;
+            });
+            const incompleteStandardMetrics: MetricItem[] = incompleteStandardFields.map(field => ({
+                label: field.label,
+                value: Number(standardsKpiData[field.name]) || 0,
+                suffix: '%'
             }));
 
             const newSections: AchievementSection[] = [
@@ -562,6 +647,33 @@ export default function AchievementHighlightsButton() {
                             value: Number(technicalSupportKpiData.governoratesWithFieldVisits) || 0
                         }
                     ]
+                },
+                {
+                    title: 'الإدارة العامة للتدريب',
+                    periodLabel: reportMonth || 'لا توجد بيانات',
+                    metrics: [
+                        {
+                            label: 'عدد البرامج التدريبية',
+                            value: Number(trainingKpiData.trainingPrograms) || 0
+                        },
+                        {
+                            label: 'عدد المتدربين',
+                            value: Number(trainingKpiData.trainees) || 0
+                        },
+                        ...trainingEntityMetrics,
+                        trainingMethodologyMetric
+                    ]
+                },
+                {
+                    title: 'الإدارة العامة لأبحاث وتطوير المعايير',
+                    periodLabel: reportMonth || 'لا توجد بيانات',
+                    metrics: incompleteStandardMetrics.length > 0 ? incompleteStandardMetrics : [
+                        {
+                            label: 'لا توجد معايير غير مكتملة',
+                            value: 100,
+                            suffix: '%'
+                        }
+                    ]
                 }
             ];
 
@@ -631,6 +743,19 @@ export default function AchievementHighlightsButton() {
                         Number(previousTechnicalSupportKpiData.supportedFacilities) || 0,
                         Number(previousTechnicalSupportKpiData.queuedFieldVisits) || 0,
                         Number(previousTechnicalSupportKpiData.governoratesWithFieldVisits) || 0
+                    ],
+                    [
+                        Number(previousTrainingKpiData.trainingPrograms) || 0,
+                        Number(previousTrainingKpiData.trainees) || 0,
+                        ...trainingEntityMetrics.map(() => 0),
+                        sumField(previousMonthTrainingNatures, 'physicalPrograms') +
+                        sumField(previousMonthTrainingNatures, 'onlinePrograms') +
+                        sumField(previousMonthTrainingNatures, 'hybridPrograms')
+                    ],
+                    incompleteStandardMetrics.length > 0 ? incompleteStandardFields.map(field =>
+                        Number(previousStandardsKpiData[field.name]) || 0
+                    ) : [
+                        100
                     ]
                 ];
 
@@ -917,8 +1042,8 @@ export default function AchievementHighlightsButton() {
                                                             {metric.details ? (
                                                                 <div style={{
                                                                     display: 'grid',
-                                                                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                                                                    gap: '10px',
+                                                                    gridTemplateColumns: `repeat(${metric.details.length}, minmax(0, 1fr))`,
+                                                                    gap: metric.details.length > 2 ? '6px' : '10px',
                                                                     width: '100%'
                                                                 }}>
                                                                     {metric.details.map(detail => (
@@ -926,7 +1051,7 @@ export default function AchievementHighlightsButton() {
                                                                             key={`${metric.label}-${detail.label}`}
                                                                             style={{
                                                                                 textAlign: 'center',
-                                                                                padding: '8px',
+                                                                                padding: metric.details && metric.details.length > 2 ? '7px 5px' : '8px',
                                                                                 borderRadius: '8px',
                                                                                 backgroundColor: '#eef9f6',
                                                                                 border: '1px solid #d7eee8'
@@ -934,7 +1059,7 @@ export default function AchievementHighlightsButton() {
                                                                         >
                                                                             <div style={{
                                                                                 color: '#667b78',
-                                                                                fontSize: '0.82rem',
+                                                                                fontSize: metric.details && metric.details.length > 2 ? '0.76rem' : '0.82rem',
                                                                                 fontWeight: 900,
                                                                                 marginBottom: '5px'
                                                                             }}>
@@ -942,7 +1067,7 @@ export default function AchievementHighlightsButton() {
                                                                             </div>
                                                                             <strong style={{
                                                                                 color: accentColor,
-                                                                                fontSize: '1.45rem',
+                                                                                fontSize: metric.details && metric.details.length > 2 ? '1.22rem' : '1.45rem',
                                                                                 lineHeight: 1,
                                                                                 fontFamily: '"Times New Roman", Times, serif',
                                                                                 fontWeight: 900
