@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { getCurrentUser, logout, User, onAuthChange } from '@/lib/auth';
 import { departmentsList as departments } from '@/constants/departments';
 import { exportAllDataForAI } from '@/lib/aiExportHelper';
+import NotificationCenter from '@/components/NotificationCenter';
 
 export default function Home() {
     const router = useRouter();
@@ -210,6 +211,8 @@ export default function Home() {
                         </Link>
                     ))}
                 </div>
+
+                <NotificationCenter currentUser={currentUser} />
 
                 {currentUser.role === 'super_admin' && (
                     <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '30px' }}>
