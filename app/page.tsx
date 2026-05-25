@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { getCurrentUser, logout, User, onAuthChange } from '@/lib/auth';
 import { departmentsList as departments } from '@/constants/departments';
 import { exportAllDataForAI } from '@/lib/aiExportHelper';
+import AchievementHighlightsButton from '@/components/AchievementHighlightsButton';
 import NotificationCenter from '@/components/NotificationCenter';
 
 export default function Home() {
@@ -199,6 +200,12 @@ export default function Home() {
                 <p style={{ marginBottom: '30px', fontSize: '1.2rem', color: '#555' }}>
                     يرجى اختيار الإدارة الخاصة بك للدخول إلى لوحة المؤشرات.
                 </p>
+
+                {(currentUser.role === 'super_admin' || currentUser.role === 'general_viewer') && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+                        <AchievementHighlightsButton />
+                    </div>
+                )}
 
                 <div className="department-grid">
                     {availableDepartments.map((dept) => (
