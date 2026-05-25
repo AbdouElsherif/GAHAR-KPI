@@ -3,17 +3,28 @@
 import { useMemo, useState } from 'react';
 import {
     getAccreditationFacilities,
+    getAccreditationDecisions,
     getAdminAuditFacilities,
     getAllKPIData,
+    getGovernorateCustomerSurveys,
     getPaidFacilities,
+    getReportsPresentedToCommittee,
+    getReviewerEvaluationVisits,
     getTechnicalClinicalFacilities,
-    getTechnicalClinicalObservations
+    getTechnicalClinicalObservations,
+    getTotalMedProfsByCategory
 } from '@/lib/firestore';
 
 interface MetricItem {
     label: string;
     value: number;
     suffix?: string;
+    titleHighlight?: string;
+    details?: Array<{
+        label: string;
+        value: number;
+        suffix?: string;
+    }>;
     comparison?: {
         previousValue: number;
         difference: number;
@@ -79,8 +90,48 @@ const sumAmounts = (records: any[]) => {
     return records.reduce((total, record) => total + (Number(record?.amount) || 0), 0);
 };
 
+const sumField = (records: any[], fieldName: string) => {
+    return records.reduce((total, record) => total + (Number(record?.[fieldName]) || 0), 0);
+};
+
 const countUniqueFacilities = (records: any[]) => {
     return new Set(records.map(record => String(record?.facilityName || '').trim()).filter(Boolean)).size;
+};
+
+const groupDecisionCounts = (records: any[]) => {
+    return records.reduce((grouped, record) => {
+        const decisionType = String(record?.decisionType || 'غير محدد').trim() || 'غير محدد';
+        grouped[decisionType] = (grouped[decisionType] || 0) + (Number(record?.count) || 0);
+        return grouped;
+    }, {} as Record<string, number>);
+};
+
+const averageSatisfactionByGovernorate = (records: any[]) => {
+    const grouped = records.reduce((result, record) => {
+        const governorate = String(record?.governorate || 'غير محدد').trim() || 'غير محدد';
+        if (!result[governorate]) {
+            result[governorate] = {
+                patientTotal: 0,
+                staffTotal: 0,
+                count: 0
+            };
+        }
+
+        result[governorate].patientTotal += Number(record?.patientSatisfactionRate) || 0;
+        result[governorate].staffTotal += Number(record?.staffSatisfactionRate) || 0;
+        result[governorate].count += 1;
+        return result;
+    }, {} as Record<string, { patientTotal: number; staffTotal: number; count: number }>);
+
+    return Object.fromEntries(
+        (Object.entries(grouped) as [string, { patientTotal: number; staffTotal: number; count: number }][]).map(([governorate, values]) => [
+            governorate,
+            {
+                patientSatisfaction: values.count ? values.patientTotal / values.count : 0,
+                staffSatisfaction: values.count ? values.staffTotal / values.count : 0
+            }
+        ])
+    ) as Record<string, { patientSatisfaction: number; staffSatisfaction: number }>;
 };
 
 const formatNumber = (value: number) => {
@@ -132,6 +183,11 @@ export default function AchievementHighlightsButton() {
                 adminAuditFacilities,
                 accreditationFacilities,
                 paidFacilities,
+                governorateCustomerSurveys,
+                reviewerEvaluationVisits,
+                reportsPresentedToCommittee,
+                accreditationDecisions,
+                totalMedProfsByCategory,
                 allKpiData
             ] = await Promise.all([
                 getTechnicalClinicalFacilities(),
@@ -139,6 +195,11 @@ export default function AchievementHighlightsButton() {
                 getAdminAuditFacilities(),
                 getAccreditationFacilities(),
                 getPaidFacilities(),
+                getGovernorateCustomerSurveys(),
+                getReviewerEvaluationVisits(),
+                getReportsPresentedToCommittee(),
+                getAccreditationDecisions(),
+                getTotalMedProfsByCategory(),
                 getAllKPIData()
             ]);
 
@@ -148,6 +209,11 @@ export default function AchievementHighlightsButton() {
                 ...adminAuditFacilities,
                 ...accreditationFacilities,
                 ...paidFacilities,
+                ...governorateCustomerSurveys,
+                ...reviewerEvaluationVisits,
+                ...reportsPresentedToCommittee,
+                ...accreditationDecisions,
+                ...totalMedProfsByCategory,
                 ...allKpiData.map(record => ({ month: record.data?.date || record.month }))
             ]);
             const reportMonth = monthOverride || selectedMonth || latestAvailableMonth;
@@ -161,10 +227,22 @@ export default function AchievementHighlightsButton() {
                 record.departmentId === 'dept5' && normalizeMonth(record.data?.date || record.month) === reportMonth
             );
             const adminAuditKpiData = adminAuditKpi?.data || {};
+            const customerSatisfactionKpi = allKpiData.find(record =>
+                record.departmentId === 'dept3' && normalizeMonth(record.data?.date || record.month) === reportMonth
+            );
+            const customerSatisfactionKpiData = customerSatisfactionKpi?.data || {};
             const accreditationKpi = allKpiData.find(record =>
                 record.departmentId === 'dept6' && normalizeMonth(record.data?.date || record.month) === reportMonth
             );
             const accreditationKpiData = accreditationKpi?.data || {};
+            const reviewersKpi = allKpiData.find(record =>
+                record.departmentId === 'dept9' && normalizeMonth(record.data?.date || record.month) === reportMonth
+            );
+            const reviewersKpiData = reviewersKpi?.data || {};
+            const medicalProfessionalsKpi = allKpiData.find(record =>
+                record.departmentId === 'dept7' && normalizeMonth(record.data?.date || record.month) === reportMonth
+            );
+            const medicalProfessionalsKpiData = medicalProfessionalsKpi?.data || {};
             const technicalSupportKpi = allKpiData.find(record =>
                 record.departmentId === 'dept2' && normalizeMonth(record.data?.date || record.month) === reportMonth
             );
@@ -175,6 +253,11 @@ export default function AchievementHighlightsButton() {
             const monthAdminAuditFacilities = adminAuditFacilities.filter(record => isWithinMonth(record, reportMonth));
             const monthAccreditationFacilities = accreditationFacilities.filter(record => isWithinMonth(record, reportMonth));
             const monthPaidFacilities = paidFacilities.filter(record => isWithinMonth(record, reportMonth));
+            const monthGovernorateCustomerSurveys = governorateCustomerSurveys.filter(record => isWithinMonth(record, reportMonth));
+            const monthReviewerEvaluationVisits = reviewerEvaluationVisits.filter(record => isWithinMonth(record, reportMonth));
+            const monthReportsPresentedToCommittee = reportsPresentedToCommittee.filter(record => isWithinMonth(record, reportMonth));
+            const monthAccreditationDecisions = accreditationDecisions.filter(record => isWithinMonth(record, reportMonth));
+            const monthTotalMedProfsByCategory = totalMedProfsByCategory.filter(record => isWithinMonth(record, reportMonth));
             const fiscalYearPaidFacilities = paidFacilities.filter(record => isWithinFiscalYear(record, fiscalYear));
             const previousYearMonth = getPreviousYearMonth(reportMonth);
             const previousFiscalYear = getFiscalYearRange(previousYearMonth);
@@ -182,10 +265,22 @@ export default function AchievementHighlightsButton() {
                 record.departmentId === 'dept5' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
             );
             const previousAdminAuditKpiData = previousAdminAuditKpi?.data || {};
+            const previousCustomerSatisfactionKpi = allKpiData.find(record =>
+                record.departmentId === 'dept3' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
+            );
+            const previousCustomerSatisfactionKpiData = previousCustomerSatisfactionKpi?.data || {};
             const previousAccreditationKpi = allKpiData.find(record =>
                 record.departmentId === 'dept6' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
             );
             const previousAccreditationKpiData = previousAccreditationKpi?.data || {};
+            const previousReviewersKpi = allKpiData.find(record =>
+                record.departmentId === 'dept9' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
+            );
+            const previousReviewersKpiData = previousReviewersKpi?.data || {};
+            const previousMedicalProfessionalsKpi = allKpiData.find(record =>
+                record.departmentId === 'dept7' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
+            );
+            const previousMedicalProfessionalsKpiData = previousMedicalProfessionalsKpi?.data || {};
             const previousTechnicalSupportKpi = allKpiData.find(record =>
                 record.departmentId === 'dept2' && normalizeMonth(record.data?.date || record.month) === previousYearMonth
             );
@@ -195,7 +290,47 @@ export default function AchievementHighlightsButton() {
             const previousMonthAdminAuditFacilities = adminAuditFacilities.filter(record => isWithinMonth(record, previousYearMonth));
             const previousMonthAccreditationFacilities = accreditationFacilities.filter(record => isWithinMonth(record, previousYearMonth));
             const previousMonthPaidFacilities = paidFacilities.filter(record => isWithinMonth(record, previousYearMonth));
+            const previousMonthGovernorateCustomerSurveys = governorateCustomerSurveys.filter(record => isWithinMonth(record, previousYearMonth));
+            const previousMonthReviewerEvaluationVisits = reviewerEvaluationVisits.filter(record => isWithinMonth(record, previousYearMonth));
+            const previousMonthReportsPresentedToCommittee = reportsPresentedToCommittee.filter(record => isWithinMonth(record, previousYearMonth));
+            const previousMonthAccreditationDecisions = accreditationDecisions.filter(record => isWithinMonth(record, previousYearMonth));
+            const previousMonthTotalMedProfsByCategory = totalMedProfsByCategory.filter(record => isWithinMonth(record, previousYearMonth));
             const previousFiscalYearPaidFacilities = paidFacilities.filter(record => isWithinFiscalYear(record, previousFiscalYear));
+            const monthDecisionCounts = groupDecisionCounts(monthAccreditationDecisions);
+            const previousMonthDecisionCounts = groupDecisionCounts(previousMonthAccreditationDecisions);
+            const decisionTypes = Array.from(new Set([
+                ...Object.keys(monthDecisionCounts),
+                ...(shouldCompare ? Object.keys(previousMonthDecisionCounts) : [])
+            ])).sort((a, b) => a.localeCompare(b, 'ar'));
+            const decisionMetrics: MetricItem[] = decisionTypes.map(decisionType => ({
+                label: `عدد القرارات الصادرة - ${decisionType}`,
+                value: monthDecisionCounts[decisionType] || 0
+            }));
+            const totalReportsPresentedToCommittee = sumField(monthReportsPresentedToCommittee, 'numberOfDecisions');
+            const previousTotalReportsPresentedToCommittee = sumField(previousMonthReportsPresentedToCommittee, 'numberOfDecisions');
+            const currentSatisfactionByGovernorate = averageSatisfactionByGovernorate(monthGovernorateCustomerSurveys);
+            const previousSatisfactionByGovernorate = averageSatisfactionByGovernorate(previousMonthGovernorateCustomerSurveys);
+            const satisfactionGovernorates = Array.from(new Set([
+                ...Object.keys(currentSatisfactionByGovernorate),
+                ...(shouldCompare ? Object.keys(previousSatisfactionByGovernorate) : [])
+            ])).sort((a, b) => a.localeCompare(b, 'ar'));
+            const customerSatisfactionGovernorateMetrics: MetricItem[] = satisfactionGovernorates.map(governorate => ({
+                label: 'نسب الرضاء',
+                titleHighlight: governorate,
+                value: 0,
+                details: [
+                    {
+                        label: 'مرضى',
+                        value: currentSatisfactionByGovernorate[governorate]?.patientSatisfaction || 0,
+                        suffix: '%'
+                    },
+                    {
+                        label: 'عاملين',
+                        value: currentSatisfactionByGovernorate[governorate]?.staffSatisfaction || 0,
+                        suffix: '%'
+                    }
+                ]
+            }));
 
             const newSections: AchievementSection[] = [
                 {
@@ -259,6 +394,29 @@ export default function AchievementHighlightsButton() {
                     ]
                 },
                 {
+                    title: 'الإدارة العامة لرضاء المتعاملين',
+                    periodLabel: reportMonth || 'لا توجد بيانات',
+                    metrics: [
+                        {
+                            label: 'عدد الزيارات الميدانية لاستبيان رضاء المتعاملين',
+                            value: Number(customerSatisfactionKpiData.fieldVisits) || 0
+                        },
+                        {
+                            label: 'عدد المنشآت التي تم إجراء استبيانات بها',
+                            value: Number(customerSatisfactionKpiData.surveyedFacilities) || 0
+                        },
+                        {
+                            label: 'حجم عينة قياس تجربة المريض',
+                            value: Number(customerSatisfactionKpiData.patientExperienceSample) || 0
+                        },
+                        {
+                            label: 'حجم عينة قياس رضاء العاملين',
+                            value: Number(customerSatisfactionKpiData.staffSatisfactionSample) || 0
+                        },
+                        ...customerSatisfactionGovernorateMetrics
+                    ]
+                },
+                {
                     title: 'الاعتماد والتسجيل',
                     periodLabel: reportMonth || 'لا توجد بيانات',
                     metrics: [
@@ -303,6 +461,71 @@ export default function AchievementHighlightsButton() {
                             label: `إجمالي الرسوم خلال العام المالي ${fiscalYear?.label || ''}`.trim(),
                             value: sumAmounts(fiscalYearPaidFacilities),
                             suffix: 'جنيه'
+                        }
+                    ]
+                },
+                {
+                    title: 'الإدارة العامة لشئون المراجعين',
+                    periodLabel: reportMonth || 'لا توجد بيانات',
+                    metrics: [
+                        {
+                            label: 'إجمالي الزيارات التقييمية',
+                            value: Number(reviewersKpiData.totalEvaluationVisits) || sumField(monthReviewerEvaluationVisits, 'facilityName')
+                        },
+                        {
+                            label: 'عدد أيام التقييم',
+                            value: Number(reviewersKpiData.evaluationDays) || 0
+                        },
+                        {
+                            label: 'عدد الزيارات لمحافظات التأمين الصحي الشامل',
+                            value: Number(reviewersKpiData.visitsToInsuranceGovernorate) || 0
+                        },
+                        {
+                            label: 'عدد الزيارات لمنشآت وزارة الصحة والسكان',
+                            value: Number(reviewersKpiData.visitsToMOHFacilities) || 0
+                        },
+                        {
+                            label: 'عدد الزيارات للمنشآت الجامعية',
+                            value: Number(reviewersKpiData.visitsToUniFacilities) || 0
+                        },
+                        {
+                            label: 'عدد لجان الاعتماد المنعقدة',
+                            value: Number(reviewersKpiData.accreditationCommittees) || 0
+                        },
+                        {
+                            label: 'عدد تقارير الزيارات المعروضة على اللجنة',
+                            value: Number(reviewersKpiData.reportsToCommittee) || totalReportsPresentedToCommittee
+                        },
+                        {
+                            label: 'عدد الالتماسات المقدمة',
+                            value: Number(reviewersKpiData.appealsSubmitted) || 0
+                        },
+                        ...decisionMetrics
+                    ]
+                },
+                {
+                    title: 'الإدارة العامة لتسجيل أعضاء المهن الطبية',
+                    periodLabel: reportMonth || 'لا توجد بيانات',
+                    metrics: [
+                        {
+                            label: 'عدد أعضاء المهن الطبية المسجلين خلال الشهر',
+                            value: Number(medicalProfessionalsKpiData.registeredMembers) || 0
+                        },
+                        {
+                            label: 'عدد أعضاء المهن الطبية المحدث بياناتهم',
+                            value: Number(medicalProfessionalsKpiData.updatedMembers) || 0
+                        },
+                        {
+                            label: 'عدد المنشآت التي تم تسجيل أعضاء المهن بها',
+                            value: Number(medicalProfessionalsKpiData.facilitiesRegistered) || 0
+                        },
+                        {
+                            label: 'عدد المنشآت التي تم تحديث أعضاء المهن بها',
+                            value: Number(medicalProfessionalsKpiData.facilitiesUpdated) || 0
+                        },
+                        {
+                            label: 'الإجمالي الكلي لأعضاء المهن الطبية',
+                            value: sumField(monthTotalMedProfsByCategory, 'total')
                         }
                     ]
                 },
@@ -364,6 +587,13 @@ export default function AchievementHighlightsButton() {
                         Number(previousAdminAuditKpiData.visitedFacilities) || countUniqueFacilities(previousMonthAdminAuditFacilities)
                     ],
                     [
+                        Number(previousCustomerSatisfactionKpiData.fieldVisits) || 0,
+                        Number(previousCustomerSatisfactionKpiData.surveyedFacilities) || 0,
+                        Number(previousCustomerSatisfactionKpiData.patientExperienceSample) || 0,
+                        Number(previousCustomerSatisfactionKpiData.staffSatisfactionSample) || 0,
+                        ...satisfactionGovernorates.map(() => 0)
+                    ],
+                    [
                         Number(previousAccreditationKpiData.newFacilities) || 0,
                         Number(previousAccreditationKpiData.accreditation) || 0,
                         Number(previousAccreditationKpiData.renewal) || 0,
@@ -374,6 +604,24 @@ export default function AchievementHighlightsButton() {
                         previousMonthPaidFacilities.length,
                         sumAmounts(previousMonthPaidFacilities),
                         sumAmounts(previousFiscalYearPaidFacilities)
+                    ],
+                    [
+                        Number(previousReviewersKpiData.totalEvaluationVisits) || sumField(previousMonthReviewerEvaluationVisits, 'facilityName'),
+                        Number(previousReviewersKpiData.evaluationDays) || 0,
+                        Number(previousReviewersKpiData.visitsToInsuranceGovernorate) || 0,
+                        Number(previousReviewersKpiData.visitsToMOHFacilities) || 0,
+                        Number(previousReviewersKpiData.visitsToUniFacilities) || 0,
+                        Number(previousReviewersKpiData.accreditationCommittees) || 0,
+                        Number(previousReviewersKpiData.reportsToCommittee) || previousTotalReportsPresentedToCommittee,
+                        Number(previousReviewersKpiData.appealsSubmitted) || 0,
+                        ...decisionTypes.map(decisionType => previousMonthDecisionCounts[decisionType] || 0)
+                    ],
+                    [
+                        Number(previousMedicalProfessionalsKpiData.registeredMembers) || 0,
+                        Number(previousMedicalProfessionalsKpiData.updatedMembers) || 0,
+                        Number(previousMedicalProfessionalsKpiData.facilitiesRegistered) || 0,
+                        Number(previousMedicalProfessionalsKpiData.facilitiesUpdated) || 0,
+                        sumField(previousMonthTotalMedProfsByCategory, 'total')
                     ],
                     [
                         Number(previousTechnicalSupportKpiData.supportPrograms) || 0,
@@ -389,7 +637,7 @@ export default function AchievementHighlightsButton() {
                 newSections.forEach((section, sectionIndex) => {
                     section.metrics = section.metrics.map((metric, metricIndex) => ({
                         ...metric,
-                        comparison: buildComparison(
+                        comparison: metric.details ? undefined : buildComparison(
                             metric.value,
                             previousMetricValuesBySection[sectionIndex]?.[metricIndex] || 0,
                             previousYearMonth
@@ -615,7 +863,7 @@ export default function AchievementHighlightsButton() {
                                                             : '#b42318';
                                                     return (
                                                     <div
-                                                        key={`${section.title}-${metric.label}`}
+                                                        key={`${section.title}-${metric.label}-${metric.titleHighlight || ''}`}
                                                         style={{
                                                             position: 'relative',
                                                             border: '1px solid #dbeeea',
@@ -649,6 +897,15 @@ export default function AchievementHighlightsButton() {
                                                             textAlign: 'center'
                                                         }}>
                                                             {metric.label}
+                                                            {metric.titleHighlight && (
+                                                                <span style={{
+                                                                    color: '#b45309',
+                                                                    fontWeight: 900,
+                                                                    marginRight: '6px'
+                                                                }}>
+                                                                    {metric.titleHighlight}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <div style={{
                                                             display: 'flex',
@@ -657,19 +914,66 @@ export default function AchievementHighlightsButton() {
                                                             gap: '6px',
                                                             width: '100%'
                                                         }}>
-                                                            <strong style={{
-                                                                color: accentColor,
-                                                                fontSize: '1.75rem',
-                                                                lineHeight: 1,
-                                                                fontFamily: '"Times New Roman", Times, serif',
-                                                                fontWeight: 900
-                                                            }}>
-                                                                {formatNumber(metric.value)}
-                                                            </strong>
-                                                            {metric.suffix && (
-                                                                <span style={{ color: '#667b78', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                                                    {metric.suffix}
-                                                                </span>
+                                                            {metric.details ? (
+                                                                <div style={{
+                                                                    display: 'grid',
+                                                                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                                                                    gap: '10px',
+                                                                    width: '100%'
+                                                                }}>
+                                                                    {metric.details.map(detail => (
+                                                                        <div
+                                                                            key={`${metric.label}-${detail.label}`}
+                                                                            style={{
+                                                                                textAlign: 'center',
+                                                                                padding: '8px',
+                                                                                borderRadius: '8px',
+                                                                                backgroundColor: '#eef9f6',
+                                                                                border: '1px solid #d7eee8'
+                                                                            }}
+                                                                        >
+                                                                            <div style={{
+                                                                                color: '#667b78',
+                                                                                fontSize: '0.82rem',
+                                                                                fontWeight: 900,
+                                                                                marginBottom: '5px'
+                                                                            }}>
+                                                                                {detail.label}
+                                                                            </div>
+                                                                            <strong style={{
+                                                                                color: accentColor,
+                                                                                fontSize: '1.45rem',
+                                                                                lineHeight: 1,
+                                                                                fontFamily: '"Times New Roman", Times, serif',
+                                                                                fontWeight: 900
+                                                                            }}>
+                                                                                {formatNumber(detail.value)}
+                                                                            </strong>
+                                                                            {detail.suffix && (
+                                                                                <span style={{ color: '#667b78', fontSize: '0.82rem', fontWeight: 'bold', marginRight: '3px' }}>
+                                                                                    {detail.suffix}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    <strong style={{
+                                                                        color: accentColor,
+                                                                        fontSize: '1.75rem',
+                                                                        lineHeight: 1,
+                                                                        fontFamily: '"Times New Roman", Times, serif',
+                                                                        fontWeight: 900
+                                                                    }}>
+                                                                        {formatNumber(metric.value)}
+                                                                    </strong>
+                                                                    {metric.suffix && (
+                                                                        <span style={{ color: '#667b78', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                                                                            {metric.suffix}
+                                                                        </span>
+                                                                    )}
+                                                                </>
                                                             )}
                                                         </div>
                                                         {comparison && (
