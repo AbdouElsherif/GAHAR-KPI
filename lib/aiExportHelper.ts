@@ -35,6 +35,12 @@ import {
     getCollectedRevenues,
     getAllKPIData
 } from './firestore';
+import { departments } from '@/constants/departments';
+
+export interface AIExportOptions {
+    filterString?: string;
+    departmentIds?: string[];
+}
 
 export interface ExportDataPayload {
     exportedAt: string;
@@ -44,6 +50,22 @@ export interface ExportDataPayload {
         filterString: string;
         description: string;
         filtered: boolean;
+        departmentIds: string[];
+        departments: { id: string; name: string }[];
+    };
+    summary: {
+        totalRecords: number;
+        collectionCounts: Record<string, number>;
+        emptyCollections: string[];
+        dateCoverage: {
+            earliestMonth: string | null;
+            latestMonth: string | null;
+        };
+    };
+    aiUsageGuide: {
+        recommendedPrompt: string;
+        analysisIdeas: string[];
+        importantNotes: string[];
     };
     fiscalYearSettings?: {
         fiscalYearStartMonth: number;
@@ -89,6 +111,48 @@ export interface ExportDataPayload {
         general_kpis: any[];
     };
 }
+
+type CollectionKey = keyof ExportDataPayload['collections'];
+
+const allDepartmentIds = Object.keys(departments);
+
+const collectionDepartmentMap: Record<CollectionKey, string[]> = {
+    accreditation_facilities: ['dept6'],
+    completion_facilities: ['dept6'],
+    payment_facilities: ['dept6'],
+    corrective_plan_facilities: ['dept6'],
+    basic_requirements_facilities: ['dept6'],
+    appeals_facilities: ['dept6'],
+    paid_facilities: ['dept6'],
+    medical_professional_registrations: ['dept7'],
+    committee_preparation_facilities: ['dept6'],
+    certificate_issuance_facilities: ['dept6'],
+    technical_support_visits: ['dept2'],
+    remote_technical_supports: ['dept2'],
+    introductory_support_visits: ['dept2'],
+    queued_support_visits: ['dept2'],
+    scheduled_support_visits: ['dept2'],
+    accredited_supported_facilities: ['dept2'],
+    technical_clinical_facilities: ['dept4'],
+    admin_audit_facilities: ['dept5'],
+    admin_audit_observations: ['dept5'],
+    technical_clinical_observations: ['dept4'],
+    observation_correction_rates: ['dept5'],
+    technical_clinical_correction_rates: ['dept4'],
+    reviewer_evaluation_visits: ['dept9'],
+    medical_professionals_by_category: ['dept7'],
+    medical_professionals_by_governorate: ['dept7'],
+    training_entities: ['dept1'],
+    program_types: ['dept1'],
+    total_med_profs_by_category: ['dept7'],
+    total_med_profs_by_governorate: ['dept7'],
+    governorate_customer_surveys: ['dept3'],
+    reports_presented_to_committee: ['dept9'],
+    reports_by_facility_specialty: ['dept9'],
+    accreditation_decisions: ['dept9'],
+    collected_revenues: ['dept1'],
+    general_kpis: allDepartmentIds
+};
 
 const getFilterDescription = (filterString: string): string => {
     if (!filterString || filterString === 'ALL') return 'All data';
@@ -201,7 +265,67 @@ const filterRecordsByPeriod = <T,>(records: T[], filterString: string): T[] => {
     return records.filter(record => matchesFilter(getRecordMonth(record), filterString));
 };
 
-export async function exportAllDataForAI(filterString: string = 'ALL'): Promise<ExportDataPayload> {
+const getSelectedDepartmentIds = (departmentIds?: string[]): string[] => {
+    const selected = departmentIds?.filter(deptId => allDepartmentIds.includes(deptId)) || [];
+    return selected.length > 0 ? selected : allDepartmentIds;
+};
+
+const collectionBelongsToSelectedDepartments = (collectionName: CollectionKey, selectedDepartmentIds: string[]): boolean => {
+    return collectionDepartmentMap[collectionName].some(deptId => selectedDepartmentIds.includes(deptId));
+};
+
+const filterRecordsByDepartments = <T,>(
+    records: T[],
+    collectionName: CollectionKey,
+    selectedDepartmentIds: string[]
+): T[] => {
+    if (selectedDepartmentIds.length === allDepartmentIds.length) return records;
+    if (!collectionBelongsToSelectedDepartments(collectionName, selectedDepartmentIds)) return [];
+
+    if (collectionName === 'general_kpis') {
+        return records.filter((record: any) => selectedDepartmentIds.includes(record?.departmentId));
+    }
+
+    return records;
+};
+
+const buildSummary = (collections: ExportDataPayload['collections']): ExportDataPayload['summary'] => {
+    const collectionCounts = Object.fromEntries(
+        Object.entries(collections).map(([collectionName, records]) => [collectionName, records.length])
+    ) as Record<string, number>;
+
+    const months = Object.values(collections)
+        .flatMap(records => records.map(record => getRecordMonth(record)))
+        .filter((month): month is string => Boolean(month))
+        .sort();
+
+    return {
+        totalRecords: Object.values(collectionCounts).reduce((total, count) => total + count, 0),
+        collectionCounts,
+        emptyCollections: Object.entries(collectionCounts)
+            .filter(([, count]) => count === 0)
+            .map(([collectionName]) => collectionName),
+        dateCoverage: {
+            earliestMonth: months[0] || null,
+            latestMonth: months[months.length - 1] || null
+        }
+    };
+};
+
+const buildRecommendedPrompt = (filterDescription: string, selectedDepartmentNames: string[]): string => {
+    return [
+        'حلل ملف JSON المرفق الخاص ببوابة مؤشرات الأداء GAHAR.',
+        `نطاق الفترة: ${filterDescription}.`,
+        `الإدارات المطلوبة: ${selectedDepartmentNames.join('، ')}.`,
+        'ابدأ بملخص تنفيذي قصير، ثم أبرز الاتجاهات، ونقاط القوة، ومناطق التحسين، وأي بيانات ناقصة أو غير متسقة.',
+        'استخدم العام المالي الموضح داخل الملف عند إجراء المقارنات السنوية، واذكر أسماء المجموعات التي استندت إليها.'
+    ].join('\n');
+};
+
+export async function exportAllDataForAI(options: AIExportOptions | string = {}): Promise<ExportDataPayload> {
+    const filterString = typeof options === 'string' ? options : options.filterString || 'ALL';
+    const selectedDepartmentIds = getSelectedDepartmentIds(typeof options === 'string' ? undefined : options.departmentIds);
+    const selectedDepartments = selectedDepartmentIds.map(id => ({ id, name: departments[id] || id }));
     const [
         accreditationFacilities,
         completionFacilities,
@@ -315,11 +439,19 @@ export async function exportAllDataForAI(filterString: string = 'ALL'): Promise<
     };
 
     const filteredCollections = Object.fromEntries(
-        Object.entries(collections).map(([collectionName, records]) => [
-            collectionName,
-            filterRecordsByPeriod(records, filterString)
-        ])
+        Object.entries(collections).map(([collectionName, records]) => {
+            const key = collectionName as CollectionKey;
+            return [
+                collectionName,
+                filterRecordsByPeriod(
+                    filterRecordsByDepartments(records, key, selectedDepartmentIds),
+                    filterString
+                )
+            ];
+        })
     ) as ExportDataPayload['collections'];
+    const filterDescription = getFilterDescription(filterString);
+    const selectedDepartmentNames = selectedDepartments.map(dept => dept.name);
 
     return {
         exportedAt: new Date().toISOString(),
@@ -327,8 +459,25 @@ export async function exportAllDataForAI(filterString: string = 'ALL'): Promise<
         dataDescription: "This JSON file contains all KPI collections, support visits, correction rates, registration, training, surveys, and decisions data for all departments of GAHAR (General Authority for Healthcare Accreditation and Regulation). It is structured for easy parsing by LLMs (Claude, ChatGPT, Gemini) to generate custom reports, statistical analysis, and comparisons.",
         exportScope: {
             filterString,
-            description: getFilterDescription(filterString),
-            filtered: filterString !== 'ALL'
+            description: filterDescription,
+            filtered: filterString !== 'ALL' || selectedDepartmentIds.length !== allDepartmentIds.length,
+            departmentIds: selectedDepartmentIds,
+            departments: selectedDepartments
+        },
+        summary: buildSummary(filteredCollections),
+        aiUsageGuide: {
+            recommendedPrompt: buildRecommendedPrompt(filterDescription, selectedDepartmentNames),
+            analysisIdeas: [
+                'Generate an executive summary for leadership.',
+                'Compare departments and identify the strongest and weakest performance areas.',
+                'Find missing months, empty collections, and unusual changes in KPI values.',
+                'Create recommendations based on obstacles and development proposals fields.'
+            ],
+            importantNotes: [
+                'Use exportScope to understand the selected period and departments.',
+                'Use summary.collectionCounts before detailed analysis to know which datasets are populated.',
+                'Use fiscalYearSettings for annual comparisons because the fiscal year starts in July and ends in June.'
+            ]
         },
         fiscalYearSettings: {
             fiscalYearStartMonth: 7, // July

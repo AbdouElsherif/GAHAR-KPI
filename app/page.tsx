@@ -19,6 +19,8 @@ export default function Home() {
     const [aiExportQuarter, setAIExportQuarter] = useState('1');
     const [aiExportHalfYear, setAIExportHalfYear] = useState('1');
     const [aiExportYear, setAIExportYear] = useState(new Date().getFullYear().toString());
+    const [aiExportDepartmentIds, setAIExportDepartmentIds] = useState<string[]>(departments.map(dept => dept.id));
+    const [promptCopyStatus, setPromptCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
     useEffect(() => {
         // Listen to auth state changes
@@ -57,19 +59,81 @@ export default function Home() {
         return 'ALL';
     };
 
+    const getAIExportFilterDescription = (filterString: string): string => {
+        if (filterString === 'ALL') return 'إجمالي قاعدة البيانات';
+        if (/^\d{4}-\d{2}$/.test(filterString)) return `شهر ${filterString}`;
+        if (filterString.startsWith('Q')) {
+            const [quarter, year] = filterString.split('-');
+            return `الربع ${quarter.replace('Q', '')} من عام ${year}`;
+        }
+        if (filterString.startsWith('H')) {
+            const [half, year] = filterString.split('-');
+            return `النصف ${half.replace('H', '')} من عام ${year}`;
+        }
+        if (filterString.startsWith('Y-')) return `عام ${filterString.split('-')[1]}`;
+        return filterString;
+    };
+
+    const selectedAIExportDepartments = departments.filter(dept => aiExportDepartmentIds.includes(dept.id));
+
+    const buildAIReporterPrompt = (): string | null => {
+        const filterString = buildAIExportFilter();
+        if (!filterString) return null;
+
+        const selectedNames = selectedAIExportDepartments.map(dept => dept.name).join('، ');
+        return [
+            'حلل ملف JSON المرفق الخاص ببوابة مؤشرات الأداء GAHAR.',
+            `نطاق الفترة: ${getAIExportFilterDescription(filterString)}.`,
+            `الإدارات المطلوبة: ${selectedNames || 'كل الإدارات'}.`,
+            'ابدأ بملخص تنفيذي قصير، ثم أبرز الاتجاهات، ونقاط القوة، ومناطق التحسين، وأي بيانات ناقصة أو غير متسقة.',
+            'استخدم العام المالي الموضح داخل الملف عند إجراء المقارنات السنوية، واذكر أسماء المجموعات التي استندت إليها.'
+        ].join('\n');
+    };
+
+    const toggleAIExportDepartment = (departmentId: string) => {
+        setAIExportDepartmentIds(prev =>
+            prev.includes(departmentId)
+                ? prev.filter(id => id !== departmentId)
+                : [...prev, departmentId]
+        );
+    };
+
+    const handleCopyAIReporterPrompt = async () => {
+        const prompt = buildAIReporterPrompt();
+        if (!prompt) return;
+
+        try {
+            await navigator.clipboard.writeText(prompt);
+            setPromptCopyStatus('copied');
+            setTimeout(() => setPromptCopyStatus('idle'), 2500);
+        } catch (error) {
+            console.error('Error copying AI reporter prompt:', error);
+            setPromptCopyStatus('error');
+            setTimeout(() => setPromptCopyStatus('idle'), 3000);
+        }
+    };
+
     const handleAIExport = async () => {
         const filterString = buildAIExportFilter();
         if (!filterString) return;
+        if (aiExportDepartmentIds.length === 0) {
+            alert('يرجى اختيار إدارة واحدة على الأقل');
+            return;
+        }
 
         try {
             setIsExporting('loading');
-            const data = await exportAllDataForAI(filterString);
+            const data = await exportAllDataForAI({
+                filterString,
+                departmentIds: aiExportDepartmentIds
+            });
             
             // Format current date for the filename
             const today = new Date();
             const dateStr = `${today.getFullYear()}_${String(today.getMonth() + 1).padStart(2, '0')}_${String(today.getDate()).padStart(2, '0')}`;
             const periodSuffix = filterString === 'ALL' ? 'all' : filterString.replace(/[^a-zA-Z0-9-]/g, '_');
-            const fileName = `gahar_kpi_ai_export_${periodSuffix}_${dateStr}.json`;
+            const departmentSuffix = aiExportDepartmentIds.length === departments.length ? 'all_departments' : aiExportDepartmentIds.join('_');
+            const fileName = `gahar_kpi_ai_export_${departmentSuffix}_${periodSuffix}_${dateStr}.json`;
             
             // Convert to JSON and create a download link
             const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
@@ -397,6 +461,78 @@ export default function Home() {
                                             </select>
                                         </div>
                                     )}
+
+                                    <div>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                            marginBottom: '8px'
+                                        }}>
+                                            <label style={{ display: 'block', fontWeight: 'bold', color: '#333' }}>
+                                                الإدارات المطلوب تضمينها
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setAIExportDepartmentIds(
+                                                        aiExportDepartmentIds.length === departments.length
+                                                            ? []
+                                                            : departments.map(dept => dept.id)
+                                                    );
+                                                }}
+                                                disabled={isExporting === 'loading'}
+                                                style={{
+                                                    backgroundColor: '#eef9f6',
+                                                    color: '#0d6a79',
+                                                    border: '1px solid #a3e2d1',
+                                                    borderRadius: '4px',
+                                                    padding: '6px 10px',
+                                                    cursor: isExporting === 'loading' ? 'not-allowed' : 'pointer',
+                                                    fontSize: '0.85rem',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                {aiExportDepartmentIds.length === departments.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'}
+                                            </button>
+                                        </div>
+
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                                            gap: '8px',
+                                            maxHeight: '190px',
+                                            overflowY: 'auto',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '6px',
+                                            padding: '10px',
+                                            backgroundColor: '#fbfbfb'
+                                        }}>
+                                            {departments.map(dept => (
+                                                <label
+                                                    key={dept.id}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        color: '#333',
+                                                        fontSize: '0.9rem',
+                                                        lineHeight: '1.4',
+                                                        cursor: isExporting === 'loading' ? 'not-allowed' : 'pointer'
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={aiExportDepartmentIds.includes(dept.id)}
+                                                        onChange={() => toggleAIExportDepartment(dept.id)}
+                                                        disabled={isExporting === 'loading'}
+                                                    />
+                                                    <span>{dept.name}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -404,10 +540,31 @@ export default function Home() {
                                 backgroundColor: '#f8f9fa',
                                 padding: '15px 20px',
                                 display: 'flex',
-                                justifyContent: 'flex-end',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap',
                                 gap: '10px',
                                 borderTop: '1px solid #ddd'
                             }}>
+                                <button
+                                    onClick={handleCopyAIReporterPrompt}
+                                    disabled={isExporting === 'loading'}
+                                    className="btn"
+                                    style={{
+                                        backgroundColor: promptCopyStatus === 'copied' ? '#198754' : promptCopyStatus === 'error' ? '#dc3545' : 'white',
+                                        color: promptCopyStatus === 'idle' ? '#0d6a79' : 'white',
+                                        border: '1px solid #0d6a79',
+                                        padding: '10px 16px',
+                                        borderRadius: '4px',
+                                        cursor: isExporting === 'loading' ? 'not-allowed' : 'pointer',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    {promptCopyStatus === 'copied' && 'تم نسخ الـ Prompt'}
+                                    {promptCopyStatus === 'error' && 'تعذر النسخ'}
+                                    {promptCopyStatus === 'idle' && 'نسخ Prompt جاهز'}
+                                </button>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                                 <button
                                     onClick={() => setIsAIExportModalOpen(false)}
                                     disabled={isExporting === 'loading'}
@@ -443,6 +600,7 @@ export default function Home() {
                                 >
                                     {isExporting === 'loading' ? 'جاري التصدير...' : 'تصدير الآن'}
                                 </button>
+                                </div>
                             </div>
                         </div>
                     </div>
