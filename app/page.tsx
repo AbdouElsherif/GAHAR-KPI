@@ -8,6 +8,7 @@ import { departmentsList as departments } from '@/constants/departments';
 import { exportAllDataForAI } from '@/lib/aiExportHelper';
 import AchievementHighlightsButton from '@/components/AchievementHighlightsButton';
 import NotificationCenter from '@/components/NotificationCenter';
+import DataQualityCenter from '@/components/DataQualityCenter';
 
 export default function Home() {
     const router = useRouter();
@@ -220,6 +221,8 @@ export default function Home() {
                 </div>
 
                 <NotificationCenter currentUser={currentUser} />
+
+                <DataQualityCenter currentUser={currentUser} />
 
                 {currentUser.role === 'super_admin' && (
                     <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '30px' }}>
