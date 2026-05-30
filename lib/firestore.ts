@@ -14,6 +14,38 @@ export interface KPIData {
     updatedBy: string;
 }
 
+export interface BranchAffairsIndicatorValue {
+    value?: number;
+    previousValue?: number;
+    visitedFacilities?: number;
+    accreditationApplicants?: number;
+    previousVisitedFacilities?: number;
+    previousAccreditationApplicants?: number;
+    details?: string;
+    previousDetails?: string;
+}
+
+export interface BranchAffairsBranchReport {
+    branchId: string;
+    branchName: string;
+    phase: number;
+    indicators: Record<string, BranchAffairsIndicatorValue>;
+}
+
+export interface BranchAffairsReport {
+    id?: string;
+    departmentId: string;
+    month: string;
+    year: number;
+    summary: string;
+    activityDetails: string;
+    branches: BranchAffairsBranchReport[];
+    createdAt?: Date;
+    createdBy?: string;
+    updatedAt?: Date;
+    updatedBy?: string;
+}
+
 export interface MOHQuarterData {
     target: number | string;
     achieved: number | string;
@@ -751,6 +783,7 @@ const programTypeCRUD = createCRUD<ProgramType>('program_types');
 const totalMedProfCategoryCRUD = createCRUD<TotalMedicalProfessionalByCategory>('total_med_profs_by_category');
 const totalMedProfGovernorateCRUD = createCRUD<TotalMedicalProfessionalByGovernorate>('total_med_profs_by_governorate');
 const govCustomerSurveyCRUD = createCRUD<GovernorateCustomerSurvey>('governorate_customer_surveys');
+const branchAffairsCRUD = createCRUD<BranchAffairsReport>('dept11_branch_affairs_reports');
 
 // ============================================================
 // Backwards-compatible exports
@@ -935,6 +968,12 @@ export const saveGovernorateCustomerSurvey = govCustomerSurveyCRUD.save;
 export const getGovernorateCustomerSurveys = govCustomerSurveyCRUD.getAll;
 export const updateGovernorateCustomerSurvey = govCustomerSurveyCRUD.update;
 export const deleteGovernorateCustomerSurvey = govCustomerSurveyCRUD.remove;
+
+// Branch Affairs Reports
+export const saveBranchAffairsReport = branchAffairsCRUD.save;
+export const getBranchAffairsReports = branchAffairsCRUD.getAll;
+export const updateBranchAffairsReport = branchAffairsCRUD.update;
+export const deleteBranchAffairsReport = branchAffairsCRUD.remove;
 
 export async function saveKPIData(kpiData: Omit<KPIData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
     try {

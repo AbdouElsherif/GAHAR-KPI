@@ -28,6 +28,8 @@ export const exportDepartmentDataToExcel = async (departmentId: string, departme
             await exportDept8Data(workbook, filterString);
         } else if (departmentId === 'dept10') {
             await exportDept10Data(workbook, filterString);
+        } else if (departmentId === 'dept11') {
+            await exportDept11Data(workbook, filterString);
         } else {
             alert(`التصدير غير مدعوم حالياً لهذه الإدارة.`);
             return;
@@ -997,4 +999,117 @@ const exportDept10Data = async (workbook: XLSX.WorkBook, filterString: string) =
         const ws = XLSX.utils.json_to_sheet(completedProjectsFormatted);
         XLSX.utils.book_append_sheet(workbook, ws, 'المشروعات المنتهي مراجعتها');
     }
+};
+
+// --- Department 11 (الإدارة العامة لشئون الفروع) ---
+const dept11Indicators = [
+    { id: 'healthControlVisits', label: 'زيارات الرقابة الصحية' },
+    { id: 'patientSatisfactionSurveys', label: 'استبيانات رضاء المرضى' },
+    { id: 'providerSatisfactionSurveys', label: 'استبيانات رضاء مقدمي الخدمة' },
+    { id: 'seriousEvents', label: 'بيانات الأحداث الجسيمة' },
+    { id: 'technicalSupportVisits', label: 'زيارات الدعم الفني' },
+    { id: 'marketingVisits', label: 'الزيارات التسويقية' },
+    { id: 'visitedAndAppliedFacilities', label: 'عدد المنشآت التي تم زيارتها وتقدمت للاعتماد', composite: true },
+    { id: 'fieldOperationsCoordination', label: 'تنسيق العمليات الميدانية' },
+    { id: 'medicalProfessionalsRegistration', label: 'تسجيل أعضاء المهن الطبية' },
+    { id: 'externalTraining', label: 'نشاط التدريب للغير' },
+    { id: 'internalTraining', label: 'نشاط التدريب الداخلي' },
+    { id: 'communitySeminars', label: 'الندوات المجتمعية' },
+    { id: 'internalMeetings', label: 'الاجتماعات الداخلية' },
+    { id: 'externalMeetings', label: 'الاجتماعات الخارجية' },
+    { id: 'obstacles', label: 'المعوقات', textOnly: true },
+    { id: 'developmentProposals', label: 'مقترحات التطوير', textOnly: true },
+];
+
+const dept11Value = (indicator: any) => {
+    if (!indicator) return 0;
+    if (typeof indicator.value === 'number') return indicator.value;
+    return (Number(indicator.visitedFacilities) || 0) + (Number(indicator.accreditationApplicants) || 0);
+};
+
+const dept11PreviousValue = (indicator: any, value: any, storedPrevious: any) => {
+    const source = storedPrevious || value || {};
+    if (indicator.textOnly) {
+        return storedPrevious ? source.details || '' : source.previousDetails || '';
+    }
+    if (storedPrevious) return dept11Value(source);
+    if (typeof source.previousValue === 'number') return source.previousValue;
+    return (Number(source.previousVisitedFacilities) || 0) + (Number(source.previousAccreditationApplicants) || 0);
+};
+
+const dept11PreviousMonth = (month: string) => {
+    if (!month || !month.includes('-')) return '';
+    const [year, monthNumber] = month.split('-');
+    return `${Number(year) - 1}-${monthNumber}`;
+};
+
+const dept11MonthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+const dept11FormatMonthLabel = (month: string) => {
+    if (!month || !month.includes('-')) return 'غير محدد';
+    const [year, monthNumber] = month.split('-');
+    return `${dept11MonthNames[Number(monthNumber) - 1] || monthNumber} ${year}`;
+};
+
+const safeSheetName = (name: string) => name.replace(/[\\/?*[\]:]/g, '').slice(0, 31);
+
+const exportDept11Data = async (workbook: XLSX.WorkBook, filterString: string) => {
+    const reportsRef = collection(db, 'dept11_branch_affairs_reports');
+    const reportsQ = applyFilterToQuery(reportsRef, filterString);
+    const reportsSnapshot = await getDocs(reportsQ);
+    const reports = reportsSnapshot.docs.map(doc => doc.data() as any);
+    const reportsByMonth = new Map(reports.map(report => [report.month, report]));
+
+    const summaryRows = reports.map(report => ({
+        'الشهر': report.month || 'غير محدد',
+        'السنة': report.year || '',
+        'عدد الفروع': report.branches?.length || 0,
+        'ملخص نشاطات الإدارة': report.summary || '',
+        'تفاصيل الأنشطة بالإدارة': report.activityDetails || '',
+    }));
+
+    if (summaryRows.length > 0) {
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(summaryRows), 'ملخص شئون الفروع');
+    }
+
+    const combinedRows: any[] = [];
+    const phaseRows = new Map<number, any[]>();
+
+    reports.forEach(report => {
+        (report.branches || []).forEach((branch: any) => {
+            const previousReport = reportsByMonth.get(dept11PreviousMonth(report.month));
+            const previousBranch = previousReport?.branches?.find((item: any) => item.branchId === branch.branchId);
+            dept11Indicators.forEach(indicator => {
+                const value = branch.indicators?.[indicator.id] || {};
+                const storedPrevious = previousBranch?.indicators?.[indicator.id];
+                const previousColumnName = dept11FormatMonthLabel(dept11PreviousMonth(report.month));
+                const currentColumnName = dept11FormatMonthLabel(report.month);
+                const row: any = {
+                    'الشهر': report.month || 'غير محدد',
+                    'المرحلة': `المرحلة ${branch.phase || 1}`,
+                    'الفرع': branch.branchName || '',
+                    'المؤشر': indicator.label,
+                    [previousColumnName]: indicator.textOnly ? '' : dept11PreviousValue(indicator, value, storedPrevious),
+                    [currentColumnName]: indicator.textOnly ? '' : dept11Value(value),
+                    'التفاصيل': value.details || ''
+                };
+                combinedRows.push(row);
+
+                const phase = Number(branch.phase) || 1;
+                const currentPhaseRows = phaseRows.get(phase) || [];
+                currentPhaseRows.push(row);
+                phaseRows.set(phase, currentPhaseRows);
+            });
+        });
+    });
+
+    if (combinedRows.length > 0) {
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(combinedRows), 'كل الفروع');
+    }
+
+    Array.from(phaseRows.entries())
+        .sort(([a], [b]) => a - b)
+        .forEach(([phase, rows]) => {
+            XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), safeSheetName(`المرحلة ${phase}`));
+        });
 };

@@ -32,6 +32,7 @@ import { allSectionDefinitions } from '@/lib/excelImportHelpers';
 import { ProgramTypesSection, CollectedRevenuesSection, TrainingProgramsByGovernorateSection, TrainingNatureSection } from '@/components/dept1';
 import { GovernorateCustomerSurveysSection } from '@/components/dept3';
 import { ReceivedProjectsSection, CompletedProjectsSection } from '@/components/dept10';
+import BranchAffairsDepartment from '@/components/dept11/BranchAffairsDepartment';
 import { committeeDecisionTypes } from '@/constants/committeeDecisionTypes';
 import { departments, departmentFields, months, formatMonthYear, egyptGovernorates, reviewerFacilityTypes, reviewerEvaluationVisitTypes, techSupportFacilityTypes, MIN_MONTH, MIN_DATE, type Field } from '@/constants/departments';
 import { validMonth, notFutureMonth, requiredField, positiveNumber, percentage, validateAndAlert, type ValidationError } from '@/lib/validation';
@@ -7022,6 +7023,16 @@ export default function DepartmentPage() {
     if (!currentUser) return null;
 
     const userCanEdit = canEdit(currentUser);
+
+    if (id === 'dept11') {
+        return (
+            <BranchAffairsDepartment
+                currentUser={currentUser}
+                canEdit={canEdit}
+                departmentName={departmentName}
+            />
+        );
+    }
 
     // Filter and sort functions moved to top
 

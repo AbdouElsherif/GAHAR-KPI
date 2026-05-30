@@ -268,6 +268,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept10');
     }
+
+    // Branch Affairs Reports (الإدارة العامة لشئون الفروع Dept 11)
+    match /dept11_branch_affairs_reports/{reportId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept11');
+    }
   }
 }
 

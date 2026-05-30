@@ -18,6 +18,7 @@ export const departments: Record<string, string> = {
     'dept8': 'الإدارة العامة لأبحاث وتطوير المعايير',
     'dept9': 'الإدارة العامة لشئون المراجعين',
     'dept10': 'الإدارة العامة للتصميم الصحي الآمن',
+    'dept11': 'الإدارة العامة لشئون الفروع',
 };
 
 // Department list as array (for home page grid)
@@ -168,6 +169,7 @@ export const departmentFields: Record<string, Field[]> = {
         { name: 'developmentProposals', label: 'مقترحات التطوير', type: 'text' },
         { name: 'notes', label: 'ملاحظات', type: 'text' },
     ],
+    'dept11': [],
 };
 
 export const months = [
