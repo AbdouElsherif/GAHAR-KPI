@@ -52,6 +52,44 @@ const categoryLabels: Record<DataQualityCategory, string> = {
 const formatNumber = (value: number) => new Intl.NumberFormat('ar-EG').format(value);
 const DATA_QUALITY_START_MONTH = '2025-12';
 
+const collectionDepartmentMap: Record<string, string> = {
+    accreditation_facilities: 'dept6',
+    completion_facilities: 'dept6',
+    payment_facilities: 'dept6',
+    corrective_plan_facilities: 'dept6',
+    basic_requirements_facilities: 'dept6',
+    appeals_facilities: 'dept6',
+    paid_facilities: 'dept6',
+    medical_professional_registrations: 'dept7',
+    committee_preparation_facilities: 'dept6',
+    certificate_issuance_facilities: 'dept6',
+    technical_support_visits: 'dept2',
+    remote_technical_supports: 'dept2',
+    introductory_support_visits: 'dept2',
+    queued_support_visits: 'dept2',
+    scheduled_support_visits: 'dept2',
+    accredited_supported_facilities: 'dept2',
+    technical_clinical_facilities: 'dept4',
+    admin_audit_facilities: 'dept5',
+    admin_audit_observations: 'dept5',
+    technical_clinical_observations: 'dept4',
+    observation_correction_rates: 'dept5',
+    technical_clinical_correction_rates: 'dept4',
+    reviewer_evaluation_visits: 'dept9',
+    medical_professionals_by_category: 'dept7',
+    medical_professionals_by_governorate: 'dept7',
+    training_entities: 'dept1',
+    program_types: 'dept1',
+    total_med_profs_by_category: 'dept7',
+    total_med_profs_by_governorate: 'dept7',
+    governorate_customer_surveys: 'dept3',
+    reports_presented_to_committee: 'dept9',
+    reports_by_facility_specialty: 'dept9',
+    accreditation_decisions: 'dept9',
+    collected_revenues: 'dept1',
+    general_kpis: 'dept1'
+};
+
 const formatMonth = (monthKey: string) => {
     try {
         const [year, month] = monthKey.split('-').map(Number);
@@ -81,6 +119,41 @@ const getVisibleDepartmentIds = (currentUser: User) => {
     }
 
     return currentUser.departmentId ? [currentUser.departmentId] : [];
+};
+
+const getIssueDepartmentId = (issue: DataQualityIssue) => {
+    const primaryLocation = issue.locations?.[0];
+    return issue.departmentId
+        || primaryLocation?.departmentId
+        || (issue.collectionName ? collectionDepartmentMap[issue.collectionName] : undefined);
+};
+
+const buildLocationHref = (location: {
+    departmentId?: string;
+    collectionName?: string;
+    month?: string;
+    recordId?: string;
+}) => {
+    const departmentId = location.departmentId
+        || (location.collectionName ? collectionDepartmentMap[location.collectionName] : undefined);
+    if (!departmentId) return '/#data-quality-center';
+
+    const params = new URLSearchParams();
+    if (location.month) params.set('month', location.month);
+    if (location.collectionName) params.set('section', location.collectionName);
+    if (location.recordId) params.set('recordId', location.recordId);
+
+    const query = params.toString();
+    return `/department/${departmentId}${query ? `?${query}` : ''}`;
+};
+
+const buildIssueHref = (issue: DataQualityIssue) => {
+    return buildLocationHref({
+        departmentId: getIssueDepartmentId(issue),
+        collectionName: issue.collectionName || issue.locations?.[0]?.collectionName,
+        month: issue.month || issue.locations?.[0]?.month,
+        recordId: issue.recordId || issue.locations?.[0]?.recordId
+    });
 };
 
 export default function DataQualityCenter({ currentUser }: DataQualityCenterProps) {
@@ -154,6 +227,16 @@ export default function DataQualityCenter({ currentUser }: DataQualityCenterProp
 
     const renderIssue = (issue: DataQualityIssue) => {
         const severityStyle = severityStyles[issue.severity];
+        const issueDepartmentId = getIssueDepartmentId(issue);
+        const issueDepartmentName = issue.departmentName
+            || (issueDepartmentId ? departmentsList.find(department => department.id === issueDepartmentId)?.name : undefined);
+        const reviewHref = buildIssueHref(issue);
+        const locationItems = [
+            issueDepartmentName ? `الإدارة: ${issueDepartmentName}` : '',
+            issue.month ? `الشهر: ${issue.month}` : '',
+            issue.collectionLabel ? `القسم/الجدول: ${issue.collectionLabel}` : '',
+            issue.recordId ? `معرّف السجل: ${issue.recordId}` : ''
+        ].filter(Boolean);
 
         return (
             <div
@@ -208,48 +291,105 @@ export default function DataQualityCenter({ currentUser }: DataQualityCenterProp
                         {issue.title}
                     </strong>
                     <div style={{ color: 'var(--text-color)', opacity: 0.82, fontSize: '0.92rem', lineHeight: 1.55 }}>
-                        {issue.departmentName && (
+                        {issueDepartmentName && (
                             <span style={{ fontWeight: 'bold', color: '#0d6a79' }}>
-                                {issue.departmentName}: {' '}
+                                {issueDepartmentName}: {' '}
                             </span>
                         )}
                         {issue.details}
                     </div>
+                    {locationItems.length > 0 && (
+                        <div style={{
+                            marginTop: '10px',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '7px'
+                        }}>
+                            {locationItems.map(item => (
+                                <span
+                                    key={item}
+                                    style={{
+                                        backgroundColor: '#f8f9fa',
+                                        border: '1px solid var(--border-color)',
+                                        color: '#555',
+                                        borderRadius: '6px',
+                                        padding: '4px 8px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    {item}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+                    {issue.locations && issue.locations.length > 0 && (
+                        <div style={{
+                            marginTop: '10px',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '7px',
+                            alignItems: 'center'
+                        }}>
+                            <span style={{
+                                color: '#555',
+                                fontSize: '0.8rem',
+                                fontWeight: 'bold'
+                            }}>
+                                أماكن الظهور:
+                            </span>
+                            {issue.locations.map((location, index) => (
+                                <Link
+                                    key={`${location.collectionName || 'general'}-${location.recordId || index}-${location.value || ''}`}
+                                    href={buildLocationHref(location)}
+                                    style={{
+                                        backgroundColor: '#eef9f6',
+                                        border: '1px solid #a3e2d1',
+                                        color: '#0d6a79',
+                                        borderRadius: '6px',
+                                        padding: '5px 8px',
+                                        fontSize: '0.78rem',
+                                        fontWeight: 'bold',
+                                        textDecoration: 'none'
+                                    }}
+                                >
+                                    {location.value ? `${location.value} - ` : ''}
+                                    {location.collectionLabel || location.collectionName || 'جدول'}
+                                    {location.month ? ` (${location.month})` : ''}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {issue.departmentId ? (
-                    <Link
-                        href={`/department/${issue.departmentId}`}
-                        className="btn"
-                        style={{
-                            backgroundColor: '#0d6a79',
-                            color: 'white',
-                            padding: '8px 12px',
-                            borderRadius: '5px',
-                            textDecoration: 'none',
-                            fontWeight: 'bold',
-                            whiteSpace: 'nowrap'
-                        }}
-                    >
-                        فتح الإدارة
-                    </Link>
-                ) : (
-                    <span style={{ color: '#777', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
-                        مراجعة عامة
-                    </span>
-                )}
+                <Link
+                    href={reviewHref}
+                    className="btn"
+                    style={{
+                        backgroundColor: issueDepartmentId ? '#0d6a79' : '#6c757d',
+                        color: 'white',
+                        padding: '8px 12px',
+                        borderRadius: '5px',
+                        textDecoration: 'none',
+                        fontWeight: 'bold',
+                        whiteSpace: 'nowrap'
+                    }}
+                >
+                    {issueDepartmentId ? 'فتح موضع المراجعة' : 'مراجعة عامة'}
+                </Link>
             </div>
         );
     };
 
     return (
         <div style={{
+            scrollMarginTop: '20px',
             marginTop: '40px',
             borderTop: '1px solid #eee',
             paddingTop: '30px',
             direction: 'rtl',
             textAlign: 'right'
-        }}>
+        }} id="data-quality-center">
             <div style={{
                 display: 'flex',
                 alignItems: 'center',

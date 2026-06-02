@@ -18,8 +18,20 @@ export interface DataQualityIssue {
     departmentId?: string;
     departmentName?: string;
     collectionName?: string;
+    collectionLabel?: string;
     month?: string;
     recordId?: string;
+    locations?: DataQualityIssueLocation[];
+}
+
+export interface DataQualityIssueLocation {
+    departmentId?: string;
+    departmentName?: string;
+    collectionName?: string;
+    collectionLabel?: string;
+    month?: string;
+    recordId?: string;
+    value?: string;
 }
 
 export interface DataQualityReport {
@@ -78,6 +90,43 @@ const collectionLabels: Record<string, string> = {
     accreditation_decisions: 'قرارات الاعتماد',
     collected_revenues: 'الإيرادات المحصلة',
     general_kpis: 'مؤشرات الإدارات الشهرية'
+};
+
+const collectionDepartmentMap: Record<string, string> = {
+    accreditation_facilities: 'dept6',
+    completion_facilities: 'dept6',
+    payment_facilities: 'dept6',
+    corrective_plan_facilities: 'dept6',
+    basic_requirements_facilities: 'dept6',
+    appeals_facilities: 'dept6',
+    paid_facilities: 'dept6',
+    medical_professional_registrations: 'dept7',
+    committee_preparation_facilities: 'dept6',
+    certificate_issuance_facilities: 'dept6',
+    technical_support_visits: 'dept2',
+    remote_technical_supports: 'dept2',
+    introductory_support_visits: 'dept2',
+    queued_support_visits: 'dept2',
+    scheduled_support_visits: 'dept2',
+    accredited_supported_facilities: 'dept2',
+    technical_clinical_facilities: 'dept4',
+    admin_audit_facilities: 'dept5',
+    admin_audit_observations: 'dept5',
+    technical_clinical_observations: 'dept4',
+    observation_correction_rates: 'dept5',
+    technical_clinical_correction_rates: 'dept4',
+    reviewer_evaluation_visits: 'dept9',
+    medical_professionals_by_category: 'dept7',
+    medical_professionals_by_governorate: 'dept7',
+    training_entities: 'dept1',
+    program_types: 'dept1',
+    total_med_profs_by_category: 'dept7',
+    total_med_profs_by_governorate: 'dept7',
+    governorate_customer_surveys: 'dept3',
+    reports_presented_to_committee: 'dept9',
+    reports_by_facility_specialty: 'dept9',
+    accreditation_decisions: 'dept9',
+    collected_revenues: 'dept1'
 };
 
 const consistencyChecks = [
@@ -237,14 +286,15 @@ const normalizeArabicName = (value: string) => {
         .toLowerCase();
 };
 
+const getCollectionLabel = (collectionName: string) => collectionLabels[collectionName] || collectionName;
+
 const addIssue = (issues: DataQualityIssue[], issue: Omit<DataQualityIssue, 'id'>) => {
     issues.push({
         id: `${issue.category}-${issue.departmentId || issue.collectionName || 'general'}-${issues.length + 1}`,
+        collectionLabel: issue.collectionName ? getCollectionLabel(issue.collectionName) : undefined,
         ...issue
     });
 };
-
-const getCollectionLabel = (collectionName: string) => collectionLabels[collectionName] || collectionName;
 
 const getIssueDepartment = (departmentId?: string) => ({
     departmentId,
@@ -265,6 +315,23 @@ const getAllCollectionRecords = (payload: ExportDataPayload) => {
     return Object.entries(payload.collections).flatMap(([collectionName, records]) =>
         records.map((record: any) => ({ collectionName, record }))
     );
+};
+
+const buildIssueLocation = (
+    collectionName: string,
+    record: any,
+    value?: string
+): DataQualityIssueLocation => {
+    const departmentId = record?.departmentId || collectionDepartmentMap[collectionName];
+    return {
+        departmentId,
+        departmentName: departmentId ? departments[departmentId] || departmentId : undefined,
+        collectionName,
+        collectionLabel: getCollectionLabel(collectionName),
+        month: getRecordMonth(record),
+        recordId: record?.id,
+        value
+    };
 };
 
 const getDuplicateRecordKey = (collectionName: string, record: any): string | null => {
@@ -473,28 +540,54 @@ export function analyzeDataQuality(
         });
     }
 
-    const facilityVariants = new Map<string, Set<string>>();
-    for (const { record } of getAllCollectionRecords(scopedPayload)) {
+    const facilityVariants = new Map<string, { variants: Set<string>; locations: DataQualityIssueLocation[] }>();
+    for (const { collectionName, record } of getAllCollectionRecords(scopedPayload)) {
         const facilityName = String(record?.facilityName || '').trim();
         if (!facilityName) continue;
+        if (toNumber(facilityName) !== null) continue;
         const normalized = normalizeArabicName(facilityName);
         if (!normalized) continue;
-        const variants = facilityVariants.get(normalized) || new Set<string>();
-        variants.add(facilityName);
-        facilityVariants.set(normalized, variants);
+        const facilityEntry = facilityVariants.get(normalized) || {
+            variants: new Set<string>(),
+            locations: []
+        };
+        const locationKey = [
+            collectionName,
+            getRecordMonth(record),
+            record?.id,
+            facilityName
+        ].join('|');
+
+        facilityEntry.variants.add(facilityName);
+        if (!facilityEntry.locations.some(location => [
+            location.collectionName,
+            location.month,
+            location.recordId,
+            location.value
+        ].join('|') === locationKey)) {
+            facilityEntry.locations.push(buildIssueLocation(collectionName, record, facilityName));
+        }
+        facilityVariants.set(normalized, facilityEntry);
     }
 
     Array.from(facilityVariants.entries())
-        .filter(([, variants]) => variants.size > 1)
+        .filter(([, entry]) => entry.variants.size > 1)
         .slice(0, 25)
-        .forEach(([, variants]) => {
-            const names = Array.from(variants);
+        .forEach(([, entry]) => {
+            const names = Array.from(entry.variants);
+            const locations = entry.locations.slice(0, 8);
+            const primaryLocation = locations[0];
             addIssue(issues, {
                 severity: 'low',
                 category: 'naming',
                 title: 'اختلاف محتمل في كتابة اسم منشأة',
                 details: `ظهرت المنشأة بصيغ متعددة: ${names.slice(0, 4).join('، ')}${names.length > 4 ? '...' : ''}. توحيد الاسم يساعد على دقة العد والمقارنات.`,
-                collectionName: 'multiple'
+                departmentId: primaryLocation?.departmentId,
+                departmentName: primaryLocation?.departmentName,
+                collectionName: primaryLocation?.collectionName,
+                month: primaryLocation?.month,
+                recordId: primaryLocation?.recordId,
+                locations
             });
         });
 

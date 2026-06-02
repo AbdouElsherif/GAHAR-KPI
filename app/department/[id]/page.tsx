@@ -678,6 +678,117 @@ export default function DepartmentPage() {
         setCurrentPage(1);
     }, [searchText, dateFrom, dateTo]);
 
+    useEffect(() => {
+        const monthFromQualityCenter = searchParams.get('month');
+        const sectionFromQualityCenter = searchParams.get('section');
+
+        if (monthFromQualityCenter && /^\d{4}-\d{2}$/.test(monthFromQualityCenter)) {
+            setGlobalFilterMonth(monthFromQualityCenter);
+            setDateFrom('');
+            setDateTo('');
+        }
+
+        switch (sectionFromQualityCenter) {
+            case 'general_kpis':
+                setIsDataEntrySectionExpanded(true);
+                break;
+            case 'accreditation_facilities':
+                setIsFacilitiesSectionExpanded(true);
+                break;
+            case 'completion_facilities':
+                setIsCompletionFacilitiesSectionExpanded(true);
+                break;
+            case 'payment_facilities':
+                setIsPaymentFacilitiesSectionExpanded(true);
+                break;
+            case 'paid_facilities':
+                setIsPaidFacilitiesSectionExpanded(true);
+                break;
+            case 'corrective_plan_facilities':
+                setIsCorrectivePlanFacilitiesSectionExpanded(true);
+                break;
+            case 'basic_requirements_facilities':
+                setIsBasicRequirementsFacilitiesSectionExpanded(true);
+                break;
+            case 'appeals_facilities':
+                setIsAppealsFacilitiesSectionExpanded(true);
+                break;
+            case 'medical_professional_registrations':
+                setIsMedicalProfessionalSectionExpanded(true);
+                break;
+            case 'committee_preparation_facilities':
+                setIsCommitteePreparationSectionExpanded(true);
+                break;
+            case 'certificate_issuance_facilities':
+                setIsCertificateIssuanceSectionExpanded(true);
+                break;
+            case 'technical_support_visits':
+                setIsTechSupportVisitsSectionExpanded(true);
+                break;
+            case 'remote_technical_supports':
+                setIsRemoteTechSupportSectionExpanded(true);
+                break;
+            case 'introductory_support_visits':
+                setIsIntroSupportVisitsSectionExpanded(true);
+                break;
+            case 'queued_support_visits':
+                setIsQueuedSupportVisitsSectionExpanded(true);
+                break;
+            case 'scheduled_support_visits':
+                setIsScheduledSupportVisitsSectionExpanded(true);
+                break;
+            case 'accredited_supported_facilities':
+                setIsAccreditedSupportedFacilitiesSectionExpanded(true);
+                break;
+            case 'technical_clinical_facilities':
+                setIsTechnicalClinicalFacilitiesSectionExpanded(true);
+                break;
+            case 'technical_clinical_observations':
+                setIsTechnicalClinicalObservationsSectionExpanded(true);
+                break;
+            case 'technical_clinical_correction_rates':
+                setIsTcCorrectionRateSectionExpanded(true);
+                break;
+            case 'admin_audit_facilities':
+                setIsAdminAuditFacilitiesSectionExpanded(true);
+                break;
+            case 'admin_audit_observations':
+                setIsAdminAuditObservationsSectionExpanded(true);
+                break;
+            case 'observation_correction_rates':
+                setIsCorrectionRateSectionExpanded(true);
+                break;
+            case 'reviewer_evaluation_visits':
+                setIsReviewerEvaluationVisitsSectionExpanded(true);
+                break;
+            case 'reports_presented_to_committee':
+                setIsReportsPresentedSectionExpanded(true);
+                break;
+            case 'reports_by_facility_specialty':
+                setIsReportsBySpecialtySectionExpanded(true);
+                break;
+            case 'accreditation_decisions':
+                setIsAccreditationDecisionsSectionExpanded(true);
+                break;
+            case 'medical_professionals_by_category':
+                setIsMedProfByCategorySectionExpanded(true);
+                break;
+            case 'medical_professionals_by_governorate':
+                setIsMedProfByGovernorateSectionExpanded(true);
+                break;
+            case 'total_med_profs_by_category':
+                setIsTotalMedProfByCategorySectionExpanded(true);
+                break;
+            case 'total_med_profs_by_governorate':
+                setIsTotalMedProfByGovernorateSectionExpanded(true);
+                break;
+            case 'training_entities':
+            case 'program_types':
+                setIsTrainingEntitiesSectionExpanded(true);
+                break;
+        }
+    }, [searchParams]);
+
     // Load facilities for dept6
     useEffect(() => {
         if (id === 'dept6' && currentUser) {
