@@ -29,11 +29,9 @@ const DEPARTMENT_COLLECTIONS = {
     'basic_requirements_facilities',
     'appeals_facilities',
     'paid_facilities',
+    'medical_professional_registrations',
     'committee_preparation_facilities',
     'certificate_issuance_facilities',
-  ],
-  dept7: [
-    'medical_professional_registrations',
   ],
 };
 

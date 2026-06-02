@@ -547,7 +547,10 @@ export function analyzeDataQuality(
         if (toNumber(facilityName) !== null) continue;
         const normalized = normalizeArabicName(facilityName);
         if (!normalized) continue;
-        const facilityEntry = facilityVariants.get(normalized) || {
+        const location = buildIssueLocation(collectionName, record, facilityName);
+        const departmentKey = location.departmentId || collectionDepartmentMap[collectionName] || 'unknown';
+        const facilityKey = `${departmentKey}|${normalized}`;
+        const facilityEntry = facilityVariants.get(facilityKey) || {
             variants: new Set<string>(),
             locations: []
         };
@@ -565,9 +568,9 @@ export function analyzeDataQuality(
             location.recordId,
             location.value
         ].join('|') === locationKey)) {
-            facilityEntry.locations.push(buildIssueLocation(collectionName, record, facilityName));
+            facilityEntry.locations.push(location);
         }
-        facilityVariants.set(normalized, facilityEntry);
+        facilityVariants.set(facilityKey, facilityEntry);
     }
 
     Array.from(facilityVariants.entries())
