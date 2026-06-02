@@ -29,6 +29,7 @@ import {
     saveMedicalProfessionalByGovernorate,
     saveTotalMedProfByCategory,
     saveTotalMedProfByGovernorate,
+    normalizeFacilityName,
 } from '@/lib/firestore';
 
 // ============================================================
@@ -942,7 +943,7 @@ export const validateExcelData = (
                             continue;
                         }
                     } else {
-                        record[colDef.field] = cellValue;
+                        record[colDef.field] = colDef.field === 'facilityName' ? normalizeFacilityName(cellValue) : cellValue;
                     }
                     break;
             }

@@ -649,6 +649,31 @@ export interface TechnicalClinicalCorrectionRate {
 
 
 
+function isNumericLike(value: string): boolean {
+    return value.trim() !== '' && !Number.isNaN(Number(value.trim()));
+}
+
+export function normalizeFacilityName(value: unknown): unknown {
+    if (typeof value !== 'string' || isNumericLike(value)) return value;
+
+    return value
+        .replace(/وحده(?=\s+طب)/g, 'وحدة')
+        .replace(/طب\s+[اأإآ]سر[هة]/g, 'طب أسرة')
+        .replace(/مستشفيي(?![\u0600-\u06FF])/g, 'مستشفى')
+        .replace(/مستشفي(?![\u0600-\u06FF])/g, 'مستشفى');
+}
+
+function normalizeRecordFields(data: any): any {
+    if (!data) return data;
+    const newData = { ...data };
+
+    if (Object.prototype.hasOwnProperty.call(newData, 'facilityName')) {
+        newData.facilityName = normalizeFacilityName(newData.facilityName);
+    }
+
+    return newData;
+}
+
 // Helper to normalize affiliation field values
 function normalizeAffiliation(data: any): any {
     if (!data) return data;
@@ -668,6 +693,10 @@ function normalizeAffiliation(data: any): any {
     return newData;
 }
 
+function normalizeFirestoreData(data: any): any {
+    return normalizeRecordFields(normalizeAffiliation(data));
+}
+
 // ============================================================
 // CRUD Factory Function - generates save/getAll/update/delete
 // for any Firestore collection with the standard pattern
@@ -676,7 +705,7 @@ function createCRUD<T extends { id?: string; createdAt?: Date; updatedAt?: Date 
     return {
         async save(data: Omit<T, 'id' | 'createdAt' | 'updatedAt'> & { createdBy: string; updatedBy: string }): Promise<string | null> {
             try {
-                const normalizedData = normalizeAffiliation(data);
+                const normalizedData = normalizeFirestoreData(data);
                 const colRef = collection(db, collectionName);
                 const docRef = await addDoc(colRef, {
                     ...normalizedData,
@@ -724,7 +753,7 @@ function createCRUD<T extends { id?: string; createdAt?: Date; updatedAt?: Date 
 
         async update(id: string, updates: Partial<T> & { updatedBy: string }): Promise<boolean> {
             try {
-                const normalizedUpdates = normalizeAffiliation(updates);
+                const normalizedUpdates = normalizeFirestoreData(updates);
                 const docRef = doc(db, collectionName, id);
                 await setDoc(docRef, {
                     ...normalizedUpdates,
