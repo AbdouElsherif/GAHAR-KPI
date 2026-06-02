@@ -60,7 +60,7 @@ const collectionDepartmentMap: Record<string, string> = {
     basic_requirements_facilities: 'dept6',
     appeals_facilities: 'dept6',
     paid_facilities: 'dept6',
-    medical_professional_registrations: 'dept7',
+    medical_professional_registrations: 'dept6',
     committee_preparation_facilities: 'dept6',
     certificate_issuance_facilities: 'dept6',
     technical_support_visits: 'dept2',
