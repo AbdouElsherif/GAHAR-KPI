@@ -134,7 +134,8 @@ const consistencyChecks = [
         departmentId: 'dept9',
         field: 'totalEvaluationVisits',
         collection: 'reviewer_evaluation_visits',
-        mode: 'count' as const,
+        mode: 'sum' as const,
+        sumField: 'facilityName',
         label: 'إجمالي الزيارات التقييمية'
     },
     {
@@ -142,7 +143,7 @@ const consistencyChecks = [
         field: 'reportsToCommittee',
         collection: 'reports_presented_to_committee',
         mode: 'sum' as const,
-        sumField: 'numberOfReports',
+        sumField: 'numberOfDecisions',
         label: 'تقارير الزيارات المعروضة على اللجنة'
     }
 ];
@@ -264,6 +265,32 @@ const getAllCollectionRecords = (payload: ExportDataPayload) => {
     return Object.entries(payload.collections).flatMap(([collectionName, records]) =>
         records.map((record: any) => ({ collectionName, record }))
     );
+};
+
+const getDuplicateRecordKey = (collectionName: string, record: any): string | null => {
+    const month = getRecordMonth(record);
+    if (!month) return null;
+
+    if (collectionName === 'reviewer_evaluation_visits') {
+        return [
+            collectionName,
+            month,
+            normalizeArabicName(String(record?.facilityType || '')),
+            normalizeArabicName(String(record?.governorate || '')),
+            normalizeArabicName(String(record?.visitType || ''))
+        ].join('|');
+    }
+
+    const facilityName = String(record?.facilityName || '').trim();
+    if (!facilityName) return null;
+
+    return [
+        collectionName,
+        month,
+        normalizeArabicName(facilityName),
+        normalizeArabicName(String(record?.governorate || '')),
+        normalizeArabicName(String(record?.visitType || record?.decisionType || ''))
+    ].join('|');
 };
 
 export function analyzeDataQuality(
@@ -427,17 +454,8 @@ export function analyzeDataQuality(
 
     const possibleDuplicateRecords = new Map<string, { collectionName: string; record: any }[]>();
     for (const item of getAllCollectionRecords(scopedPayload)) {
-        const record = item.record;
-        const facilityName = String(record?.facilityName || '').trim();
-        const month = getRecordMonth(record);
-        if (!facilityName || !month) continue;
-        const key = [
-            item.collectionName,
-            month,
-            normalizeArabicName(facilityName),
-            normalizeArabicName(String(record?.governorate || '')),
-            normalizeArabicName(String(record?.visitType || record?.decisionType || ''))
-        ].join('|');
+        const key = getDuplicateRecordKey(item.collectionName, item.record);
+        if (!key) continue;
         possibleDuplicateRecords.set(key, [...(possibleDuplicateRecords.get(key) || []), item]);
     }
 

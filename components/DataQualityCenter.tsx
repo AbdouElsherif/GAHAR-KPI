@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { departmentsList } from '@/constants/departments';
 import { User } from '@/lib/auth';
@@ -90,11 +90,18 @@ export default function DataQualityCenter({ currentUser }: DataQualityCenterProp
     const [severityFilter, setSeverityFilter] = useState<'all' | DataQualitySeverity>('all');
     const [categoryFilter, setCategoryFilter] = useState<'all' | DataQualityCategory>('all');
     const [showAll, setShowAll] = useState(false);
+    const loadingRef = useRef(false);
+    const lastRefreshAtRef = useRef(0);
 
     const visibleDepartmentIds = useMemo(() => getVisibleDepartmentIds(currentUser), [currentUser]);
+    const visibleDepartmentKey = visibleDepartmentIds.join('|');
 
-    const loadQualityReport = async () => {
+    const loadQualityReport = useCallback(async () => {
+        if (loadingRef.current) return;
+
         try {
+            loadingRef.current = true;
+            lastRefreshAtRef.current = Date.now();
             setLoading(true);
             setError(false);
             const payload = await exportAllDataForAI({
@@ -108,13 +115,30 @@ export default function DataQualityCenter({ currentUser }: DataQualityCenterProp
             console.error('Error loading data quality report:', loadError);
             setError(true);
         } finally {
+            loadingRef.current = false;
             setLoading(false);
         }
-    };
+    }, [visibleDepartmentKey]);
 
     useEffect(() => {
         loadQualityReport();
-    }, [visibleDepartmentIds.join('|')]);
+    }, [loadQualityReport]);
+
+    useEffect(() => {
+        const refreshWhenCurrent = () => {
+            if (document.visibilityState !== 'visible') return;
+            if (Date.now() - lastRefreshAtRef.current < 3000) return;
+            loadQualityReport();
+        };
+
+        window.addEventListener('focus', refreshWhenCurrent);
+        document.addEventListener('visibilitychange', refreshWhenCurrent);
+
+        return () => {
+            window.removeEventListener('focus', refreshWhenCurrent);
+            document.removeEventListener('visibilitychange', refreshWhenCurrent);
+        };
+    }, [loadQualityReport]);
 
     const filteredIssues = useMemo(() => {
         if (!report) return [];
