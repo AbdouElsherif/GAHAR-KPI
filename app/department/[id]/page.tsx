@@ -15897,8 +15897,10 @@ export default function DepartmentPage() {
                                     if (activeFilter) {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = reviewerEvaluationVisits.filter(v => v.month === activeFilter).length;
-                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} زيارة`}</span>;
+                                        const totalFacilities = reviewerEvaluationVisits
+                                            .filter(v => v.month === activeFilter)
+                                            .reduce((sum, v) => sum + (Number(v.facilityName) || 0), 0);
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${totalFacilities} زيارة`}</span>;
                                     }
                                     return '';
                                 })()}
@@ -16201,8 +16203,10 @@ export default function DepartmentPage() {
                                     if (activeFilter) {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = reportsPresentedToCommittee.filter(r => r.month === activeFilter).length;
-                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} تقارير`}</span>;
+                                        const totalReports = reportsPresentedToCommittee
+                                            .filter(r => r.month === activeFilter)
+                                            .reduce((sum, r) => sum + (Number(r.numberOfDecisions) || 0), 0);
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${totalReports} تقارير`}</span>;
                                     }
                                     return '';
                                 })()}
@@ -16464,8 +16468,10 @@ export default function DepartmentPage() {
                                     if (activeFilter) {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = reportsByFacilitySpecialty.filter(r => r.month === activeFilter).length;
-                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} تقارير`}</span>;
+                                        const totalReports = reportsByFacilitySpecialty
+                                            .filter(r => r.month === activeFilter)
+                                            .reduce((sum, r) => sum + (Number(r.numberOfReports) || 0), 0);
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${totalReports} تقارير`}</span>;
                                     }
                                     return '';
                                 })()}
@@ -16729,8 +16735,10 @@ export default function DepartmentPage() {
                                     if (activeFilter) {
                                         const [_, month] = activeFilter.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const count = accreditationDecisions.filter(d => d.month === activeFilter).length;
-                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${count} قرار`}</span>;
+                                        const totalDecisions = accreditationDecisions
+                                            .filter(d => d.month === activeFilter)
+                                            .reduce((sum, d) => sum + (Number(d.count) || 0), 0);
+                                        return <span style={{ color: '#e67e22' }}>{` - ${monthNames[parseInt(month) - 1]} ${totalDecisions} قرار`}</span>;
                                     }
                                     return '';
                                 })()}
