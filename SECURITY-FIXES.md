@@ -7,8 +7,8 @@
 // lib/auth.ts
 const adminAuth = await createUserWithEmailAndPassword(
     auth,
-    process.env.ADMIN_EMAIL,
-    process.env.INITIAL_ADMIN_PASSWORD // قيمة خادمية مؤقتة وغير موثقة
+    'admin@gahar.gov.eg',
+    'admin123'  // ❌ كلمة مرور ضعيفة موثقة
 );
 ```
 
@@ -30,13 +30,13 @@ export async function initializeUsers() {
             // Create default admin user
             const adminAuth = await createUserWithEmailAndPassword(
                 auth,
-                process.env.ADMIN_EMAIL,
+                'admin@gahar.gov.eg',
                 adminPassword
             );
             
             await setDoc(doc(db, 'users', adminAuth.user.uid), {
                 username: 'admin',
-                email: process.env.ADMIN_EMAIL,
+                email: 'admin@gahar.gov.eg',
                 role: 'super_admin',
                 createdAt: serverTimestamp(),
                 passwordChangedAt: serverTimestamp()
@@ -45,7 +45,7 @@ export async function initializeUsers() {
             // تسجيل كلمات المرور في مكان آمن منفصل
             // (يجب أن تُرسل للمسؤول عبر قنوات آمنة)
             console.log('SAVE THESE CREDENTIALS SECURELY:');
-            console.log('Admin account initialized without logging credentials');
+            console.log(`Admin: admin@gahar.gov.eg / ${adminPassword}`);
             console.log(`Viewer: viewer@gahar.gov.eg / ${viewerPassword}`);
             
             // حفظ hash من كلمة المرور في مكان آمن (اختياري)

@@ -1,13 +1,29 @@
 import {
-    browserLocalPersistence,
-    browserSessionPersistence,
-    onAuthStateChanged,
-    setPersistence,
+    createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
+    onAuthStateChanged,
+    updatePassword,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
+    getAuth,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import {
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc,
+    deleteDoc,
+    collection,
+    query,
+    where,
+    getDocs
+} from 'firebase/firestore';
+import { auth, db, firebaseConfig } from './firebase'; // Import firebaseConfig
+import { initializeApp, getApp, getApps, deleteApp } from 'firebase/app';
 import { logger } from './logger';
 
 export interface User {
@@ -17,48 +33,18 @@ export interface User {
     role: 'super_admin' | 'dept_admin' | 'dept_viewer' | 'general_viewer';
     departmentId?: string;
     departmentName?: string;
-    mustChangePassword?: boolean;
-}
-
-interface UserInput {
-    username: string;
-    email: string;
-    password: string;
-    role: User['role'];
-    departmentId?: string;
-    departmentName?: string;
-}
-
-async function authenticatedRequest<T = Record<string, unknown>>(
-    url: string,
-    init: RequestInit = {},
-): Promise<T> {
-    const currentUser = auth.currentUser;
-    if (!currentUser) throw new Error('Authentication required');
-
-    const idToken = await currentUser.getIdToken();
-    const response = await fetch(url, {
-        ...init,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${idToken}`,
-            ...init.headers,
-        },
-        cache: 'no-store',
-    });
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
-    }
-
-    return data as T;
 }
 
 export async function getUserProfile(uid: string): Promise<User | null> {
     try {
         const userDoc = await getDoc(doc(db, 'users', uid));
-        return userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as User : null;
+        if (userDoc.exists()) {
+            return {
+                id: userDoc.id,
+                ...userDoc.data()
+            } as User;
+        }
+        return null;
     } catch (error) {
         console.error('Error getting user profile:', error);
         return null;
@@ -66,82 +52,197 @@ export async function getUserProfile(uid: string): Promise<User | null> {
 }
 
 export async function getUsers(): Promise<User[]> {
-    const data = await authenticatedRequest<{ users: User[] }>('/api/admin/users/');
-    return data.users;
+    try {
+        const querySnapshot = await getDocs(collection(db, 'users'));
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as User));
+    } catch (error) {
+        console.error('Error getting users:', error);
+        return [];
+    }
 }
 
-export async function addUser(userData: UserInput): Promise<User> {
-    const data = await authenticatedRequest<{ user: User }>('/api/admin/users/', {
-        method: 'POST',
-        body: JSON.stringify(userData),
-    });
-    return data.user;
+export async function addUser(userData: {
+    username: string;
+    email: string;
+    password: string;
+    role: 'super_admin' | 'dept_admin' | 'dept_viewer' | 'general_viewer';
+    departmentId?: string;
+    departmentName?: string;
+}): Promise<User | null> {
+    let secondaryApp = null;
+    try {
+        // Use a secondary app to create the user to avoid logging out the current user
+        const secondaryAppName = 'secondaryApp';
+
+        // Check if app already exists (cleanup might have failed)
+        const existingApps = getApps();
+        const foundApp = existingApps.find(app => app.name === secondaryAppName);
+        if (foundApp) {
+            secondaryApp = foundApp;
+        } else {
+            secondaryApp = initializeApp(firebaseConfig, secondaryAppName);
+        }
+
+        const secondaryAuth = getAuth(secondaryApp);
+
+        // Create Firebase Auth user using secondary auth
+        const userCredential = await createUserWithEmailAndPassword(
+            secondaryAuth,
+            userData.email,
+            userData.password
+        );
+
+        // Create user profile in Firestore (using main db instance which has admin permissions)
+        const userProfile = {
+            username: userData.username,
+            email: userData.email,
+            role: userData.role,
+            departmentId: userData.departmentId,
+            departmentName: userData.departmentName
+        };
+
+        await setDoc(doc(db, 'users', userCredential.user.uid), userProfile);
+
+        // Cleanup secondary app
+        await signOut(secondaryAuth);
+        await deleteApp(secondaryApp);
+
+        return {
+            id: userCredential.user.uid,
+            ...userProfile
+        };
+    } catch (error: any) {
+        console.error('Error adding user:', error);
+
+        // Clean up if error occurred
+        if (secondaryApp) {
+            try {
+                await deleteApp(secondaryApp);
+            } catch (e) {
+                console.error('Error deleting secondary app:', e);
+            }
+        }
+
+        // Handle specific errors
+        if (error.code === 'auth/email-already-in-use') {
+            throw new Error('البريد الإلكتروني مستخدم بالفعل');
+        } else if (error.code === 'auth/invalid-email') {
+            throw new Error('البريد الإلكتروني غير صالح');
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error('كلمة المرور ضعيفة جداً');
+        }
+
+        throw new Error(error.message || 'حدث خطأ أثناء إضافة المستخدم');
+    }
 }
 
 export async function updateUser(id: string, updates: Partial<User>) {
-    await authenticatedRequest(`/api/admin/users/${encodeURIComponent(id)}/`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-    });
+    try {
+        const userRef = doc(db, 'users', id);
+        await updateDoc(userRef, updates);
+    } catch (error) {
+        console.error('Error updating user:', error);
+        throw new Error('حدث خطأ أثناء تحديث بيانات المستخدم');
+    }
 }
 
 export async function deleteUser(id: string) {
-    await authenticatedRequest(`/api/admin/users/${encodeURIComponent(id)}/`, {
-        method: 'DELETE',
-    });
-}
-
-function generateTemporaryPassword(length = 20): string {
-    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
-    const password = ['A', 'a', '2', '!'];
-    const randomValues = new Uint32Array(length - password.length);
-    crypto.getRandomValues(randomValues);
-    password.push(...Array.from(randomValues, value => alphabet[value % alphabet.length]));
-
-    const shuffleValues = new Uint32Array(password.length);
-    crypto.getRandomValues(shuffleValues);
-    for (let index = password.length - 1; index > 0; index--) {
-        const swapIndex = shuffleValues[index] % (index + 1);
-        [password[index], password[swapIndex]] = [password[swapIndex], password[index]];
-    }
-
-    return password.join('');
-}
-
-export async function resetUserPassword(userId: string): Promise<{
-    success: boolean;
-    error?: string;
-    newPassword?: string;
-}> {
     try {
-        const newPassword = generateTemporaryPassword();
-        await authenticatedRequest('/api/reset-password/', {
+        await deleteDoc(doc(db, 'users', id));
+        // Note: This doesn't delete the Firebase Auth user
+        // You may need Firebase Admin SDK for that or a cloud function
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        throw new Error('حدث خطأ أثناء حذف المستخدم');
+    }
+}
+
+export async function resetUserPassword(userId: string, newPassword: string = 'Gahar@' + Math.random().toString(36).slice(-8) + '123'): Promise<{ success: boolean; error?: string; newPassword?: string }> {
+    try {
+        // Get the current user's ID token for authentication
+        const currentFirebaseUser = auth.currentUser;
+        if (!currentFirebaseUser) {
+            return { success: false, error: 'يجب تسجيل الدخول أولاً' };
+        }
+        const idToken = await currentFirebaseUser.getIdToken();
+
+        // Call the API route to reset password using Firebase Admin SDK
+        const response = await fetch('/api/reset-password', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`,
+            },
             body: JSON.stringify({ userId, newPassword }),
         });
-        return { success: true, newPassword };
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return {
+                success: false,
+                error: data.error || 'فشل في إعادة تعيين كلمة المرور'
+            };
+        }
+
+        return {
+            success: true,
+            newPassword: data.newPassword,
+        };
     } catch (error: any) {
-        return { success: false, error: error.message || 'Password reset failed' };
+        console.error('Error resetting user password:', error);
+        return {
+            success: false,
+            error: error.message || 'حدث خطأ أثناء الاتصال بالخادم'
+        };
     }
 }
 
+// Set Remember Me persistence
 export async function setRememberMe(remember: boolean): Promise<void> {
-    await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+    try {
+        if (remember) {
+            // LOCAL: persists even after browser is closed
+            await setPersistence(auth, browserLocalPersistence);
+        } else {
+            // SESSION: clears when browser tab is closed
+            await setPersistence(auth, browserSessionPersistence);
+        }
+    } catch (error) {
+        console.error('Error setting persistence:', error);
+    }
 }
 
-export async function login(
-    email: string,
-    password: string,
-    rememberMe = false,
-): Promise<User | null> {
+// Authentication
+export async function login(email: string, password: string, rememberMe: boolean = false): Promise<User | null> {
     try {
+        // Set persistence before login
         await setRememberMe(rememberMe);
+        logger.log('Persistence set to:', rememberMe ? 'LOCAL' : 'SESSION');
+
+        logger.log('Attempting login for:', email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        logger.log('Auth successful. UID:', userCredential.user.uid);
+
         const userProfile = await getUserProfile(userCredential.user.uid);
+        logger.log('User profile result:', userProfile);
 
         if (!userProfile) {
             logger.error('User profile not found for UID:', userCredential.user.uid);
-            await signOut(auth);
+            // Emergency recovery: if it's the admin, try to recreate the profile
+            if (email === 'admin@gahar.gov.eg') {
+
+                const adminProfile = {
+                    username: 'Admin',
+                    email: email,
+                    role: 'super_admin' as const
+                };
+                await setDoc(doc(db, 'users', userCredential.user.uid), adminProfile);
+                return { id: userCredential.user.uid, ...adminProfile };
+            }
         }
 
         return userProfile;
@@ -152,29 +253,56 @@ export async function login(
 }
 
 export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
-    await authenticatedRequest('/api/change-password/', {
-        method: 'POST',
-        body: JSON.stringify({ oldPassword, newPassword }),
-    });
-    await signOut(auth);
+    const user = auth.currentUser;
+    if (!user || !user.email) throw new Error('No user logged in');
+
+    const credential = EmailAuthProvider.credential(user.email, oldPassword);
+
+    try {
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPassword);
+    } catch (error: any) {
+        console.error('Change password error:', error);
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            throw new Error('كلمة المرور القديمة غير صحيحة');
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error('كلمة المرور الجديدة ضعيفة جداً');
+        } else {
+            throw new Error('حدث خطأ أثناء تغيير كلمة المرور');
+        }
+    }
 }
 
 export async function logout() {
-    await signOut(auth);
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
 }
 
 export function getCurrentUser(): Promise<User | null> {
-    return new Promise(resolve => {
-        const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
-            resolve(firebaseUser ? await getUserProfile(firebaseUser.uid) : null);
+    return new Promise((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                const userProfile = await getUserProfile(firebaseUser.uid);
+                resolve(userProfile);
+            } else {
+                resolve(null);
+            }
             unsubscribe();
         });
     });
 }
 
 export function onAuthChange(callback: (user: User | null) => void) {
-    return onAuthStateChanged(auth, async firebaseUser => {
-        callback(firebaseUser ? await getUserProfile(firebaseUser.uid) : null);
+    return onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+            const userProfile = await getUserProfile(firebaseUser.uid);
+            callback(userProfile);
+        } else {
+            callback(null);
+        }
     });
 }
 
@@ -183,19 +311,19 @@ export function isAuthenticated(): boolean {
 }
 
 export function canEdit(user: User | null): boolean {
-    if (!user || user.mustChangePassword) return false;
+    if (!user) return false;
     return user.role === 'super_admin' || user.role === 'dept_admin';
 }
 
 export function canAccessDepartment(user: User | null, deptId: string): boolean {
-    if (!user || user.mustChangePassword) return false;
+    if (!user) return false;
     if (user.role === 'super_admin' || user.role === 'general_viewer') return true;
     return user.departmentId === deptId;
 }
 
 export function validatePassword(password: string): { isValid: boolean; error?: string } {
-    if (password.length < 12) {
-        return { isValid: false, error: 'كلمة المرور يجب أن تكون 12 حرفاً على الأقل' };
+    if (password.length < 6) {
+        return { isValid: false, error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' };
     }
     if (!/\d/.test(password)) {
         return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل' };
@@ -206,8 +334,10 @@ export function validatePassword(password: string): { isValid: boolean; error?: 
     if (!/[A-Z]/.test(password)) {
         return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل' };
     }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-        return { isValid: false, error: 'كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل' };
-    }
     return { isValid: true };
 }
+
+// initializeUsers function was removed for security reasons.
+// The admin account already exists and should not be recreated from code.
+// To create new admin accounts, use the admin panel in the application.
+

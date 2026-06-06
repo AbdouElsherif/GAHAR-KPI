@@ -41,7 +41,7 @@ export default function ChangePasswordPage() {
             setNewPassword('');
             setConfirmPassword('');
             setTimeout(() => {
-                router.replace('/login');
+                router.push('/');
             }, 2000);
         } catch (err: any) {
             setError(err.message || 'حدث خطأ أثناء تغيير كلمة المرور');

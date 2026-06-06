@@ -61,7 +61,7 @@
 **الملف:** `lib/auth.ts` (السطر 236-237)
 ```typescript
 await addUser({
-    password: '<removed-insecure-example>',  // لا توثق كلمات المرور
+    password: 'admin123',  // ❌ لا تزال موجودة!
 });
 ```
 
@@ -288,7 +288,7 @@ const departments = [
 ];
 
 // ❌ عدم وجود Constants
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL; // قيمة خادمية فقط
+const ADMIN_EMAIL = 'admin@gahar.gov.eg'; // يجب أن يكون في .env
 
 // ❌ عدم وجود لـ Error Types
 throw new Error('Generic error'); // يجب custom error types
@@ -379,7 +379,7 @@ d:\تطبيقي/
 ## 🎯 الخطوات التالية
 
 ### 1. الإصلاحات الحرجة (اليوم)
-- [ ] إزالة أي كلمة مرور ثابتة أو موثقة من المستودع
+- [ ] استبدال `admin123` برقم عشوائي
 - [ ] حذف جميع console.log من auth.ts
 
 ### 2. التحسينات العالية (هذا الأسبوع)

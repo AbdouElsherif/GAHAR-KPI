@@ -9,21 +9,17 @@ service cloud.firestore {
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
-
-    function isActiveUser() {
-      return isAuthenticated() && getUserData().mustChangePassword != true;
-    }
     
     function isSuperAdmin() {
-      return isActiveUser() && getUserData().role == 'super_admin';
+      return isAuthenticated() && getUserData().role == 'super_admin';
     }
     
     function isDeptAdmin() {
-      return isActiveUser() && getUserData().role == 'dept_admin';
+      return isAuthenticated() && getUserData().role == 'dept_admin';
     }
     
     function isGeneralViewer() {
-      return isActiveUser() && getUserData().role == 'general_viewer';
+      return isAuthenticated() && getUserData().role == 'general_viewer';
     }
     
     function userDepartmentId() {
@@ -31,28 +27,20 @@ service cloud.firestore {
     }
     
     function isDepartmentAdmin(deptId) {
-      return isActiveUser() && getUserData().role == 'dept_admin' && getUserData().departmentId == deptId;
-    }
-
-    function canReadDepartment(deptId) {
-      return isActiveUser() && (
-        isSuperAdmin() ||
-        isGeneralViewer() ||
-        ((getUserData().role == 'dept_admin' || getUserData().role == 'dept_viewer') &&
-          userDepartmentId() == deptId)
-      );
+      return isAuthenticated() && getUserData().role == 'dept_admin' && getUserData().departmentId == deptId;
     }
     
     match /users/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;
       allow read: if isSuperAdmin();
-      allow create, update, delete: if false;
+      allow update: if isAuthenticated() && request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email']);
+      allow create, update, delete: if isSuperAdmin();
     }
     
     match /kpis/{kpiId} {
-      allow read: if isActiveUser() && (isSuperAdmin() || isGeneralViewer() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId) || (getUserData().role == 'dept_viewer' && userDepartmentId() == resource.data.departmentId));
-      allow create: if isActiveUser() && (isSuperAdmin() || (isDeptAdmin() && request.resource.data.departmentId == userDepartmentId())) && request.resource.data.keys().hasAll(['departmentId', 'month', 'year']) && request.resource.data.keys().size() < 50;
-      allow update: if isActiveUser() && (isSuperAdmin() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId && userDepartmentId() == request.resource.data.departmentId)) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['departmentId']);
+      allow read: if isAuthenticated() && (isSuperAdmin() || isGeneralViewer() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId) || (getUserData().role == 'dept_viewer' && userDepartmentId() == resource.data.departmentId));
+      allow create: if isAuthenticated() && (isSuperAdmin() || (isDeptAdmin() && request.resource.data.departmentId == userDepartmentId())) && request.resource.data.keys().hasAll(['departmentId', 'month', 'year']) && request.resource.data.keys().size() < 50;
+      allow update: if isAuthenticated() && (isSuperAdmin() || (isDeptAdmin() && userDepartmentId() == resource.data.departmentId && userDepartmentId() == request.resource.data.departmentId)) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['departmentId']);
       allow delete: if isSuperAdmin();
     }
     
@@ -62,228 +50,228 @@ service cloud.firestore {
     }
     
     match /moh_kpis/{kpiId} {
-      allow read: if isSuperAdmin();
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin();
     }
     
     match /accreditation_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /completion_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /payment_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /paid_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
     
     match /corrective_plan_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     match /basic_requirements_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     match /appeals_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     
     match /medical_professional_registrations/{registrationId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     // Committee Preparation Facilities (التجهيز للعرض على اللجنة for dept6)
     match /committee_preparation_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     // Certificate Issuance Facilities (إصدار الشهادات for dept6)
     match /certificate_issuance_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept6');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept6');
     }
 
     match /technical_clinical_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept4');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept4');
     }
 
     match /admin_audit_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept5');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept5');
     }
 
     match /admin_audit_observations/{observationId} {
-      allow read: if canReadDepartment('dept5');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept5');
     }
 
     match /technical_clinical_observations/{observationId} {
-      allow read: if canReadDepartment('dept4');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept4');
     }
 
     match /observation_correction_rates/{rateId} {
-      allow read: if canReadDepartment('dept5');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept5');
     }
 
     match /technical_clinical_correction_rates/{rateId} {
-      allow read: if canReadDepartment('dept4');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept4');
     }
 
     match /technical_support_visits/{visitId} {
-      allow read: if canReadDepartment('dept2');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /remote_technical_supports/{supportId} {
-      allow read: if canReadDepartment('dept2');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /introductory_support_visits/{visitId} {
-      allow read: if canReadDepartment('dept2');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /queued_support_visits/{visitId} {
-      allow read: if canReadDepartment('dept2');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /scheduled_support_visits/{visitId} {
-      allow read: if canReadDepartment('dept2');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /accredited_supported_facilities/{facilityId} {
-      allow read: if canReadDepartment('dept2');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept2');
     }
 
     match /reviewer_evaluation_visits/{visitId} {
-      allow read: if canReadDepartment('dept9');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     match /reviewer_evaluation_visits_by_governorate/{visitId} {
-      allow read: if canReadDepartment('dept9');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     match /reviewer_evaluation_visits_by_type/{visitId} {
-      allow read: if canReadDepartment('dept9');
-      allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isSuperAdmin() || isDeptAdmin();
     }
 
     match /medical_professionals_by_category/{docId} {
-      allow read: if canReadDepartment('dept7');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
 
     match /medical_professionals_by_governorate/{docId} {
-      allow read: if canReadDepartment('dept7');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
 
     // Training Entities (الجهات الحاصلة على التدريب for dept1)
     match /training_entities/{entityId} {
-      allow read: if canReadDepartment('dept1');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
 
     // Program Types (نوع البرنامج for dept1)
     match /program_types/{programId} {
-      allow read: if canReadDepartment('dept1');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
 
     // Collected Revenues (الإيرادات المحصلة for dept1)
     match /collectedRevenues/{revenueId} {
-      allow read: if canReadDepartment('dept1');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
 
     // Training Programs By Governorate (البرامج التدريبية بالمحافظات for dept1)
     match /trainingProgramsByGovernorate/{programId} {
-      allow read: if canReadDepartment('dept1');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
 
     // Training Natures (طبيعة التدريب for dept1)
     match /trainingNatures/{natureId} {
-      allow read: if canReadDepartment('dept1');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept1');
     }
 
     //Governorate Customer Surveys (استبيانات رضاء المتعاملين حسب المحافظة for dept3)
     match /governorate_customer_surveys/{surveyId} {
-      allow read: if canReadDepartment('dept3');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept3');
     }
 
     // Total Medical Professionals By Category (الإجمالي الكلي لأعضاء المهن الطبية المسجلين طبقا للفئة for dept7)
     match /total_med_profs_by_category/{docId} {
-      allow read: if canReadDepartment('dept7');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
 
     // Total Medical Professionals By Governorate (الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات for dept7)
     match /total_med_profs_by_governorate/{docId} {
-      allow read: if canReadDepartment('dept7');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept7');
     }
     // Reports Presented to Committee (Dept 9)
     match /reports_presented_to_committee/{reportId} {
-      allow read: if canReadDepartment('dept9');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     // Reports By Facility Specialty (التقارير وفقا لتخصص المنشآت Dept 9)
     match /reports_by_facility_specialty/{reportId} {
-      allow read: if canReadDepartment('dept9');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     // Accreditation Decisions (القرارات الصادرة Dept 9)
     match /accreditation_decisions/{decisionId} {
-      allow read: if canReadDepartment('dept9');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept9');
     }
 
     // Safe Health Design - Received Projects (المشروعات المستلمة Dept 10)
     match /dept10_received_projects/{projectId} {
-      allow read: if canReadDepartment('dept10');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept10');
     }
 
     // Safe Health Design - Completed Review Projects (المشروعات المنتهي مراجعتها Dept 10)
     match /dept10_completed_projects/{projectId} {
-      allow read: if canReadDepartment('dept10');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept10');
     }
 
     // Branch Affairs Reports (الإدارة العامة لشئون الفروع Dept 11)
     match /dept11_branch_affairs_reports/{reportId} {
-      allow read: if canReadDepartment('dept11');
+      allow read: if isAuthenticated();
       allow create, update, delete: if isSuperAdmin() || isDepartmentAdmin('dept11');
     }
   }

@@ -52,10 +52,6 @@ export default function AdminPage() {
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user) => {
-            if (user?.mustChangePassword) {
-                router.replace('/change-password');
-                return;
-            }
             if (!user || user.role !== 'super_admin') {
                 if (!user && isFirstLoad) {
                     // Firebase might still be restoring the session
@@ -344,7 +340,6 @@ export default function AdminPage() {
                                             >
                                                 تعديل
                                             </button>
-                                            {user.id !== currentUser.id && (
                                             <button
                                                 onClick={() => handleResetPassword(user)}
                                                 style={{
@@ -359,7 +354,6 @@ export default function AdminPage() {
                                             >
                                                 إعادة تعيين كلمة المرور
                                             </button>
-                                            )}
                                             {user.role !== 'super_admin' && (
                                                 <button
                                                     onClick={() => handleDelete(user.id)}
@@ -414,7 +408,7 @@ export default function AdminPage() {
                         </p>
                         <div style={{ backgroundColor: '#f8f9fa', padding: '10px', borderRadius: '4px', marginBottom: '20px' }}>
                             سيتم تعيين كلمة المرور إلى:<br />
-                            <strong style={{ fontSize: '1.05rem', color: '#0056b3' }}>A unique temporary password will be generated securely</strong>
+                            <strong style={{ fontSize: '1.2rem', color: '#0056b3' }}>Gahar@123</strong>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
                             <button

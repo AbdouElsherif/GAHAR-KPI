@@ -11,7 +11,7 @@
 await addUser({
     username: 'Admin',
     email: adminEmail,
-    password: '<removed-insecure-example>',  // لا توثق كلمات المرور
+    password: 'admin123',  // ❌ خطر جداً
     role: 'super_admin'
 });
 ```
