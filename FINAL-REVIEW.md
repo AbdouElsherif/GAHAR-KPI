@@ -106,10 +106,10 @@
 
 ## 🎯 أهم 3 أشياء يجب فعلها الآن
 
-### 1️⃣ استبدال 'admin123' (30 دقيقة)
+### 1️⃣ إزالة كلمة المرور الثابتة (30 دقيقة)
 ```typescript
 // من:
-password: 'admin123'
+password: '<removed-insecure-example>'
 
 // إلى:
 password: process.env.INITIAL_ADMIN_PASSWORD || generateSecurePassword()

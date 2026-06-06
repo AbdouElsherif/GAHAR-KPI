@@ -32,6 +32,8 @@ export default function Home() {
                 // Only redirect if we've received at least one auth state (which is null)
                 // and it's not the initial state while Firebase is loading persistence
                 router.push('/login');
+            } else if (user.mustChangePassword) {
+                router.replace('/change-password');
             } else {
                 setCurrentUser(user);
                 setLoading(false);

@@ -240,6 +240,10 @@ export default function MOHReportsPage() {
 
     useEffect(() => {
         const unsubscribe = onAuthChange(async (user: User | null) => {
+            if (user?.mustChangePassword) {
+                router.replace('/change-password');
+                return;
+            }
             if (!user) {
                 if (isFirstLoad) {
                     // Firebase might still be restoring the session

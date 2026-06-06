@@ -25,7 +25,9 @@ export default function LoginPage() {
             const user = await login(email, password, rememberMe);
 
             if (user) {
-                if (user.role === 'super_admin') {
+                if (user.mustChangePassword) {
+                    router.replace('/change-password');
+                } else if (user.role === 'super_admin') {
                     router.push('/admin');
                 } else {
                     router.push('/');
