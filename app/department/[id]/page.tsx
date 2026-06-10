@@ -12909,6 +12909,7 @@ export default function DepartmentPage() {
                                                 required
                                             >
                                                 <option value="">اختر نوع المنشأة</option>
+                                                <option value="وحدات التميز الإكلينيكي">وحدات التميز الإكلينيكي</option>
                                                 {techSupportFacilityTypes.map(type => (
                                                     <option key={type} value={type}>{type}</option>
                                                 ))}
