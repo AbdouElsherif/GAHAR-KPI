@@ -36,7 +36,8 @@ const techSupportFacilityTypes = [
     'مراكز جراحات اليوم الواحد',
     'مراكز علاج طبيعي',
     'مراكز أشعة',
-    'مراكز ووحدات الرعاية الأولية'
+    'مراكز ووحدات الرعاية الأولية',
+    'وحدات التميز الإكلينيكي'
 ];
 
 export default function TechSupportVisitsSection({ currentUser, canEdit }: TechSupportVisitsSectionProps) {

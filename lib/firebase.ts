@@ -1,6 +1,6 @@
 ﻿import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { initializeFirestore, memoryLocalCache, type Firestore } from 'firebase/firestore';
 
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,13 +16,18 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 
 export const auth = getAuth(app);
 
-// Initialize Firestore with better settings
-export const db = getApps().length === 1
-  ? initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager()
-    })
-  })
-  : getFirestore(app);
+const globalForFirebase = globalThis as typeof globalThis & {
+  firestoreDb?: Firestore;
+};
+
+// Keep one instance during development reloads and avoid IndexedDB lease
+// contention when the application is open in multiple tabs.
+export const db = globalForFirebase.firestoreDb ?? initializeFirestore(app, {
+  localCache: memoryLocalCache()
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForFirebase.firestoreDb = db;
+}
 
 export default app;
