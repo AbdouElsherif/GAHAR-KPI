@@ -129,7 +129,18 @@ const collectionDepartmentMap: Record<string, string> = {
     collected_revenues: 'dept1'
 };
 
-const consistencyChecks = [
+type ConsistencyCheck = {
+    departmentId: string;
+    field: string;
+    collection: string;
+    mode: 'count' | 'sum';
+    sumField?: string;
+    calculateDetailValue?: (records: any[], month: string) => number;
+    detailCriteria?: string;
+    label: string;
+};
+
+const consistencyChecks: ConsistencyCheck[] = [
     {
         departmentId: 'dept2',
         field: 'introVisits',
@@ -177,6 +188,11 @@ const consistencyChecks = [
         field: 'newFacilities',
         collection: 'accreditation_facilities',
         mode: 'count' as const,
+        calculateDetailValue: (records, month) => records.filter(record =>
+            getRecordMonth(record) === month
+            && String(record?.accreditationStatus || '').trim() === 'منشأة جديدة'
+        ).length,
+        detailCriteria: 'بعد احتساب المنشآت التي حالة الاعتماد الخاصة بها "منشأة جديدة" فقط',
         label: 'المنشآت الجديدة المتقدمة للتسجيل'
     },
     {
@@ -500,16 +516,18 @@ export function analyzeDataQuality(
             if (kpiValue === null) continue;
 
             const collectionRecords = (scopedPayload.collections as any)[check.collection] || [];
-            const detailValue = check.mode === 'count'
-                ? countCollectionByMonth(collectionRecords, month)
-                : sumCollectionFieldByMonth(collectionRecords, month, check.sumField || 'count');
+            const detailValue = check.calculateDetailValue
+                ? check.calculateDetailValue(collectionRecords, month)
+                : check.mode === 'count'
+                    ? countCollectionByMonth(collectionRecords, month)
+                    : sumCollectionFieldByMonth(collectionRecords, month, check.sumField || 'count');
 
             if (kpiValue !== detailValue) {
                 addIssue(issues, {
                     severity: 'medium',
                     category: 'consistency',
                     title: 'عدم تطابق بين الإجمالي والبيانات التفصيلية',
-                    details: `${check.label}: القيمة المسجلة في KPI هي ${kpiValue} بينما البيانات التفصيلية في "${getCollectionLabel(check.collection)}" تعطي ${detailValue} لشهر ${month}.`,
+                    details: `${check.label}: القيمة المسجلة في KPI هي ${kpiValue} بينما البيانات التفصيلية في "${getCollectionLabel(check.collection)}" تعطي ${detailValue} لشهر ${month}${check.detailCriteria ? `، ${check.detailCriteria}` : ''}.`,
                     month,
                     collectionName: check.collection,
                     recordId: record.id,
