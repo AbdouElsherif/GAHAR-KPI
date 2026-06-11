@@ -2,17 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { departmentsList, departmentFields } from '@/constants/departments';
+import { departmentsList } from '@/constants/departments';
 import { getAllKPIData, KPIData } from '@/lib/firestore';
 import { User } from '@/lib/auth';
-
-type NotificationPriority = 'high' | 'medium' | 'low';
 
 interface PortalNotification {
     id: string;
     departmentId: string;
     departmentName: string;
-    priority: NotificationPriority;
     title: string;
     details: string;
 }
@@ -41,27 +38,11 @@ const getRecordMonth = (record: KPIData): string => {
     return '';
 };
 
-const isEmptyValue = (value: any) => value === undefined || value === null || value === '';
-
-const priorityStyles: Record<NotificationPriority, { label: string; color: string; background: string; border: string }> = {
-    high: {
-        label: 'عاجل',
-        color: '#842029',
-        background: '#f8d7da',
-        border: '#f1aeb5'
-    },
-    medium: {
-        label: 'آخر تحديث قديم',
-        color: '#664d03',
-        background: '#fff3cd',
-        border: '#ffecb5'
-    },
-    low: {
-        label: 'معلومة',
-        color: '#055160',
-        background: '#cff4fc',
-        border: '#9eeaf9'
-    }
+const urgentStyle = {
+    label: 'عاجل',
+    color: '#842029',
+    background: '#f8d7da',
+    border: '#f1aeb5'
 };
 
 export default function NotificationCenter({ currentUser }: NotificationCenterProps) {
@@ -112,7 +93,6 @@ export default function NotificationCenter({ currentUser }: NotificationCenterPr
                         id: `${department.id}-missing-due-month`,
                         departmentId: department.id,
                         departmentName: department.name,
-                        priority: 'high',
                         title: 'بيانات الشهر المستحق غير مدخلة',
                         details: `لم يتم العثور على بيانات KPI لشهر ${dueMonth}، وقد بدأ التنبيه اعتبارا من اليوم السابع من الشهر التالي.`
                     });
@@ -130,48 +110,14 @@ export default function NotificationCenter({ currentUser }: NotificationCenterPr
                     id: `${department.id}-missing-due-month`,
                     departmentId: department.id,
                     departmentName: department.name,
-                    priority: 'high',
                     title: 'بيانات الشهر المستحق غير مدخلة',
                     details: `لم يتم إدخال بيانات شهر ${dueMonth}. آخر شهر متاح هو ${latestRecord.normalizedMonth || 'غير محدد'}.`
-                });
-            }
-
-            if (dueMonth && latestRecord.normalizedMonth && latestRecord.normalizedMonth < dueMonth) {
-                departmentNotifications.push({
-                    id: `${department.id}-stale-data`,
-                    departmentId: department.id,
-                    departmentName: department.name,
-                    priority: 'medium',
-                    title: 'آخر تحديث يحتاج متابعة',
-                    details: `آخر بيانات مسجلة لهذه الإدارة تخص شهر ${latestRecord.normalizedMonth}.`
-                });
-            }
-
-            const requiredFields = departmentFields[department.id]?.filter(field => field.required) || [];
-            const missingFields = requiredFields
-                .filter(field => isEmptyValue(latestRecord.data?.[field.name]))
-                .map(field => field.label);
-
-            if (missingFields.length > 0) {
-                departmentNotifications.push({
-                    id: `${department.id}-missing-required-fields`,
-                    departmentId: department.id,
-                    departmentName: department.name,
-                    priority: 'medium',
-                    title: 'حقول مطلوبة ناقصة',
-                    details: `آخر سجل يحتوي على حقول مطلوبة غير مكتملة: ${missingFields.slice(0, 3).join('، ')}${missingFields.length > 3 ? '...' : ''}`
                 });
             }
 
             return departmentNotifications;
         });
     }, [kpiData, visibleDepartments]);
-
-    const priorityCounts = useMemo(() => ({
-        high: notifications.filter(notification => notification.priority === 'high').length,
-        medium: notifications.filter(notification => notification.priority === 'medium').length,
-        low: notifications.filter(notification => notification.priority === 'low').length
-    }), [notifications]);
 
     const visibleNotifications = notifications.slice(0, 8);
 
@@ -224,12 +170,8 @@ export default function NotificationCenter({ currentUser }: NotificationCenterPr
                 marginBottom: '15px'
             }}>
                 <div style={{ border: '1px solid #f1aeb5', backgroundColor: '#f8d7da', color: '#842029', borderRadius: '8px', padding: '12px' }}>
-                    <strong style={{ display: 'block', fontSize: '1.4rem' }}>{priorityCounts.high}</strong>
+                    <strong style={{ display: 'block', fontSize: '1.4rem' }}>{notifications.length}</strong>
                     <span>تنبيه عاجل</span>
-                </div>
-                <div style={{ border: '1px solid #ffecb5', backgroundColor: '#fff3cd', color: '#664d03', borderRadius: '8px', padding: '12px' }}>
-                    <strong style={{ display: 'block', fontSize: '1.4rem' }}>{priorityCounts.medium}</strong>
-                    <span>آخر تحديث قديم</span>
                 </div>
                 <div style={{ border: '1px solid #a3e2d1', backgroundColor: '#eef9f6', color: '#0d6a79', borderRadius: '8px', padding: '12px' }}>
                     <strong style={{ display: 'block', fontSize: '1.4rem' }}>{visibleDepartments.length}</strong>
@@ -262,7 +204,6 @@ export default function NotificationCenter({ currentUser }: NotificationCenterPr
                 )}
 
                 {!loading && !error && visibleNotifications.map(notification => {
-                    const style = priorityStyles[notification.priority];
                     return (
                         <div
                             key={notification.id}
@@ -278,15 +219,15 @@ export default function NotificationCenter({ currentUser }: NotificationCenterPr
                             <div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '5px' }}>
                                     <span style={{
-                                        backgroundColor: style.background,
-                                        border: `1px solid ${style.border}`,
-                                        color: style.color,
+                                        backgroundColor: urgentStyle.background,
+                                        border: `1px solid ${urgentStyle.border}`,
+                                        color: urgentStyle.color,
                                         borderRadius: '999px',
                                         padding: '3px 9px',
                                         fontSize: '0.78rem',
                                         fontWeight: 'bold'
                                     }}>
-                                        {style.label}
+                                        {urgentStyle.label}
                                     </span>
                                     <strong style={{ color: '#333' }}>{notification.title}</strong>
                                 </div>
