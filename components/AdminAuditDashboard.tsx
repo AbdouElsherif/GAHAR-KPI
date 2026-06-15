@@ -237,6 +237,25 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         return period;
     };
 
+    const getDetailedTableColumnLabel = (fiscalYear: number): string => {
+        const fiscalYearRange = `${fiscalYear - 1} - ${fiscalYear}`;
+
+        if (comparisonType === 'monthly') {
+            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            return `${monthNames[selectedMonth - 1]} (${fiscalYearRange})`;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return `الربع ${selectedQuarter} (${fiscalYearRange})`;
+        }
+
+        if (comparisonType === 'halfYearly') {
+            return `النصف ${selectedHalf} (${fiscalYearRange})`;
+        }
+
+        return `السنة المالية (${fiscalYearRange})`;
+    };
+
     const getObstaclesForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
 
@@ -892,45 +911,21 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>المؤشر</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
-                                    {(() => {
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const yearRange = `${targetYear - 1} - ${targetYear}`;
-                                        return `${monthNames[selectedMonth - 1]} (${yearRange})`;
-                                    })()}
+                                    {getDetailedTableColumnLabel(targetYear)}
                                 </th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
-                                    {(() => {
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const yearRange = `${targetYear - 2} - ${targetYear - 1}`;
-                                        return `${monthNames[selectedMonth - 1]} (${yearRange})`;
-                                    })()}
+                                    {getDetailedTableColumnLabel(targetYear - 1)}
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {(() => {
-                                const currentData = Object.values(currentAggregated).find((_, idx) => {
-                                    const key = Object.keys(currentAggregated)[idx];
-                                    if (key.includes('-')) {
-                                        return parseInt(key.split('-')[1]) === selectedMonth;
-                                    }
-                                    return false;
-                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0, healthPlanning: 0, environmentalSafetyAudit: 0, seriousIncidentExam: 0 };
-
-                                const previousData = Object.values(previousAggregated).find((_, idx) => {
-                                    const key = Object.keys(previousAggregated)[idx];
-                                    if (key.includes('-')) {
-                                        return parseInt(key.split('-')[1]) === selectedMonth;
-                                    }
-                                    return false;
-                                }) as any || { adminAuditVisits: 0, adminInspectionVisits: 0, followUpVisits: 0, examReferralVisits: 0, seriousIncidentExam: 0 };
-
                                 const indicators = [
-                                    { label: 'تدقيق إداري وسلامة بيئية', current: currentData.adminAuditVisits || 0, previous: previousData.adminAuditVisits || 0 },
-                                    { label: 'تفتيش إداري', current: currentData.adminInspectionVisits || 0, previous: previousData.adminInspectionVisits || 0 },
-                                    { label: 'زيارات متابعة', current: currentData.followUpVisits || 0, previous: previousData.followUpVisits || 0 },
-                                    { label: 'فحص / إحالة / تكليف', current: currentData.examReferralVisits || 0, previous: previousData.examReferralVisits || 0 },
-                                    { label: 'فحص حدث جسيم', current: currentData.seriousIncidentExam || 0, previous: previousData.seriousIncidentExam || 0 },
+                                    { label: 'تدقيق إداري وسلامة بيئية', current: currentTotalAdminAuditVisits, previous: previousTotalAdminAuditVisits },
+                                    { label: 'تفتيش إداري', current: currentTotalAdminInspectionVisits, previous: previousTotalAdminInspectionVisits },
+                                    { label: 'زيارات متابعة', current: currentTotalFollowUpVisits, previous: previousTotalFollowUpVisits },
+                                    { label: 'فحص / إحالة / تكليف', current: currentTotalExamReferralVisits, previous: previousTotalExamReferralVisits },
+                                    { label: 'فحص حدث جسيم', current: currentTotalSeriousIncidentExam, previous: previousTotalSeriousIncidentExam },
                                 ];
 
                                 const totalCurrent = indicators.reduce((sum, ind) => sum + ind.current, 0);
