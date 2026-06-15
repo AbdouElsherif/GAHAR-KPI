@@ -272,6 +272,65 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
         return period;
     }, []);
 
+    const getDetailedTableColumnLabel = useCallback((fiscalYear: number): string => {
+        const fiscalYearRange = `${fiscalYear - 1} - ${fiscalYear}`;
+
+        if (comparisonType === 'monthly') {
+            const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            return `${monthNames[selectedMonth - 1]} (${fiscalYearRange})`;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return `الربع ${selectedQuarter} (${fiscalYearRange})`;
+        }
+
+        if (comparisonType === 'halfYearly') {
+            return `النصف ${selectedHalf} (${fiscalYearRange})`;
+        }
+
+        return `السنة المالية (${fiscalYearRange})`;
+    }, [comparisonType, selectedMonth, selectedQuarter, selectedHalf]);
+
+    const isMonthInSelectedAnalysisPeriod = useCallback((monthValue: string): boolean => {
+        if (!monthValue || getFiscalYear(monthValue) !== targetYear) return false;
+
+        const month = getMonth(monthValue);
+        if (comparisonType === 'monthly') {
+            return month === selectedMonth;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return getQuarter(month) === selectedQuarter;
+        }
+
+        return false;
+    }, [comparisonType, getFiscalYear, getMonth, getQuarter, selectedMonth, selectedQuarter, targetYear]);
+
+    const filteredFieldVisits = useMemo(
+        () => visits.filter(visit => isMonthInSelectedAnalysisPeriod(visit.month)),
+        [visits, isMonthInSelectedAnalysisPeriod]
+    );
+    const filteredRemoteSupports = useMemo(
+        () => remoteSupports.filter(visit => isMonthInSelectedAnalysisPeriod(visit.month)),
+        [remoteSupports, isMonthInSelectedAnalysisPeriod]
+    );
+    const filteredIntroductoryVisits = useMemo(
+        () => introductoryVisits.filter(visit => isMonthInSelectedAnalysisPeriod(visit.month)),
+        [introductoryVisits, isMonthInSelectedAnalysisPeriod]
+    );
+    const filteredQueuedVisits = useMemo(
+        () => queuedVisits.filter(visit => isMonthInSelectedAnalysisPeriod(visit.month)),
+        [queuedVisits, isMonthInSelectedAnalysisPeriod]
+    );
+    const filteredScheduledVisits = useMemo(
+        () => scheduledVisits.filter(visit => isMonthInSelectedAnalysisPeriod(visit.month)),
+        [scheduledVisits, isMonthInSelectedAnalysisPeriod]
+    );
+    const filteredAccreditedFacilities = useMemo(
+        () => accreditedSupportedFacilities.filter(facility => isMonthInSelectedAnalysisPeriod(facility.month)),
+        [accreditedSupportedFacilities, isMonthInSelectedAnalysisPeriod]
+    );
+
     const getObstaclesForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
 
@@ -826,47 +885,23 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>المؤشر</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
-                                    {(() => {
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const year = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                        return `${monthNames[selectedMonth - 1]} ${year}`;
-                                    })()}
+                                    {getDetailedTableColumnLabel(targetYear)}
                                 </th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>
-                                    {(() => {
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        const year = selectedMonth >= 7 ? targetYear - 2 : targetYear - 1;
-                                        return `${monthNames[selectedMonth - 1]} ${year}`;
-                                    })()}
+                                    {getDetailedTableColumnLabel(targetYear - 1)}
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {(() => {
-                                const currentData = Object.values(currentAggregated).find((_, idx) => {
-                                    const key = Object.keys(currentAggregated)[idx];
-                                    if (key.includes('-')) {
-                                        return parseInt(key.split('-')[1]) === selectedMonth;
-                                    }
-                                    return false;
-                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0, toolReleasesUpdates: 0, reportsComplianceRate: 0 };
-
-                                const previousData = Object.values(previousAggregated).find((_, idx) => {
-                                    const key = Object.keys(previousAggregated)[idx];
-                                    if (key.includes('-')) {
-                                        return parseInt(key.split('-')[1]) === selectedMonth;
-                                    }
-                                    return false;
-                                }) as any || { supportPrograms: 0, introVisits: 0, fieldSupportVisits: 0, remoteSupportVisits: 0, supportedFacilities: 0, toolReleasesUpdates: 0, reportsComplianceRate: 0 };
-
                                 const indicators = [
-                                    { label: 'زيارات تمهيدية', current: currentData.introVisits || 0, previous: previousData.introVisits || 0, type: 'sub' },
-                                    { label: 'دعم فني ميداني', current: currentData.fieldSupportVisits || 0, previous: previousData.fieldSupportVisits || 0, type: 'sub' },
-                                    { label: 'دعم فني عن بعد', current: currentData.remoteSupportVisits || 0, previous: previousData.remoteSupportVisits || 0, type: 'sub' },
-                                    { label: 'برامج الدعم الفني', current: currentData.supportPrograms || 0, previous: previousData.supportPrograms || 0, type: 'total' },
-                                    { label: 'منشآت مدعومة', current: currentData.supportedFacilities || 0, previous: previousData.supportedFacilities || 0, type: 'normal' },
-                                    { label: 'عدد إصدارات وتحديثات أدوات التقييم الذاتي', current: currentData.toolReleasesUpdates || 0, previous: previousData.toolReleasesUpdates || 0, type: 'normal' },
-                                    { label: 'نسبة استيفاء التقارير (%)', current: currentData.reportsComplianceRate || 0, previous: previousData.reportsComplianceRate || 0, type: 'normal' },
+                                    { label: 'زيارات تمهيدية', current: currentTotalIntroVisits, previous: previousTotalIntroVisits, type: 'sub' },
+                                    { label: 'دعم فني ميداني', current: currentTotalFieldVisits, previous: previousTotalFieldVisits, type: 'sub' },
+                                    { label: 'دعم فني عن بعد', current: currentTotalRemoteVisits, previous: previousTotalRemoteVisits, type: 'sub' },
+                                    { label: 'برامج الدعم الفني', current: currentTotalPrograms, previous: previousTotalPrograms, type: 'total' },
+                                    { label: 'منشآت مدعومة', current: currentTotalFacilities, previous: previousTotalFacilities, type: 'normal' },
+                                    { label: 'عدد إصدارات وتحديثات أدوات التقييم الذاتي', current: currentTotalReleases, previous: previousTotalReleases, type: 'normal' },
+                                    { label: 'نسبة استيفاء التقارير (%)', current: currentComplianceRate, previous: previousComplianceRate, type: 'normal' },
                                 ];
 
                                 const getRowStyle = (type: string) => {
@@ -922,7 +957,7 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
             </div>
 
             {/* قسم تحليل الزيارات - رسوم بيانية */}
-            {comparisonType === 'monthly' && (
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && (
                 <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                     <div style={{
                         display: 'flex',
@@ -937,10 +972,7 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                             fontSize: '1.4rem',
                             fontWeight: 'bold'
                         }}>
-                            تحليل الزيارات - {(() => {
-                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                return monthNames[selectedMonth - 1];
-                            })()} {targetYear}
+                            تحليل الزيارات - {getDetailedTableColumnLabel(targetYear)}
                         </h3>
                     </div>
 
@@ -963,12 +995,9 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                             🎯 إجمالي أنواع الزيارات
                         </h4>
                         {(() => {
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-
-                            const fieldCount = visits.filter(v => v.month === monthStr).length;
-                            const remoteCount = remoteSupports.filter(v => v.month === monthStr).length;
-                            const introCount = introductoryVisits.filter(v => v.month === monthStr).length;
+                            const fieldCount = filteredFieldVisits.length;
+                            const remoteCount = filteredRemoteSupports.length;
+                            const introCount = filteredIntroductoryVisits.length;
 
                             const visitTypesData = [
                                 { name: 'زيارات ميدانية', value: fieldCount, color: '#0d6a79' },
@@ -981,7 +1010,7 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                             if (total === 0) {
                                 return (
                                     <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>
-                                        لا توجد زيارات مسجلة لهذا الشهر
+                                        لا توجد زيارات مسجلة لهذه الفترة
                                     </div>
                                 );
                             }
@@ -1086,23 +1115,19 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                         </div>
                         {/* الرسم البياني حسب التبويب المختار */}
                         {(() => {
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-                            const filtered = visits.filter(v => v.month === monthStr);
-
                             let counts: { [key: string]: number } = {};
                             if (fieldTab === 'governorate') {
-                                filtered.forEach(v => {
+                                filteredFieldVisits.forEach(v => {
                                     const key = (v.governorate || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
                             } else if (fieldTab === 'entity') {
-                                filtered.forEach(v => {
+                                filteredFieldVisits.forEach(v => {
                                     const key = (v.affiliatedEntity || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
                             } else {
-                                filtered.forEach(v => {
+                                filteredFieldVisits.forEach(v => {
                                     const key = (v.facilityType || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
@@ -1204,23 +1229,19 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                         </div>
                         {/* الرسم البياني حسب التبويب المختار */}
                         {(() => {
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-                            const filtered = remoteSupports.filter(v => v.month === monthStr);
-
                             let counts: { [key: string]: number } = {};
                             if (remoteTab === 'governorate') {
-                                filtered.forEach(v => {
+                                filteredRemoteSupports.forEach(v => {
                                     const key = (v.governorate || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
                             } else if (remoteTab === 'entity') {
-                                filtered.forEach(v => {
+                                filteredRemoteSupports.forEach(v => {
                                     const key = (v.affiliatedEntity || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
                             } else {
-                                filtered.forEach(v => {
+                                filteredRemoteSupports.forEach(v => {
                                     const key = (v.facilityType || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
@@ -1322,23 +1343,19 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                         </div>
                         {/* الرسم البياني حسب التبويب المختار */}
                         {(() => {
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-                            const filtered = introductoryVisits.filter(v => v.month === monthStr);
-
                             let counts: { [key: string]: number } = {};
                             if (introTab === 'governorate') {
-                                filtered.forEach(v => {
+                                filteredIntroductoryVisits.forEach(v => {
                                     const key = (v.governorate || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
                             } else if (introTab === 'entity') {
-                                filtered.forEach(v => {
+                                filteredIntroductoryVisits.forEach(v => {
                                     const key = (v.affiliatedEntity || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
                             } else {
-                                filtered.forEach(v => {
+                                filteredIntroductoryVisits.forEach(v => {
                                     const key = (v.facilityType || 'غير محدد').trim();
                                     counts[key] = (counts[key] || 0) + 1;
                                 });
@@ -1388,11 +1405,8 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                 ⏳ حالة الزيارات (الانتظار والمجدولة)
                             </h4>
                             {(() => {
-                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-
-                                const queuedCount = queuedVisits.filter(v => v.month === monthStr).length;
-                                const scheduledCount = scheduledVisits.filter(v => v.month === monthStr).length;
+                                const queuedCount = filteredQueuedVisits.length;
+                                const scheduledCount = filteredScheduledVisits.length;
 
                                 const statusData = [
                                     { name: 'قائمة الانتظار', value: queuedCount, color: '#dc3545' },
@@ -1444,17 +1458,8 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                 🏆 المنشآت المعتمدة حسب نوع الدعم
                             </h4>
                             {(() => {
-                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-                                const filtered = accreditedSupportedFacilities.filter(f => {
-                                    const facilityMonth = parseInt(f.month.split('-')[1]);
-                                    const facilityYear = parseInt(f.month.split('-')[0]);
-                                    const fiscalYear = facilityMonth >= 7 ? facilityYear + 1 : facilityYear;
-                                    return facilityMonth === selectedMonth && fiscalYear === targetYear;
-                                });
-
                                 const supportTypeCount: { [key: string]: number } = {};
-                                filtered.forEach(f => {
+                                filteredAccreditedFacilities.forEach(f => {
                                     const type = (f.supportType || 'غير محدد').trim();
                                     supportTypeCount[type] = (supportTypeCount[type] || 0) + 1;
                                 });
@@ -1462,7 +1467,7 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                 const colors = ['#198754', '#0d6a79', '#ffc107', '#dc3545', '#6f42c1'];
                                 const data = Object.entries(supportTypeCount).map(([name, value], index) => ({ name, value, color: colors[index % colors.length] })).sort((a, b) => b.value - a.value);
 
-                                if (data.length === 0) return <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد منشآت معتمدة لهذا الشهر</div>;
+                                if (data.length === 0) return <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد منشآت معتمدة لهذه الفترة</div>;
 
                                 return (
                                     <div>
@@ -1479,7 +1484,7 @@ export default function TechnicalSupportDashboard({ submissions, visits = [], re
                                             </BarChart>
                                         </ResponsiveContainer>
                                         <div style={{ textAlign: 'center', marginTop: '10px', padding: '8px', backgroundColor: '#d1e7dd', borderRadius: '8px' }}>
-                                            <span style={{ fontWeight: 'bold', color: '#198754' }}>إجمالي المنشآت المعتمدة: {filtered.length}</span>
+                                            <span style={{ fontWeight: 'bold', color: '#198754' }}>إجمالي المنشآت المعتمدة: {filteredAccreditedFacilities.length}</span>
                                         </div>
                                     </div>
                                 );
