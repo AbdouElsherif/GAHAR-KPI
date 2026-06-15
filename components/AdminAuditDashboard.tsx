@@ -522,6 +522,36 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         });
     }
 
+    const isFacilityInSelectedAnalysisPeriod = (facility: AdminAuditFacility): boolean => {
+        if (!facility.month) return false;
+
+        const month = getMonth(facility.month);
+        if (getFiscalYear(facility.month) !== targetYear) return false;
+
+        if (comparisonType === 'monthly') {
+            return month === selectedMonth;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return getQuarter(month) === selectedQuarter;
+        }
+
+        return false;
+    };
+
+    const selectedAnalysisFacilities = facilities.filter(isFacilityInSelectedAnalysisPeriod);
+
+    const getVisitAnalysisPeriodLabel = (): string => {
+        const fiscalYearRange = `${targetYear - 1} - ${targetYear}`;
+
+        if (comparisonType === 'quarterly') {
+            return `الربع ${selectedQuarter} (${fiscalYearRange})`;
+        }
+
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        return `${monthNames[selectedMonth - 1]} (${fiscalYearRange})`;
+    };
+
     return (
         <div>
             <div style={{ marginBottom: '30px' }}>
@@ -1102,8 +1132,8 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                 </div>
             )}
 
-            {/* قسم تحليل الزيارات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && (
+            {/* قسم تحليل الزيارات - يظهر في المقارنة الشهرية والربع سنوية */}
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         display: 'flex',
@@ -1118,10 +1148,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                             fontSize: '1.3rem',
                             fontWeight: 'bold'
                         }}>
-                            تحليل الزيارات - {(() => {
-                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                return monthNames[selectedMonth - 1];
-                            })()} {targetYear}
+                            تحليل الزيارات - {getVisitAnalysisPeriodLabel()}
                         </h3>
                     </div>
 
@@ -1149,15 +1176,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 🎯 توزيع الزيارات حسب نوع الزيارة
                             </h4>
                             {(() => {
-                                const filteredFacilities = facilities.filter(f => {
-                                    const [year, month] = f.month.split('-');
-                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                });
-
                                 // Count by visit type
                                 const visitTypeCount: { [key: string]: number } = {};
-                                filteredFacilities.forEach(f => {
+                                selectedAnalysisFacilities.forEach(f => {
                                     const type = f.visitType || 'غير محدد';
                                     visitTypeCount[type] = (visitTypeCount[type] || 0) + 1;
                                 });
@@ -1189,7 +1210,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                             padding: '40px',
                                             color: '#6c757d'
                                         }}>
-                                            لا توجد زيارات مسجلة لهذا الشهر
+                                            لا توجد زيارات مسجلة لهذه الفترة
                                         </div>
                                     );
                                 }
@@ -1284,15 +1305,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 🏥 توزيع الزيارات حسب نوع المنشأة
                             </h4>
                             {(() => {
-                                const filteredFacilities = facilities.filter(f => {
-                                    const [year, month] = f.month.split('-');
-                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                });
-
                                 // Group by facility type
                                 const facilityTypeCount: { [key: string]: number } = {};
-                                filteredFacilities.forEach(f => {
+                                selectedAnalysisFacilities.forEach(f => {
                                     const type = f.facilityType || 'غير محدد';
                                     facilityTypeCount[type] = (facilityTypeCount[type] || 0) + 1;
                                 });
@@ -1318,7 +1333,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                             padding: '40px',
                                             color: '#6c757d'
                                         }}>
-                                            لا توجد زيارات مسجلة لهذا الشهر
+                                            لا توجد زيارات مسجلة لهذه الفترة
                                         </div>
                                     );
                                 }
@@ -1415,15 +1430,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                             📍 توزيع الزيارات حسب المحافظة
                         </h4>
                         {(() => {
-                            const filteredFacilities = facilities.filter(f => {
-                                const [year, month] = f.month.split('-');
-                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                            });
-
                             // Group by governorate
                             const governorateCount: { [key: string]: number } = {};
-                            filteredFacilities.forEach(f => {
+                            selectedAnalysisFacilities.forEach(f => {
                                 const gov = f.governorate || 'غير محدد';
                                 governorateCount[gov] = (governorateCount[gov] || 0) + 1;
                             });
@@ -1449,7 +1458,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                         padding: '40px',
                                         color: '#6c757d'
                                     }}>
-                                        لا توجد زيارات مسجلة لهذا الشهر
+                                        لا توجد زيارات مسجلة لهذه الفترة
                                     </div>
                                 );
                             }
@@ -1528,11 +1537,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
                     {/* Total visits summary */}
                     {(() => {
-                        const filteredCount = facilities.filter(f => {
-                            const [year, month] = f.month.split('-');
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                        }).length;
+                        const filteredCount = selectedAnalysisFacilities.length;
 
                         if (filteredCount > 0) {
                             return (
