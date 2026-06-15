@@ -137,10 +137,6 @@ export default function MedicalProfessionalsDashboard({
         return month >= 7 ? year + 1 : year;
     }, []);
 
-    const getYear = useCallback((dateStr: string): number => {
-        return parseInt(dateStr.split('-')[0]);
-    }, []);
-
     const getMonth = useCallback((dateStr: string): number => {
         return parseInt(dateStr.split('-')[1]);
     }, []);
@@ -281,51 +277,45 @@ export default function MedicalProfessionalsDashboard({
         return period;
     }, []);
 
-    const getObstaclesForSelectedMonth = (): string => {
-        if (comparisonType !== 'monthly') return '';
+    const getSelectedPeriodLabel = useCallback((fiscalYear = targetYear): string => {
+        const yearRange = `${fiscalYear - 1} - ${fiscalYear}`;
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
-        // فلترة البيانات حسب السنة والشهر المحدد
-        const monthData = currentYearData.find(sub => {
-            if (!sub.date) return false;
-            const month = getMonth(sub.date);
-            const year = getYear(sub.date);
-            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
-        });
+        if (comparisonType === 'monthly') return `${monthNames[selectedMonth - 1]} (${yearRange})`;
+        if (comparisonType === 'quarterly') return `الربع ${selectedQuarter} (${yearRange})`;
+        if (comparisonType === 'halfYearly') return `النصف ${selectedHalf} (${yearRange})`;
+        return `السنة المالية ${yearRange}`;
+    }, [comparisonType, selectedHalf, selectedMonth, selectedQuarter, targetYear]);
 
-        return monthData?.obstacles || '';
-    };
+    const isDateInSelectedPeriod = useCallback((date: string): boolean => {
+        if (!date || getFiscalYear(date) !== targetYear) return false;
 
-    const getDevelopmentProposalsForSelectedMonth = (): string => {
-        if (comparisonType !== 'monthly') return '';
+        const month = getMonth(date);
+        if (comparisonType === 'monthly') return month === selectedMonth;
+        if (comparisonType === 'quarterly') return getQuarter(month) === selectedQuarter;
+        if (comparisonType === 'halfYearly') return getHalf(month) === selectedHalf;
+        return true;
+    }, [comparisonType, getFiscalYear, getHalf, getMonth, getQuarter, selectedHalf, selectedMonth, selectedQuarter, targetYear]);
 
-        // فلترة البيانات حسب السنة والشهر المحدد
-        const monthData = currentYearData.find(sub => {
-            if (!sub.date) return false;
-            const month = getMonth(sub.date);
-            const year = getYear(sub.date);
-            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
-        });
+    const getNarrativeForSelectedPeriod = useCallback((field: 'obstacles' | 'developmentProposals' | 'additionalActivities' | 'notes'): string => {
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
-        return monthData?.developmentProposals || '';
-    };
+        return currentYearData
+            .filter(sub => sub.date && isDateInSelectedPeriod(sub.date) && typeof sub[field] === 'string' && sub[field].trim())
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(sub => {
+                const value = sub[field].trim();
+                return comparisonType === 'monthly'
+                    ? value
+                    : `${monthNames[getMonth(sub.date) - 1]}:\n${value}`;
+            })
+            .join('\n\n');
+    }, [comparisonType, currentYearData, getMonth, isDateInSelectedPeriod]);
 
-    const currentObstacles = getObstaclesForSelectedMonth();
-    const currentDevelopmentProposals = getDevelopmentProposalsForSelectedMonth();
-
-    const getAdditionalActivitiesForSelectedMonth = (): string => {
-        if (comparisonType !== 'monthly') return '';
-
-        const monthData = currentYearData.find(sub => {
-            if (!sub.date) return false;
-            const month = getMonth(sub.date);
-            const year = getYear(sub.date);
-            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
-        });
-
-        return monthData?.additionalActivities || '';
-    };
-
-    const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
+    const currentObstacles = getNarrativeForSelectedPeriod('obstacles');
+    const currentDevelopmentProposals = getNarrativeForSelectedPeriod('developmentProposals');
+    const currentAdditionalActivities = getNarrativeForSelectedPeriod('additionalActivities');
+    const currentNotes = getNarrativeForSelectedPeriod('notes');
 
     const preparePieData = useCallback((metric: 'registeredMembers' | 'updatedMembers' | 'facilitiesRegistered' | 'facilitiesUpdated') => {
         if (comparisonType === 'yearly' || comparisonType === 'monthly') {
@@ -639,7 +629,7 @@ export default function MedicalProfessionalsDashboard({
                 marginBottom: '35px'
             }}>
                 <KPICard
-                    title="عدد أعضاء المهن الطبية المسجلين خلال الشهر"
+                    title="عدد أعضاء المهن الطبية المسجلين خلال الفترة"
                     icon="👨‍⚕️"
                     currentValue={currentTotalMembers}
                     previousValue={previousTotalMembers}
@@ -756,8 +746,8 @@ export default function MedicalProfessionalsDashboard({
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>المؤشر</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1} - {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 2} - {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{getSelectedPeriodLabel(targetYear)}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{getSelectedPeriodLabel(targetYear - 1)}</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
                             </tr>
                         </thead>
@@ -765,7 +755,7 @@ export default function MedicalProfessionalsDashboard({
                             {/* أعضاء مسجلين */}
                             <tr style={{ borderBottom: '1px solid #eee' }}>
                                 <td style={{ padding: '15px', fontWeight: 'bold', backgroundColor: 'var(--background-color)' }}>
-                                    👨‍⚕️ عدد أعضاء المهن الطبية المسجلين خلال الشهر
+                                    👨‍⚕️ عدد أعضاء المهن الطبية المسجلين خلال الفترة
                                 </td>
                                 <td style={{ padding: '15px', textAlign: 'center', fontWeight: '600', fontSize: '1.1rem', color: '#0eacb8' }}>
                                     {currentTotalMembers.toLocaleString('en-US')}
@@ -907,8 +897,8 @@ export default function MedicalProfessionalsDashboard({
                             fontSize: '1.4rem'
                         }}>
                             <span style={{ fontSize: '1.8rem' }}>📊</span>
-                            {activeCategoryView === 'monthly' 
-                                ? 'أعضاء المهن الطبية المسجلين (طبقا للفئة) - خلال الشهر' 
+                            {activeCategoryView === 'monthly'
+                                ? `أعضاء المهن الطبية المسجلين (طبقا للفئة) - ${getSelectedPeriodLabel()}`
                                 : 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين (طبقا للفئة) - محافظات مرحلة أولى'}
                         </h3>
 
@@ -935,7 +925,7 @@ export default function MedicalProfessionalsDashboard({
                                     boxShadow: activeCategoryView === 'monthly' ? '0 4px 8px rgba(0,102,102,0.3)' : 'none'
                                 }}
                             >
-                                خلال الشهر
+                                بيانات الفترة
                             </button>
                             <button
                                 onClick={() => setActiveCategoryView('total')}
@@ -1138,8 +1128,8 @@ export default function MedicalProfessionalsDashboard({
                     }}>
                         <h3 style={{ margin: 0, color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.4rem' }}>
                             <span style={{ fontSize: '1.8rem' }}>🗺️</span>
-                            {activeGovernorateView === 'monthly' 
-                                ? 'إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - خلال الشهر' 
+                            {activeGovernorateView === 'monthly'
+                                ? `إجمالي أعضاء المهن الطبية المسجلين بالمحافظات - ${getSelectedPeriodLabel()}`
                                 : 'الإجمالي الكلي لأعضاء المهن الطبية المسجلين بالمحافظات'}
                         </h3>
 
@@ -1166,7 +1156,7 @@ export default function MedicalProfessionalsDashboard({
                                     boxShadow: activeGovernorateView === 'monthly' ? '0 4px 8px rgba(0,102,102,0.3)' : 'none'
                                 }}
                             >
-                                خلال الشهر
+                                بيانات الفترة
                             </button>
                             <button
                                 onClick={() => setActiveGovernorateView('total')}
@@ -1205,7 +1195,7 @@ export default function MedicalProfessionalsDashboard({
                             minWidth: '120px'
                         }}>
                             <span style={{ fontSize: '0.85rem', color: '#555', fontWeight: 'bold', marginBottom: '4px' }}>
-                                {activeGovernorateView === 'monthly' ? 'خلال الشهر' : 'الإجمالي الكلي'}
+                                {activeGovernorateView === 'monthly' ? 'بيانات الفترة' : 'الإجمالي الكلي'}
                             </span>
                             <span style={{ fontSize: '1.2rem', color: '#006666', fontWeight: '900' }}>
                                 {(() => {
@@ -1350,8 +1340,7 @@ export default function MedicalProfessionalsDashboard({
 
 
 
-            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentObstacles && (
+            {currentObstacles && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -1375,10 +1364,7 @@ export default function MedicalProfessionalsDashboard({
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المعوقات - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                المعوقات - {getSelectedPeriodLabel()}
                             </h3>
                         </div>
                         <div style={{
@@ -1397,8 +1383,7 @@ export default function MedicalProfessionalsDashboard({
                 </div>
             )}
 
-            {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentDevelopmentProposals && (
+            {currentDevelopmentProposals && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -1422,10 +1407,7 @@ export default function MedicalProfessionalsDashboard({
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                مقترحات التطوير - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                مقترحات التطوير - {getSelectedPeriodLabel()}
                             </h3>
                         </div>
                         <div style={{
@@ -1444,8 +1426,7 @@ export default function MedicalProfessionalsDashboard({
                 </div>
             )}
 
-            {/* قسم الأنشطة الإضافية - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentAdditionalActivities && (
+            {currentAdditionalActivities && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -1469,10 +1450,7 @@ export default function MedicalProfessionalsDashboard({
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                ملخص التقرير الشهري - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
+                                ملخص التقرير - {getSelectedPeriodLabel()}
                             </h3>
                         </div>
                         <div style={{
@@ -1491,17 +1469,7 @@ export default function MedicalProfessionalsDashboard({
                 </div>
             )}
 
-            {/* قسم الملاحظات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && (() => {
-                const currentMonthSubmission = submissions.find(s => {
-                    if (!s.month) return false;
-                    const month = parseInt(s.month.split('-')[1]);
-                    const year = parseInt(s.month.split('-')[0]);
-                    const fiscalYear = month >= 7 ? year + 1 : year;
-                    return fiscalYear === targetYear && month === selectedMonth;
-                });
-                return currentMonthSubmission?.notes;
-            })() && (
+            {currentNotes && (
                     <div style={{ marginBottom: '30px' }}>
                         <div style={{
                             backgroundColor: 'var(--card-bg)',
@@ -1525,10 +1493,7 @@ export default function MedicalProfessionalsDashboard({
                                     fontSize: '1.3rem',
                                     fontWeight: 'bold'
                                 }}>
-                                    ملاحظات - {(() => {
-                                        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                        return monthNames[selectedMonth - 1];
-                                    })()} {targetYear}
+                                    ملاحظات - {getSelectedPeriodLabel()}
                                 </h3>
                             </div>
                             <div style={{
@@ -1541,16 +1506,7 @@ export default function MedicalProfessionalsDashboard({
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word'
                             }}>
-                                {(() => {
-                                    const currentMonthSubmission = submissions.find(s => {
-                                        if (!s.month) return false;
-                                        const month = parseInt(s.month.split('-')[1]);
-                                        const year = parseInt(s.month.split('-')[0]);
-                                        const fiscalYear = month >= 7 ? year + 1 : year;
-                                        return fiscalYear === targetYear && month === selectedMonth;
-                                    });
-                                    return currentMonthSubmission?.notes || '';
-                                })()}
+                                {currentNotes}
                             </div>
                         </div>
                     </div>
