@@ -522,11 +522,11 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         });
     }
 
-    const isFacilityInSelectedAnalysisPeriod = (facility: AdminAuditFacility): boolean => {
-        if (!facility.month) return false;
+    const isMonthInSelectedAnalysisPeriod = (monthValue: string): boolean => {
+        if (!monthValue) return false;
 
-        const month = getMonth(facility.month);
-        if (getFiscalYear(facility.month) !== targetYear) return false;
+        const month = getMonth(monthValue);
+        if (getFiscalYear(monthValue) !== targetYear) return false;
 
         if (comparisonType === 'monthly') {
             return month === selectedMonth;
@@ -539,7 +539,9 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         return false;
     };
 
-    const selectedAnalysisFacilities = facilities.filter(isFacilityInSelectedAnalysisPeriod);
+    const selectedAnalysisFacilities = facilities.filter(facility => isMonthInSelectedAnalysisPeriod(facility.month));
+    const selectedAnalysisObservations = observations.filter(observation => isMonthInSelectedAnalysisPeriod(observation.month));
+    const selectedAnalysisCorrectionRates = correctionRates.filter(rate => isMonthInSelectedAnalysisPeriod(rate.month));
 
     const getVisitAnalysisPeriodLabel = (): string => {
         const fiscalYearRange = `${targetYear - 1} - ${targetYear}`;
@@ -1566,7 +1568,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
 
             {/* قسم تحليل الملاحظات المتكررة - رسوم بيانية */}
-            {comparisonType === 'monthly' && observations.length > 0 && (
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && observations.length > 0 && (
                 <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                     <div style={{
                         display: 'flex',
@@ -1581,10 +1583,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                             fontSize: '1.3rem',
                             fontWeight: 'bold'
                         }}>
-                            تحليل الملاحظات المتكررة - {(() => {
-                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                return monthNames[selectedMonth - 1];
-                            })()} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                            تحليل الملاحظات المتكررة - {getVisitAnalysisPeriodLabel()}
                         </h3>
                     </div>
 
@@ -1606,12 +1605,10 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                     </div>
 
                     {(() => {
-                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                        const monthStr = `${expectedYear}-${selectedMonth.toString().padStart(2, '0')}`;
-                        const filteredObs = observations.filter(o => o.month === monthStr);
+                        const filteredObs = selectedAnalysisObservations;
 
                         if (filteredObs.length === 0) {
-                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
+                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذه الفترة</p>;
                         }
 
                         // Group by facility type
@@ -1855,22 +1852,16 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
 
             {/* Correction Rates Section - Smart Card Design */}
-            {comparisonType === 'monthly' && correctionRates.length > 0 && (() => {
-                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                const filteredRates = correctionRates.filter(r => {
-
-                    const [year, month] = r.month.split('-');
-                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                });
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && correctionRates.length > 0 && (() => {
+                const filteredRates = selectedAnalysisCorrectionRates;
 
                 if (filteredRates.length === 0) {
                     return (
                         <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                             <h3 style={{ margin: '0 0 15px 0', color: '#17a2b8', fontSize: '1.2rem' }}>
-                                📊 نسب تصحيح الملاحظات - {monthNames[selectedMonth - 1]} {expectedYear}
+                                📊 نسب تصحيح الملاحظات - {getVisitAnalysisPeriodLabel()}
                             </h3>
-                            <p style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد بيانات متاحة لهذا الشهر</p>
+                            <p style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد بيانات متاحة لهذه الفترة</p>
                         </div>
                     );
                 }
@@ -1977,7 +1968,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                 return (
                     <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                         <h3 style={{ margin: '0 0 15px 0', color: '#17a2b8', fontSize: '1.2rem' }}>
-                            📊 نسب تصحيح الملاحظات - {monthNames[selectedMonth - 1]} {expectedYear}
+                            📊 نسب تصحيح الملاحظات - {getVisitAnalysisPeriodLabel()}
                         </h3>
                         <div style={{ marginTop: '20px' }}>
                             {renderSmartTable('🏛️ أولاً: المنشآت الصحية التابعة لهيئة الرعاية', '#17a2b8', filteredRates.filter(r => r.entityType === 'المنشآت الصحية التابعة لهيئة الرعاية'))}
