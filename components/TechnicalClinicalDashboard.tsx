@@ -234,6 +234,52 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
         return period;
     }, []);
 
+    const getDetailedTableColumnLabel = useCallback((fiscalYear: number): string => {
+        const fiscalYearRange = `${fiscalYear - 1} - ${fiscalYear}`;
+
+        if (comparisonType === 'monthly') {
+            return `${monthNames[selectedMonth - 1]} (${fiscalYearRange})`;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return `الربع ${selectedQuarter} (${fiscalYearRange})`;
+        }
+
+        if (comparisonType === 'halfYearly') {
+            return `النصف ${selectedHalf} (${fiscalYearRange})`;
+        }
+
+        return `السنة المالية (${fiscalYearRange})`;
+    }, [comparisonType, monthNames, selectedMonth, selectedQuarter, selectedHalf]);
+
+    const isMonthInSelectedAnalysisPeriod = useCallback((monthValue: string): boolean => {
+        if (!monthValue || getFiscalYear(monthValue) !== targetYear) return false;
+
+        const month = getMonth(monthValue);
+        if (comparisonType === 'monthly') {
+            return month === selectedMonth;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return getQuarter(month) === selectedQuarter;
+        }
+
+        return false;
+    }, [comparisonType, getFiscalYear, getMonth, getQuarter, selectedMonth, selectedQuarter, targetYear]);
+
+    const selectedAnalysisFacilities = useMemo(
+        () => facilities.filter(facility => isMonthInSelectedAnalysisPeriod(facility.month)),
+        [facilities, isMonthInSelectedAnalysisPeriod]
+    );
+    const selectedAnalysisObservations = useMemo(
+        () => observations.filter(observation => isMonthInSelectedAnalysisPeriod(observation.month)),
+        [observations, isMonthInSelectedAnalysisPeriod]
+    );
+    const selectedAnalysisCorrectionRates = useMemo(
+        () => correctionRates.filter(rate => isMonthInSelectedAnalysisPeriod(rate.month)),
+        [correctionRates, isMonthInSelectedAnalysisPeriod]
+    );
+
     const getObstaclesForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
 
@@ -762,8 +808,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold' }}>البيان</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>السنة المالية {targetYear - 1} - {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>السنة المالية {targetYear - 2} - {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{getDetailedTableColumnLabel(targetYear)}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{getDetailedTableColumnLabel(targetYear - 1)}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -808,8 +854,8 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 </div>
             </div>
 
-            {/* قسم الرسوم البيانية للزيارات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && (
+            {/* قسم الرسوم البيانية للزيارات - يظهر للمقارنة الشهرية والربع سنوية */}
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         display: 'flex',
@@ -824,10 +870,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                             fontSize: '1.3rem',
                             fontWeight: 'bold'
                         }}>
-                            تحليل الزيارات - {(() => {
-                                const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                return monthNames[selectedMonth - 1];
-                            })()} {targetYear}
+                            تحليل الزيارات - {getDetailedTableColumnLabel(targetYear)}
                         </h3>
                     </div>
 
@@ -855,21 +898,15 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                 🎯 توزيع الزيارات حسب نوع التقييم
                             </h4>
                             {(() => {
-                                const filteredFacilities = facilities.filter(f => {
-                                    const [year, month] = f.month.split('-');
-                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                });
-
                                 // Count by assessment type using visitType field
                                 let technicalAudit = 0;  // التدقيق الفني والإكلينيكي
                                 let technicalAssessment = 0;  // التقييم الفني والإكلينيكي
 
-                                filteredFacilities.forEach(f => {
+                                selectedAnalysisFacilities.forEach(f => {
                                     const visitType = f.visitType || '';
-                                    if (visitType === 'التدقيق الفني والإكلينيكي') {
+                                    if (visitType.includes('تدقيق')) {
                                         technicalAudit++;
-                                    } else if (visitType === 'التقييم الفني والإكلينيكي') {
+                                    } else if (visitType.includes('تقييم')) {
                                         technicalAssessment++;
                                     }
                                 });
@@ -888,7 +925,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                             padding: '40px',
                                             color: '#6c757d'
                                         }}>
-                                            لا توجد زيارات مسجلة لهذا الشهر
+                                            لا توجد زيارات مسجلة لهذه الفترة
                                         </div>
                                     );
                                 }
@@ -899,7 +936,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                             <BarChart data={assessmentData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                                                 <XAxis dataKey="name" stroke="var(--text-color)" />
-                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, 35]} />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...assessmentData.map(d => d.value)) + 3]} />
                                                 <Tooltip
                                                     contentStyle={{
                                                         backgroundColor: 'var(--card-bg)',
@@ -981,15 +1018,9 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                 🏥 توزيع الزيارات حسب نوع المنشأة
                             </h4>
                             {(() => {
-                                const filteredFacilities = facilities.filter(f => {
-                                    const [year, month] = f.month.split('-');
-                                    const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                    return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                                });
-
                                 // Group by facility type
                                 const facilityTypeCount: { [key: string]: number } = {};
-                                filteredFacilities.forEach(f => {
+                                selectedAnalysisFacilities.forEach(f => {
                                     const type = f.facilityType || 'غير محدد';
                                     facilityTypeCount[type] = (facilityTypeCount[type] || 0) + 1;
                                 });
@@ -1015,7 +1046,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                             padding: '40px',
                                             color: '#6c757d'
                                         }}>
-                                            لا توجد زيارات مسجلة لهذا الشهر
+                                            لا توجد زيارات مسجلة لهذه الفترة
                                         </div>
                                     );
                                 }
@@ -1033,7 +1064,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                                     textAnchor="middle"
                                                     height={50}
                                                 />
-                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, 25]} />
+                                                <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...facilityTypeData.map(d => d.value)) + 3]} />
                                                 <Tooltip
                                                     contentStyle={{
                                                         backgroundColor: 'var(--card-bg)',
@@ -1113,15 +1144,9 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                             📍 توزيع الزيارات حسب المحافظة
                         </h4>
                         {(() => {
-                            const filteredFacilities = facilities.filter(f => {
-                                const [year, month] = f.month.split('-');
-                                const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                            });
-
                             // Group by governorate
                             const governorateCount: { [key: string]: number } = {};
-                            filteredFacilities.forEach(f => {
+                            selectedAnalysisFacilities.forEach(f => {
                                 const gov = f.governorate || 'غير محدد';
                                 governorateCount[gov] = (governorateCount[gov] || 0) + 1;
                             });
@@ -1147,7 +1172,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                                         padding: '40px',
                                         color: '#6c757d'
                                     }}>
-                                        لا توجد زيارات مسجلة لهذا الشهر
+                                        لا توجد زيارات مسجلة لهذه الفترة
                                     </div>
                                 );
                             }
@@ -1219,11 +1244,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
 
                     {/* Total visits summary */}
                     {(() => {
-                        const filteredCount = facilities.filter(f => {
-                            const [year, month] = f.month.split('-');
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                        }).length;
+                        const filteredCount = selectedAnalysisFacilities.length;
 
                         if (filteredCount > 0) {
                             return (
@@ -1251,7 +1272,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
             )}
 
             {/* قسم الرسوم البيانية للملاحظات المتكررة */}
-            {comparisonType === 'monthly' && observations.length > 0 && (
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && observations.length > 0 && (
                 <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                     <div style={{
                         display: 'flex',
@@ -1266,7 +1287,7 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                             fontSize: '1.3rem',
                             fontWeight: 'bold'
                         }}>
-                            تحليل الملاحظات المتكررة - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                            تحليل الملاحظات المتكررة - {getDetailedTableColumnLabel(targetYear)}
                         </h3>
                     </div>
 
@@ -1288,14 +1309,10 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                     </div>
 
                     {(() => {
-                        const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                        const filteredObs = observations.filter(o => {
-                            const [year, month] = o.month.split('-');
-                            return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                        });
+                        const filteredObs = selectedAnalysisObservations;
 
                         if (filteredObs.length === 0) {
-                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذا الشهر</p>;
+                            return <p style={{ textAlign: 'center', color: '#6c757d' }}>لا توجد ملاحظات متكررة لهذه الفترة</p>;
                         }
 
                         // Group by facility type
@@ -1539,21 +1556,17 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
 
 
             {/* Correction Rates Section */}
-            {comparisonType === 'monthly' && correctionRates.length > 0 && (
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && correctionRates.length > 0 && (
                 <div style={{ marginTop: '30px', backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                     <h3 style={{ margin: '0 0 15px 0', color: '#17a2b8', fontSize: '1.2rem' }}>
-                        📊 نسب تصحيح الملاحظات - {monthNames[selectedMonth - 1]} {selectedMonth >= 7 ? targetYear - 1 : targetYear}
+                        📊 نسب تصحيح الملاحظات - {getDetailedTableColumnLabel(targetYear)}
                     </h3>
                     <div style={{ marginTop: '20px' }}>
                         {(() => {
-                            const expectedYear = selectedMonth >= 7 ? targetYear - 1 : targetYear;
-                            const filteredRates = correctionRates.filter(r => {
-                                const [year, month] = r.month.split('-');
-                                return parseInt(year) === expectedYear && parseInt(month) === selectedMonth;
-                            });
+                            const filteredRates = selectedAnalysisCorrectionRates;
 
                             if (filteredRates.length === 0) {
-                                return <p style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد بيانات متاحة لهذا الشهر</p>;
+                                return <p style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>لا توجد بيانات متاحة لهذه الفترة</p>;
                             }
 
                             const criteriaConfig = [
