@@ -321,18 +321,38 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     const currentAdditionalActivities = getAdditionalActivitiesForSelectedMonth();
 
+    const isMonthInSelectedDetailPeriod = useCallback((monthValue: string): boolean => {
+        if (!monthValue || getFiscalYear(monthValue) !== targetYear) return false;
+
+        const month = getMonth(monthValue);
+        if (comparisonType === 'monthly') {
+            return month === selectedMonth;
+        }
+
+        if (comparisonType === 'quarterly') {
+            return getQuarter(month) === selectedQuarter;
+        }
+
+        return false;
+    }, [comparisonType, getFiscalYear, getMonth, getQuarter, selectedMonth, selectedQuarter, targetYear]);
+
+    const getDetailPeriodLabel = (fiscalYear = targetYear): string => {
+        const fiscalYearRange = `${fiscalYear - 1} - ${fiscalYear}`;
+
+        if (comparisonType === 'quarterly') {
+            return `الربع ${selectedQuarter} (${fiscalYearRange})`;
+        }
+
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        return `${monthNames[selectedMonth - 1]} (${fiscalYearRange})`;
+    };
+
     // دالة لفلترة وترتيب المنشآت حسب الشهر المحدد وحالة الاعتماد
     const getFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !facilities || facilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !facilities || facilities.length === 0) return [];
 
-        // فلترة المنشآت حسب الشهر والسنة المحددة
         const filtered = facilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         // ترتيب المنشآت حسب حالة الاعتماد (تجميع كل نوع مع بعضه)
@@ -413,16 +433,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت الاستكمال حسب الشهر المحدد وحالة الاعتماد
     const getCompletionFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !completionFacilities || completionFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !completionFacilities || completionFacilities.length === 0) return [];
 
-        // فلترة المنشآت حسب الشهر والسنة المحددة
         const filtered = completionFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         // ترتيب المنشآت حسب حالة الاعتماد (تجميع كل نوع مع بعضه)
@@ -435,15 +449,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت السداد حسب الشهر المحدد وحالة الاعتماد
     const getPaymentFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !paymentFacilities || paymentFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !paymentFacilities || paymentFacilities.length === 0) return [];
 
         const filtered = paymentFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
@@ -455,20 +464,16 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب المنشآت المدفوعة حسب الشهر المحدد وحالة الاعتماد
     const getPaidFacilitiesForSelectedMonth = useMemo(() => {
-        if (comparisonType !== 'monthly' || !paidFacilities || paidFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !paidFacilities || paidFacilities.length === 0) return [];
 
         const filtered = paidFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-            const month = parseInt(facility.month.split('-')[1]);
-
-            return month === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
             return a.accreditationStatus.localeCompare(b.accreditationStatus, 'ar');
         });
-    }, [comparisonType, paidFacilities, selectedMonth, targetYear, getFiscalYear]);
+    }, [comparisonType, paidFacilities, isMonthInSelectedDetailPeriod]);
 
     const filteredPaidFacilities = getPaidFacilitiesForSelectedMonth;
 
@@ -518,15 +523,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت تسجيل المهن حسب الشهر المحدد ونوع المنشأة
     const getMedicalProfessionalRegistrationsForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !medicalProfessionalRegistrations || medicalProfessionalRegistrations.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !medicalProfessionalRegistrations || medicalProfessionalRegistrations.length === 0) return [];
 
         const filtered = medicalProfessionalRegistrations.filter(registration => {
-            if (!registration.month) return false;
-            const [year, month] = registration.month.split('-');
-            const registrationMonth = parseInt(month);
-            const registrationFiscalYear = getFiscalYear(registration.month + '-01');
-
-            return registrationMonth === selectedMonth && registrationFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(registration.month);
         });
 
         return filtered.sort((a, b) => {
@@ -538,15 +538,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت الخطط التصحيحية حسب الشهر المحدد ونوع المنشأة
     const getCorrectivePlanFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !correctivePlanFacilities || correctivePlanFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !correctivePlanFacilities || correctivePlanFacilities.length === 0) return [];
 
         const filtered = correctivePlanFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
@@ -558,15 +553,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت المتطلبات الأساسية حسب الشهر المحدد ونوع المنشأة
     const getBasicRequirementsFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !basicRequirementsFacilities || basicRequirementsFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !basicRequirementsFacilities || basicRequirementsFacilities.length === 0) return [];
 
         const filtered = basicRequirementsFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
@@ -578,15 +568,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت الالتماسات حسب الشهر المحدد ونوع المنشأة
     const getAppealsFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !appealsFacilities || appealsFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !appealsFacilities || appealsFacilities.length === 0) return [];
 
         const filtered = appealsFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
@@ -598,15 +583,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت إصدار الشهادات حسب الشهر المحدد
     const getCertificateIssuanceFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !certificateIssuanceFacilities || certificateIssuanceFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !certificateIssuanceFacilities || certificateIssuanceFacilities.length === 0) return [];
 
         const filtered = certificateIssuanceFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
@@ -618,15 +598,10 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
 
     // دالة لفلترة وترتيب منشآت التجهيز للعرض على اللجنة حسب الشهر المحدد
     const getCommitteePreparationFacilitiesForSelectedMonth = () => {
-        if (comparisonType !== 'monthly' || !committeePreparationFacilities || committeePreparationFacilities.length === 0) return [];
+        if ((comparisonType !== 'monthly' && comparisonType !== 'quarterly') || !committeePreparationFacilities || committeePreparationFacilities.length === 0) return [];
 
         const filtered = committeePreparationFacilities.filter(facility => {
-            if (!facility.month) return false;
-            const [year, month] = facility.month.split('-');
-            const facilityMonth = parseInt(month);
-            const facilityFiscalYear = getFiscalYear(facility.month + '-01');
-
-            return facilityMonth === selectedMonth && facilityFiscalYear === targetYear;
+            return isMonthInSelectedDetailPeriod(facility.month);
         });
 
         return filtered.sort((a, b) => {
@@ -1149,8 +1124,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                         <thead>
                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                 <th style={{ padding: '15px', textAlign: 'right', fontWeight: 'bold', width: '30%' }}>المؤشر</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 1} - {targetYear}</th>
-                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{targetYear - 2} - {targetYear - 1}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{getDetailPeriodLabel(targetYear)}</th>
+                                <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold' }}>{getDetailPeriodLabel(targetYear - 1)}</th>
                                 <th style={{ padding: '15px', textAlign: 'center', fontWeight: 'bold', backgroundColor: 'rgba(0,0,0,0.1)' }}>التغيير</th>
                             </tr>
                         </thead>
@@ -1334,11 +1309,11 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             </div>
 
 
-            {/* Pipeline Visualization - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && (
+            {/* Pipeline Visualization - يظهر في المقارنة الشهرية والربع سنوية */}
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && (
                 <div style={{ marginBottom: '50px', marginTop: '50px' }}>
                     <h3 style={{ textAlign: 'center', marginBottom: '40px', color: 'var(--text-color)' }}>
-                        🛤️ تتبع مراحل المنشآت (Pipeline)
+                        🛤️ تتبع مراحل المنشآت (Pipeline) - {getDetailPeriodLabel()}
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
 
@@ -1473,8 +1448,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                 </div>
             )}
 
-            {/* قسم المنشآت المتقدمة خلال الشهر - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && newFacilitiesOnly.length > 0 && (
+            {/* قسم المنشآت المتقدمة - يظهر في المقارنة الشهرية والربع سنوية */}
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && newFacilitiesOnly.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -1499,10 +1474,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المنشآت المتقدمة (منشأة جديدة) {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear - 1} - {targetYear}
+                                المنشآت المتقدمة (منشأة جديدة) - {getDetailPeriodLabel()}
                             </h3>
                             <span style={{ fontSize: '1rem', color: '#666', fontWeight: '500' }}>
                                 ({newFacilitiesOnly.length} منشأة)
@@ -1703,7 +1675,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                     ) : (
                                         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
                                             <span style={{ fontSize: '3rem', marginBottom: '10px' }}>🏥</span>
-                                            لا توجد منشآت جديدة مسجلة لهذا الشهر
+                                            لا توجد منشآت جديدة مسجلة لهذه الفترة
                                         </div>
                                     )}
                                 </div>
@@ -1765,8 +1737,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             {/* قسم منشآت السداد - يظهر فقط في حالة الفلترة الشهرية */}
 
 
-            {/* قسم المنشآت المدفوعة - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && filteredPaidFacilities.length > 0 && (
+            {/* قسم المنشآت المدفوعة - يظهر في المقارنة الشهرية والربع سنوية */}
+            {(comparisonType === 'monthly' || comparisonType === 'quarterly') && filteredPaidFacilities.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
@@ -1791,10 +1763,7 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                                 fontSize: '1.3rem',
                                 fontWeight: 'bold'
                             }}>
-                                المنشآت التي قامت بسداد رسوم الزيارة التقييمية {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear - 1} - {targetYear}
+                                المنشآت التي قامت بسداد رسوم الزيارة التقييمية - {getDetailPeriodLabel()}
                             </h3>
                             <span style={{ fontSize: '1rem', color: '#666', fontWeight: '500' }}>
                                 ({filteredPaidFacilities.length} منشأة - الإجمالي: {filteredPaidFacilities.reduce((sum, f) => sum + (f.amount || 0), 0).toLocaleString('ar-EG')} ج.م)
