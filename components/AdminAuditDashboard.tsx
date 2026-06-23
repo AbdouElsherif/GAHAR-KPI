@@ -49,6 +49,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
         seriousIncidentExam: true
     });
+    const [activeVisitLocationChart, setActiveVisitLocationChart] = useState<'governorate' | 'governingAuthority'>('governorate');
 
     // Sync with external filter
     useEffect(() => {
@@ -993,53 +994,6 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                 </div>
             </div>
 
-            {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية */}
-            {comparisonType === 'monthly' && currentObstacles && (
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{
-                        backgroundColor: 'var(--card-bg)',
-                        borderRadius: '12px',
-                        padding: '25px',
-                        border: '2px solid #ffc107',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            marginBottom: '15px',
-                            paddingBottom: '15px',
-                            borderBottom: '2px solid #ffc107'
-                        }}>
-                            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
-                            <h3 style={{
-                                margin: 0,
-                                color: '#856404',
-                                fontSize: '1.3rem',
-                                fontWeight: 'bold'
-                            }}>
-                                المعوقات - {(() => {
-                                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-                                    return monthNames[selectedMonth - 1];
-                                })()} {targetYear}
-                            </h3>
-                        </div>
-                        <div style={{
-                            backgroundColor: '#fff3cd',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            lineHeight: '1.6',
-                            color: '#856404',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
-                            {currentObstacles}
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* قسم مقترحات التطوير - يظهر فقط في حالة الفلترة الشهرية */}
             {comparisonType === 'monthly' && currentDevelopmentProposals && (
                 <div style={{ marginBottom: '30px' }}>
@@ -1413,7 +1367,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                         </div>
                     </div>
 
-                    {/* Chart 3: Governorate Distribution */}
+                    {/* Visit location/authority distribution */}
                     <div style={{
                         backgroundColor: 'var(--card-bg)',
                         borderRadius: '12px',
@@ -1429,23 +1383,63 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                             fontWeight: 'bold',
                             textAlign: 'center'
                         }}>
-                            📍 توزيع الزيارات حسب المحافظة
+                            🏢 الزيارات الميدانية
                         </h4>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '14px',
+                            flexWrap: 'wrap',
+                            marginBottom: '22px'
+                        }}>
+                            {[
+                                { key: 'governorate' as const, label: 'حسب المحافظة' },
+                                { key: 'governingAuthority' as const, label: 'حسب الجهة الحاكمة' }
+                            ].map(option => {
+                                const isActive = activeVisitLocationChart === option.key;
+                                return (
+                                    <button
+                                        key={option.key}
+                                        type="button"
+                                        onClick={() => setActiveVisitLocationChart(option.key)}
+                                        style={{
+                                            minWidth: '175px',
+                                            border: 'none',
+                                            borderRadius: '24px',
+                                            padding: '12px 24px',
+                                            backgroundColor: isActive ? 'var(--primary-color)' : '#e9ecef',
+                                            color: isActive ? 'white' : 'var(--text-color)',
+                                            fontWeight: 'bold',
+                                            fontSize: '1rem',
+                                            cursor: 'pointer',
+                                            boxShadow: isActive ? '0 4px 10px rgba(13, 106, 121, 0.25)' : 'none',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        {option.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
                         {(() => {
-                            // Group by governorate
-                            const governorateCount: { [key: string]: number } = {};
-                            selectedAnalysisFacilities.forEach(f => {
-                                const gov = f.governorate || 'غير محدد';
-                                governorateCount[gov] = (governorateCount[gov] || 0) + 1;
-                            });
-
-                            // Color palette for governorates
                             const colors = [
                                 '#0d6a79', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
                                 '#17a2b8', '#fd7e14', '#20c997', '#e83e8c', '#6610f2'
                             ];
+                            const chartTitle = activeVisitLocationChart === 'governorate'
+                                ? '📍 توزيع الزيارات حسب المحافظة'
+                                : '🏛️ توزيع الزيارات حسب الجهة الحاكمة';
+                            const legendMinWidth = activeVisitLocationChart === 'governorate' ? '120px' : '160px';
+                            const distributionCount: { [key: string]: number } = {};
 
-                            const governorateData = Object.entries(governorateCount)
+                            selectedAnalysisFacilities.forEach(f => {
+                                const name = activeVisitLocationChart === 'governorate'
+                                    ? f.governorate || 'غير محدد'
+                                    : f.affiliation || 'غير محدد';
+                                distributionCount[name] = (distributionCount[name] || 0) + 1;
+                            });
+
+                            const distributionData = Object.entries(distributionCount)
                                 .map(([name, value], index) => ({
                                     name,
                                     value,
@@ -1453,7 +1447,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                                 }))
                                 .sort((a, b) => b.value - a.value);
 
-                            if (governorateData.length === 0) {
+                            if (distributionData.length === 0) {
                                 return (
                                     <div style={{
                                         textAlign: 'center',
@@ -1467,70 +1461,73 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
 
                             return (
                                 <div>
-                                    <ResponsiveContainer width="100%" height={280}>
-                                        <BarChart data={governorateData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                                            <XAxis
-                                                dataKey="name"
-                                                stroke="var(--text-color)"
-                                                tick={{ fontSize: 11, dy: 8 }}
-                                                interval={0}
-                                                textAnchor="middle"
-                                                height={50}
-                                            />
-                                            <YAxis stroke="var(--text-color)" tick={false} axisLine={false} domain={[0, Math.max(...governorateData.map(d => d.value)) + 3]} />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    backgroundColor: 'var(--card-bg)',
-                                                    border: '1px solid var(--border-color)',
-                                                    borderRadius: '8px'
-                                                }}
-                                                formatter={(value: number) => [`${value} زيارة`, 'العدد']}
-                                            />
-                                            <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                                                {governorateData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                                <LabelList
-                                                    dataKey="value"
-                                                    position="top"
-                                                    style={{
-                                                        fontWeight: 'bold',
-                                                        fill: 'var(--text-color)',
-                                                        fontSize: '14px'
-                                                    }}
-                                                />
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                        gap: '10px',
-                                        marginTop: '15px'
+                                    <h5 style={{
+                                        margin: '0 0 16px 0',
+                                        color: 'var(--text-color)',
+                                        fontSize: '1rem',
+                                        fontWeight: 'bold',
+                                        textAlign: 'center'
                                     }}>
-                                        {governorateData.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '6px',
-                                                    padding: '4px 10px',
-                                                    backgroundColor: 'rgba(0,0,0,0.03)',
-                                                    borderRadius: '8px'
-                                                }}
-                                            >
-                                                <div style={{
-                                                    width: '12px',
-                                                    height: '12px',
-                                                    backgroundColor: item.color,
-                                                    borderRadius: '3px'
-                                                }}></div>
-                                                <span style={{ fontSize: '0.85rem' }}>{item.name}: {item.value}</span>
-                                            </div>
-                                        ))}
+                                        {chartTitle}
+                                    </h5>
+                                    <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '20px' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <ResponsiveContainer width="100%" height={280}>
+                                                <BarChart data={distributionData} layout="horizontal" margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
+                                                    <Tooltip
+                                                        contentStyle={{
+                                                            backgroundColor: 'var(--card-bg)',
+                                                            border: '1px solid var(--border-color)',
+                                                            borderRadius: '8px'
+                                                        }}
+                                                        labelFormatter={() => ''}
+                                                        formatter={(value: number, name: string, props: any) => [`${value}`, `${props.payload.name}: `]}
+                                                    />
+                                                    <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                                                        {distributionData.map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                                        ))}
+                                                        <LabelList
+                                                            dataKey="value"
+                                                            position="top"
+                                                            style={{
+                                                                fontWeight: 'bold',
+                                                                fill: 'var(--text-color)',
+                                                                fontSize: '14px'
+                                                            }}
+                                                        />
+                                                    </Bar>
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '8px',
+                                            minWidth: legendMinWidth
+                                        }}>
+                                            {distributionData.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '4px 10px',
+                                                        backgroundColor: 'rgba(0,0,0,0.03)',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        backgroundColor: item.color,
+                                                        borderRadius: '3px'
+                                                    }}></div>
+                                                    <span style={{ fontSize: '0.85rem' }}>{item.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             );
