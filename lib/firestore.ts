@@ -309,7 +309,7 @@ export interface AdminAuditFacility {
     id?: string;
     facilityType: string;
     facilityName: string;
-    affiliation: string; // التبعية
+    affiliation: string; // الجهة الحاكمة (كانت تسمى التبعية)
     visitType: string;
     governorate: string;
     month: string;

@@ -2186,7 +2186,7 @@ export default function DepartmentPage() {
         setAdminAuditFacilityFormData({
             facilityType: facility.facilityType,
             facilityName: facility.facilityName,
-            affiliation: facility.affiliation || '', // التبعية
+            affiliation: facility.affiliation || '', // الجهة الحاكمة
             visitType: facility.visitType,
             governorate: facility.governorate,
             month: facility.month
@@ -2226,7 +2226,7 @@ export default function DepartmentPage() {
                 'الجهة التابعة': 'المنشآت الصحية التابعة لهيئة الرعاية الصحية', // Assuming it's the default or based on context
                 'نوع المنشأة': facility.facilityType,
                 'اسم المنشأة': facility.facilityName,
-                'التبعية': facility.affiliation,
+                'الجهة الحاكمة': facility.affiliation,
                 'المحافظة': facility.governorate,
                 'نوع الزيارة': facility.visitType,
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
@@ -2268,7 +2268,7 @@ export default function DepartmentPage() {
                     children: [
                         new TableCell({ children: [new Paragraph({ text: "نوع الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "المحافظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
-                        new TableCell({ children: [new Paragraph({ text: "التبعية", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "الجهة الحاكمة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "اسم المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "نوع المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "الجهة التابعة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
@@ -13577,14 +13577,14 @@ export default function DepartmentPage() {
                                                 </div>
 
                                                 <div className="form-group">
-                                                    <label className="form-label">التبعية *</label>
+                                                    <label className="form-label">الجهة الحاكمة *</label>
                                                     <select
                                                         className="form-input"
                                                         required
                                                         value={adminAuditFacilityFormData.affiliation}
                                                         onChange={(e) => handleAdminAuditFacilityInputChange('affiliation', e.target.value)}
                                                     >
-                                                        <option value="">اختر التبعية</option>
+                                                        <option value="">اختر الجهة الحاكمة</option>
                                                         <option value="هيئة الرعاية الصحية">هيئة الرعاية الصحية</option>
                                                         <option value="وزارة الصحة">وزارة الصحة</option>
                                                         <option value="قطاع خاص">قطاع خاص</option>
@@ -13755,7 +13755,7 @@ export default function DepartmentPage() {
                                             <tr style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
-                                                <th style={{ padding: '12px', textAlign: 'right' }}>التبعية</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>الجهة الحاكمة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>

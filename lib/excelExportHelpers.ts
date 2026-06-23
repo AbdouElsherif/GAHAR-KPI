@@ -611,6 +611,7 @@ const exportDept5Data = async (workbook: XLSX.WorkBook, filterString: string) =>
         'الشهر': row.month || 'غير محدد',
         'نوع المنشأة': row.facilityType || 'غير محدد',
         'اسم المنشأة': row.facilityName || 'غير محدد',
+        'الجهة الحاكمة': row.affiliation || 'غير محدد',
         'نوع الزيارة': row.visitType || 'غير محدد',
         'المحافظة': row.governorate || 'غير محدد',
     }));

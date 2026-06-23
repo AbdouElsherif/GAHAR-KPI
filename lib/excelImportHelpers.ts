@@ -39,6 +39,8 @@ import {
 export interface ColumnDefinition {
     /** Arabic column header in the Excel file */
     header: string;
+    /** Additional accepted headers for backwards compatibility */
+    aliases?: string[];
     /** Firestore field name */
     field: string;
     /** Is this column required? */
@@ -399,7 +401,7 @@ export const dept5Sections: Record<string, SectionDefinition> = {
         columns: [
             { header: 'نوع المنشأة', field: 'facilityType', required: true, type: 'string', validValues: dept5FacilityTypes },
             { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
-            { header: 'التبعية', field: 'affiliation', required: true, type: 'string', validValues: dept5AffiliationOptions },
+            { header: 'الجهة الحاكمة', aliases: ['التبعية'], field: 'affiliation', required: true, type: 'string', validValues: dept5AffiliationOptions },
             { header: 'نوع الزيارة', field: 'visitType', required: true, type: 'string', validValues: dept5VisitTypes },
             { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
             { header: 'الشهر', field: 'month', required: true, type: 'month' },
@@ -790,8 +792,12 @@ export const validateExcelData = (
     for (let i = 0; i < headers.length; i++) {
         const normalizedHeader = normalizeArabic(headers[i]);
         for (const colDef of sectionDef.columns) {
-            const normalizedColHeader = normalizeArabic(colDef.header);
-            if (normalizedHeader === normalizedColHeader || normalizedHeader.includes(normalizedColHeader) || normalizedColHeader.includes(normalizedHeader)) {
+            const acceptedHeaders = [colDef.header, ...(colDef.aliases || [])].map(header => normalizeArabic(header));
+            if (acceptedHeaders.some(normalizedColHeader =>
+                normalizedHeader === normalizedColHeader ||
+                normalizedHeader.includes(normalizedColHeader) ||
+                normalizedColHeader.includes(normalizedHeader)
+            )) {
                 if (!foundColumns.has(colDef.field)) {
                     columnMap.set(i, colDef);
                     foundColumns.add(colDef.field);
