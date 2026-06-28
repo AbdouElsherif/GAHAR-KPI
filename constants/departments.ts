@@ -133,6 +133,8 @@ export const departmentFields: Record<string, Field[]> = {
         { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)', type: 'number' },
         { name: 'standard17', label: 'معايير مراكز التجميل والليزر', type: 'number' },
         { name: 'standard18', label: 'معايير الرعاية التمريضية', type: 'number' },
+        { name: 'standard19', label: 'معايير المنشات الصحية الخضراء', type: 'number' },
+        { name: 'standard20', label: 'معايير السياحة العلاجية', type: 'number' },
         { name: 'activitySummary', label: 'ملخص أنشطة الإدارة', type: 'text' },
         { name: 'activityDetails', label: 'تفاصيل أنشطة الإدارة', type: 'text' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },

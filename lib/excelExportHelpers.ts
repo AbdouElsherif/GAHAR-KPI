@@ -948,6 +948,8 @@ const exportDept8Data = async (workbook: XLSX.WorkBook, filterString: string) =>
         standard16: 'معايير العلاج الطبيعي (الإصدار الثاني)',
         standard17: 'معايير مراكز التجميل والليزر',
         standard18: 'معايير الرعاية التمريضية',
+        standard19: 'معايير المنشات الصحية الخضراء',
+        standard20: 'معايير السياحة العلاجية',
         activitySummary: 'ملخص أنشطة الإدارة',
         activityDetails: 'تفاصيل أنشطة الإدارة',
         obstacles: 'المعوقات',

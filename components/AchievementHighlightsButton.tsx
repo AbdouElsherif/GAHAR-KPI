@@ -180,7 +180,9 @@ const standardFields = [
     { name: 'standard15', label: 'دليل المراجعين' },
     { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)' },
     { name: 'standard17', label: 'معايير مراكز التجميل والليزر' },
-    { name: 'standard18', label: 'معايير الرعاية التمريضية' }
+    { name: 'standard18', label: 'معايير الرعاية التمريضية' },
+    { name: 'standard19', label: 'معايير المنشات الصحية الخضراء' },
+    { name: 'standard20', label: 'معايير السياحة العلاجية' }
 ];
 
 export default function AchievementHighlightsButton() {
