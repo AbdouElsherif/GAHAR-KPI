@@ -132,6 +132,7 @@ export const departmentFields: Record<string, Field[]> = {
         { name: 'standard15', label: 'دليل المراجعين', type: 'number' },
         { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)', type: 'number' },
         { name: 'standard17', label: 'معايير مراكز التجميل والليزر', type: 'number' },
+        { name: 'standard18', label: 'معايير الرعاية التمريضية', type: 'number' },
         { name: 'activitySummary', label: 'ملخص أنشطة الإدارة', type: 'text' },
         { name: 'activityDetails', label: 'تفاصيل أنشطة الإدارة', type: 'text' },
         { name: 'obstacles', label: 'المعوقات', type: 'text' },

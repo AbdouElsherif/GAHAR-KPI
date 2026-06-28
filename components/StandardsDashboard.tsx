@@ -79,7 +79,8 @@ export default function StandardsDashboard({ submissions }: StandardsDashboardPr
         { name: 'standard14', label: 'معايير التطبيب عن بعد' },
         { name: 'standard15', label: 'دليل المراجعين' },
         { name: 'standard16', label: 'معايير العلاج الطبيعي (الإصدار الثاني)' },
-        { name: 'standard17', label: 'معايير مراكز التجميل والليزر' }
+        { name: 'standard17', label: 'معايير مراكز التجميل والليزر' },
+        { name: 'standard18', label: 'معايير الرعاية التمريضية' }
     ];
 
     const aggregateData = (data: Array<Record<string, any>>, type: 'monthly' | 'quarterly' | 'halfYearly' | 'yearly') => {

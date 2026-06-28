@@ -947,6 +947,7 @@ const exportDept8Data = async (workbook: XLSX.WorkBook, filterString: string) =>
         standard15: 'دليل المراجعين',
         standard16: 'معايير العلاج الطبيعي (الإصدار الثاني)',
         standard17: 'معايير مراكز التجميل والليزر',
+        standard18: 'معايير الرعاية التمريضية',
         activitySummary: 'ملخص أنشطة الإدارة',
         activityDetails: 'تفاصيل أنشطة الإدارة',
         obstacles: 'المعوقات',
