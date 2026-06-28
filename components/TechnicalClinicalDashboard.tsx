@@ -102,6 +102,12 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 aggregated[sub.date].auditVisits = Math.max(parseFloat(sub.auditVisits) || 0, aggregated[sub.date].auditVisits);
                 aggregated[sub.date].assessmentVisits = Math.max(parseFloat(sub.assessmentVisits) || 0, aggregated[sub.date].assessmentVisits);
                 aggregated[sub.date].visitedFacilities = Math.max(parseFloat(sub.visitedFacilities) || 0, aggregated[sub.date].visitedFacilities);
+                aggregated[sub.date].activitySummary = sub.activitySummary ?? aggregated[sub.date].activitySummary;
+                aggregated[sub.date].activityDetails = sub.activityDetails ?? aggregated[sub.date].activityDetails;
+                aggregated[sub.date].obstacles = sub.obstacles ?? aggregated[sub.date].obstacles;
+                aggregated[sub.date].developmentProposals = sub.developmentProposals ?? aggregated[sub.date].developmentProposals;
+                aggregated[sub.date].additionalActivities = sub.additionalActivities ?? aggregated[sub.date].additionalActivities;
+                aggregated[sub.date].notes = sub.notes ?? aggregated[sub.date].notes;
             }
         });
 
@@ -311,6 +317,34 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
     };
 
     const currentDevelopmentProposals = getDevelopmentProposalsForSelectedMonth();
+
+    const getActivitySummaryForSelectedMonth = (): string => {
+        if (comparisonType !== 'monthly') return '';
+
+        const monthData = currentYearData.find(sub => {
+            if (!sub.date) return false;
+            const month = getMonth(sub.date);
+            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
+        });
+
+        return monthData?.activitySummary || '';
+    };
+
+    const currentActivitySummary = getActivitySummaryForSelectedMonth();
+
+    const getActivityDetailsForSelectedMonth = (): string => {
+        if (comparisonType !== 'monthly') return '';
+
+        const monthData = currentYearData.find(sub => {
+            if (!sub.date) return false;
+            const month = getMonth(sub.date);
+            return month === selectedMonth && getFiscalYear(sub.date) === targetYear;
+        });
+
+        return monthData?.activityDetails || '';
+    };
+
+    const currentActivityDetails = getActivityDetailsForSelectedMonth();
 
     const getAdditionalActivitiesForSelectedMonth = (): string => {
         if (comparisonType !== 'monthly') return '';
@@ -1738,6 +1772,92 @@ export default function TechnicalClinicalDashboard({ submissions, facilities, co
                 </div>
             )
             }
+
+            {comparisonType === 'monthly' && currentActivitySummary && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #007bff',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #007bff'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>📝</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#0056b3',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                ملخص أنشطة الإدارة - {monthNames[selectedMonth - 1]} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#e7f3ff',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#0056b3',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentActivitySummary}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {comparisonType === 'monthly' && currentActivityDetails && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #17a2b8',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #17a2b8'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>ℹ️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#117a8b',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                تفاصيل أنشطة الإدارة - {monthNames[selectedMonth - 1]} {targetYear}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#d1ecf1',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#0c5460',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentActivityDetails}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* قسم المعوقات - يظهر فقط في حالة الفلترة الشهرية - يظهر دائماً في آخر لوحة البيانات */}
             {

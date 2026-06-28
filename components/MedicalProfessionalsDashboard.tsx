@@ -297,7 +297,7 @@ export default function MedicalProfessionalsDashboard({
         return true;
     }, [comparisonType, getFiscalYear, getHalf, getMonth, getQuarter, selectedHalf, selectedMonth, selectedQuarter, targetYear]);
 
-    const getNarrativeForSelectedPeriod = useCallback((field: 'obstacles' | 'developmentProposals' | 'additionalActivities' | 'notes'): string => {
+    const getNarrativeForSelectedPeriod = useCallback((field: 'activitySummary' | 'activityDetails' | 'obstacles' | 'developmentProposals' | 'additionalActivities' | 'notes'): string => {
         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
         return currentYearData
@@ -312,6 +312,8 @@ export default function MedicalProfessionalsDashboard({
             .join('\n\n');
     }, [comparisonType, currentYearData, getMonth, isDateInSelectedPeriod]);
 
+    const currentActivitySummary = getNarrativeForSelectedPeriod('activitySummary');
+    const currentActivityDetails = getNarrativeForSelectedPeriod('activityDetails');
     const currentObstacles = getNarrativeForSelectedPeriod('obstacles');
     const currentDevelopmentProposals = getNarrativeForSelectedPeriod('developmentProposals');
     const currentAdditionalActivities = getNarrativeForSelectedPeriod('additionalActivities');
@@ -1339,6 +1341,92 @@ export default function MedicalProfessionalsDashboard({
             </div>
 
 
+
+            {currentActivitySummary && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #007bff',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #007bff'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>📝</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#0056b3',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                ملخص أنشطة الإدارة - {getSelectedPeriodLabel()}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#e7f3ff',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#0056b3',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentActivitySummary}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {currentActivityDetails && (
+                <div style={{ marginBottom: '30px' }}>
+                    <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        borderRadius: '12px',
+                        padding: '25px',
+                        border: '2px solid #17a2b8',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            marginBottom: '15px',
+                            paddingBottom: '15px',
+                            borderBottom: '2px solid #17a2b8'
+                        }}>
+                            <span style={{ fontSize: '1.5rem' }}>ℹ️</span>
+                            <h3 style={{
+                                margin: 0,
+                                color: '#117a8b',
+                                fontSize: '1.3rem',
+                                fontWeight: 'bold'
+                            }}>
+                                تفاصيل أنشطة الإدارة - {getSelectedPeriodLabel()}
+                            </h3>
+                        </div>
+                        <div style={{
+                            backgroundColor: '#d1ecf1',
+                            padding: '20px',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            lineHeight: '1.6',
+                            color: '#0c5460',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                        }}>
+                            {currentActivityDetails}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {currentObstacles && (
                 <div style={{ marginBottom: '30px' }}>
