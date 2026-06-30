@@ -232,17 +232,6 @@ export async function login(email: string, password: string, rememberMe: boolean
 
         if (!userProfile) {
             logger.error('User profile not found for UID:', userCredential.user.uid);
-            // Emergency recovery: if it's the admin, try to recreate the profile
-            if (email === 'admin@gahar.gov.eg') {
-
-                const adminProfile = {
-                    username: 'Admin',
-                    email: email,
-                    role: 'super_admin' as const
-                };
-                await setDoc(doc(db, 'users', userCredential.user.uid), adminProfile);
-                return { id: userCredential.user.uid, ...adminProfile };
-            }
         }
 
         return userProfile;
