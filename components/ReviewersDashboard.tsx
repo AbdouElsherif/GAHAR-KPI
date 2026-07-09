@@ -208,6 +208,29 @@ export default function ReviewersDashboard({
         return ((current - previous) / previous) * 100;
     };
 
+    const toNumericValue = (value: unknown): number => {
+        if (typeof value === 'number') {
+            return Number.isFinite(value) ? value : 0;
+        }
+
+        if (typeof value === 'string') {
+            const normalizedValue = value
+                .replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+                .replace(/[۰-۹]/g, (digit) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)))
+                .replace(/,/g, '')
+                .trim();
+            const parsedValue = Number(normalizedValue);
+            return Number.isFinite(parsedValue) ? parsedValue : 0;
+        }
+
+        const parsedValue = Number(value);
+        return Number.isFinite(parsedValue) ? parsedValue : 0;
+    };
+
+    const sumReportField = (reports: any[], field: 'numberOfDecisions' | 'numberOfReports'): number => {
+        return reports.reduce((sum: number, report: any) => sum + toNumericValue(report[field]), 0);
+    };
+
     const currentYearData = filterByYear(targetYear);
     const previousYearData = filterByYear(targetYear - 1);
 
@@ -270,8 +293,8 @@ export default function ReviewersDashboard({
     const previousCommittees = calculateFilteredTotal(previousAggregated, 'accreditationCommittees', comparisonType);
     const committeesChange = calculateChange(currentCommittees, previousCommittees);
 
-    const currentReports = filterReports(reportsToCommitteeData, targetYear).reduce((sum: number, r: ReportPresentedToCommittee) => sum + (r.numberOfDecisions || 0), 0);
-    const previousReports = filterReports(reportsToCommitteeData, targetYear - 1).reduce((sum: number, r: ReportPresentedToCommittee) => sum + (r.numberOfDecisions || 0), 0);
+    const currentReports = sumReportField(filterReports(reportsToCommitteeData, targetYear), 'numberOfDecisions');
+    const previousReports = sumReportField(filterReports(reportsToCommitteeData, targetYear - 1), 'numberOfDecisions');
     const reportsChange = calculateChange(currentReports, previousReports);
 
     const currentAppeals = calculateFilteredTotal(currentAggregated, 'appealsSubmitted', comparisonType);
@@ -687,7 +710,7 @@ export default function ReviewersDashboard({
                 />
                 <KPICard
                     title="لجان الاعتماد المنعقدة"
-                    icon="�‍⚖️"
+                    icon="⚖️"
                     currentValue={currentCommittees}
                     previousValue={previousCommittees}
                     changePercentage={committeesChange}
@@ -698,7 +721,7 @@ export default function ReviewersDashboard({
                 />
                 <KPICard
                     title="تقارير الزيارات المعروضة على اللجنة"
-                    icon="�"
+                    icon="📑"
                     currentValue={currentReports}
                     previousValue={previousReports}
                     changePercentage={reportsChange}
@@ -1440,7 +1463,7 @@ export default function ReviewersDashboard({
                                             const filtered = filterReports(reportsToCommitteeData, targetYear);
                                             const counts = filtered.reduce((acc: Record<string, number>, report: any) => {
                                                 const type = report.committeeDecisionType || 'غير محدد';
-                                                acc[type] = (acc[type] || 0) + (report.numberOfDecisions || 0);
+                                                acc[type] = (acc[type] || 0) + toNumericValue(report.numberOfDecisions);
                                                 return acc;
                                             }, {} as Record<string, number>);
                                             return Object.entries(counts).map(([name, count]) => ({
@@ -1491,7 +1514,7 @@ export default function ReviewersDashboard({
                                     textAlign: 'center'
                                 }}>
                                     <strong style={{ color: '#0c5460' }}>
-                                        إجمالي التقارير: {filterReports(reportsToCommitteeData, targetYear).reduce((sum: number, r: any) => sum + (r.numberOfDecisions || 0), 0)} تقرير
+                                        إجمالي التقارير: {sumReportField(filterReports(reportsToCommitteeData, targetYear), 'numberOfDecisions')} تقرير
                                     </strong>
                                 </div>
                             </>
@@ -1506,7 +1529,7 @@ export default function ReviewersDashboard({
                                             const filtered = filterReports(reportsBySpecialtyData, targetYear);
                                             const counts = filtered.reduce((acc: Record<string, number>, report: any) => {
                                                 const type = report.facilitySpecialty || 'غير محدد';
-                                                acc[type] = (acc[type] || 0) + (report.numberOfReports || 0);
+                                                acc[type] = (acc[type] || 0) + toNumericValue(report.numberOfReports);
                                                 return acc;
                                             }, {} as Record<string, number>);
                                             return Object.entries(counts).map(([name, count]) => ({
@@ -1557,7 +1580,7 @@ export default function ReviewersDashboard({
                                     textAlign: 'center'
                                 }}>
                                     <strong style={{ color: '#0c5460' }}>
-                                        إجمالي التقارير: {filterReports(reportsBySpecialtyData, targetYear).reduce((sum: number, r: any) => sum + (r.numberOfReports || 0), 0)} تقرير
+                                        إجمالي التقارير: {sumReportField(filterReports(reportsBySpecialtyData, targetYear), 'numberOfReports')} تقرير
                                     </strong>
                                 </div>
                             </>

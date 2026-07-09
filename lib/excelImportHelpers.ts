@@ -531,7 +531,7 @@ export const dept9Sections: Record<string, SectionDefinition> = {
         columns: [
             { header: 'الشهر والسنة', field: 'month', required: true, type: 'month' },
             { header: 'نوع القرار', field: 'committeeDecisionType', required: true, type: 'string' },
-            { header: 'عدد القرارات', field: 'numberOfDecisions', required: true, type: 'string' },
+            { header: 'عدد القرارات', field: 'numberOfDecisions', required: true, type: 'number' },
         ]
     },
     'reports_by_facility_specialty': {
@@ -541,7 +541,7 @@ export const dept9Sections: Record<string, SectionDefinition> = {
         columns: [
             { header: 'الشهر والسنة', field: 'month', required: true, type: 'month' },
             { header: 'التخصص', field: 'facilitySpecialty', required: true, type: 'string' },
-            { header: 'عدد التقارير', field: 'numberOfReports', required: true, type: 'string' },
+            { header: 'عدد التقارير', field: 'numberOfReports', required: true, type: 'number' },
         ]
     },
     'accreditation_decisions': {
