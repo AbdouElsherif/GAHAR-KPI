@@ -621,6 +621,7 @@ const exportDept5Data = async (workbook: XLSX.WorkBook, filterString: string) =>
         'اسم المنشأة': row.facilityName || 'غير محدد',
         'الجهة الحاكمة': row.affiliation || 'غير محدد',
         'نوع الزيارة': row.visitType || 'غير محدد',
+        'نشاط إضافي': row.additionalActivity || '',
         'المحافظة': row.governorate || 'غير محدد',
     }));
     if (adminFacFormatted.length > 0) {

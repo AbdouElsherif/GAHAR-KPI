@@ -388,14 +388,14 @@ const dept5AffiliationOptions = [
 ];
 
 const dept5VisitTypes = [
-    'زيارة متابعة', 'تفتيش إداري', 'تدقيق إداري وسلامة بيئية', 
-    'متابعة خطة تصحيحية لحدث جسيم', 'فحص شكوى - إحالة', 
-    'تخطيط صحي', 'تدقيق على السلامة البيئية', 'فحص حدث جسيم',
+    'متابعة خطة تصحيحية لزيارة تقييمية',
+    'متابعة خطة تصحيحية لحدث جسيم',
+    'متابعة',
+    'تفتيش إداري',
+    'تدقيق إداري وسلامة بيئية',
+    'فحص شكوى إحالة',
     'تدقيق سلامة بيئية',
-    'متابعة خطة تصحيحية لحدث جسيم - فحص شكوى',
-    'تدقيق إداري وسلامة بيئية – فحص شكوى',
-    'تدقيق إداري وسلامة بيئية – تفتيش إداري',
-    'زيارة متابعة – تفتيش إداري'
+    'تخطيط صحي'
 ];
 
 export const dept5Sections: Record<string, SectionDefinition> = {
@@ -408,6 +408,7 @@ export const dept5Sections: Record<string, SectionDefinition> = {
             { header: 'اسم المنشأة', field: 'facilityName', required: true, type: 'string' },
             { header: 'الجهة الحاكمة', aliases: ['التبعية'], field: 'affiliation', required: true, type: 'string', validValues: dept5AffiliationOptions },
             { header: 'نوع الزيارة', field: 'visitType', required: true, type: 'string', validValues: dept5VisitTypes },
+            { header: 'نشاط إضافي', field: 'additionalActivity', required: false, type: 'string' },
             { header: 'المحافظة', field: 'governorate', required: true, type: 'string', validValues: egyptGovernorates },
             { header: 'الشهر', field: 'month', required: true, type: 'month' },
         ]

@@ -391,6 +391,7 @@ export default function DepartmentPage() {
         facilityName: '',
         affiliation: '',
         visitType: '',
+        additionalActivity: '',
         governorate: '',
         month: ''
     });
@@ -2146,7 +2147,7 @@ export default function DepartmentPage() {
     const handleAdminAuditFacilitySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) return;
-        if (!validateSectionForm(adminAuditFacilityFormData, 'المنشآت')) return;
+        if (!validateSectionForm(adminAuditFacilityFormData, 'المنشآت', ['additionalActivity'])) return;
 
         try {
             if (editingAdminAuditFacilityId) {
@@ -2188,6 +2189,7 @@ export default function DepartmentPage() {
             facilityName: facility.facilityName,
             affiliation: facility.affiliation || '', // الجهة الحاكمة
             visitType: facility.visitType,
+            additionalActivity: facility.additionalActivity || '',
             governorate: facility.governorate,
             month: facility.month
         });
@@ -2209,6 +2211,7 @@ export default function DepartmentPage() {
             facilityName: '',
             affiliation: '',
             visitType: '',
+            additionalActivity: '',
             governorate: '',
             month: ''
         });
@@ -2229,6 +2232,7 @@ export default function DepartmentPage() {
                 'الجهة الحاكمة': facility.affiliation,
                 'المحافظة': facility.governorate,
                 'نوع الزيارة': facility.visitType,
+                'نشاط إضافي': facility.additionalActivity || '',
                 'الشهر': `${monthNames[parseInt(month) - 1]} ${year}`
             };
         });
@@ -2251,6 +2255,7 @@ export default function DepartmentPage() {
             return new TableRow({
                 children: [
                     new TableCell({ children: [new Paragraph({ text: facility.visitType, alignment: AlignmentType.RIGHT })] }),
+                    new TableCell({ children: [new Paragraph({ text: facility.additionalActivity || '', alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: facility.governorate, alignment: AlignmentType.CENTER })] }),
                     new TableCell({ children: [new Paragraph({ text: facility.affiliation || '', alignment: AlignmentType.RIGHT })] }),
                     new TableCell({ children: [new Paragraph({ text: facility.facilityName, alignment: AlignmentType.RIGHT })] }),
@@ -2267,6 +2272,7 @@ export default function DepartmentPage() {
                 new TableRow({
                     children: [
                         new TableCell({ children: [new Paragraph({ text: "نوع الزيارة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
+                        new TableCell({ children: [new Paragraph({ text: "نشاط إضافي", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "المحافظة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "الجهة الحاكمة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
                         new TableCell({ children: [new Paragraph({ text: "اسم المنشأة", alignment: AlignmentType.CENTER, run: { bold: true, color: "FFFFFF" } })], shading: { fill: "0D6A79" } }),
@@ -13612,20 +13618,26 @@ export default function DepartmentPage() {
                                                         onChange={(e) => handleAdminAuditFacilityInputChange('visitType', e.target.value)}
                                                     >
                                                         <option value="">اختر نوع الزيارة</option>
-                                                        <option value="زيارة متابعة">زيارة متابعة</option>
+                                                        <option value="متابعة خطة تصحيحية لزيارة تقييمية">متابعة خطة تصحيحية لزيارة تقييمية</option>
+                                                        <option value="متابعة خطة تصحيحية لحدث جسيم">متابعة خطة تصحيحية لحدث جسيم</option>
+                                                        <option value="متابعة">متابعة</option>
                                                         <option value="تفتيش إداري">تفتيش إداري</option>
                                                         <option value="تدقيق إداري وسلامة بيئية">تدقيق إداري وسلامة بيئية</option>
-                                                        <option value="متابعة خطة تصحيحية لحدث جسيم">متابعة خطة تصحيحية لحدث جسيم</option>
-                                                        <option value="فحص شكوى - إحالة">فحص شكوى - إحالة</option>
-                                                        <option value="تخطيط صحي">تخطيط صحي</option>
-                                                        <option value="تدقيق على السلامة البيئية">تدقيق على السلامة البيئية</option>
-                                                        <option value="فحص حدث جسيم">فحص حدث جسيم</option>
+                                                        <option value="فحص شكوى إحالة">فحص شكوى إحالة</option>
                                                         <option value="تدقيق سلامة بيئية">تدقيق سلامة بيئية</option>
-                                                        <option value="متابعة خطة تصحيحية لحدث جسيم - فحص شكوى">متابعة خطة تصحيحية لحدث جسيم - فحص شكوى</option>
-                                                        <option value="تدقيق إداري وسلامة بيئية – فحص شكوى">تدقيق إداري وسلامة بيئية – فحص شكوى</option>
-                                                        <option value="تدقيق إداري وسلامة بيئية – تفتيش إداري">تدقيق إداري وسلامة بيئية – تفتيش إداري</option>
-                                                        <option value="زيارة متابعة – تفتيش إداري">زيارة متابعة – تفتيش إداري</option>
+                                                        <option value="تخطيط صحي">تخطيط صحي</option>
                                                     </select>
+                                                </div>
+
+                                                <div className="form-group">
+                                                    <label className="form-label">نشاط إضافي</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-input"
+                                                        value={adminAuditFacilityFormData.additionalActivity}
+                                                        onChange={(e) => handleAdminAuditFacilityInputChange('additionalActivity', e.target.value)}
+                                                        placeholder="أدخل النشاط الإضافي"
+                                                    />
                                                 </div>
 
                                                 <div className="form-group">
@@ -13762,6 +13774,7 @@ export default function DepartmentPage() {
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>اسم المنشأة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>الجهة الحاكمة</th>
                                                 <th style={{ padding: '12px', textAlign: 'right' }}>نوع الزيارة</th>
+                                                <th style={{ padding: '12px', textAlign: 'right' }}>نشاط إضافي</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>المحافظة</th>
                                                 <th style={{ padding: '12px', textAlign: 'center' }}>الشهر</th>
                                                 {userCanEdit && (
@@ -13772,7 +13785,7 @@ export default function DepartmentPage() {
                                         <tbody>
                                             {adminAuditFacilities.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={userCanEdit ? 7 : 6} style={{
+                                                    <td colSpan={userCanEdit ? 8 : 7} style={{
                                                         padding: '40px',
                                                         textAlign: 'center',
                                                         color: '#999'
@@ -13800,6 +13813,9 @@ export default function DepartmentPage() {
                                                             </td>
                                                             <td style={{ padding: '12px', fontWeight: '500' }}>
                                                                 {facility.visitType}
+                                                            </td>
+                                                            <td style={{ padding: '12px', fontWeight: '500' }}>
+                                                                {facility.additionalActivity || '-'}
                                                             </td>
                                                             <td style={{ padding: '12px', textAlign: 'center' }}>
                                                                 {facility.governorate}

@@ -311,6 +311,7 @@ export interface AdminAuditFacility {
     facilityName: string;
     affiliation: string; // الجهة الحاكمة (كانت تسمى التبعية)
     visitType: string;
+    additionalActivity?: string;
     governorate: string;
     month: string;
     year: number;
