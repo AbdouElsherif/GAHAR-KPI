@@ -159,11 +159,11 @@ const getFilterDescription = (filterString: string): string => {
     if (/^\d{4}-\d{2}$/.test(filterString)) return `Month ${filterString}`;
     if (filterString.startsWith('Q')) {
         const [quarter, year] = filterString.split('-');
-        return `Quarter ${quarter.replace('Q', '')} of ${year}`;
+        return `Fiscal quarter ${quarter.replace('Q', '')} of fiscal year ending ${year}`;
     }
     if (filterString.startsWith('H')) {
         const [half, year] = filterString.split('-');
-        return `Half ${half.replace('H', '')} of ${year}`;
+        return `Fiscal half ${half.replace('H', '')} of fiscal year ending ${year}`;
     }
     if (filterString.startsWith('Y-')) return `Year ${filterString.split('-')[1]}`;
     return filterString;
@@ -227,6 +227,24 @@ const getRecordMonth = (record: any): string | null => {
     return null;
 };
 
+const getFiscalYearEnd = (monthString: string): number => {
+    const [yearPart, monthPart] = monthString.split('-');
+    const year = Number(yearPart);
+    const month = Number(monthPart);
+    return month >= 7 ? year + 1 : year;
+};
+
+const getFiscalQuarter = (month: number): number => {
+    if (month >= 7 && month <= 9) return 1;
+    if (month >= 10 && month <= 12) return 2;
+    if (month >= 1 && month <= 3) return 3;
+    return 4;
+};
+
+const getFiscalHalf = (month: number): number => {
+    return month >= 7 ? 1 : 2;
+};
+
 const matchesFilter = (recordMonth: string | null, filterString: string): boolean => {
     if (!filterString || filterString === 'ALL') return true;
     if (!recordMonth) return false;
@@ -241,20 +259,18 @@ const matchesFilter = (recordMonth: string | null, filterString: string): boolea
 
     if (filterString.startsWith('Q')) {
         const [quarterPart, year] = filterString.split('-');
+        const fiscalYearEnd = Number(year);
+        const quarter = Number(quarterPart.replace('Q', ''));
         const month = Number(recordMonth.split('-')[1]);
-        if (!recordMonth.startsWith(`${year}-`)) return false;
-        if (quarterPart === 'Q1') return month >= 1 && month <= 3;
-        if (quarterPart === 'Q2') return month >= 4 && month <= 6;
-        if (quarterPart === 'Q3') return month >= 7 && month <= 9;
-        if (quarterPart === 'Q4') return month >= 10 && month <= 12;
+        return getFiscalYearEnd(recordMonth) === fiscalYearEnd && getFiscalQuarter(month) === quarter;
     }
 
     if (filterString.startsWith('H')) {
         const [halfPart, year] = filterString.split('-');
+        const fiscalYearEnd = Number(year);
+        const half = Number(halfPart.replace('H', ''));
         const month = Number(recordMonth.split('-')[1]);
-        if (!recordMonth.startsWith(`${year}-`)) return false;
-        if (halfPart === 'H1') return month >= 1 && month <= 6;
-        if (halfPart === 'H2') return month >= 7 && month <= 12;
+        return getFiscalYearEnd(recordMonth) === fiscalYearEnd && getFiscalHalf(month) === half;
     }
 
     return true;

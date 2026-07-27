@@ -10,6 +10,13 @@ import AchievementHighlightsButton from '@/components/AchievementHighlightsButto
 import NotificationCenter from '@/components/NotificationCenter';
 import DataQualityCenter from '@/components/DataQualityCenter';
 
+const getCurrentFiscalYearEnd = (): string => {
+    const today = new Date();
+    return (today.getMonth() + 1 >= 7 ? today.getFullYear() + 1 : today.getFullYear()).toString();
+};
+
+const getCurrentCalendarYear = (): string => new Date().getFullYear().toString();
+
 export default function Home() {
     const router = useRouter();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -21,7 +28,7 @@ export default function Home() {
     const [aiExportMonth, setAIExportMonth] = useState('');
     const [aiExportQuarter, setAIExportQuarter] = useState('1');
     const [aiExportHalfYear, setAIExportHalfYear] = useState('1');
-    const [aiExportYear, setAIExportYear] = useState(new Date().getFullYear().toString());
+    const [aiExportYear, setAIExportYear] = useState(getCurrentCalendarYear());
     const [aiExportDepartmentIds, setAIExportDepartmentIds] = useState<string[]>(departments.map(dept => dept.id));
     const [promptCopyStatus, setPromptCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
@@ -67,11 +74,11 @@ export default function Home() {
         if (/^\d{4}-\d{2}$/.test(filterString)) return `شهر ${filterString}`;
         if (filterString.startsWith('Q')) {
             const [quarter, year] = filterString.split('-');
-            return `الربع ${quarter.replace('Q', '')} من عام ${year}`;
+            return `الربع المالي ${quarter.replace('Q', '')} من العام المالي المنتهي في ${year}`;
         }
         if (filterString.startsWith('H')) {
             const [half, year] = filterString.split('-');
-            return `النصف ${half.replace('H', '')} من عام ${year}`;
+            return `النصف المالي ${half.replace('H', '')} من العام المالي المنتهي في ${year}`;
         }
         if (filterString.startsWith('Y-')) return `عام ${filterString.split('-')[1]}`;
         return filterString;
@@ -99,6 +106,15 @@ export default function Home() {
                 ? prev.filter(id => id !== departmentId)
                 : [...prev, departmentId]
         );
+    };
+
+    const handleAIExportPeriodTypeChange = (periodType: string) => {
+        setAIExportPeriodType(periodType);
+        if (periodType === 'quarter' || periodType === 'halfYear') {
+            setAIExportYear(getCurrentFiscalYearEnd());
+        } else if (periodType === 'year') {
+            setAIExportYear(getCurrentCalendarYear());
+        }
     };
 
     const handleCopyAIReporterPrompt = async () => {
@@ -167,7 +183,7 @@ export default function Home() {
     const availableDepartments = currentUser.role === 'super_admin' || currentUser.role === 'general_viewer'
         ? departments
         : departments.filter(d => d.id === currentUser.departmentId);
-    const currentYear = new Date().getFullYear();
+    const currentYear = Math.max(Number(getCurrentCalendarYear()), Number(getCurrentFiscalYearEnd()));
     const years = Array.from({ length: 7 }, (_, i) => (currentYear - i).toString());
 
     return (
@@ -366,7 +382,7 @@ export default function Home() {
                                         </label>
                                         <select
                                             value={aiExportPeriodType}
-                                            onChange={(e) => setAIExportPeriodType(e.target.value)}
+                                            onChange={(e) => handleAIExportPeriodTypeChange(e.target.value)}
                                             disabled={isExporting === 'loading'}
                                             style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
                                         >
@@ -405,15 +421,15 @@ export default function Home() {
                                                     disabled={isExporting === 'loading'}
                                                     style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
                                                 >
-                                                    <option value="1">الربع الأول (يناير - مارس)</option>
-                                                    <option value="2">الربع الثاني (أبريل - يونيو)</option>
-                                                    <option value="3">الربع الثالث (يوليو - سبتمبر)</option>
-                                                    <option value="4">الربع الرابع (أكتوبر - ديسمبر)</option>
+                                                    <option value="1">الربع الأول المالي (يوليو - سبتمبر)</option>
+                                                    <option value="2">الربع الثاني المالي (أكتوبر - ديسمبر)</option>
+                                                    <option value="3">الربع الثالث المالي (يناير - مارس)</option>
+                                                    <option value="4">الربع الرابع المالي (أبريل - يونيو)</option>
                                                 </select>
                                             </div>
                                             <div style={{ flex: 1 }}>
                                                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
-                                                    السنة
+                                                    السنة المالية المنتهية في
                                                 </label>
                                                 <select
                                                     value={aiExportYear}
@@ -439,13 +455,13 @@ export default function Home() {
                                                     disabled={isExporting === 'loading'}
                                                     style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
                                                 >
-                                                    <option value="1">النصف الأول (يناير - يونيو)</option>
-                                                    <option value="2">النصف الثاني (يوليو - ديسمبر)</option>
+                                                    <option value="1">النصف الأول المالي (يوليو - ديسمبر)</option>
+                                                    <option value="2">النصف الثاني المالي (يناير - يونيو)</option>
                                                 </select>
                                             </div>
                                             <div style={{ flex: 1 }}>
                                                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
-                                                    السنة
+                                                    السنة المالية المنتهية في
                                                 </label>
                                                 <select
                                                     value={aiExportYear}
