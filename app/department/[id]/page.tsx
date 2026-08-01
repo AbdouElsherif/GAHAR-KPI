@@ -9255,6 +9255,7 @@ export default function DepartmentPage() {
                                                         <option value="تجديد اعتماد">تجديد اعتماد</option>
                                                         <option value="رسوم تأجيل زيارة">رسوم تأجيل زيارة</option>
                                                         <option value="رسوم شهادات إضافية">رسوم شهادات إضافية</option>
+                                                        <option value="رسوم خدمة مضافة">رسوم خدمة مضافة</option>
                                                     </select>
                                                 </div>
 

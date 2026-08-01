@@ -513,7 +513,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
             'إيرادات تجديد الاعتماد': { value: 0, count: 0 },
             'إيرادات تجديد الاعتماد المبدئي': { value: 0, count: 0 },
             'إيرادات رسوم تأجيل': { value: 0, count: 0 },
-            'إيرادات شهادات إضافية': { value: 0, count: 0 }
+            'إيرادات شهادات إضافية': { value: 0, count: 0 },
+            'إيرادات خدمة مضافة': { value: 0, count: 0 }
         };
 
         filteredPaidFacilities.forEach(f => {
@@ -524,6 +525,8 @@ export default function AccreditationDashboard({ submissions, facilities = [], c
                 categoryKey = 'إيرادات رسوم تأجيل';
             } else if (status.includes('شهادات')) {
                 categoryKey = 'إيرادات شهادات إضافية';
+            } else if (status.includes('خدمة مضافة')) {
+                categoryKey = 'إيرادات خدمة مضافة';
             } else if (status.includes('تجديد') && status.includes('مبدئي')) {
                 categoryKey = 'إيرادات تجديد الاعتماد المبدئي';
             } else if (status.includes('تجديد')) {
