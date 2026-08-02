@@ -1138,9 +1138,29 @@ export default function DepartmentPage() {
         setAccreditedSupportedFacilities(data);
     };
 
-    const handleChange = (name: string, value: string) => {
+    const calculateTechnicalSupportPrograms = (data: Record<string, any>) => {
+        const introVisits = Number.parseFloat(data.introVisits) || 0;
+        const fieldSupportVisits = Number.parseFloat(data.fieldSupportVisits) || 0;
+        const remoteSupportVisits = Number.parseFloat(data.remoteSupportVisits) || 0;
+        return String(introVisits + fieldSupportVisits + remoteSupportVisits);
+    };
 
-        setFormData(prev => ({ ...prev, [name]: value }));
+    const calculateTechnicalClinicalFieldVisits = (data: Record<string, any>) => {
+        const auditVisits = Number.parseFloat(data.auditVisits) || 0;
+        const assessmentVisits = Number.parseFloat(data.assessmentVisits) || 0;
+        return String(auditVisits + assessmentVisits);
+    };
+
+    const handleChange = (name: string, value: string) => {
+        setFormData(prev => {
+            const next = { ...prev, [name]: value };
+            if (id === 'dept2') {
+                next.supportPrograms = calculateTechnicalSupportPrograms(next);
+            } else if (id === 'dept4') {
+                next.totalFieldVisits = calculateTechnicalClinicalFieldVisits(next);
+            }
+            return next;
+        });
     };
 
     // Generic validation for section forms - checks month and required fields
@@ -1258,6 +1278,11 @@ export default function DepartmentPage() {
 
         // dept8: تعبئة المعايير المقفلة (التي وصلت 100% سابقاً) بقيمة 100 تلقائياً
         const submittedData = { ...formData };
+        if (id === 'dept2') {
+            submittedData.supportPrograms = calculateTechnicalSupportPrograms(submittedData);
+        } else if (id === 'dept4') {
+            submittedData.totalFieldVisits = calculateTechnicalClinicalFieldVisits(submittedData);
+        }
         if (id === 'dept8') {
             previouslyCompletedStandards.forEach(stdName => {
                 if (!submittedData[stdName] && !unlockedStandards.has(stdName)) {
@@ -7491,6 +7516,15 @@ export default function DepartmentPage() {
                                             const fieldValue = Number(formData[field.name] || 0);
                                             const isCompleted = isStandardField && (fieldValue >= 100 || previouslyCompletedStandards.has(field.name));
                                             const isLocked = isCompleted && !unlockedStandards.has(field.name);
+                                            const isCalculatedSupportPrograms = id === 'dept2' && field.name === 'supportPrograms';
+                                            const isCalculatedTechnicalClinicalTotal = id === 'dept4' && field.name === 'totalFieldVisits';
+                                            const inputValue = isCalculatedSupportPrograms
+                                                ? calculateTechnicalSupportPrograms(formData)
+                                                : isCalculatedTechnicalClinicalTotal
+                                                    ? calculateTechnicalClinicalFieldVisits(formData)
+                                                : isLocked && previouslyCompletedStandards.has(field.name) && !formData[field.name]
+                                                    ? '100'
+                                                    : (formData[field.name] || '');
 
                                             return (
                                                 <div
@@ -7498,7 +7532,7 @@ export default function DepartmentPage() {
                                                     className="form-group"
                                                     style={{
                                                         ...(field.name === 'notes' || field.name === 'obstacles' || field.name === 'developmentProposals' || field.name === 'additionalActivities' || field.name === 'activitySummary' || field.name === 'activityDetails' ? { gridColumn: '1 / -1' } : {}),
-                                                        ...(isLocked ? { opacity: 0.6 } : {})
+                                                        ...(isLocked || isCalculatedSupportPrograms || isCalculatedTechnicalClinicalTotal ? { opacity: 0.6 } : {})
                                                     }}
                                                 >
                                                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -7553,8 +7587,8 @@ export default function DepartmentPage() {
                                                             type={field.type}
                                                             className="form-input"
                                                             required={field.required || field.type === 'month' || field.type === 'date'}
-                                                            value={isLocked && previouslyCompletedStandards.has(field.name) && !formData[field.name] ? '100' : (formData[field.name] || '')}
-                                                            disabled={isLocked}
+                                                            value={inputValue}
+                                                            disabled={isLocked || isCalculatedSupportPrograms || isCalculatedTechnicalClinicalTotal}
                                                             onChange={(e) => {
                                                                 let value = e.target.value;
                                                                 // Clamp value to max 100 for dept8 standards
@@ -7562,7 +7596,9 @@ export default function DepartmentPage() {
                                                                     const numVal = Number(value);
                                                                     if (numVal > 100) value = '100';
                                                                 }
-                                                                handleChange(field.name, value);
+                                                                if (!isCalculatedSupportPrograms && !isCalculatedTechnicalClinicalTotal) {
+                                                                    handleChange(field.name, value);
+                                                                }
                                                             }}
                                                             max={(field.type === 'date' || field.type === 'month') ? new Date().toISOString().split('T')[0].slice(0, 7) : (field.type === 'number' && id === 'dept8') ? '100' : undefined}
                                                             min={field.type === 'number' ? '0' : undefined}
@@ -7572,8 +7608,8 @@ export default function DepartmentPage() {
                                                                     e.preventDefault();
                                                                 }
                                                             }}
-                                                            style={isLocked ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : undefined}
-                                                            title={(field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' && id === 'dept8' ? 'أدخل نسبة مئوية من 0 إلى 100' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
+                                                            style={isLocked || isCalculatedSupportPrograms || isCalculatedTechnicalClinicalTotal ? { backgroundColor: '#e9ecef', cursor: 'not-allowed' } : undefined}
+                                                            title={isCalculatedSupportPrograms ? 'يتم حساب هذا الحقل تلقائياً من مجموع: زيارات تمهيدية + زيارات دعم فني ميداني + زيارات دعم فني عن بعد' : isCalculatedTechnicalClinicalTotal ? 'يتم حساب هذا الحقل تلقائياً من مجموع: زيارات التدقيق الفني والإكلينيكي + زيارات التقييم الفني والإكلينيكي' : (field.type === 'date' || field.type === 'month') ? 'الشهر والسنة إجباري - لا يمكن اختيار شهر مستقبلي' : field.type === 'number' && id === 'dept8' ? 'أدخل نسبة مئوية من 0 إلى 100' : field.type === 'number' ? 'أدخل عدداً صحيحاً موجباً فقط' : undefined}
                                                         />
                                                     )}
                                                 </div>

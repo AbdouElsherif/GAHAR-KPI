@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
+import DisableNumberInputWheel from '@/components/DisableNumberInputWheel';
 
 export const metadata: Metadata = {
     title: 'GAHAR KPI Dashboard',
@@ -22,6 +23,7 @@ export default function RootLayout({
     return (
         <html lang="ar" dir="rtl" suppressHydrationWarning={true}>
             <body suppressHydrationWarning={true}>
+                <DisableNumberInputWheel />
                 <header className="header">
                     <div className="container header-content">
                         <Link href="/" className="logo-container">
