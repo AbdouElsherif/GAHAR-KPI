@@ -419,6 +419,33 @@ export default function DepartmentPage() {
     const [editingAdminAuditFacilityId, setEditingAdminAuditFacilityId] = useState<string | null>(null);
     const [adminAuditFacilityFilterMonth, setAdminAuditFacilityFilterMonth] = useState('');
     const [adminAuditFacilitySubmitted, setAdminAuditFacilitySubmitted] = useState(false);
+    const activeAdminAuditFacilityMonth = globalFilterMonth || adminAuditFacilityFilterMonth;
+    const filteredAdminAuditFacilities = useMemo(
+        () => adminAuditFacilities.filter(facility => !activeAdminAuditFacilityMonth || facility.month === activeAdminAuditFacilityMonth),
+        [adminAuditFacilities, activeAdminAuditFacilityMonth]
+    );
+    const adminAuditFacilityVisitCounts = useMemo(() => {
+        return filteredAdminAuditFacilities.reduce(
+            (counts, facility) => {
+                const visitType = facility.visitType || '';
+                if (visitType.includes('تدقيق')) {
+                    counts.audit += 1;
+                } else if (visitType.includes('تفتيش')) {
+                    counts.inspection += 1;
+                } else if (visitType.includes('متابعة')) {
+                    counts.followUp += 1;
+                } else if (visitType.includes('فحص') || visitType.includes('إحالة') || visitType.includes('تكليف')) {
+                    counts.examReferral += 1;
+                } else if (visitType.includes('تخطيط')) {
+                    counts.planning += 1;
+                } else {
+                    counts.other += 1;
+                }
+                return counts;
+            },
+            { audit: 0, inspection: 0, followUp: 0, examReferral: 0, planning: 0, other: 0 }
+        );
+    }, [filteredAdminAuditFacilities]);
     const [isAdminAuditFacilitiesSectionExpanded, setIsAdminAuditFacilitiesSectionExpanded] = useState(false);
 
     // Admin Audit Observations tracking states (الملاحظات المتكررة for dept5)
@@ -13539,7 +13566,7 @@ export default function DepartmentPage() {
                                             const [year, month] = (globalFilterMonth || adminAuditFacilityFilterMonth).split('-');
                                             const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                             return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                        })()} - {adminAuditFacilities.filter(f => f.month === (globalFilterMonth || adminAuditFacilityFilterMonth)).length} منشأة
+                                        })()} - {filteredAdminAuditFacilities.length} منشأة
                                     </>
                                 ) : (
                                     "🏥 المنشآت التي تم زيارتها خلال شهر"
@@ -13762,14 +13789,14 @@ export default function DepartmentPage() {
                                                 min={MIN_MONTH}
                                                 max={MAX_MONTH}
                                                 className="form-input"
-                                                value={globalFilterMonth || adminAuditFacilityFilterMonth}
+                                                value={activeAdminAuditFacilityMonth}
                                                 onChange={(e) => !globalFilterMonth && setAdminAuditFacilityFilterMonth(e.target.value)}
                                                 disabled={!!globalFilterMonth}
                                                 style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', border: '1px solid var(--primary-color)' } : {}}
                                                 title={globalFilterMonth ? "يتم استخدام الفلتر العام حالياً" : "اختر الشهر للفلترة"}
                                             />
                                         </div>
-                                        {adminAuditFacilities.filter(f => !(globalFilterMonth || adminAuditFacilityFilterMonth) || f.month === (globalFilterMonth || adminAuditFacilityFilterMonth)).length > 0 && (
+                                        {filteredAdminAuditFacilities.length > 0 && (
                                             <div style={{ display: 'flex', gap: '10px' }}>
                                                 <button
                                                     onClick={exportAdminAuditFacilitiesToExcel}
@@ -13810,6 +13837,49 @@ export default function DepartmentPage() {
                                     </div>
                                 </div>
 
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-around',
+                                    alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    gap: '24px',
+                                    marginBottom: '15px',
+                                    padding: '14px',
+                                    backgroundColor: 'var(--background-color)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '8px',
+                                    direction: 'rtl'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '230px', justifyContent: 'center' }}>
+                                        <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات التدقيق الإداري:</span>
+                                        <span style={{ color: '#6f42c1', fontSize: '1.25rem', fontWeight: 'bold' }}>{adminAuditFacilityVisitCounts.audit}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '230px', justifyContent: 'center' }}>
+                                        <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات التفتيش الإداري:</span>
+                                        <span style={{ color: '#198754', fontSize: '1.25rem', fontWeight: 'bold' }}>{adminAuditFacilityVisitCounts.inspection}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '230px', justifyContent: 'center' }}>
+                                        <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات المتابعة:</span>
+                                        <span style={{ color: '#0d6efd', fontSize: '1.25rem', fontWeight: 'bold' }}>{adminAuditFacilityVisitCounts.followUp}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '230px', justifyContent: 'center' }}>
+                                        <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات الفحص/الإحالة:</span>
+                                        <span style={{ color: '#dc3545', fontSize: '1.25rem', fontWeight: 'bold' }}>{adminAuditFacilityVisitCounts.examReferral}</span>
+                                    </div>
+                                    {adminAuditFacilityVisitCounts.planning > 0 && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '230px', justifyContent: 'center' }}>
+                                            <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات التخطيط الصحي:</span>
+                                            <span style={{ color: '#fd7e14', fontSize: '1.25rem', fontWeight: 'bold' }}>{adminAuditFacilityVisitCounts.planning}</span>
+                                        </div>
+                                    )}
+                                    {adminAuditFacilityVisitCounts.other > 0 && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '230px', justifyContent: 'center' }}>
+                                            <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات غير مصنفة:</span>
+                                            <span style={{ color: '#6c757d', fontSize: '1.25rem', fontWeight: 'bold' }}>{adminAuditFacilityVisitCounts.other}</span>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                         <thead>
@@ -13827,7 +13897,7 @@ export default function DepartmentPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {adminAuditFacilities.length === 0 ? (
+                                            {filteredAdminAuditFacilities.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={userCanEdit ? 8 : 7} style={{
                                                         padding: '40px',
@@ -13839,9 +13909,7 @@ export default function DepartmentPage() {
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                adminAuditFacilities
-                                                    .filter(facility => !(globalFilterMonth || adminAuditFacilityFilterMonth) || facility.month === (globalFilterMonth || adminAuditFacilityFilterMonth))
-                                                    .map((facility, index) => (
+                                                filteredAdminAuditFacilities.map((facility, index) => (
                                                         <tr key={facility.id} style={{
                                                             borderBottom: '1px solid #eee',
                                                             backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb'
