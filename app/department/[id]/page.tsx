@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -369,6 +369,27 @@ export default function DepartmentPage() {
     const [technicalClinicalFacilityFilterMonth, setTechnicalClinicalFacilityFilterMonth] = useState('');
     const [technicalClinicalFacilitySubmitted, setTechnicalClinicalFacilitySubmitted] = useState(false);
     const [isTechnicalClinicalFacilitiesSectionExpanded, setIsTechnicalClinicalFacilitiesSectionExpanded] = useState(false);
+    const activeTechnicalClinicalFacilityMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
+    const filteredTechnicalClinicalFacilities = useMemo(
+        () => technicalClinicalFacilities.filter(facility => !activeTechnicalClinicalFacilityMonth || facility.month === activeTechnicalClinicalFacilityMonth),
+        [technicalClinicalFacilities, activeTechnicalClinicalFacilityMonth]
+    );
+    const technicalClinicalFacilityVisitCounts = useMemo(() => {
+        return filteredTechnicalClinicalFacilities.reduce(
+            (counts, facility) => {
+                const visitType = facility.visitType || '';
+                if (visitType.includes('تدقيق')) {
+                    counts.audit += 1;
+                } else if (visitType.includes('تقييم')) {
+                    counts.assessment += 1;
+                } else {
+                    counts.other += 1;
+                }
+                return counts;
+            },
+            { audit: 0, assessment: 0, other: 0 }
+        );
+    }, [filteredTechnicalClinicalFacilities]);
 
     // Technical Clinical Observations tracking states (الملاحظات المتكررة for dept4)
     const [technicalClinicalObservations, setTechnicalClinicalObservations] = useState<TechnicalClinicalObservation[]>([]);
@@ -10826,7 +10847,7 @@ export default function DepartmentPage() {
                                         const [year, month] = filterMonth.split('-');
                                         const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
                                         return `${monthNames[parseInt(month) - 1]} ${year}`;
-                                    })()}</span> - <span style={{ color: '#e67e22' }}>{technicalClinicalFacilities.filter(f => f.month === (globalFilterMonth || technicalClinicalFacilityFilterMonth)).length} منشأة</span>
+                                    })()}</span> - <span style={{ color: '#e67e22' }}>{filteredTechnicalClinicalFacilities.length} منشأة</span>
                                 </>
                             ) : (
                                 '🏥 المنشآت التي تم زيارتها'
@@ -11045,7 +11066,7 @@ export default function DepartmentPage() {
                                     textAlign: 'right', // Or 'center' if preferred, but usually headers are right-aligned in Arabic
                                     fontWeight: 'bold'
                                 }}>
-                                    إجمالي الزيارات: <span style={{ color: 'var(--primary-color)' }}>{technicalClinicalFacilities.filter(f => !(globalFilterMonth || technicalClinicalFacilityFilterMonth) || f.month === (globalFilterMonth || technicalClinicalFacilityFilterMonth)).length}</span>
+                                    إجمالي الزيارات: <span style={{ color: 'var(--primary-color)' }}>{filteredTechnicalClinicalFacilities.length}</span>
                                     {' - '}
                                     شهر: <span style={{ color: 'var(--primary-color)' }}>{(() => {
                                         const filterMonth = globalFilterMonth || technicalClinicalFacilityFilterMonth;
@@ -11075,7 +11096,7 @@ export default function DepartmentPage() {
                                             min={MIN_MONTH}
                                             max={MAX_MONTH}
                                             className="form-input"
-                                            value={globalFilterMonth || technicalClinicalFacilityFilterMonth}
+                                            value={activeTechnicalClinicalFacilityMonth}
                                             onChange={(e) => !globalFilterMonth && setTechnicalClinicalFacilityFilterMonth(e.target.value)}
                                             disabled={!!globalFilterMonth}
                                             style={globalFilterMonth ? { backgroundColor: '#e9ecef', cursor: 'not-allowed', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--primary-color)' } : { padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
@@ -11126,6 +11147,29 @@ export default function DepartmentPage() {
                                     </div>
                                 </div>
 
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-around',
+                                    alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    gap: '24px',
+                                    marginBottom: '15px',
+                                    padding: '14px',
+                                    backgroundColor: 'var(--background-color)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '8px',
+                                    direction: 'rtl'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '240px', justifyContent: 'center' }}>
+                                        <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات التقييم الفني:</span>
+                                        <span style={{ color: '#198754', fontSize: '1.25rem', fontWeight: 'bold' }}>{technicalClinicalFacilityVisitCounts.assessment}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '240px', justifyContent: 'center' }}>
+                                        <span style={{ color: 'var(--secondary-color)', fontWeight: '600' }}>زيارات التدقيق الفني:</span>
+                                        <span style={{ color: '#6f42c1', fontSize: '1.25rem', fontWeight: 'bold' }}>{technicalClinicalFacilityVisitCounts.audit}</span>
+                                    </div>
+                                </div>
+
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{
                                         width: '100%',
@@ -11148,7 +11192,7 @@ export default function DepartmentPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {technicalClinicalFacilities.length === 0 ? (
+                                            {filteredTechnicalClinicalFacilities.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={userCanEdit ? 8 : 7} style={{
                                                         padding: '40px',
@@ -11161,7 +11205,6 @@ export default function DepartmentPage() {
                                                 </tr>
                                             ) : (
                                                 (() => {
-                                                    const filteredTechnicalClinicalFacilities = technicalClinicalFacilities.filter(f => !(globalFilterMonth || technicalClinicalFacilityFilterMonth) || f.month === (globalFilterMonth || technicalClinicalFacilityFilterMonth));
                                                     return filteredTechnicalClinicalFacilities.map((facility, index) => (
                                                         <tr key={facility.id} style={{
                                                             borderBottom: '1px solid #eee',
