@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import KPICard from './KPICard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, Cell } from 'recharts';
 
@@ -27,11 +27,49 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
         return d.getMonth() + 1 >= 7 ? d.getFullYear() + 1 : d.getFullYear();
     })();
 
+    const getYear = (dateStr: string): number => {
+        return parseInt(dateStr.split('-')[0]);
+    };
+
+    const getMonth = (dateStr: string): number => {
+        return parseInt(dateStr.split('-')[1]);
+    };
+
+    const getQuarter = (month: number): number => {
+        if (month >= 7 && month <= 9) return 1;
+        if (month >= 10 && month <= 12) return 2;
+        if (month >= 1 && month <= 3) return 3;
+        return 4;
+    };
+
+    const getHalf = (month: number): number => {
+        return month >= 7 ? 1 : 2;
+    };
+
+    const fallbackFiscalYears = useMemo(() => [2026, 2025, 2024], []);
+    const fiscalYearOptions = useMemo(() => {
+        const years = new Set<number>(fallbackFiscalYears);
+
+        submissions.forEach(sub => {
+            if (sub.date) {
+                years.add(getFiscalYear(sub.date));
+            }
+        });
+
+        return Array.from(years).sort((a, b) => b - a);
+    }, [fallbackFiscalYears, submissions]);
+
+    const initialTargetYear = (
+        fiscalYearOptions.includes(initialFiscalYear)
+            ? initialFiscalYear
+            : fiscalYearOptions[0] ?? initialFiscalYear
+    );
+
     const [comparisonType, setComparisonType] = useState<'monthly' | 'quarterly' | 'halfYearly' | 'yearly'>('monthly');
-    const [targetYear, setTargetYear] = useState(initialFiscalYear);
+    const [targetYear, setTargetYear] = useState(() => initialTargetYear);
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
-    const [selectedQuarter, setSelectedQuarter] = useState<number>(Math.ceil((new Date().getMonth() + 1) / 3));
-    const [selectedHalf, setSelectedHalf] = useState<number>(Math.ceil((new Date().getMonth() + 1) / 6));
+    const [selectedQuarter, setSelectedQuarter] = useState<number>(getQuarter(new Date().getMonth() + 1));
+    const [selectedHalf, setSelectedHalf] = useState<number>(getHalf(new Date().getMonth() + 1));
     const [visibleMetrics, setVisibleMetrics] = useState<{
         adminAudit: boolean;
         adminInspection: boolean;
@@ -51,6 +89,12 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
     });
     const [activeVisitLocationChart, setActiveVisitLocationChart] = useState<'governorate' | 'governingAuthority'>('governorate');
 
+    useEffect(() => {
+        if (!filterMonth && !fiscalYearOptions.includes(targetYear)) {
+            setTargetYear(initialTargetYear);
+        }
+    }, [filterMonth, fiscalYearOptions, initialTargetYear, targetYear]);
+
     // Sync with external filter
     useEffect(() => {
         if (filterMonth) {
@@ -68,25 +112,6 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
             setSelectedMonth(month);
         }
     }, [filterMonth]);
-
-    const getYear = (dateStr: string): number => {
-        return parseInt(dateStr.split('-')[0]);
-    };
-
-    const getMonth = (dateStr: string): number => {
-        return parseInt(dateStr.split('-')[1]);
-    };
-
-    const getQuarter = (month: number): number => {
-        if (month >= 7 && month <= 9) return 1;
-        if (month >= 10 && month <= 12) return 2;
-        if (month >= 1 && month <= 3) return 3;
-        return 4;
-    };
-
-    const getHalf = (month: number): number => {
-        return month >= 7 ? 1 : 2;
-    };
 
     const filterByYear = (fiscalYear: number) => {
         return submissions.filter(sub => sub.date && getFiscalYear(sub.date) === fiscalYear);
@@ -634,7 +659,7 @@ export default function AdminAuditDashboard({ submissions, facilities, observati
                         style={{ width: '100%' }}
                         disabled={!!filterMonth}
                     >
-                        {[2026, 2025, 2024].map(year => (
+                        {fiscalYearOptions.map(year => (
                             <option key={year} value={year}>العام المالي {year - 1} - {year}</option>
                         ))}
                     </select>
