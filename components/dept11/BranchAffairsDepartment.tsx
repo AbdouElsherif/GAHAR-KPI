@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import DashboardModal from '@/components/DashboardModal';
 import DepartmentExportButton from '@/components/DepartmentExportButton';
+import SectionHeader from '@/components/shared/SectionHeader';
 import {
     BranchAffairsBranchReport,
     BranchAffairsReport,
@@ -121,7 +122,7 @@ const getPreviousMonth = (month: string) => {
 
 export default function BranchAffairsDepartment({ currentUser, canEdit, departmentName }: BranchAffairsDepartmentProps) {
     const [reports, setReports] = useState<BranchAffairsReport[]>([]);
-    const [selectedMonth, setSelectedMonth] = useState(MAX_MONTH);
+    const [selectedMonth, setSelectedMonth] = useState('');
     const [summary, setSummary] = useState('');
     const [activityDetails, setActivityDetails] = useState('');
     const [branches, setBranches] = useState<BranchAffairsBranchReport[]>(createEmptyBranches());
@@ -132,6 +133,8 @@ export default function BranchAffairsDepartment({ currentUser, canEdit, departme
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+    const [isIndicatorsSummaryExpanded, setIsIndicatorsSummaryExpanded] = useState(false);
+    const [isBranchDataSectionExpanded, setIsBranchDataSectionExpanded] = useState(false);
 
     const userCanEdit = currentUser && canEdit(currentUser);
     const selectedReport = useMemo(() => reports.find(report => report.month === selectedMonth), [reports, selectedMonth]);
@@ -198,6 +201,7 @@ export default function BranchAffairsDepartment({ currentUser, canEdit, departme
 
     const canEditSelectedMonth = () => {
         if (!userCanEdit) return false;
+        if (!selectedMonth) return false;
         if (currentUser?.role === 'super_admin') return true;
         const [year, month] = selectedMonth.split('-').map(Number);
         const recordDate = new Date(year, month - 1, 1);
@@ -206,13 +210,18 @@ export default function BranchAffairsDepartment({ currentUser, canEdit, departme
     };
 
     const handleSave = async () => {
-        if (!currentUser || !canEditSelectedMonth()) {
+        if (!currentUser) {
             setMessage({ type: 'error', text: 'ليس لديك صلاحية لحفظ بيانات هذا الشهر' });
             return;
         }
 
         if (!selectedMonth) {
             setMessage({ type: 'error', text: 'يرجى اختيار الشهر' });
+            return;
+        }
+
+        if (!canEditSelectedMonth()) {
+            setMessage({ type: 'error', text: 'ليس لديك صلاحية لحفظ بيانات هذا الشهر' });
             return;
         }
 
@@ -299,7 +308,7 @@ export default function BranchAffairsDepartment({ currentUser, canEdit, departme
 
             <div className="card">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '18px', alignItems: 'end' }}>
-                    <div className="form-group" style={{ margin: 0 }}>
+                    <div className="form-group" style={{ margin: 0, maxWidth: '220px' }}>
                         <label className="form-label">الشهر</label>
                         <input
                             type="month"
@@ -311,10 +320,10 @@ export default function BranchAffairsDepartment({ currentUser, canEdit, departme
                         />
                     </div>
                     <div style={{ color: '#666' }}>
-                        <strong>حالة الشهر:</strong> {selectedReport ? 'تم إدخال بيانات لهذا الشهر' : 'شهر جديد بدون بيانات محفوظة'}
+                        <strong>حالة الشهر:</strong> {!selectedMonth ? 'يرجى اختيار الشهر' : selectedReport ? 'تم إدخال بيانات لهذا الشهر' : 'شهر جديد بدون بيانات محفوظة'}
                     </div>
                     <div style={{ color: '#666' }}>
-                        <strong>مقارنة السنة السابقة:</strong> {previousReport ? formatMonthLabel(previousReport.month) : 'لا توجد بيانات مقابلة'}
+                        <strong>مقارنة السنة السابقة:</strong> {!selectedMonth ? 'اختر شهرًا لعرض المقارنة' : previousReport ? formatMonthLabel(previousReport.month) : 'لا توجد بيانات مقابلة'}
                     </div>
                 </div>
             </div>
@@ -335,231 +344,251 @@ export default function BranchAffairsDepartment({ currentUser, canEdit, departme
             )}
 
             <div className="card">
-                <h2 style={{ color: 'var(--primary-color)', marginBottom: '20px' }}>تجميع مؤشرات الفروع</h2>
+                <SectionHeader
+                    title="ملخص إنجازات الفروع"
+                    icon="📊"
+                    isExpanded={isIndicatorsSummaryExpanded}
+                    onToggle={() => setIsIndicatorsSummaryExpanded(!isIndicatorsSummaryExpanded)}
+                />
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
-                    {totals.map(total => (
-                        <div
-                            key={total.id}
-                            style={{
-                                border: '1px solid var(--border-color)',
-                                borderRadius: '10px',
-                                padding: '14px',
-                                backgroundColor: 'var(--background-color)'
-                            }}
-                        >
-                            <div style={{ fontSize: '0.85rem', color: '#666', minHeight: '40px' }}>{total.label}</div>
-                            <div style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--primary-color)' }}>{total.total}</div>
+                {isIndicatorsSummaryExpanded && (
+                    <>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
+                            {totals.map(total => (
+                                <div
+                                    key={total.id}
+                                    style={{
+                                        border: '1px solid var(--border-color)',
+                                        borderRadius: '10px',
+                                        padding: '14px',
+                                        backgroundColor: 'var(--background-color)'
+                                    }}
+                                >
+                                    <div style={{ fontSize: '0.85rem', color: '#666', minHeight: '40px' }}>{total.label}</div>
+                                    <div style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--primary-color)' }}>{total.total}</div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div className="form-group">
-                        <label className="form-label">ملخص نشاطات الإدارة</label>
-                        <textarea
-                            className="form-input"
-                            rows={5}
-                            value={summary}
-                            onChange={(e) => setSummary(e.target.value)}
-                            disabled={!canEditSelectedMonth()}
-                            placeholder="أدخل ملخص نشاطات الإدارة"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">تفاصيل الأنشطة بالإدارة</label>
-                        <textarea
-                            className="form-input"
-                            rows={5}
-                            value={activityDetails}
-                            onChange={(e) => setActivityDetails(e.target.value)}
-                            disabled={!canEditSelectedMonth()}
-                            placeholder="أدخل تفاصيل الأنشطة بالإدارة"
-                        />
-                    </div>
-                </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div className="form-group">
+                                <label className="form-label">ملخص نشاطات الإدارة</label>
+                                <textarea
+                                    className="form-input"
+                                    rows={5}
+                                    value={summary}
+                                    onChange={(e) => setSummary(e.target.value)}
+                                    disabled={!canEditSelectedMonth()}
+                                    placeholder="أدخل ملخص نشاطات الإدارة"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">تفاصيل الأنشطة بالإدارة</label>
+                                <textarea
+                                    className="form-input"
+                                    rows={5}
+                                    value={activityDetails}
+                                    onChange={(e) => setActivityDetails(e.target.value)}
+                                    disabled={!canEditSelectedMonth()}
+                                    placeholder="أدخل تفاصيل الأنشطة بالإدارة"
+                                />
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             <div className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '14px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
-                    <h2 style={{ color: 'var(--primary-color)', margin: 0 }}>بيانات الفروع</h2>
-                    {previousReport && canEditSelectedMonth() && (
-                        <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={copyPreviousYear}
-                            style={{ padding: '9px 16px' }}
-                        >
-                            نسخ بيانات السنة السابقة كمسودة
-                        </button>
-                    )}
-                </div>
+                <SectionHeader
+                    title="بيانات الفروع"
+                    icon="📋"
+                    count={activePhaseBranches.length}
+                    isExpanded={isBranchDataSectionExpanded}
+                    onToggle={() => setIsBranchDataSectionExpanded(!isBranchDataSectionExpanded)}
+                />
 
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                    {BRANCH_PHASES.map(phase => (
-                        <button
-                            key={phase.id}
-                            type="button"
-                            onClick={() => {
-                                setActivePhase(phase.id);
-                                const firstBranch = branches.find(branch => branch.phase === phase.id);
-                                if (firstBranch) setActiveBranchId(firstBranch.branchId);
-                            }}
-                            className="btn"
-                            style={{
-                                backgroundColor: activePhase === phase.id ? 'var(--primary-color)' : '#e9ecef',
-                                color: activePhase === phase.id ? 'white' : 'var(--secondary-color)',
-                                padding: '9px 16px'
-                            }}
-                        >
-                            {phase.label}
-                        </button>
-                    ))}
-                </div>
+                {isBranchDataSectionExpanded && (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '14px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
+                            {previousReport && canEditSelectedMonth() && (
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={copyPreviousYear}
+                                    style={{ padding: '9px 16px' }}
+                                >
+                                    نسخ بيانات السنة السابقة كمسودة
+                                </button>
+                            )}
+                        </div>
 
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '22px' }}>
-                    {activePhaseBranches.map(branch => (
-                        <button
-                            key={branch.branchId}
-                            type="button"
-                            onClick={() => setActiveBranchId(branch.branchId)}
-                            style={{
-                                border: `1px solid ${activeBranch?.branchId === branch.branchId ? 'var(--primary-color)' : 'var(--border-color)'}`,
-                                backgroundColor: activeBranch?.branchId === branch.branchId ? 'rgba(13,106,121,0.08)' : 'var(--card-bg)',
-                                color: activeBranch?.branchId === branch.branchId ? 'var(--primary-color)' : 'var(--text-color)',
-                                borderRadius: '8px',
-                                padding: '10px 14px',
-                                cursor: 'pointer',
-                                fontWeight: 700
-                            }}
-                        >
-                            {branch.branchName}
-                        </button>
-                    ))}
-                </div>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                            {BRANCH_PHASES.map(phase => (
+                                <button
+                                    key={phase.id}
+                                    type="button"
+                                    onClick={() => {
+                                        setActivePhase(phase.id);
+                                        const firstBranch = branches.find(branch => branch.phase === phase.id);
+                                        if (firstBranch) setActiveBranchId(firstBranch.branchId);
+                                    }}
+                                    className="btn"
+                                    style={{
+                                        backgroundColor: activePhase === phase.id ? 'var(--primary-color)' : '#e9ecef',
+                                        color: activePhase === phase.id ? 'white' : 'var(--secondary-color)',
+                                        padding: '9px 16px'
+                                    }}
+                                >
+                                    {phase.label}
+                                </button>
+                            ))}
+                        </div>
 
-                {activeBranch && (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '980px' }}>
-                            <thead>
-                                <tr style={{ backgroundColor: '#0D6A79', color: 'white' }}>
-                                    <th style={{ padding: '12px', textAlign: 'right', width: '24%' }}>المؤشر</th>
-                                    <th style={{ padding: '12px', textAlign: 'center', width: '22%' }}>{previousMonthLabel}</th>
-                                    <th style={{ padding: '12px', textAlign: 'center', width: '20%' }}>{selectedMonthLabel}</th>
-                                    <th style={{ padding: '12px', textAlign: 'right' }}>التفاصيل</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {BRANCH_INDICATORS.map((indicator, index) => {
-                                    if (!indicator.numeric) {
-                                        const current = activeBranch.indicators[indicator.id] || emptyIndicator(indicator);
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '22px' }}>
+                            {activePhaseBranches.map(branch => (
+                                <button
+                                    key={branch.branchId}
+                                    type="button"
+                                    onClick={() => setActiveBranchId(branch.branchId)}
+                                    style={{
+                                        border: `1px solid ${activeBranch?.branchId === branch.branchId ? 'var(--primary-color)' : 'var(--border-color)'}`,
+                                        backgroundColor: activeBranch?.branchId === branch.branchId ? 'rgba(13,106,121,0.08)' : 'var(--card-bg)',
+                                        color: activeBranch?.branchId === branch.branchId ? 'var(--primary-color)' : 'var(--text-color)',
+                                        borderRadius: '8px',
+                                        padding: '10px 14px',
+                                        cursor: 'pointer',
+                                        fontWeight: 700
+                                    }}
+                                >
+                                    {branch.branchName}
+                                </button>
+                            ))}
+                        </div>
 
-                                        return (
-                                            <tr key={indicator.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
-                                                <td
-                                                    colSpan={4}
-                                                    style={{
-                                                        padding: '14px 12px'
-                                                    }}
-                                                >
-                                                    <label
-                                                        className="form-label"
-                                                        style={{
-                                                            color: 'var(--secondary-color)',
-                                                            fontWeight: 800,
-                                                            marginBottom: '10px'
-                                                        }}
-                                                    >
-                                                        {indicator.label}
-                                                    </label>
-                                                    <textarea
-                                                        className="form-input"
-                                                        rows={4}
-                                                        value={current.details || ''}
-                                                        onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'details', e.target.value)}
-                                                        disabled={!canEditSelectedMonth()}
-                                                        placeholder={`أدخل ${indicator.label}`}
-                                                    />
-                                                </td>
-                                            </tr>
-                                        );
-                                    }
-
-                                    const current = activeBranch.indicators[indicator.id] || emptyIndicator(indicator);
-                                    const previous = previousBranch?.indicators?.[indicator.id];
-                                    const hasStoredPrevious = Boolean(previous);
-                                    const previousValue = previous ? getSingleIndicatorValue(previous) : 0;
-
-                                    return (
-                                        <tr key={indicator.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
-                                            <td style={{ padding: '12px', fontWeight: 700, color: 'var(--secondary-color)' }}>{indicator.label}</td>
-                                            <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontWeight: 700 }}>
-                                                {hasStoredPrevious ? (
-                                                    previousValue
-                                                ) : (
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        className="form-input"
-                                                        value={getSinglePreviousValue(current)}
-                                                        onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'previousValue', e.target.value)}
-                                                        disabled={!canEditSelectedMonth()}
-                                                    />
-                                                )}
-                                            </td>
-                                            <td style={{ padding: '12px' }}>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    className="form-input"
-                                                    value={getSingleIndicatorValue(current)}
-                                                    onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'value', e.target.value)}
-                                                    disabled={!canEditSelectedMonth()}
-                                                />
-                                            </td>
-                                            <td style={{ padding: '12px' }}>
-                                                <textarea
-                                                    className="form-input"
-                                                    rows={indicator.numeric ? 2 : 4}
-                                                    value={current.details || ''}
-                                                    onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'details', e.target.value)}
-                                                    disabled={!canEditSelectedMonth()}
-                                                    placeholder="تفاصيل المؤشر"
-                                                />
-                                            </td>
+                        {activeBranch && (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '980px' }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#0D6A79', color: 'white' }}>
+                                            <th style={{ padding: '12px', textAlign: 'right', width: '24%' }}>المؤشر</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '22%' }}>{previousMonthLabel}</th>
+                                            <th style={{ padding: '12px', textAlign: 'center', width: '20%' }}>{selectedMonthLabel}</th>
+                                            <th style={{ padding: '12px', textAlign: 'right' }}>التفاصيل</th>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                    </thead>
+                                    <tbody>
+                                        {BRANCH_INDICATORS.map((indicator, index) => {
+                                            if (!indicator.numeric) {
+                                                const current = activeBranch.indicators[indicator.id] || emptyIndicator(indicator);
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
-                    <div style={{ color: '#666' }}>
-                        {canEditSelectedMonth() ? 'يمكن حفظ أو تعديل بيانات هذا الشهر.' : 'هذا الشهر خارج نطاق التعديل المتاح لهذا المستخدم.'}
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        {selectedReport && canEditSelectedMonth() && (
-                            <button
-                                type="button"
-                                className="btn"
-                                onClick={handleDelete}
-                                style={{ backgroundColor: '#dc3545', color: 'white' }}
-                            >
-                                حذف بيانات الشهر
-                            </button>
+                                                return (
+                                                    <tr key={indicator.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
+                                                        <td
+                                                            colSpan={4}
+                                                            style={{
+                                                                padding: '14px 12px'
+                                                            }}
+                                                        >
+                                                            <label
+                                                                className="form-label"
+                                                                style={{
+                                                                    color: 'var(--secondary-color)',
+                                                                    fontWeight: 800,
+                                                                    marginBottom: '10px'
+                                                                }}
+                                                            >
+                                                                {indicator.label}
+                                                            </label>
+                                                            <textarea
+                                                                className="form-input"
+                                                                rows={4}
+                                                                value={current.details || ''}
+                                                                onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'details', e.target.value)}
+                                                                disabled={!canEditSelectedMonth()}
+                                                                placeholder={`أدخل ${indicator.label}`}
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            }
+
+                                            const current = activeBranch.indicators[indicator.id] || emptyIndicator(indicator);
+                                            const previous = previousBranch?.indicators?.[indicator.id];
+                                            const hasStoredPrevious = Boolean(previous);
+                                            const previousValue = previous ? getSingleIndicatorValue(previous) : 0;
+
+                                            return (
+                                                <tr key={indicator.id} style={{ borderBottom: '1px solid #eee', backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white' }}>
+                                                    <td style={{ padding: '12px', fontWeight: 700, color: 'var(--secondary-color)' }}>{indicator.label}</td>
+                                                    <td style={{ padding: '12px', textAlign: 'center', color: '#666', fontWeight: 700 }}>
+                                                        {hasStoredPrevious ? (
+                                                            previousValue
+                                                        ) : (
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                className="form-input"
+                                                                value={getSinglePreviousValue(current)}
+                                                                onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'previousValue', e.target.value)}
+                                                                disabled={!canEditSelectedMonth()}
+                                                            />
+                                                        )}
+                                                    </td>
+                                                    <td style={{ padding: '12px' }}>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            className="form-input"
+                                                            value={getSingleIndicatorValue(current)}
+                                                            onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'value', e.target.value)}
+                                                            disabled={!canEditSelectedMonth()}
+                                                        />
+                                                    </td>
+                                                    <td style={{ padding: '12px' }}>
+                                                        <textarea
+                                                            className="form-input"
+                                                            rows={indicator.numeric ? 2 : 4}
+                                                            value={current.details || ''}
+                                                            onChange={(e) => updateIndicator(activeBranch.branchId, indicator.id, 'details', e.target.value)}
+                                                            disabled={!canEditSelectedMonth()}
+                                                            placeholder="تفاصيل المؤشر"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
-                        <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={handleSave}
-                            disabled={!canEditSelectedMonth() || isSaving}
-                        >
-                            {isSaving ? 'جاري الحفظ...' : selectedReport ? 'تحديث بيانات الشهر' : 'حفظ بيانات الشهر'}
-                        </button>
-                    </div>
-                </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+                            <div style={{ color: '#666' }}>
+                                {canEditSelectedMonth() ? 'يمكن حفظ أو تعديل بيانات هذا الشهر.' : 'هذا الشهر خارج نطاق التعديل المتاح لهذا المستخدم.'}
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                {selectedReport && canEditSelectedMonth() && (
+                                    <button
+                                        type="button"
+                                        className="btn"
+                                        onClick={handleDelete}
+                                        style={{ backgroundColor: '#dc3545', color: 'white' }}
+                                    >
+                                        حذف بيانات الشهر
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleSave}
+                                    disabled={!canEditSelectedMonth() || isSaving}
+                                >
+                                    {isSaving ? 'جاري الحفظ...' : selectedReport ? 'تحديث بيانات الشهر' : 'حفظ بيانات الشهر'}
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             <div className="card">
